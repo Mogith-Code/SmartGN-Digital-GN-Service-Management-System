@@ -34,3 +34,28 @@ function About() {
             />
           </div>
         </div>
+        <div className="w-[580px] py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:px-6 max-md:py-5 max-md:">
+          
+          <h2 className="text-[20px] text-center font-medium text-[#1B365D] mb-2.5">
+            Our Objectives
+          </h2>
+
+          <ul className="list-disc text-[16px] font-normal text-[#2D3748] leading-relaxed">
+            <li className="mb-2">
+              <strong>Digital Transformation:</strong> SMoving manual paperwork and physical registers into a secure, cloud-based management system.</li>
+            <li className="mb-2">
+              <strong>Service Accessibility:</strong> Ensuring that residents in even the most remote villages can request official documents and aid with a smartphone.</li>
+            <li className="mb-2">
+              <strong>Enhanced Transparency:</strong> Providing real-time tracking for applications so citizens know exactly when their requests are processed.</li>
+            <li className="mb-2">
+              <strong>Disaster Readiness:</strong> Establishing a direct digital link for emergency alerts and rapid distribution of relief allowances.</li>
+            <li className="mb-2">
+              <strong>Inclusivity:</strong> Offering a multilingual interface in Sinhala, Tamil, and English to serve every citizen in Sri Lanka equally.</li>
+            </ul>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+export default About
