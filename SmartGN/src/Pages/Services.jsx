@@ -1,9 +1,9 @@
 import React from 'react'
 // Import icons
-import requestIcon from '../assets/images/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import appointmentIcon from '../assets/images/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import trackIcon from '../assets/images/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import allowanceIcon from '../assets/images/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import requestIcon from '../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import appointmentIcon from '../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import trackIcon from '../assets/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import arrowIcon from '../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
 
 function Services() {
   // Navigation handler functions
@@ -22,21 +22,21 @@ function Services() {
   return (
     <section 
       id="services" 
-      className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-8 max-md:px-4"
+      className="w-full bg-[#F7FAFC] px-[100px] py-[60px] max-lg:px-8 max-md:px-4 flex justify-center items-center"
     >
-      <div className="w-full flex flex-col items-center gap-5">
+      <div className="w-full max-w-7xl flex flex-col items-center gap-10">
         
         {/* TEXT CONTAINER - Title Section */}
         <div className="w-full text-center">
-          <h2 className="text-[40px] font-medium text-[#1a3a5c] max-lg:text-[32px] max-md:text-[28px] max-sm:text-[24px]">
+          <h2 className="text-[32px] font-semibold text-[#1a3a5c] tracking-tight max-md:text-[28px] max-sm:text-[24px]">
             Services You Can Get
           </h2>
         </div>
 
-        {/* CARD CONTAINER - Grid Layout with Clickable Cards */}
-        <div className="w-full grid grid-cols-3 gap-5 max-lg:grid-cols-2 max-md:grid-cols-1">
+        {/* CARD CONTAINER - Grid Layout with 3 Clickable Cards */}
+        <div className="w-full grid grid-cols-3 gap-6 max-lg:grid-cols-2 max-md:grid-cols-1">
           
-          {/* CARD 1: Request Certificates - Entire Card Clickable */}
+          {/* CARD 1: Request Certificates */}
           <div 
             onClick={handleRequestCertificates}
             role="button"
@@ -46,35 +46,34 @@ function Services() {
                 handleRequestCertificates();
               }
             }}
-            className="flex flex-col p-[30px] rounded-[25px] bg-white shadow-[0_10px_25px_rgba(0,0,0,0.1)] justify-center hover:shadow-[0_20px_35px_rgba(0,0,0,0.15)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
-            {/* Title Container */}
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex items-center gap-2.5">
-                <img 
-                  src={requestIcon}
-                  alt="Request Certificates icon"
-                  className="w-auto h-5 object-contain"
-                />
-                <h3 className="text-[16px] font-reglar text-[#2D3748] max-sm:text-[14px] group-hover:text-[#2c5f8a]">
+            {/* Left Column: Icon */}
+            <img 
+              src={requestIcon}
+              alt="Request Certificates icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
                   Request Certificates
                 </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
               </div>
-              <img 
-                src={arrowIcon}
-                alt="Arrow icon"
-                className="w-auto h-[15px] object-contain opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-              />
-            </div>
-            {/* Content Container */}
-            <div className="mt-[5px] ml-[30px]">
-              <p className="text-[14px] font-light text-[#2D3748] leading-relaxed text-justify max-sm:text-[14px]">
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
                 Apply for character certificates, income certificates, permit requests and more with digital verification.
               </p>
             </div>
           </div>
 
-          {/* CARD 2: Book Appointments - Entire Card Clickable */}
+          {/* CARD 2: Book Appointments */}
           <div 
             onClick={handleBookAppointments}
             role="button"
@@ -84,33 +83,34 @@ function Services() {
                 handleBookAppointments();
               }
             }}
-            className="flex flex-col p-[30px] rounded-[25px] bg-white shadow-[0_10px_25px_rgba(0,0,0,0.1)] justify-center hover:shadow-[0_20px_35px_rgba(0,0,0,0.15)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex items-center gap-2.5">
-                <img 
-                  src={appointmentIcon}
-                  alt="Book Appointments icon"
-                  className="w-auto h-5 object-contain"
-                />
-                <h3 className="text-[16px] font-regular text-[#2D3748] max-sm:text-[14px] group-hover:text-[#2c5f8a] transition-colors duration-300">
+            {/* Left Column: Icon */}
+            <img 
+              src={appointmentIcon}
+              alt="Book Appointments icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
                   Book Appointments
                 </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
               </div>
-              <img 
-                src={arrowIcon}
-                alt="Arrow icon"
-                className="w-auto h-[15px] object-contain opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-              />
-            </div>
-            <div className="mt-[5px] ml-[30px]">
-              <p className="text-[14px] font-light text-[#2D3748] leading-relaxed text-justify max-sm:text-[14px]">
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
                 Schedule meetings with your Grama Niladhari officer at convenient times.
               </p>
             </div>
           </div>
 
-          {/* CARD 3: Track Requests - Entire Card Clickable */}
+          {/* CARD 3: Track Requests */}
           <div 
             onClick={handleTrackRequests}
             role="button"
@@ -120,27 +120,28 @@ function Services() {
                 handleTrackRequests();
               }
             }}
-            className="flex flex-col p-[30px] rounded-[25px] bg-white shadow-[0_10px_25px_rgba(0,0,0,0.1)] justify-center hover:shadow-[0_20px_35px_rgba(0,0,0,0.15)] hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
-            <div className="flex justify-between items-center gap-2">
-              <div className="flex items-center gap-2.5">
-                <img 
-                  src={trackIcon}
-                  alt="Track Requests icon"
-                  className="w-auto h-5 object-contain"
-                />
-                <h3 className="text-[16px] font-regular text-[#2D3748] max-sm:text-[14px] group-hover:text-[#2c5f8a] transition-colors duration-300">
+            {/* Left Column: Icon */}
+            <img 
+              src={trackIcon}
+              alt="Track Requests icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
                   Track Requests
                 </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
               </div>
-              <img 
-                src={arrowIcon}
-                alt="Arrow icon"
-                className="w-auto h-[15px] object-contain opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-              />
-            </div>
-            <div className="mt-[5px] ml-[30px]">
-              <p className="text-[14px] font-light text-[#2D3748] leading-relaxed text-justify max-sm:text-[14px]">
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
                 Check the status of your applications (pending, approved, or require further information).
               </p>
             </div>
