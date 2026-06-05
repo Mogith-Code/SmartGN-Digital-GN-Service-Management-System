@@ -147,7 +147,7 @@ function Services() {
             </div>
           </div>
 
-          {/* CARD 4: Track Requests */}
+          {/* CARD 4: Apply for Allowances  */}
           <div 
             onClick={handleTrackRequests}
             role="button"
@@ -170,7 +170,7 @@ function Services() {
             <div className="flex-1 flex flex-col">
               <div className="flex justify-between items-center w-full mb-2">
                 <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Track Requests
+                  Apply for Allowances
                 </h3>
                 <img 
                   src={arrowIcon}
@@ -179,12 +179,12 @@ function Services() {
                 />
               </div>
               <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Check the status of your applications (pending, approved, or require further information).
+                Register for Aswesuma, Samurdhi and other government allowance programs.
               </p>
             </div>
           </div>
 
-          {/* CARD 3: Track Requests */}
+          {/* CARD 5: Disaster Relief */}
           <div 
             onClick={handleTrackRequests}
             role="button"
@@ -207,7 +207,7 @@ function Services() {
             <div className="flex-1 flex flex-col">
               <div className="flex justify-between items-center w-full mb-2">
                 <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Track Requests
+                  Disaster Relief
                 </h3>
                 <img 
                   src={arrowIcon}
@@ -216,12 +216,12 @@ function Services() {
                 />
               </div>
               <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Check the status of your applications (pending, approved, or require further information).
+                Report disaster damage and apply for government relief assistance.
               </p>
             </div>
           </div>
 
-          {/* CARD 3: Track Requests */}
+          {/* CARD 6: Announcements */}
           <div 
             onClick={handleTrackRequests}
             role="button"
@@ -244,7 +244,7 @@ function Services() {
             <div className="flex-1 flex flex-col">
               <div className="flex justify-between items-center w-full mb-2">
                 <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Track Requests
+                  Announcements
                 </h3>
                 <img 
                   src={arrowIcon}
@@ -253,7 +253,7 @@ function Services() {
                 />
               </div>
               <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Check the status of your applications (pending, approved, or require further information).
+                Stay informed with official notices and community announcements.
               </p>
             </div>
           </div>
