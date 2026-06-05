@@ -1,7 +1,7 @@
 import React from 'react'
 import {useState,useEffect,useRef} from 'react'; 
 import { translations, useLanguage } from '../../utils/translate'
-import LanguageSelector from '../LanguageSelector'
+import LanguageSelector from '../Common/LanguageSelector'
 import logoImage from '../../assets/logo.png'
 import homeIcon from '../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import aboutIcon from '../../assets/info_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'

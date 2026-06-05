@@ -2,6 +2,7 @@ import React from 'react'
 import Navbar from '../Components/LandingPage/Navbar';
 import Services from '../Components/LandingPage/Services';
 import About from './About';
+import Footer from '../Components/Common/Footer';
 
 
 // LANDING PAGE COMPONENT
@@ -14,6 +15,7 @@ function LandingPage() {
         <Navbar />
         <About />
         <Services />
+        <Footer />
         
         
 
