@@ -18,3 +18,10 @@ function Home() {
             className="w-full h-[400px] max-lg:h-[300px] max-md:h-[200px]"
           />
         </div>
+        <div className="w-full px-[50px]"> 
+          <p className="text-center font-light text-[24px] leading-tight max-lg:text-[20px] max-md:text-[16px] text-[#2D3748]">
+            Empowering you with effortless access to village administrative services. 
+            Connect with your Grama Niladhari officer and manage your official needs 
+            in just a few clicks.
+          </p>
+        </div>
