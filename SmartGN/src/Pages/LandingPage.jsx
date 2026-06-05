@@ -1,6 +1,7 @@
 import React from 'react'
 import Navbar from '../Components/LandingPage/Navbar';
 import Services from '../Components/LandingPage/Services';
+import About from './About';
 
 
 // LANDING PAGE COMPONENT
@@ -9,9 +10,11 @@ function LandingPage() {
    
   // COMPONENT RENDER
   return (
-    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col items-stretch text-center">
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
         <Navbar />
+        <About />
         <Services />
+        
         
 
         {/* MAIN CONTENT SECTION - Home, About, Services will be added here    */}

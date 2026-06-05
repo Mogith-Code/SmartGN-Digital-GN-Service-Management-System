@@ -202,7 +202,7 @@ function Navbar() {
 
             {/* Sidebar Header - Title section */}
             <div className="px-8 py-4 border-b border-[#2D37481D]">
-                <h2 className="text-[1rem] text-left font-bold text-[#2c5f8a]">
+                <h2 className="text-[1rem] text-left font-medium text-[#2c5f8a]">
                   Navigation <br />
                   Menu
                 </h2>

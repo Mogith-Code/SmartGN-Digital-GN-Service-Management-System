@@ -3,21 +3,21 @@ function About() {
   return (
      <section 
       id="about" 
-      className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-8 max-md:px-4"
+      className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-[60px] max-md:p-[20px]"
     >
-      /* Two-column layout: about-container (left) and objectives-container (right) */
-      <div className="flex items-start justify-center gap-5 max-lg:flex-col max-lg:gap-8">
+      {/* Two-column layout: about-container (left) and objectives-container (right) */}
+      <div className="flex items-start justify-center gap-5 max-md:flex-col">
         
         
-        /* LEFT COLUMN: ABOUT CONTAINER */
+        {/* LEFT COLUMN: ABOUT CONTAINER */}
         <div className="w-[580px] max-lg:w-full flex flex-col gap-5 items-center">
           
-          /* TEXT CONTAINER - White background as shown in image */
-          <div className="w-full py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:px-6 max-md:py-5">
-            <h2 className="text-[20px] text-center font-medium text-[#1B365D] mb-2.5">
+          {/* TEXT CONTAINER - White background as shown in image */}
+          <div className="w-full py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:p-[20px]">
+            <h2 className="text-[20px] max-md:text-[16px] text-center font-medium text-[#1B365D] mb-2.5">
               About SmartGN
             </h2>
-            <p className="text-[16px] font-normal text-[#2D3748] text-justify leading-relaxed">
+            <p className="text-[12px] font-normal text-[#2D3748] text-justify leading-relaxed">
               SmartGN is a modern digital initiative designed to transform the traditional 
               Grama Niladhari service into a high-speed, transparent, and user-friendly 
               experience. We aim to bridge the gap between village-level administration 
@@ -30,19 +30,19 @@ function About() {
             <img 
               src="/favicon.png"
               alt="SmartGN - Digital Grama Niladhari Service Management System"
-              className="w-[285px] opacity-[50%] h-auto object-cover rounded-lg"
+              className="w-[285px] max-md:w-[100px] opacity-[50%] h-auto object-cover rounded-lg"
             />
           </div>
         </div>
-        <div className="w-[580px] py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:px-6 max-md:py-5 max-md:">
+        <div className="w-[580px] py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:w-full max-md:p-[20px]">
           
-          <h2 className="text-[20px] text-center font-medium text-[#1B365D] mb-2.5">
+          <h2 className="text-[20px] max-md:text-[16px] text-center font-medium text-[#1B365D] mb-2.5">
             Our Objectives
           </h2>
 
-          <ul className="list-disc text-[16px] font-normal text-[#2D3748] leading-relaxed">
+            <ul className="list-disc list-inside text-[16px] font-normal text-[#2D3748] max-md:text-[12px] leading-relaxed">
             <li className="mb-2">
-              <strong>Digital Transformation:</strong> SMoving manual paperwork and physical registers into a secure, cloud-based management system.</li>
+              <strong>Digital Transformation:</strong> Moving manual paperwork and physical registers into a secure, cloud-based management system.</li>
             <li className="mb-2">
               <strong>Service Accessibility:</strong> Ensuring that residents in even the most remote villages can request official documents and aid with a smartphone.</li>
             <li className="mb-2">

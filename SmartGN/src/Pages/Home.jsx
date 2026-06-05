@@ -6,7 +6,7 @@ function Home() {
   return (
     <section 
       id="home" 
-      className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:p-[30px] py-[25px] max-md:p-[25px]"
+      className="w-full bg-[#F7FAFC] px-[1000px] py-[30px] max-lg:p-[30px] py-[25px] max-md:p-[25px]"
     >
       <div className="w-full flex flex-col justify-between items-center gap-5">
         
