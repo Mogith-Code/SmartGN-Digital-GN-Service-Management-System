@@ -9,7 +9,7 @@ import servicesIcon from '../../assets/accessibility_24dp_2D3748_FILL0_wght400_G
 import menuIcon from '../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function Navbar() {
-    // STATE MANAGEMENT
+  // STATE MANAGEMENT
       // Mobile menu management state - controls the visibility of mobile sidebar.
       const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
