@@ -1,7 +1,7 @@
 import React from 'react'
 import {useState,useEffect,useRef} from 'react'; 
 import { translations, useLanguage } from '../../utils/translate'
-import LanguageSelector from '../LanguageSelector'
+import LanguageSelector from '../Common/LanguageSelector'
 import logoImage from '../../assets/logo.png'
 import homeIcon from '../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import aboutIcon from '../../assets/info_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
@@ -202,7 +202,7 @@ function Navbar() {
 
             {/* Sidebar Header - Title section */}
             <div className="px-8 py-4 border-b border-[#2D37481D]">
-                <h2 className="text-[1rem] text-left font-bold text-[#2c5f8a]">
+                <h2 className="text-[1rem] text-left font-medium text-[#2c5f8a]">
                   Navigation <br />
                   Menu
                 </h2>

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLanguage } from '../utils/translate'
-import languageIcon from '../assets/language_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
-import arrowDownIcon from '../assets/keyboard_arrow_down_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
-import selectedIcon from '../assets/check_small_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import { useLanguage } from '../../utils/translate'
+import languageIcon from '../../assets/language_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import arrowDownIcon from '../../assets/keyboard_arrow_down_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import selectedIcon from '../../assets/check_small_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function LanguageSelector() {
   const { lang, changeLanguage } = useLanguage()
