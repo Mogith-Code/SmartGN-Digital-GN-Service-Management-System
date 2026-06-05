@@ -1,9 +1,9 @@
 import React from 'react'
 // Import icons
-import requestIcon from '../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import appointmentIcon from '../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import trackIcon from '../assets/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
-import arrowIcon from '../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
+import requestIcon from '../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import appointmentIcon from '../../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import trackIcon from '../../assets/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import arrowIcon from '../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
 
 function Services() {
   // Navigation handler functions
