@@ -31,8 +31,9 @@ function LanguageSelector() {
   const activeLanguage = languages.find(l => l.code === lang) || languages[0]
 
   return (
-    <div className="relative inline-block" ref={dropdownRef}>
-      <div className="flex items-center gap-2 border-[1.5px] border-slate-300 rounded-full py-1.5 px-3.5 text-[13px] font-semibold text-slate-800 bg-slate-50 cursor-pointer transition-all duration-200 hover:bg-slate-100" onClick={() => setIsOpen(!isOpen)} role="button" aria-haspopup="true" aria-expanded={isOpen}>
+    <div className="relative flex" ref={dropdownRef}>
+      <div className="flex items-center gap-[10px] max-lg:gap-[5px] border border-[#2D37488D] rounded-[150px] py-[10px] px-[30px] max-lg:py-[5px] max-lg:px-[20px] max-md:px-[10px] text-[16px] max-md:text-[14px] font-medium text-[#2D3748] cursor-pointer transition-all duration-200 hover:bg-slate-100" 
+           onClick={() => setIsOpen(!isOpen)} role="button" aria-haspopup="true" aria-expanded={isOpen}>
         <img src={languageIcon} alt="Language" className="w-auto h-5" />
         <span>{activeLanguage.name}</span>
         <img src={arrowDownIcon} alt="Select Language" className={`w-auto h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} /> 
