@@ -17,7 +17,7 @@ function About() {
             <h2 className="text-[20px] max-md:text-[16px] text-center font-medium text-[#1B365D] mb-2.5">
               About SmartGN
             </h2>
-            <p className="text-[12px] font-normal text-[#2D3748] text-justify leading-relaxed">
+            <p className="text-[16px] max-md:text-[12px] font-normal text-[#2D3748] text-justify leading-relaxed">
               SmartGN is a modern digital initiative designed to transform the traditional 
               Grama Niladhari service into a high-speed, transparent, and user-friendly 
               experience. We aim to bridge the gap between village-level administration 
