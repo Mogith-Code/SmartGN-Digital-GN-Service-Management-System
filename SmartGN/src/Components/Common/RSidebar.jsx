@@ -2,6 +2,7 @@ import React from 'react'
 import homeIcon from '../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import dashBoard from '../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import profileIcon from '../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import householdIcon from '../../assets/home_and_garden_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function RSidebar() {
   return (
@@ -25,7 +26,7 @@ function RSidebar() {
             </button>
 
             <button className="flex items-center gap-3.5 w-full border-none bg-transparent py-3 px-7 cursor-pointer text-[13.5px] font-semibold text-slate-600 text-left transition-all duration-200 outline-none focus:outline-none" onClick={() => navigate('/dashboard/resident/household', { state: { successUser, division: userDivision } })}>
-              <img src={profileIcon} alt="Home Icon" className="w-auto h-[20px]" />
+              <img src={householdIcon} alt="Household Icon" className="w-auto h-[20px]" />
               <span>F</span>
             </button>
 
