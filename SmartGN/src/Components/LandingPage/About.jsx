@@ -1,9 +1,14 @@
 import React from 'react'
-import { useLanguage } from '../../utils/translate';
+import { useLanguage } from '../../utils/translate'; // Custom hook for multilingual support
 function About() {
-  const { lang } = useLanguage();
 
-   const aboutTranslations = {
+  // Get the current language from the custom hook (EN, SI, or TA)
+  const { lang } = useLanguage();
+   
+  // TRANSLATION OBJECTS
+  // Contains all text content in three languages: English (EN), 
+  // Sinhala (SI), and Tamil (TA)
+  const aboutTranslations = {
     EN: {
       aboutTitle: "About SmartGN",
       aboutDesc: "SmartGN is a modern digital initiative designed to transform the traditional Grama Niladhari service into a high-speed, transparent, and user-friendly experience. We aim to bridge the gap between village-level administration and citizens by leveraging the latest technology to ensure every resident can access essential services from the comfort of their home.",
@@ -16,6 +21,7 @@ function About() {
         { title: "Inclusivity", desc: "Offering a multilingual interface in Sinhala, Tamil, and English to serve every citizen in Sri Lanka equally." }
       ]
     },
+
     SI: {
       aboutTitle: "SmartGN පිළිබඳව",
       aboutDesc: "SmartGN යනු සාම්ප්‍රදායික ග්‍රාම නිලධාරී සේවාව වඩාත් වේගවත්, විනිවිදභාවයකින් යුත් සහ පරිශීලක-හිතකාමී අත්දැකීමක් බවට පත් කිරීම සඳහා නිර්මාණය කර ඇති නවීන ඩිජිටල් මුලපිරීමකි. සෑම පදිංචිකරුවෙකුටම තමාගේම නිවසේ සිට අත්‍යවශ්‍ය සේවාවන් ලබාගත හැකි වන පරිදි නවීන තාක්ෂණය උපයෝගී කර ගනිමින් ගම් මට්ටමේ පරිපාලනය සහ පුරවැසියන් අතර පරතරය පියවීම අපගේ අරමුණයි.",
@@ -28,6 +34,7 @@ function About() {
         { title: "ඇතුළත් කිරීම", desc: "ශ්‍රී ලංකාවේ සෑම පුරවැසියෙකුටම එක හා සමානව සේවය කිරීම සඳහා සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂාවලින් බහුභාෂා අතුරු මුහුණතක් පිරිනැමීම." }
       ]
     },
+
     TA: {
       aboutTitle: "SmartGN பற்றி",
       aboutDesc: "SmartGN என்பது பாரம்பரிய கிராம நிலதாரி சேவையை அதிவேகமான, வெளிப்படையான மற்றும் பயனர் நட்பு அனுபவமாக மாற்றுவதற்காக வடிவமைக்கப்பட்ட ஒரு நவீன டிஜிட்டல் முயற்சியாகும். ஒவ்வொரு குடிமகனும் தங்கள் வீட்டில் இருந்தபடியே அத்தியாவசிய சேவைகளைப் பெறுவதை உறுதி செய்வதற்காக கிராம அளவிலான நிர்வாகத்திற்கும் குடிமக்களுக்கும் இடையிலான இடைவெளியை நவீன தொழில்நுட்பத்தின் மூலம் குறைப்பதே எங்கள் நோக்கமாகும்.",
@@ -41,14 +48,18 @@ function About() {
       ]
     }
   };
-
+  
+  // Select the appropriate translation based on current language
+  // Defaults to English if language not found
   const t = aboutTranslations[lang]
+
+  // COMPONENT RENDER
   return (
-     <section id="about" className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-[60px] max-md:p-[20px]">
+    <section id="about" className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-[60px] max-md:p-[20px]">
       {/* Two-column layout: about-container (left) and objectives-container (right) */}
       <div className="flex items-start justify-center gap-5 max-md:flex-col border border-[green]">
         
-      {/* LEFT COLUMN: ABOUT CONTAINER */}
+        {/* LEFT COLUMN: ABOUT CONTAINER */}
         <div className="w-[580px] max-lg:w-full flex flex-col gap-5 items-center">
           
           {/* TEXT CONTAINER - White background as shown in image */}
@@ -61,23 +72,27 @@ function About() {
             </p>
           </div>
           
+           {/* IMAGE/LOGO CONTAINER */}
           <div className="w-full flex justify-center">
             <img src="/favicon.png" alt="SmartGN - Digital Grama Niladhari Service Management System" className="w-[200px] max-md:w-[100px] opacity-[50%] h-auto object-cover rounded-lg"
             />
           </div>
         </div>
+
+        {/* RIGHT COLUMN: OBJECTIVES CONTAINER */}
         <div className="w-[580px] py-[30px] px-20 bg-[#E2E8F0] border border-[#2D37484D] rounded-[25px] max-md:w-full max-md:p-[20px]">
-          
           <h2 className="text-[20px] max-md:text-[16px] text-center font-medium text-[#1B365D] mb-2.5">
              {t.objectivesTitle}
           </h2>
-              <ul>
-              {t.objectives.map((objective, index) => (
+          <ul>
+            {t.objectives.map((objective, index) => (
               <li key={index} className="list-disc text-[16px] font-normal text-[#2D3748] max-md:text-[12px] max-md:ml-[15px] border border-[red]">
-                  <strong>{objective.title}:</strong> {objective.desc}
+                <strong>{objective.title}:</strong> {objective.desc}
               </li>
-            ))}
-            </ul>  
+              )
+             )
+            }
+          </ul>  
         </div>
       </div>
     </section>
