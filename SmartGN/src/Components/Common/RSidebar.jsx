@@ -5,6 +5,7 @@ import profileIcon from '../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_ops
 import householdIcon from '../../assets/home_and_garden_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import certificateIcon from '../../assets/license_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import appointmentIcon from '../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
+import allowanceIcon from '../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function RSidebar() {
   return (
@@ -38,12 +39,12 @@ function RSidebar() {
             </button>
 
             <button className="bg-[#1c355e] flex gap-3.5 py-3 px-7 items-center text-white rounded-r-full shadow-[0_4px_10px_rgba(28,53,94,0.15)]">
-              <img src={appointmentIcon} alt="Home Icon" className="w-auto h-[20px]" />
+              <img src={appointmentIcon} alt="Appointment Icon" className="w-auto h-[20px]" />
               <span>A</span>
             </button>
 
             <button className="flex items-center gap-3.5 w-full border-none bg-transparent py-3 px-7 cursor-pointer text-[13.5px] font-semibold text-slate-600 text-left transition-all duration-200 outline-none focus:outline-none" onClick={() => navigate('/dashboard/resident/allowances', { state: { successUser, division: userDivision } })}>
-              <img src={dashBoard} alt="Home Icon" className="w-auto h-[20px]" />
+              <img src={allowanceIcon} alt="Allowance Icon" className="w-auto h-[20px]" />
               <span>AL</span>
             </button>
 
