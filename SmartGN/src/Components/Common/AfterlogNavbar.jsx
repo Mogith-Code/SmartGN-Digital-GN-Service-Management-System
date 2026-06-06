@@ -34,8 +34,8 @@ function AfterlogNavbar() {
               <span className="text-[9.5px] font-[750] text-slate-500 uppercase tracking-[0.5px]">Colombo</span>
               <span className="text-[13.5px] font-bold text-[#1a2e56]">Janith</span>
             </div>
-            <div className="w-[38px] h-[38px] rounded-full bg-slate-200 flex items-center justify-center text-slate-600 border-[1.5px] border-slate-300">
-              <img src={accountIcon} alt="User Profile" className="w-auto h-[20px]" />
+            <div className="w-[50px] h-[50px] rounded-full bg-slate-200 flex items-center justify-center text-slate-600 border-[1.5px] border-slate-300">
+              <img src={accountIcon} alt="User Profile" className="w-auto h-[50px]" />
             </div>
           </div>
         </div>
