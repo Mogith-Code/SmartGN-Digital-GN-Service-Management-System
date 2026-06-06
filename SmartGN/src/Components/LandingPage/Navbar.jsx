@@ -1,5 +1,6 @@
 import React from 'react'
 import {useState,useEffect,useRef} from 'react'; 
+import { useNavigate } from 'react-router-dom';
 import { translations, useLanguage } from '../../utils/translate'
 import LanguageSelector from '../Common/LanguageSelector'
 import logoImage from '../../assets/logo.png'
@@ -9,6 +10,7 @@ import servicesIcon from '../../assets/accessibility_24dp_2D3748_FILL0_wght400_G
 import menuIcon from '../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function Navbar() {
+  const navigate = useNavigate();
   
   // LANGUAGE & TRANSLATION SETUP
   // Get current language and translation function from custom hook
