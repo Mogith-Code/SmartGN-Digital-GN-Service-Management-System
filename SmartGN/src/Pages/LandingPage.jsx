@@ -5,8 +5,6 @@ import Footer from '../Components/Common/Footer';
 import About from '../Components/LandingPage/About';
 import Home from '../Components/LandingPage/Home';
 
-
-
 // LANDING PAGE COMPONENT
 // Main landing page that includes navbar, hero section, about, services and footer
 function LandingPage() {

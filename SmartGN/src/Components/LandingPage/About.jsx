@@ -57,7 +57,7 @@ function About() {
   return (
     <section id="about" className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:px-[60px] max-md:p-[20px]">
       {/* Two-column layout: about-container (left) and objectives-container (right) */}
-      <div className="flex items-start justify-center gap-5 max-md:flex-col border border-[green]">
+      <div className="flex items-start justify-center gap-5 max-md:flex-col">
         
         {/* LEFT COLUMN: ABOUT CONTAINER */}
         <div className="w-[580px] max-lg:w-full flex flex-col gap-5 items-center">
@@ -86,7 +86,7 @@ function About() {
           </h2>
           <ul>
             {t.objectives.map((objective, index) => (
-              <li key={index} className="list-disc text-[16px] font-normal text-[#2D3748] max-md:text-[12px] max-md:ml-[15px] border border-[red]">
+              <li key={index} className="list-disc text-[16px] font-normal text-[#2D3748] max-md:text-[12px] max-md:ml-[15px]">
                 <strong>{objective.title}:</strong> {objective.desc}
               </li>
               )
