@@ -4,6 +4,7 @@ import dashBoard from '../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRA
 import profileIcon from '../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import householdIcon from '../../assets/home_and_garden_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import certificateIcon from '../../assets/license_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import appointmentIcon from '../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
 
 function RSidebar() {
   return (
@@ -37,7 +38,7 @@ function RSidebar() {
             </button>
 
             <button className="bg-[#1c355e] flex gap-3.5 py-3 px-7 items-center text-white rounded-r-full shadow-[0_4px_10px_rgba(28,53,94,0.15)]">
-              <img src={dashBoard} alt="Home Icon" className="w-auto h-[20px]" />
+              <img src={appointmentIcon} alt="Home Icon" className="w-auto h-[20px]" />
               <span>A</span>
             </button>
 
