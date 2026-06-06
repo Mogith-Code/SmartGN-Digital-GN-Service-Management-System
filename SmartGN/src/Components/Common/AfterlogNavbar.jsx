@@ -3,6 +3,7 @@ import logoImage from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import notificationIcon from '../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
+import accountIcon from '../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
 
 function AfterlogNavbar() {
     const navigate = useNavigate();
@@ -20,11 +21,22 @@ function AfterlogNavbar() {
         <div className="flex items-center gap-7">
             {/* Language Selector Component */}
             <LanguageSelector />
-            
+
              {/* Notifications */}
           <div className="relative cursor-pointer text-slate-600 flex items-center justify-center transition-colors duration-200">
             <img src={notificationIcon} alt="Notifications" className="w-auto h-[30px]" />
             <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] font-extrabold w-[20px] h-[20px] rounded-full flex items-center justify-center">2</span>
+          </div>
+
+            {/* User Profile Info */}
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end text-right leading-[1.35]">
+              <span className="text-[9.5px] font-[750] text-slate-500 uppercase tracking-[0.5px]">Colombo</span>
+              <span className="text-[13.5px] font-bold text-[#1a2e56]">Janith</span>
+            </div>
+            <div className="w-[38px] h-[38px] rounded-full bg-slate-200 flex items-center justify-center text-slate-600 border-[1.5px] border-slate-300">
+              <img src={accountIcon} alt="User Profile" className="w-auto h-[20px]" />
+            </div>
           </div>
         </div>
         
