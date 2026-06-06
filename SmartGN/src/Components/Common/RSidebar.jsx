@@ -6,6 +6,7 @@ import householdIcon from '../../assets/home_and_garden_24dp_2D3748_FILL0_wght40
 import certificateIcon from '../../assets/license_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import appointmentIcon from '../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
 import allowanceIcon from '../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import disasterIcon from '../../assets/flood_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function RSidebar() {
   return (
@@ -49,7 +50,7 @@ function RSidebar() {
             </button>
 
             <button className="flex items-center gap-3.5 w-full border-none bg-transparent py-3 px-7 cursor-pointer text-[13.5px] font-semibold text-slate-600 text-left transition-all duration-200 outline-none focus:outline-none" onClick={() => navigate('/dashboard/resident/disaster', { state: { successUser, division: userDivision } })}>
-              <img src={dashBoard} alt="Home Icon" className="w-auto h-[20px]" />
+              <img src={disasterIcon} alt="Disaster Icon" className="w-auto h-[20px]" />
               <span>D</span>
             </button>
 
