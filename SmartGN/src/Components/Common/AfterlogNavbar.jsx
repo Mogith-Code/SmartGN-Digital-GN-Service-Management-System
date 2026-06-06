@@ -2,6 +2,7 @@ import React from 'react'
 import logoImage from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
+import notificationIcon from '../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
 
 function AfterlogNavbar() {
     const navigate = useNavigate();
@@ -15,8 +16,20 @@ function AfterlogNavbar() {
           <img src={logoImage} alt="SmartGN Logo" />
         </div>
 
-        {/* Language Selector Component */}
-        <LanguageSelector />
+        
+        <div className="flex items-center gap-7">
+            {/* Language Selector Component */}
+            <LanguageSelector />
+            
+             {/* Notifications */}
+          <div className="relative cursor-pointer text-slate-600 flex items-center justify-center transition-colors duration-200">
+            <img src={notificationIcon} alt="Notifications" className="w-auto h-[30px]" />
+            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] font-extrabold w-[20px] h-[20px] rounded-full flex items-center justify-center">2</span>
+          </div>
+        </div>
+        
+
+        
       </div>
     </header>
   )
