@@ -1,6 +1,7 @@
 import React from 'react'
 import logoImage from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
+import LanguageSelector from './LanguageSelector';
 
 function AfterlogNavbar() {
     const navigate = useNavigate();
@@ -13,6 +14,9 @@ function AfterlogNavbar() {
         <div className="w-[280px] max-lg:w-[200px]" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
           <img src={logoImage} alt="SmartGN Logo" />
         </div>
+
+        {/* Language Selector Component */}
+        <LanguageSelector />
       </div>
     </header>
   )
