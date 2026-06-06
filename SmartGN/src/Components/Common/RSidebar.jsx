@@ -7,6 +7,7 @@ import certificateIcon from '../../assets/license_24dp_2D3748_FILL0_wght400_GRAD
 import appointmentIcon from '../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
 import allowanceIcon from '../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import disasterIcon from '../../assets/flood_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
+import announcementIcon from '../../assets/brand_awareness_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
 function RSidebar() {
   return (
@@ -54,8 +55,8 @@ function RSidebar() {
               <span>D</span>
             </button>
 
-            <button className="flex items-center gap-3.5 w-full border-none bg-transparent py-3 px-7 cursor-pointer text-[13.5px] font-semibold text-slate-600 text-left transition-all duration-200 outline-none focus:outline-none">
-              <img src={dashBoard} alt="Home Icon" className="w-auto h-[20px]" />
+            <button className="flex items-center gap-3.5 w-full border-none bg-transparent py-3 px-7 cursor-pointer text-[13.5px] font-semibold text-slate-600 text-left transition-all duration-200 outline-none focus:outline-none" onClick={() => navigate('/dashboard/resident/announcements', { state: { successUser, division: userDivision } })}>
+              <img src={announcementIcon} alt="Announcement Icon" className="w-auto h-[20px]" />
               <span>AN</span>
             </button>
           </nav>
