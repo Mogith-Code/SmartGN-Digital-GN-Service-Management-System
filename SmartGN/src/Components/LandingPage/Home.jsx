@@ -36,25 +36,25 @@ function Home() {
 
    // COMPONENT RENDER
   return (
-  <section className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:p-[30px] py-[25px] max-md:p-[20px] border border-[red]" id="home">
+  <section className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:p-[30px] py-[25px] max-md:p-[20px]" id="home">
 
     {/* Inner container - flex column layout to stack elements vertically */}
-    <div className="w-full flex flex-col justify-between items-center border border-[green]"> 
+    <div className="w-full flex flex-col justify-between items-center"> 
 
       {/*  HERO IMAGE */}
-      <div className="w-full h-auto border border-[blue]"> {/*border border-amber-900*/}
+      <div className="w-full h-auto"> {/*border border-amber-900*/}
         <img src={heroImage} alt="Grama Niladhari Service - Helping citizens with administrative services" className="w-full h-[400px] max-lg:h-[300px] max-md:h-[200px]" />
       </div>
 
       {/* HERO HEADLINE */}
-      <div className="w-full px-[50px] max-md:px-0 border border-[blue]"> {/*border border-amber-900*/}
+      <div className="w-full px-[50px] max-md:px-0"> {/*border border-amber-900*/}
         <p className="text-center font-light text-[24px] max-lg:text-[20px] max-md:text-[16px] text-[#2D3748]"> 
           {t.heroDesc}
         </p>
       </div>
 
       {/* BUTTON CONTAINER */}
-      <div className="w-full flex items-center justify-center gap-5 mt-[10px] border border-[red]">
+      <div className="w-full flex items-center justify-center gap-5 mt-[10px]">
           
         {/* LOGIN BUTTON */}
         <button className="flex items-center justify-center gap-2.5 max-md:gap-[5px] px-[50px] py-2.5 bg-[#1B365D] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[30px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#005BBD] hover:text-white transition-all duration-300 cursor-pointer"
