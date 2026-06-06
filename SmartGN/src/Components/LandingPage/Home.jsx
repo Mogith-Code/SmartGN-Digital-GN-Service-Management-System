@@ -4,8 +4,10 @@ import heroImage from '../../assets/hero-image.png';
 import loginIcon from '../../assets/login_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg';
 import registerIcon from '../../assets/how_to_reg_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg';
 import helpIcon from '../../assets/contact_support_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg';
+import { useNavigate } from 'react-router-dom';
 
 function Home() {
+  const navigate = useNavigate();
   // Get the current language from the custom hook (EN, SI, or TA)
   const { lang } = useLanguage();
 
@@ -58,7 +60,7 @@ function Home() {
           
         {/* LOGIN BUTTON */}
         <button className="flex items-center justify-center gap-2.5 max-md:gap-[5px] px-[50px] py-2.5 bg-[#1B365D] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[30px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#005BBD] hover:text-white transition-all duration-300 cursor-pointer"
-                onClick={() => console.log("login clicked")}>  {/*TODO: replace navigate('/login') instead of console.log()*/}
+                onClick={() => navigate('/RAppointment')}>  {/*TODO: replace navigate('/login') instead of console.log()*/}
           {t.login}
           <img src={loginIcon} alt="Login Icon" className="w-5 h-5" />
         </button>
