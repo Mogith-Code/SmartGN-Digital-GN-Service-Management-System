@@ -4,6 +4,9 @@ import requestIcon from '../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_op
 import appointmentIcon from '../../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 import trackIcon from '../../assets/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 import arrowIcon from '../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
+import allowanceIcon from '../../assets/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import disasterIcon from '../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import announcementIcon from '../../assets/brand_awareness_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 
 function Services() {
   // Navigation handler functions
@@ -17,6 +20,18 @@ function Services() {
 
   const handleTrackRequests = () => {
     console.log('Navigating to Track Requests page');
+  };
+
+  const handleApplyAllowances = () => {
+    console.log('Navigating to Apply for Allowances page');
+  };
+
+  const handleDisasterRelief = () => {
+    console.log('Navigating to Disaster Relief page');
+  };
+
+  const handleAnnouncements = () => {
+    console.log('Navigating to Announcements page');
   };
 
   return (
@@ -149,20 +164,20 @@ function Services() {
 
           {/* CARD 4: Apply for Allowances  */}
           <div 
-            onClick={handleTrackRequests}
+            onClick={handleApplyAllowances}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleTrackRequests();
+                handleApplyAllowances();
               }
             }}
             className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
             {/* Left Column: Icon */}
             <img 
-              src={trackIcon}
-              alt="Track Requests icon"
+              src={allowanceIcon}
+              alt="Apply for Allowances icon"
               className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
             />
             
@@ -186,20 +201,20 @@ function Services() {
 
           {/* CARD 5: Disaster Relief */}
           <div 
-            onClick={handleTrackRequests}
+            onClick={handleDisasterRelief}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleTrackRequests();
+                handleDisasterRelief();
               }
             }}
             className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
             {/* Left Column: Icon */}
             <img 
-              src={trackIcon}
-              alt="Track Requests icon"
+              src={disasterIcon}
+              alt="Disaster Relief icon"
               className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
             />
             
@@ -223,20 +238,20 @@ function Services() {
 
           {/* CARD 6: Announcements */}
           <div 
-            onClick={handleTrackRequests}
+            onClick={handleAnnouncements}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                handleTrackRequests();
+                handleAnnouncements();
               }
             }}
             className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
           >
             {/* Left Column: Icon */}
             <img 
-              src={trackIcon}
-              alt="Track Requests icon"
+              src={announcementIcon}
+              alt="Announcements icon"
               className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
             />
             

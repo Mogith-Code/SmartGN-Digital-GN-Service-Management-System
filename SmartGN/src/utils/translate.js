@@ -9,7 +9,7 @@ export const translations = {
     disaster: "Disaster Report",
     announcements: "Announcements",
     profile: "Profile & Settings",
-    family: "Family & Household Details",
+    family: "Family & Household",
     logout: "Log Out",
     
     // Header

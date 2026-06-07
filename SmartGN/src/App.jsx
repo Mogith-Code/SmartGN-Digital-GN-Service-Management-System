@@ -1,12 +1,19 @@
 import { useState } from 'react'
-import Services from './Components/LandingPage/Services.jsx'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LandingPage from './Pages/LandingPage.jsx'
+import RAppointment from './Pages/RAppointment.jsx';
+
+
 
 function App() {
   return (
-    <>
-    <LandingPage /> 
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/RAppointment" element={<RAppointment />} />
+       </Routes>
+    </Router>
+    
       
   )
 }
