@@ -42,7 +42,7 @@ function RSidebar() {
     <>
          {/* Sidebar Nav */}
         <aside className="w-[280px] h-screen bg-white border-r border-[#2D37482D] pt-[60px] pr-[20px]">
-          <nav className="flex flex-col gap-[5px] fixed">
+          <nav className="flex flex-col gap-[5px]">
             <button className="flex items-center gap-[10px] w-full border-none hover:rounded-r-full bg-transparent hover:bg-[#1B365D] py-[10px] px-[30px] cursor-pointer text-[16px] font-regular text-[#2D3748] hover:text-[#F7FAFC] text-left transition-all duration-200" 
                     onClick={() => navigate('/')}
                     onMouseEnter={() => setIshomeHovered(true)}
