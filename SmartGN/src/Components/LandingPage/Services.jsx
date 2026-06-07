@@ -4,6 +4,9 @@ import requestIcon from '../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_op
 import appointmentIcon from '../../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 import trackIcon from '../../assets/list_alt_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 import arrowIcon from '../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg';
+import allowanceIcon from '../../assets/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import disasterIcon from '../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
+import announcementIcon from '../../assets/brand_awareness_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg';
 
 function Services() {
   // Navigation handler functions
@@ -17,6 +20,18 @@ function Services() {
 
   const handleTrackRequests = () => {
     console.log('Navigating to Track Requests page');
+  };
+
+  const handleApplyAllowances = () => {
+    console.log('Navigating to Apply for Allowances page');
+  };
+
+  const handleDisasterRelief = () => {
+    console.log('Navigating to Disaster Relief page');
+  };
+
+  const handleAnnouncements = () => {
+    console.log('Navigating to Announcements page');
   };
 
   return (
@@ -143,6 +158,117 @@ function Services() {
               </div>
               <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
                 Check the status of your applications (pending, approved, or require further information).
+              </p>
+            </div>
+          </div>
+
+          {/* CARD 4: Apply for Allowances  */}
+          <div 
+            onClick={handleApplyAllowances}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleApplyAllowances();
+              }
+            }}
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
+          >
+            {/* Left Column: Icon */}
+            <img 
+              src={allowanceIcon}
+              alt="Apply for Allowances icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
+                  Apply for Allowances
+                </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
+              </div>
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
+                Register for Aswesuma, Samurdhi and other government allowance programs.
+              </p>
+            </div>
+          </div>
+
+          {/* CARD 5: Disaster Relief */}
+          <div 
+            onClick={handleDisasterRelief}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleDisasterRelief();
+              }
+            }}
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
+          >
+            {/* Left Column: Icon */}
+            <img 
+              src={disasterIcon}
+              alt="Disaster Relief icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
+                  Disaster Relief
+                </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
+              </div>
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
+                Report disaster damage and apply for government relief assistance.
+              </p>
+            </div>
+          </div>
+
+          {/* CARD 6: Announcements */}
+          <div 
+            onClick={handleAnnouncements}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleAnnouncements();
+              }
+            }}
+            className="flex items-start gap-4 p-8 rounded-[24px] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 ease-out group cursor-pointer"
+          >
+            {/* Left Column: Icon */}
+            <img 
+              src={announcementIcon}
+              alt="Announcements icon"
+              className="w-[20px] h-[20px] min-w-[20px] object-contain mt-1"
+            />
+            
+            {/* Right Column: Title + Description */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex justify-between items-center w-full mb-2">
+                <h3 className="text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
+                  Announcements
+                </h3>
+                <img 
+                  src={arrowIcon}
+                  alt="Arrow icon"
+                  className="w-3.5 h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300"
+                />
+              </div>
+              <p className="text-[14px] text-gray-500 font-normal leading-relaxed text-left">
+                Stay informed with official notices and community announcements.
               </p>
             </div>
           </div>
