@@ -211,6 +211,97 @@ main
 
 ---
 
+## 👥 Module Assignment & Component Responsibilities
+
+To ensure clear development ownership, the frontend pages, components, and backend route handlers are mapped below to the respective team members, aligning with the core modules from the project proposal. (This is the random future plan to create the pages it might be changed) 
+
+### 📋 Overall Assignment Table
+
+| Module ID | Module Name | Responsible Member | Student Index | Frontend Pages & Components | Backend Route Files |
+| :---: | :--- | :--- | :---: | :--- | :--- |
+| **1** | **User Authentication & Identity** | Mogith | - [RoleSelection.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/RoleSelection.jsx)<br>- [ResidentLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentLogin.jsx)<br>- [OfficerLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerLogin.jsx)<br>- [AdminLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/AdminLogin.jsx)<br>- [Register.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/Register.jsx)<br>- [Success.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/Success.jsx) | - [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js) *(Auth/Registration)* |
+| **2** | **Resident & Family Management** | Achini | - [ResidentProfile.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentProfile.jsx)<br>- [OfficerProfile.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerProfile.jsx)<br>- [ResidentDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentDashboard.jsx) | - [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js) *(Profile APIs)* |
+| **3** | **Divisional & Household Management** | Janith | - [ResidentHousehold.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentHousehold.jsx)<br>- [OfficerHouseholdDetails.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerHouseholdDetails.jsx) | - [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js) *(Household endpoints)* |
+| **4** | **Digital Certificate Service** | Mogith | - [ApplyCharacterCertificate.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ApplyCharacterCertificate.jsx)<br>- [ApplyIncomeCertificate.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ApplyIncomeCertificate.jsx)<br>- [ResidentCertificates.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentCertificates.jsx)<br>- [OfficerCertificates.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerCertificates.jsx)<br>- [OfficerCertificateDetails.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerCertificateDetails.jsx) | - [certificates.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/certificates.js) |
+| **5** | **Government Allowance & Welfare** | Achini | - [ResidentAllowances.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentAllowances.jsx)<br>- [OfficerAllowances.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerAllowances.jsx) | - [allowances.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/allowances.js) |
+| **6** | **Appointment & Meeting Scheduler** | Janith | - [ResidentAppointments.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentAppointments.jsx)<br>- [OfficerAppointments.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerAppointments.jsx) | - [appointments.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/appointments.js) |
+| **7** | **Disaster & Emergency Relief** | Achini | - [ResidentDisasterReport.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentDisasterReport.jsx)<br>- [OfficerDisasterReports.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerDisasterReports.jsx) | - [disasters.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/disasters.js) |
+| **8** | **AI Chatbot & Information** | Mogith | - [LandingPage.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/LandingPage.jsx)<br>- [Chatbot.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/components/Chatbot.jsx)<br>- [LanguageSelector.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/components/LanguageSelector.jsx) | - *Integrations across routes* |
+| **9** | **Village Asset & Admin** | Janith | - [AdminDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/AdminDashboard.jsx)<br>- [OfficerDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerDashboard.jsx) | - [announcements.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/announcements.js) |
+
+### 🛠️ Detailed Component & Route Tasks Breakdowns
+
+#### 1. User Authentication and Identity (Mogith)
+* **Frontend Components:**
+  * [RoleSelection.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/RoleSelection.jsx): Select user role entry-point before redirecting to individual log-in screens.
+  * [ResidentLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentLogin.jsx) / [OfficerLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerLogin.jsx) / [AdminLogin.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/AdminLogin.jsx): Input fields, authentication requests handling, error messages, storage of JWT session tokens in localStorage.
+  * [Register.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/Register.jsx): Multi-step form for user creation including NIC front/back file attachment logic.
+  * [Success.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/Success.jsx): Dynamic completion feedback state indicator.
+* **Backend Routers:**
+  * [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js): Login validation handlers, database queries, password hashing (`bcrypt`), JWT creation, OTP mailer integration helper.
+
+#### 2. Resident and Family Management (Achini)
+* **Frontend Components:**
+  * [ResidentProfile.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentProfile.jsx): Allows residents to configure their credentials, upload avatar, review registered properties, and declare family member records.
+  * [OfficerProfile.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerProfile.jsx): Grama Niladhari profile page with contact detail management tools.
+  * [ResidentDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentDashboard.jsx): Displays summaries of requests, appointments, alerts, and navigation links.
+* **Backend Routers:**
+  * [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js) / [server.js](file:///d:/SmartGn-Anti/SmartGN/backend/server.js): API endpoints for updating profile, appending/deleting family members under matching parent NIC.
+
+#### 3. Divisional and Household Management (Janith)
+* **Frontend Components:**
+  * [ResidentHousehold.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentHousehold.jsx): Section for household metadata registration, residential proof list, and head of household matching details.
+  * [OfficerHouseholdDetails.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerHouseholdDetails.jsx): Administrative division filters allowing matching GNs to see all registered households, verify residents list under divisions, search by Household No.
+* **Backend Routers:**
+  * [auth.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/auth.js) (Shared): Database integration queries for listing/updating household and divisional relationships.
+
+#### 4. Digital Certificate Service (Mogith)
+* **Frontend Components:**
+  * [ApplyCharacterCertificate.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ApplyCharacterCertificate.jsx) / [ApplyIncomeCertificate.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ApplyIncomeCertificate.jsx): Interactive online submission forms with conditional file attachments (employment/revenue proof, character declarations).
+  * [ResidentCertificates.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentCertificates.jsx): Tabbed lists tracking status of submissions: *Pending*, *Approved*, and *Rejected*. Includes download action links.
+  * [OfficerCertificates.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerCertificates.jsx): Division list of incoming applications sorted chronologically.
+  * [OfficerCertificateDetails.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerCertificateDetails.jsx): Officer panel enabling PDF preview of credentials, approval toggle, reject comments panel, and automated digital certificate generation.
+* **Backend Routers:**
+  * [certificates.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/certificates.js): Route handlers to process new submissions, retrieve requests filterable by status/officer division, update review records, upload documents, and generate certificate documents.
+
+#### 5. Government Allowance and Welfare (Achini)
+* **Frontend Components:**
+  * [ResidentAllowances.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentAllowances.jsx): Form to apply for Aswesuma/Samurdhi, file/income detail declarations, status history tracking list.
+  * [OfficerAllowances.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerAllowances.jsx): Dashboard for managing welfare benefits. Allows GNs to check application details, verify income status, search applicants, toggle approval, and configure custom allowance programs.
+* **Backend Routers:**
+  * [allowances.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/allowances.js): CRUD API endpoints for managing allowance applications, registering new welfare program categories, querying beneficiary data.
+
+#### 6. Appointment and Meeting Scheduler (Janith)
+* **Frontend Components:**
+  * [ResidentAppointments.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentAppointments.jsx): Request appointment form (select date, time slot, write details) with active scheduler calendar displaying slots availability.
+  * [OfficerAppointments.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerAppointments.jsx): Management calendar showing upcoming bookings, action buttons to confirm/cancel/reschedule with feedback dialog.
+* **Backend Routers:**
+  * [appointments.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/appointments.js): Calendar-check query helper endpoints, appointment requests validation routes, notification alerts trigger hook.
+
+#### 7. Disaster and Emergency Relief (Achini)
+* **Frontend Components:**
+  * [ResidentDisasterReport.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/ResidentDisasterReport.jsx): Submit disaster alerts, specify affected resources (damage description, severity level), track aid request statuses.
+  * [OfficerDisasterReports.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerDisasterReports.jsx): Relief dashboard listing incidents by category/location, update logistics and financial relief allocations.
+* **Backend Routers:**
+  * [disasters.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/disasters.js): Incident reporting logic, coordinates/relatives associations, relief distributions tracking APIs.
+
+#### 8. AI Chatbot and Information (Mogith)
+* **Frontend Components:**
+  * [LandingPage.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/LandingPage.jsx): Entry dashboard featuring welcome headers, site overview sliders, quick navigation links.
+  * [Chatbot.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/components/Chatbot.jsx): Floatable overlay chat widget allowing interactive text input, fetching responses from automated knowledge base APIs.
+  * [LanguageSelector.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/components/LanguageSelector.jsx): Dropdown widget storing selected translation locale state (en/si/ta) dynamically mapping visual components string keys.
+* **Backend Routers:**
+  * Chatbot response query processors, session tracking endpoints, Knowledge base retrieval system.
+
+#### 9. Village Asset and Admin (Janith)
+* **Frontend Components:**
+  * [AdminDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/AdminDashboard.jsx): Statistics counters (active registrations, approved certificates), audit history table, officer profiles management dashboard.
+  * [OfficerDashboard.jsx](file:///d:/SmartGn-Anti/SmartGN/GN/src/pages/OfficerDashboard.jsx): GN management workspace with divisional resources status charts, activity logs, summary stats.
+* **Backend Routers:**
+  * [announcements.js](file:///d:/SmartGn-Anti/SmartGN/backend/routes/announcements.js): Route handlers to fetch regional announcements, publish new entries with severity rating, modify/retire outdated notices.
+
+---
+
 ## Contributors
 
 * Janith [GitHub](https://github.com/janith230528)
