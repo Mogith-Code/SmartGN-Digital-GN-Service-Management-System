@@ -116,10 +116,10 @@ function Navbar() {
       </div>
 
       {/* MOBILE NAVBAR - Visible only on mobile devices (max-md)            */}
-      <div className="hidden max-md:w-full max-md:flex mx-md:w-full max-md:justify-between max-md:items-center max-md:justify-between">
+      <div className="hidden max-md:w-full max-md:flex max-md:justify-between max-md:items-center">
         {/*Menu Button - Toggles mobile sidebar */}
         <button 
-          className="flex flex-col gap-1.5 p-2 z-50 relative"
+          className="relative cursor-pointer"
           onClick={toggleMobileMenu}
           aria-label="Open navigation menu"
           aria-expanded={isMobileMenuOpen}>
