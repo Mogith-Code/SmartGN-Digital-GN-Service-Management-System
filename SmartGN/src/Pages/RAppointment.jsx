@@ -2,6 +2,9 @@ import React from "react";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import pendingIcon from "../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import approvedIcon from "../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import addIcon from "../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
 function RAppointment() {
   return (
@@ -10,14 +13,53 @@ function RAppointment() {
         <AfterlogNavbar />
       </div>
 
-      <div className="flex items-center w-full border border-[blue]">
-        <div className="flex h-full fixed left-0 top-[100px]">
+      <div className="flex items-center w-full">
+        <div className="flex h-full fixed left-0 top-[100px] max-md:top-[60px]">
           <RSidebar />
         </div>
 
         <div className="w-full h-[1000px] ml-[300px] bg-[white] border-l border-[#2D37482D]">
-          <div className=" mt-[160px] ml-[30px] text-[#1B365D] text-[24px] font-semibold">
+          <div className="mt-[160px] ml-[30px] text-[#1B365D] text-[24px] font-semibold">
             Appointments
+          </div>
+
+          {/* Centered Stats Widget Cards */}
+          <div className="grid grid-cols-3 gap-6 mb-6 border mx-[75px] mt-[30px] border-[red]">
+            <div className="bg-[#E2E8F0] border border-[#2D37484D] rounded-[15px] p-[15px] flex flex-col items-center transition-all duration-200 hover:shadow-md hover:border-slate-400">
+              <img src={pendingIcon} alt="Pending Icon" className="w-20 h-20" />
+              <span className="text-[16px] font-regular text-[#2D3748]">
+                Pending appointment requests
+              </span>
+              <span className="text-[20px] font-medium text-[#2D3748]">5</span>{" "}
+              {/*{pendingCount}*/}
+            </div>
+
+            <div className="bg-[#E2E8F0] border border-[#2D37484D] rounded-[15px] p-[15px] flex flex-col items-center transition-all duration-200 hover:shadow-md hover:border-slate-400">
+              <img
+                src={approvedIcon}
+                alt="Approved Icon"
+                className="w-20 h-20"
+              />
+              <span className="text-[16px] font-regular text-[#2D3748]">
+                Approved appointment requests
+              </span>
+              <span className="text-[20px] font-medium text-[#2D3748]">5</span>{" "}
+              {/*{approvedCount}*/}
+            </div>
+
+            <div
+              className="bg-[#E2E8F0] rounded-[15px] p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] transition-all duration-200 hover:shadow-md hover:border-slate-400"
+              onClick={() => console.log("card clicked")}
+            >
+              <img src={addIcon} alt="Add Icon" className="w-20 h-20" />
+              <span className="text-[16px] font-regular text-[#2D3748]">
+                Book an appointment
+              </span>
+              <span className="text-[20px] font-medium text-[#2D3748]">
+                Booking
+              </span>{" "}
+              {/*{isBookingMode ? 'Close Form' : 'Book Now'}*/}
+            </div>
           </div>
         </div>
       </div>
