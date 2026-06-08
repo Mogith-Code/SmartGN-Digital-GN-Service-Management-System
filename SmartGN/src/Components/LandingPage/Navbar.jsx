@@ -116,7 +116,7 @@ function Navbar() {
       </div>
 
       {/* MOBILE NAVBAR - Visible only on mobile devices (max-md)            */}
-      <div className="hidden max-md:w-full max-md:flex mx-md:w-full max-md:justify-between max-md:items-center max-md:justify-between">
+      <div className="hidden max-md:w-full max-md:flex max-md:justify-between max-md:items-center">
         {/*Menu Button - Toggles mobile sidebar */}
         <button 
           className="relative cursor-pointer"
