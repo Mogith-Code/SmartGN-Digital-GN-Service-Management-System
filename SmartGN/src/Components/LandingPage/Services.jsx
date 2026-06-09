@@ -98,8 +98,8 @@ function Services() {
                 />
               </div>
               <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Apply for character certificates, income certificates, permit
-                requests and more with digital verification.
+                Apply for character certificates, income certificates and more
+                with digital verification.
               </p>
             </div>
           </div>
