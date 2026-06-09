@@ -14,8 +14,11 @@ function LandingPage() {
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
         <Navbar />
         <Home />
+        <hr className="border border-[#2D37482D]" />
         <About />
+        <hr className="border border-[#2D37482D]" />
         <Services />
+        <hr className="border border-[#2D37482D]" />
         <Footer />
         
         
