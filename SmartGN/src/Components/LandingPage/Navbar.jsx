@@ -92,7 +92,7 @@ function Navbar() {
   }, [isMobileMenuOpen]); // Re-run effect when isMobileMenuOpen changes
 
   return (
-    <header className="flex justify-between items-center py-[20px] px-[100px] bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.2)] max-lg:px-[60px] max-md:px-[30px] py-[10px]">
+    <header className="flex justify-between items-center py-[20px] px-[100px] bg-[#EBF8FF] sticky top-0 z-1000 shadow-[0_5px_25px_rgba(0,0,0,0.2)] max-lg:px-[60px] max-md:px-[30px] py-[10px]">
       {/* DESKTOP NAVBAR - Visible on tablets and desktops (md and above)*/}
       <div className="flex w-full justify-between items-center max-md:hidden">
         {/* Logo Section - Clickable to navigate home */}

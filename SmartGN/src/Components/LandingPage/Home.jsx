@@ -93,7 +93,7 @@ function Home() {
 
           {/* HELP BUTTON - Fixed position at bottom right corner */}
           <button
-            className="bg-[#D69E2E] z-1001 ml-[1270px] max-md:ml-[400px] fixed p-[10px] rounded-full cursor-pointer flex items-center justify-center shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] transition-all duration-200  hover:bg-[#FFAA00]"
+            className="bg-[#D69E2E] ml-[1270px] max-md:ml-[400px] fixed p-[10px] rounded-full cursor-pointer flex items-center justify-center shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] transition-all duration-200  hover:bg-[#FFAA00]"
             aria-label="Help Center"
             onClick={() => console.log("help clicked")}
           >
