@@ -1,3 +1,4 @@
+// src/components/Home.jsx
 import React from "react";
 import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 import heroImage from "../../assets/hero-image.png";
@@ -36,77 +37,94 @@ function Home() {
   };
 
   // Select the appropriate translation based on current language
-  // Defaults to English if language not found
-  const t = homeTranslations[lang];
+  const t = homeTranslations[lang] || homeTranslations.EN;
 
-  // COMPONENT RENDER
+  // ============================================================================
+  // HELP BUTTON CLICK HANDLER
+  // ============================================================================
+  const handleHelpClick = () => {
+    console.log("help clicked");
+    // TODO: Open help modal or navigate to help page
+    // Example: navigate('/help');
+  };
+
   return (
     <section
-      className="w-full bg-[#F7FAFC] px-[100px] py-[30px] max-lg:p-[30px] py-[25px] max-md:p-[20px]"
+      className="w-full bg-[#F7FAFC] px-4 sm:px-6 md:px-8 lg:px-16 xl:px-20 2xl:px-24 py-6 sm:py-8 md:py-10 lg:py-[30px]"
       id="home"
     >
       {/* Inner container - flex column layout to stack elements vertically */}
-      <div className="w-full flex flex-col justify-between items-center">
-        {/*  HERO IMAGE */}
+      <div className="w-full flex flex-col justify-between items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
+        {/* ================================================================ */}
+        {/* HERO IMAGE SECTION */}
+        {/* ================================================================ */}
         <div className="w-full h-auto">
-          {" "}
-          {/*border border-amber-900*/}
           <img
             src={heroImage}
             alt="Grama Niladhari Service - Helping citizens with administrative services"
-            className="w-full h-[400px] max-lg:h-[300px] max-md:h-[200px]"
+            className="w-full h-auto object-cover rounded-xl sm:rounded-2xl"
           />
         </div>
 
-        {/* HERO HEADLINE */}
-        <div className="w-full px-[50px] max-md:px-0">
-          {" "}
-          {/*border border-amber-900*/}
-          <p className="text-center font-light text-[24px] max-lg:text-[20px] max-md:text-[16px] text-[#2D3748]">
+        {/* ================================================================ */}
+        {/* HERO HEADLINE / DESCRIPTION SECTION */}
+        {/* ================================================================ */}
+        <div className="w-full px-2 sm:px-4 md:px-6 lg:px-10 xl:px-12">
+          <p className="text-center font-light text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-[#2D3748] leading-relaxed">
             {t.heroDesc}
           </p>
         </div>
 
-        {/* BUTTON CONTAINER */}
-        <div className="w-full flex items-center justify-center gap-5 mt-[10px]">
+        {/* ================================================================ */}
+        {/* BUTTON CONTAINER SECTION */}
+        {/* ================================================================ */}
+        <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-5 mt-2 sm:mt-3 md:mt-4">
+          {/* ============================================================== */}
           {/* LOGIN BUTTON */}
+          {/* ============================================================== */}
           <button
-            className="flex items-center justify-center gap-2.5 max-md:gap-[5px] px-[50px] py-2.5 bg-[#1B365D] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[30px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#005BBD] hover:text-white transition-all duration-300 cursor-pointer"
+            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
             onClick={() => navigate("/RAppointment")}
           >
-            {" "}
-            {/*TODO: replace navigate('/login') instead of console.log()*/}
-            {t.login}
-            <img src={loginIcon} alt="Login Icon" className="w-5 h-5" />
+            <span>{t.login}</span>
+            <img
+              src={loginIcon}
+              alt="Login Icon"
+              className="w-4 h-4 sm:w-5 sm:h-5"
+            />
           </button>
 
+          {/* ============================================================== */}
           {/* REGISTER BUTTON */}
+          {/* ============================================================== */}
           <button
-            className="flex items-center justify-center gap-2.5 px-[50px] py-2.5 bg-[#D69E2E] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[20px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#FFAA00] hover:text-white transition-all duration-300 cursor-pointer"
+            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
             onClick={() => console.log("register clicked")}
           >
-            {" "}
-            {/*TODO: replace navigate('/register') instead of console.log()*/}
-            {t.register}
-            <img src={registerIcon} alt="Register Icon" className="w-5 h-5" />
-          </button>
-
-          {/* HELP BUTTON - Fixed position at bottom right corner */}
-          <button
-            className="bg-[#D69E2E] ml-[1270px] max-md:ml-[400px] fixed p-[10px] rounded-full cursor-pointer flex items-center justify-center shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] transition-all duration-200  hover:bg-[#FFAA00]"
-            aria-label="Help Center"
-            onClick={() => console.log("help clicked")}
-          >
-            {" "}
-            {/*TODO: replace = {onOpenHelp} instead of console.log()*/}
+            <span>{t.register}</span>
             <img
-              src={helpIcon}
-              alt="Help Icon"
-              className="h-[30px] max-md:h-[20px]"
+              src={registerIcon}
+              alt="Register Icon"
+              className="w-4 h-4 sm:w-5 sm:h-5"
             />
           </button>
         </div>
       </div>
+
+      {/* ================================================================ */}
+      {/* FLOATING HELP BUTTON - Fixed position at bottom right corner */}
+      {/* ================================================================ */}
+      <button
+        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 bg-[#D69E2E] p-2 sm:p-2.5 md:p-3 rounded-full cursor-pointer flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:bg-[#FFAA00] z-50 group"
+        aria-label="Help Center"
+        onClick={handleHelpClick}
+      >
+        <img
+          src={helpIcon}
+          alt="Help Icon"
+          className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-[30px] lg:w-[30px] transition-transform duration-200 group-hover:scale-110"
+        />
+      </button>
     </section>
   );
 }
