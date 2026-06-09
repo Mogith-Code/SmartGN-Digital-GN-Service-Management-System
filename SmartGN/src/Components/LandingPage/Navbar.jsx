@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,8 +13,9 @@ import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.s
 function Navbar() {
   const navigate = useNavigate();
 
+  // ============================================================================
   // LANGUAGE & TRANSLATION SETUP
-  // Get current language and translation function from custom hook
+  // ============================================================================
   const { lang } = useLanguage();
   const t = translations[lang];
 
@@ -24,7 +26,7 @@ function Navbar() {
     TA: { about: "எங்களைப் பற்றி", services: "சேவைகள்" },
   };
 
-  // Navigation links data array - stores name, icon, and href for each nav item
+  // Navigation links data array
   const navLinks = [
     { name: t.home, icon: homeIcon, href: "#home" },
     { name: navTranslations[lang].about, icon: aboutIcon, href: "#about" },
@@ -35,29 +37,29 @@ function Navbar() {
     },
   ];
 
+  // ============================================================================
   // STATE MANAGEMENT
-  // Mobile menu management state - controls the visibility of mobile sidebar.
+  // ============================================================================
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Ref for mobile menu DOM element - To detect clicks outside the menu.
   const mobileMenuRef = useRef(null);
 
+  // ============================================================================
   // MOBILE MENU HANDLERS
-  // Toggles the mobile sidebar menu visibility (opens/closes the menu)
+  // ============================================================================
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Closes the mobile sidebar menu - called when clicking outside or on a link
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
-  // SIDE EFFECTS (useEffect Hooks)
+  // ============================================================================
+  // SIDE EFFECTS
+  // ============================================================================
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside mobile menu AND sidebar is open
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target)
@@ -66,58 +68,59 @@ function Navbar() {
       }
     };
 
-    // Only add event listener when sidebar is open to improve performance
     if (isMobileMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup: remove event listener when component unmounts or sidebar closes
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMobileMenuOpen]);
 
-  // Prevent body scroll when mobile sidebar is open.
+  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Disable scrolling on body when sidebar is open
       document.body.style.overflow = "hidden";
     } else {
-      // Re-enable scrolling when sidebar closes
       document.body.style.overflow = "unset";
     }
 
-    // Cleanup: ensure scrolling is re-enabled when component unmounts
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isMobileMenuOpen]); // Re-run effect when isMobileMenuOpen changes
+  }, [isMobileMenuOpen]);
 
+  // ============================================================================
+  // COMPONENT RENDER
+  // ============================================================================
   return (
-    <header className="flex justify-between items-center py-[20px] px-[100px] bg-[#EBF8FF] sticky top-0 z-1000 shadow-[0_5px_25px_rgba(0,0,0,0.2)] max-lg:px-[60px] max-md:px-[30px] py-[10px]">
-      {/* DESKTOP NAVBAR - Visible on tablets and desktops (md and above)*/}
+    <header className="flex justify-between items-center py-3 sm:py-4 md:py-5 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-16 xl:px-20 bg-[#EBF8FF] sticky top-0 z-[1000] shadow-[0_5px_25px_rgba(0,0,0,0.2)]">
+      {/* ====================================================================== */}
+      {/* DESKTOP NAVBAR - Visible on tablets and desktops (768px and above) */}
+      {/* ====================================================================== */}
       <div className="flex w-full justify-between items-center max-md:hidden">
-        {/* Logo Section - Clickable to navigate home */}
+        {/* Logo Section */}
         <div
-          className="w-[280px] max-lg:w-[200px]"
+          className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-[280px] cursor-pointer"
           onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
         >
-          <img src={logoImage} alt="SmartGN Logo" />
+          <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
         </div>
 
-        {/* Desktop Navigation Links - Horizontal menu */}
-        <nav className="flex items-center justify-between gap-20 max-lg:gap-10">
+        {/* Desktop Navigation Links */}
+        <nav className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-20">
           {navLinks.map((link) => (
             <a
-              className="flex items-center gap-2.5 max-lg:gap-1.25 text-[#2D3748] font-medium text-[16px] hover:text-[#005BBD] hover:underline underline-offset-4 decoration-[#D69E2E] decoration-2 transition-colors duration-300"
               key={link.name}
               href={link.href}
+              className="flex items-center gap-1.5 sm:gap-2 lg:gap-2.5 text-[#2D3748] font-medium text-sm sm:text-base hover:text-[#005BBD] hover:underline underline-offset-4 decoration-[#D69E2E] decoration-2 transition-all duration-300 group"
             >
               <img
-                className="w-auto h-5"
+                className="w-auto h-4 sm:h-5 transition-transform duration-300 group-hover:scale-110"
                 src={link.icon}
                 alt={`${link.name} icon`}
               />
-              <span>{link.name}</span>
+              <span className="transition-transform duration-300 group-hover:scale-105">
+                {link.name}
+              </span>
             </a>
           ))}
         </nav>
@@ -126,74 +129,95 @@ function Navbar() {
         <LanguageSelector />
       </div>
 
-      {/* MOBILE NAVBAR - Visible only on mobile devices (max-md)            */}
-      <div className="hidden max-md:w-full max-md:flex max-md:justify-between max-md:items-center">
-        {/*Menu Button - Toggles mobile sidebar */}
+      {/* ====================================================================== */}
+      {/* MOBILE NAVBAR - Visible only on mobile devices (below 768px) */}
+      {/* ====================================================================== */}
+      <div className="flex w-full justify-between items-center md:hidden">
+        {/* Menu Button */}
         <button
-          className="relative cursor-pointer"
+          className="relative cursor-pointer p-2 -ml-2"
           onClick={toggleMobileMenu}
           aria-label="Open navigation menu"
           aria-expanded={isMobileMenuOpen}
         >
-          <img src={menuIcon} alt="Menu" className="w-auto h-6" />
+          <img src={menuIcon} alt="Menu" className="w-auto h-5 sm:h-6" />
         </button>
 
-        {/* Logo Section - Clickable to navigate home */}
+        {/* Logo Section */}
         <div
-          className="max-md:w-[150px]"
+          className="w-24 sm:w-28 cursor-pointer"
           onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
         >
-          <img src={logoImage} alt="SmartGN Logo" />
+          <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
         </div>
 
         {/* Language Selector Component */}
         <LanguageSelector />
+      </div>
 
-        {/* Overlay Background - Darkens page content when sidebar is open */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-            onClick={closeMobileMenu}
-            aria-label="Close menu overlay"
-            role="presentation"
-          />
-        )}
+      {/* ====================================================================== */}
+      {/* MOBILE SIDEBAR MENU - Slides in from left on mobile */}
+      {/* ====================================================================== */}
 
-        {/* VERTICAL NAVIGATION SIDEBAR - Slides in from left on mobile      */}
+      {/* Overlay Background */}
+      {isMobileMenuOpen && (
         <div
-          ref={mobileMenuRef}
-          className={`fixed top-0 left-0 w-50 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
-          aria-label="Navigation menu"
-          role="navigation"
-        >
-          {/* Sidebar Header - Title section */}
-          <div className="px-8 py-4 border-b border-[#2D37481D]">
-            <h2 className="text-[1rem] text-left font-medium text-[#2c5f8a]">
-              {" "}
-              Navigation <br /> Menu{" "}
-            </h2>
-          </div>
+          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          onClick={closeMobileMenu}
+          aria-label="Close menu overlay"
+          role="presentation"
+        />
+      )}
 
-          {/* Vertical Navigation Links - Optimized for mobile touch targets */}
-          <div className="flex flex-col px-4 overflow-y-auto max-h-[calc(100vh-200px)]">
-            {navLinks.map((link, index) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={closeMobileMenu}
-                className="flex items-center gap-3 px-4 py-4 text-[#2D3748] font-medium text-[0.813rem] hover:bg-[#EBF8FF] hover:text-[#2c5f8a] transition-all duration-300 rounded-lg border-b border-gray-100"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <img
-                  src={link.icon}
-                  alt={`${link.name} icon`}
-                  className="w-auto h-4"
-                />
-                <span>{link.name}</span>
-              </a>
-            ))}
-          </div>
+      {/* Sidebar Container */}
+      <div
+        ref={mobileMenuRef}
+        className={`fixed top-0 left-0 w-64 sm:w-72 h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-label="Navigation menu"
+        role="navigation"
+      >
+        {/* Sidebar Header */}
+        <div className="px-6 sm:px-8 py-4 sm:py-5 border-b border-[#2D37481D]">
+          <h2 className="text-sm sm:text-base text-left font-bold text-[#2c5f8a]">
+            Navigation Menu
+          </h2>
+          <p className="text-xs text-gray-500 mt-1">Resident Portal</p>
+        </div>
+
+        {/* Vertical Navigation Links - Scrollable */}
+        <div className="flex flex-col px-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {navLinks.map((link, index) => (
+            <a
+              key={link.name}
+              href={link.href}
+              onClick={closeMobileMenu}
+              className="flex items-center gap-3 px-4 py-4 text-[#2D3748] font-medium text-sm hover:bg-[#EBF8FF] hover:text-[#2c5f8a] transition-all duration-300 rounded-lg border-b border-gray-100"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <img
+                src={link.icon}
+                alt={`${link.name} icon`}
+                className="w-auto h-4 sm:h-5"
+              />
+              <span>{link.name}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
+          <button
+            onClick={() => {
+              closeMobileMenu();
+              // Add logout logic here if needed
+            }}
+            className="flex items-center gap-3 w-full py-3 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <span className="text-xl">🚪</span>
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </header>
