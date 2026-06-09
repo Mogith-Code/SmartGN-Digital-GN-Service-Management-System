@@ -113,9 +113,9 @@ function RSidebar() {
     // 2. The item is the one being hovered
     if (isActive || hoveredItemId === item.id) {
       if (isActive) {
-        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full shadow-[0px_3px_15px_rgba(0,0,0,0.5)]";
+        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full";
       }
-      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full shadow-[0px_2px_10px_rgba(0,0,0,0.5)]";
+      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full";
     }
     return "bg-transparent text-[#2D3748]";
   };
