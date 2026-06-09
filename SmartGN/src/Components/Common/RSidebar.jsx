@@ -123,7 +123,7 @@ function RSidebar() {
   return (
     <>
       {/* Sidebar Nav */}
-      <aside className="w-[280px] bg-white border-r border-[#2D37482D] pt-[60px] pr-[20px] ">
+      <aside className="w-[280px] bg-white border-r border-[#2D37482D] pt-[60px] pr-[20px]">
         <nav className="flex flex-col gap-[5px]">
           {menuItems.map((item) => (
             <NavLink
