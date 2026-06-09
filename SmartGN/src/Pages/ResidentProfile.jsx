@@ -38,3 +38,19 @@ function ResidentProfile({ onOpenHelp }) {
     nicFront: null,
     nicBack: null
   })
+  // Form Field States (Edit Mode)
+  const [editFirstName, setEditFirstName] = useState('')
+  const [editLastName, setEditLastName] = useState('')
+  const [editFullName, setEditFullName] = useState('')
+  const [editOccupation, setEditOccupation] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editMobile, setEditMobile] = useState('')
+  const [editAddress, setEditAddress] = useState('')
+  const [editDob, setEditDob] = useState('')
+  const [editGender, setEditGender] = useState('')
+  const [editHouseholdNumber, setEditHouseholdNumber] = useState('')
+  const [editProfilePhoto, setEditProfilePhoto] = useState(null)
+  const [editNicFront, setEditNicFront] = useState(null)
+  const [editNicBack, setEditNicBack] = useState(null)
+
+  const [familyCount, setFamilyCount] = useState(5) // default count
