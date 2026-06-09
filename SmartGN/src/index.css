@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  @apply m-0 p-0 min-h-screen flex items-center justify-center overflow-x-hidden relative border border-green-500;
+  @apply m-0 p-0 min-h-screen flex items-center justify-center overflow-x-hidden relative;
     font-family: var(--font-sans);
     color: var(--text-primary);
     background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
