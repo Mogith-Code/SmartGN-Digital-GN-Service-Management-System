@@ -60,7 +60,7 @@ function Home() {
           
         {/* LOGIN BUTTON */}
         <button className="flex items-center justify-center gap-2.5 max-md:gap-[5px] px-[50px] py-2.5 bg-[#1B365D] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[30px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#005BBD] hover:text-white transition-all duration-300 cursor-pointer"
-                onClick={() => navigate('/RAppointment')}>  {/*TODO: replace navigate('/login') instead of console.log()*/}
+                onClick={() => navigate('/login')}>
           {t.login}
           <img src={loginIcon} alt="Login Icon" className="w-5 h-5" />
         </button>
