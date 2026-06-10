@@ -12,45 +12,45 @@ function Login() {
     const [errorMessage, setErrorMessage] = useState('')
 
     const loginTranslations = {
-    EN: {
-      title: "Sign In to SmartGN",
-      subtitle: "Access resident services, officer portals, and administrative tools.",
-      identifierLabel: "NIC Number, Email, or Username",
-      identifierPlaceholder: "e.g., 199912345678, officer@domain.com, or admin",
-      passwordLabel: "Password",
-      passwordPlaceholder: "Enter your password",
-      submitButton: "Sign In",
-      noAccount: "Don't have an account?",
-      registerLink: "Register here as a Resident",
-      backHome: "Back to Home",
+        EN: {
+            title: "Sign In to SmartGN",
+            subtitle: "Access resident services, officer portals, and administrative tools.",
+            identifierLabel: "NIC Number, Email, or Username",
+            identifierPlaceholder: "e.g., 199912345678, officer@domain.com, or admin",
+            passwordLabel: "Password",
+            passwordPlaceholder: "Enter your password",
+            submitButton: "Sign In",
+            noAccount: "Don't have an account?",
+            registerLink: "Register here as a Resident",
+            backHome: "Back to Home",
+        },
+        SI: {
+            title: "SmartGN වෙත ඇතුල් වන්න",
+            subtitle: "ගම්වැසි සේවා, ග්‍රාම නිලධාරී ද්වාරය සහ පාලන මෙවලම් වෙත ප්‍රවේශ වන්න.",
+            identifierLabel: "ජාතික හැඳුනුම්පත් අංකය, විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය",
+            identifierPlaceholder: "උදා: 199912345678, officer@domain.com හෝ admin",
+            passwordLabel: "මුරපදය",
+            passwordPlaceholder: "ඔබගේ මුරපදය ඇතුළත් කරන්න",
+            submitButton: "ඇතුල් වන්න",
+            noAccount: "ගිණුමක් නොමැතිද?",
+            registerLink: "මෙහි පදිංචිකරුවෙකු ලෙස ලියාපදිංචි වන්න",
+            backHome: "මුල් පිටුවට",
+        },
+        TA: {
+            title: "SmartGN இல் உள்நுழைக",
+            subtitle: "குடியிருப்பாளர் சேவைகள், அதிகாரி போர்ட்டல் மற்றும் நிர்வாகக் கருவிகளை அணுகவும்.",
+            identifierLabel: "தேசிய அடையாள அட்டை (NIC) எண், மின்னஞ்சல் அல்லது பயனர் பெயர்",
+            identifierPlaceholder: "உதா: 199912345678, officer@domain.com அல்லது admin",
+            passwordLabel: "கடவுச்சொல்",
+            passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+            submitButton: "உள்நுழைக",
+            noAccount: "கணக்கு இல்லையா?",
+            registerLink: "இங்கே குடியிருப்பாளராக பதிவு செய்க",
+            backHome: "முகப்பிற்குத் திரும்பு",
+        }
     }
 
-      SI: {
-      title: "SmartGN වෙත ඇතුල් වන්න",
-      subtitle: "ගම්වැසි සේවා, ග්‍රාම නිලධාරී ද්වාරය සහ පාලන මෙවලම් වෙත ප්‍රවේශ වන්න.",
-      identifierLabel: "ජාතික හැඳුනුම්පත් අංකය, විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය",
-      identifierPlaceholder: "උදා: 199912345678, officer@domain.com හෝ admin",
-      passwordLabel: "මුරපදය",
-      passwordPlaceholder: "ඔබගේ මුරපදය ඇතුළත් කරන්න",
-      submitButton: "ඇතුල් වන්න",
-      noAccount: "ගිණුමක් නොමැතිද?",
-      registerLink: "මෙහි පදිංචිකරුවෙකු ලෙස ලියාපදිංචි වන්න",
-      backHome: "මුල් පිටුවට",
-      },
-
-      TA: {
-      title: "SmartGN இல் உள்நுழைக",
-      subtitle: "குடியிருப்பாளர் சேவைகள், அதிகாரி போர்ட்டல் மற்றும் நிர்வாகக் கருவிகளை அணுகவும்.",
-      identifierLabel: "தேசிய அடையாள அட்டை (NIC) எண், மின்னஞ்சல் அல்லது பயனர் பெயர்",
-      identifierPlaceholder: "உதா: 199912345678, officer@domain.com அல்லது admin",
-      passwordLabel: "கடவுச்சொல்",
-      passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
-      submitButton: "உள்நுழைக",
-      noAccount: "கணக்கு இல்லையா?",
-      registerLink: "இங்கே குடியிருப்பாளராக பதிவு செய்க",
-      backHome: "முகப்பிற்குத் திரும்பு",
-    }
-}
+    const t = loginTranslations[lang] || loginTranslations.EN
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault()
@@ -72,7 +72,11 @@ function Login() {
                 setErrorMessage(data.error || (lang === 'EN' ? 'Invalid credentials or suspended account.' : lang === 'SI' ? 'වලංගු නොවන අක්තපත්‍ර හෝ අත්හිටුවන ලද ගිණුමකි.' : 'தவறான சான்றுகள் அல்லது இடைநிறுத்தப்பட்ட கணக்கு.'))
                 return
             }
-
+            // On success saving the information
+            navigate('/')
+        } catch (error) {
+            console.error('Login error:', error)
+            setErrorMessage(lang === 'EN' ? 'An error occurred. Please try again.' : lang === 'SI' ? 'දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න.' : 'ஒரு பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.')
         }
     }
 
