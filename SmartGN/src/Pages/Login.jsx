@@ -36,7 +36,20 @@ function Login() {
       noAccount: "ගිණුමක් නොමැතිද?",
       registerLink: "මෙහි පදිංචිකරුවෙකු ලෙස ලියාපදිංචි වන්න",
       backHome: "මුල් පිටුවට",
-      }
+      },
+
+      TA: {
+      title: "SmartGN இல் உள்நுழைக",
+      subtitle: "குடியிருப்பாளர் சேவைகள், அதிகாரி போர்ட்டல் மற்றும் நிர்வாகக் கருவிகளை அணுகவும்.",
+      identifierLabel: "தேசிய அடையாள அட்டை (NIC) எண், மின்னஞ்சல் அல்லது பயனர் பெயர்",
+      identifierPlaceholder: "உதா: 199912345678, officer@domain.com அல்லது admin",
+      passwordLabel: "கடவுச்சொல்",
+      passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+      submitButton: "உள்நுழைக",
+      noAccount: "கணக்கு இல்லையா?",
+      registerLink: "இங்கே குடியிருப்பாளராக பதிவு செய்க",
+      backHome: "முகப்பிற்குத் திரும்பு",
+    }
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault()
