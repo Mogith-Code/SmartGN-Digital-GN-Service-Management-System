@@ -50,6 +50,7 @@ function Login() {
       registerLink: "இங்கே குடியிருப்பாளராக பதிவு செய்க",
       backHome: "முகப்பிற்குத் திரும்பு",
     }
+}
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault()
