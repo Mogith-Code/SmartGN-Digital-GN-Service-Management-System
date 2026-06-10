@@ -152,6 +152,48 @@ function ResidentProfile({ onOpenHelp }) {
     setViewMode('VIEW')
     alert('Profile updated successfully.')
   }
-  
+
+   return (
+    <div className="dashboard-container">
+      
+      {/* 1. Header */}
+      <header className="dashboard-header">
+        <div className="landing-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <span className="logo-smart">Smart</span>
+          <span className="logo-gn">GN</span>
+          <p className="logo-subtext">{t.tagline}</p>
+        </div>
+
+        <div className="header-right">
+          <LanguageSelector />
+
+          {/* Notifications */}
+          <div className="notification-bell">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="bell-badge">2</span>
+          </div>
+
+          {/* User Profile Info - Dynamic updates from profile */}
+          <div className="user-profile-info">
+            <div className="user-text-details">
+              <span className="user-division">{profile.nic}</span>
+              <span className="user-name">{profile.firstName} {profile.lastName}</span>
+            </div>
+            <div className="user-avatar-circle" style={{ overflow: 'hidden' }}>
+              {profile.profilePhoto ? (
+                <img src={profile.profilePhoto} alt="User Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="avatar-svg">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
 
 export default ResidentProfile;
