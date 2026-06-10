@@ -55,17 +55,59 @@ function ResidentProfile({ onOpenHelp }) {
 
   const [familyCount, setFamilyCount] = useState(5) // default count
 
-  return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">{t?.myProfile || 'My Profile'}</h2>
-      <div className="bg-white p-6 rounded-xl shadow">
-        <p><strong>First Name:</strong> {profile.firstName}</p>
-        <p><strong>Last Name:</strong> {profile.lastName}</p>
-        <p><strong>NIC:</strong> {profile.nic}</p>
-        <p><strong>Division:</strong> {profile.division}</p>
-      </div>
-    </div>
-  )
-}
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('smartgn_resident_profile')
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile))
+    } else {
+      // Seed default profile data
+      const defaultProfile = {
+        firstName: 'Nimal',
+        lastName: 'Perera',
+        fullName: 'Dissanayake Mudiyanselage Nimal Perera',
+        nic: '200324511540',
+        occupation: 'Farmer',
+        email: 'Nimal.Perera@example.com',
+        mobile: '0703564478',
+        address: '123 Main Street, Colombo',
+        division: 'Colombo, Borella',
+        dob: '28/05/2000',
+        gender: 'Male',
+        householdNumber: '123456',
+        profilePhoto: null,
+        nicFront: null,
+        nicBack: null
+      }
+      localStorage.setItem('smartgn_resident_profile', JSON.stringify(defaultProfile))
+      setProfile(defaultProfile)
+    }
+
+    // Load family members to show dynamic count
+    const savedFamily = localStorage.getItem('smartgn_family_members')
+    if (savedFamily) {
+      const familyList = JSON.parse(savedFamily)
+      setFamilyCount(familyList.length)
+    }
+  }, [])
+
+  // Populate form fields when entering Edit Mode
+  const handleEnterEdit = () => {
+    setEditFirstName(profile.firstName)
+    setEditLastName(profile.lastName)
+    setEditFullName(profile.fullName)
+    setEditOccupation(profile.occupation)
+    setEditEmail(profile.email)
+    setEditMobile(profile.mobile)
+    setEditAddress(profile.address)
+    setEditDob(profile.dob)
+    setEditGender(profile.gender)
+    setEditHouseholdNumber(profile.householdNumber)
+    setEditProfilePhoto(profile.profilePhoto)
+    setEditNicFront(profile.nicFront)
+    setEditNicBack(profile.nicBack)
+    setViewMode('EDIT')
+  }
+
 
 export default ResidentProfile;
