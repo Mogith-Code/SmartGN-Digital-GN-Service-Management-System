@@ -108,6 +108,50 @@ function ResidentProfile({ onOpenHelp }) {
     setEditNicBack(profile.nicBack)
     setViewMode('EDIT')
   }
+// Handle Photo File Upload Convert to Base64
+  const handlePhotoUpload = (e, target) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        if (target === 'profilePhoto') {
+          setEditProfilePhoto(reader.result)
+        } else if (target === 'nicFront') {
+          setEditNicFront(reader.result)
+        } else if (target === 'nicBack') {
+          setEditNicBack(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
+  // Save changes
+  const handleSaveProfile = (e) => {
+    e.preventDefault()
+
+    const updatedProfile = {
+      ...profile,
+      firstName: editFirstName,
+      lastName: editLastName,
+      fullName: editFullName,
+      occupation: editOccupation,
+      email: editEmail,
+      mobile: editMobile,
+      address: editAddress,
+      dob: editDob,
+      gender: editGender,
+      householdNumber: editHouseholdNumber,
+      profilePhoto: editProfilePhoto,
+      nicFront: editNicFront,
+      nicBack: editNicBack
+    }
+
+    localStorage.setItem('smartgn_resident_profile', JSON.stringify(updatedProfile))
+    setProfile(updatedProfile)
+    setViewMode('VIEW')
+    alert('Profile updated successfully.')
+  }
+  
 
 export default ResidentProfile;
