@@ -280,5 +280,430 @@ function ResidentProfile({ onOpenHelp }) {
             </button>
           </nav>
         </aside>
+        
+        {/* Main Panel Content */}
+        <main className="dashboard-content">
+          
+          {/* Alert Banner */}
+          {showAlert && !profile.nicFront && !profile.nicBack && (
+            <div className="dashboard-alert-banner">
+              <div className="alert-text-wrapper">
+                <span>Please upload a high-quality image of your National Identity Card</span>
+              </div>
+              <button className="alert-close-btn" onClick={() => setShowAlert(false)} aria-label="Close Warning">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
 
-export default ResidentProfile;
+          {/* Sub-view: VIEW (My Profile Dashboard) */}
+          {viewMode === 'VIEW' && (
+            <>
+              <h2 className="content-greeting" style={{ marginBottom: '24px' }}>My profile</h2>
+
+              {/* Profile Card Header */}
+              <div className="profile-overview-card" style={{ marginBottom: '24px' }}>
+                <div className="profile-overview-left">
+                  <div className="profile-overview-avatar">
+                    {profile.profilePhoto ? (
+                      <img src={profile.profilePhoto} alt="Profile avatar" className="profile-photo-img" />
+                    ) : (
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="avatar-placeholder-svg">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    )}
+                  </div>
+                  <div className="profile-overview-details">
+                    <h3 className="profile-overview-name">{profile.firstName} {profile.lastName}</h3>
+                    <span className="profile-overview-id">{profile.nic}</span>
+                  </div>
+                </div>
+                <button className="btn-edit-profile-action" onClick={handleEnterEdit}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="pencil-icon">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  Edit profile
+                </button>
+              </div>
+
+              {/* Dynamic split panel for details and NIC */}
+              <div className="profile-details-split">
+                
+                {/* Personal Information */}
+                <div className="profile-details-card">
+                  <h3 className="profile-card-title">Personal information</h3>
+                  <div className="profile-info-list">
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Full Name:</span>
+                      <span className="profile-info-value">{profile.fullName}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Number of Family Members:</span>
+                      <span className="profile-info-value">
+                        {familyCount} &nbsp; 
+                        <span 
+                          className="view-family-details-link" 
+                          onClick={() => navigate('/dashboard/resident/household', { state: { successUser: `${profile.firstName} ${profile.lastName}`, division: userDivision } })}
+                          style={{ cursor: 'pointer', color: '#d97706', fontWeight: '700', textDecoration: 'underline' }}
+                        >
+                          View family details
+                        </span>
+                      </span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Occupation:</span>
+                      <span className="profile-info-value">{profile.occupation}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Email Address:</span>
+                      <span className="profile-info-value">{profile.email}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Mobile Number:</span>
+                      <span className="profile-info-value">{profile.mobile}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Home Address:</span>
+                      <span className="profile-info-value">{profile.address}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Gramaseva Division:</span>
+                      <span className="profile-info-value">{profile.division}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Date of Birth:</span>
+                      <span className="profile-info-value">{profile.dob}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Gender:</span>
+                      <span className="profile-info-value">{profile.gender}</span>
+                    </div>
+                    <div className="profile-info-item">
+                      <span className="profile-info-label">Household Number:</span>
+                      <span className="profile-info-value">{profile.householdNumber}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* National Identity Card Display */}
+                <div className="profile-details-card">
+                  <h3 className="profile-card-title">National Identity Card</h3>
+                  
+                  <div className="nic-preview-list">
+                    <div className="nic-preview-box">
+                      {profile.nicFront ? (
+                        <img src={profile.nicFront} alt="NIC Front" className="nic-preview-img" />
+                      ) : (
+                        <span className="nic-preview-placeholder-text">Front image here</span>
+                      )}
+                    </div>
+
+                    <div className="nic-preview-box">
+                      {profile.nicBack ? (
+                        <img src={profile.nicBack} alt="NIC Back" className="nic-preview-img" />
+                      ) : (
+                        <span className="nic-preview-placeholder-text">Back image here</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </>
+          )}
+
+          {/* Sub-view: EDIT (Edit Profile Page View) */}
+          {viewMode === 'EDIT' && (
+            <>
+              {/* Back Button */}
+              <div className="form-header" style={{ marginBottom: '16px', justifyContent: 'flex-start' }}>
+                <button className="btn-back" onClick={() => setViewMode('VIEW')}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                  Back
+                </button>
+              </div>
+
+              <h2 className="content-greeting" style={{ marginBottom: '24px' }}>Edit your profile</h2>
+
+              {/* Image Upload Zone & Editor Form */}
+              <div className="dashboard-announcements-card" style={{ padding: '32px' }}>
+                <form onSubmit={handleSaveProfile}>
+                  
+                  {/* Circular profile image upload widget */}
+                  <div className="profile-photo-upload-section">
+                    <div className="profile-photo-upload-container">
+                      {editProfilePhoto ? (
+                        <img src={editProfilePhoto} alt="Upload profile" className="profile-photo-upload-preview" />
+                      ) : (
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="profile-photo-upload-placeholder">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                      )}
+                      
+                      {/* Hidden file input */}
+                      <input 
+                        type="file" 
+                        id="profilePhotoFile" 
+                        accept="image/*" 
+                        style={{ display: 'none' }} 
+                        onChange={(e) => handlePhotoUpload(e, 'profilePhoto')}
+                      />
+                    </div>
+                    <label htmlFor="profilePhotoFile" className="profile-photo-upload-label">
+                      Upload your profile photo here
+                    </label>
+                  </div>
+
+                  {/* Inputs Form Grid */}
+                  <div className="register-grid">
+                    
+                    <div className="form-group">
+                      <label htmlFor="firstName">First Name :</label>
+                      <input 
+                        type="text" 
+                        id="firstName" 
+                        className="register-control" 
+                        value={editFirstName}
+                        onChange={(e) => setEditFirstName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="lastName">Last Name :</label>
+                      <input 
+                        type="text" 
+                        id="lastName" 
+                        className="register-control" 
+                        value={editLastName}
+                        onChange={(e) => setEditLastName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group col-span-2">
+                      <label htmlFor="fullName">Full Name :</label>
+                      <input 
+                        type="text" 
+                        id="fullName" 
+                        className="register-control" 
+                        value={editFullName}
+                        onChange={(e) => setEditFullName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="occupation">Occupation :</label>
+                      <input 
+                        type="text" 
+                        id="occupation" 
+                        className="register-control" 
+                        value={editOccupation}
+                        onChange={(e) => setEditOccupation(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="email">Email Address :</label>
+                      <input 
+                        type="email" 
+                        id="email" 
+                        className="register-control" 
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="mobile">Mobile Number :</label>
+                      <input 
+                        type="text" 
+                        id="mobile" 
+                        className="register-control" 
+                        value={editMobile}
+                        onChange={(e) => setEditMobile(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="division">Gramaseva Division :</label>
+                      <input 
+                        type="text" 
+                        id="division" 
+                        className="register-control" 
+                        style={{ backgroundColor: '#f1f5f9', cursor: 'not-allowed', color: '#64748b', fontWeight: '500' }}
+                        value={profile.division}
+                        disabled
+                        readOnly
+                      />
+                    </div>
+
+                    <div className="form-group col-span-2">
+                      <label htmlFor="address">Home Address :</label>
+                      <input 
+                        type="text" 
+                        id="address" 
+                        className="register-control" 
+                        value={editAddress}
+                        onChange={(e) => setEditAddress(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="dob">Date of Birth :</label>
+                      <input 
+                        type="text" 
+                        id="dob" 
+                        placeholder="DD/MM/YYYY"
+                        className="register-control" 
+                        value={editDob}
+                        onChange={(e) => setEditDob(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="gender">Gender :</label>
+                      <div className="select-wrapper">
+                        <select 
+                          id="gender" 
+                          className="register-control register-select"
+                          value={editGender}
+                          onChange={(e) => setEditGender(e.target.value)}
+                          required
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <span className="select-arrow">▼</span>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="householdNumber">Household Number :</label>
+                      <input 
+                        type="text" 
+                        id="householdNumber" 
+                        className="register-control" 
+                        value={editHouseholdNumber}
+                        onChange={(e) => setEditHouseholdNumber(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                  </div>
+
+                  {/* NIC File Upload Area */}
+                  <div className="profile-nic-upload-section" style={{ marginTop: '28px', borderTop: '1.5px solid #e2e8f0', paddingTop: '20px' }}>
+                    <p style={{ fontWeight: '600', fontSize: '14px', color: '#1e293b', marginBottom: '16px', textAlign: 'left' }}>
+                      Upload an image of your National Identity Card :
+                    </p>
+
+                    <div className="profile-nic-dropzone-grid">
+                      <div className="nic-dropzone-item">
+                        <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Front Image :</span>
+                        <div className="nic-upload-dashed-card">
+                          {editNicFront ? (
+                            <img src={editNicFront} alt="NIC Front Preview" className="nic-upload-preview-img" />
+                          ) : (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="nic-upload-placeholder-icon">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                              <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                          )}
+                          <input 
+                            type="file" 
+                            id="nicFrontFile" 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                            onChange={(e) => handlePhotoUpload(e, 'nicFront')}
+                          />
+                          <label htmlFor="nicFrontFile" className="nic-upload-select-btn">Choose file</label>
+                        </div>
+                      </div>
+
+                      <div className="nic-dropzone-item">
+                        <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500', marginBottom: '8px', display: 'block' }}>Back Image :</span>
+                        <div className="nic-upload-dashed-card">
+                          {editNicBack ? (
+                            <img src={editNicBack} alt="NIC Back Preview" className="nic-upload-preview-img" />
+                          ) : (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="nic-upload-placeholder-icon">
+                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                              <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                          )}
+                          <input 
+                            type="file" 
+                            id="nicBackFile" 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                            onChange={(e) => handlePhotoUpload(e, 'nicBack')}
+                          />
+                          <label htmlFor="nicBackFile" className="nic-upload-select-btn">Choose file</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Form Action Controls */}
+                  <div className="form-action-row" style={{ marginTop: '32px', justifyContent: 'flex-end', gap: '16px' }}>
+                    <button type="button" className="btn-form-reset" onClick={() => setViewMode('VIEW')} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ef4444', color: '#ffffff' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Cancel
+                    </button>
+                    
+                    <button type="submit" className="btn-form-submit" style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: '120px' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                      </svg>
+                      Update
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
+
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  )
+}
+
+export default ResidentProfile
+
+
