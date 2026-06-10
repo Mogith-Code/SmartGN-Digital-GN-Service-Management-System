@@ -23,7 +23,20 @@ function Login() {
       noAccount: "Don't have an account?",
       registerLink: "Register here as a Resident",
       backHome: "Back to Home",
-    
+    }
+
+      SI: {
+      title: "SmartGN වෙත ඇතුල් වන්න",
+      subtitle: "ගම්වැසි සේවා, ග්‍රාම නිලධාරී ද්වාරය සහ පාලන මෙවලම් වෙත ප්‍රවේශ වන්න.",
+      identifierLabel: "ජාතික හැඳුනුම්පත් අංකය, විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය",
+      identifierPlaceholder: "උදා: 199912345678, officer@domain.com හෝ admin",
+      passwordLabel: "මුරපදය",
+      passwordPlaceholder: "ඔබගේ මුරපදය ඇතුළත් කරන්න",
+      submitButton: "ඇතුල් වන්න",
+      noAccount: "ගිණුමක් නොමැතිද?",
+      registerLink: "මෙහි පදිංචිකරුවෙකු ලෙස ලියාපදිංචි වන්න",
+      backHome: "මුල් පිටුවට",
+      }
 
     const handleLoginSubmit = async (e) => {
         e.preventDefault()
