@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
-import LanguageSelector from '../components/LanguageSelector'
+import LanguageSelector from '../Components/Common/LanguageSelector'
 
 function ResidentProfile({ onOpenHelp }) {
   const navigate = useNavigate()
@@ -54,3 +54,18 @@ function ResidentProfile({ onOpenHelp }) {
   const [editNicBack, setEditNicBack] = useState(null)
 
   const [familyCount, setFamilyCount] = useState(5) // default count
+
+  return (
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">{t?.myProfile || 'My Profile'}</h2>
+      <div className="bg-white p-6 rounded-xl shadow">
+        <p><strong>First Name:</strong> {profile.firstName}</p>
+        <p><strong>Last Name:</strong> {profile.lastName}</p>
+        <p><strong>NIC:</strong> {profile.nic}</p>
+        <p><strong>Division:</strong> {profile.division}</p>
+      </div>
+    </div>
+  )
+}
+
+export default ResidentProfile;
