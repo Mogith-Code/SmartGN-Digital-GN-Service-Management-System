@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../utils/translate'
-import LanguageSelector from '../components/LanguageSelector'
+import LanguageSelector from  '../Components/Common/LanguageSelector'
 
 function Login() {
     const navigate = useNavigate()
@@ -72,11 +72,42 @@ function Login() {
                 setErrorMessage(data.error || (lang === 'EN' ? 'Invalid credentials or suspended account.' : lang === 'SI' ? 'වලංගු නොවන අක්තපත්‍ර හෝ අත්හිටුවන ලද ගිණුමකි.' : 'தவறான சான்றுகள் அல்லது இடைநிறுத்தப்பட்ட கணக்கு.'))
                 return
             }
-            // On success saving the information
-            navigate('/')
-        } catch (error) {
-            console.error('Login error:', error)
-            setErrorMessage(lang === 'EN' ? 'An error occurred. Please try again.' : lang === 'SI' ? 'දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න.' : 'ஒரு பிழை ஏற்பட்டது. மீண்டும் முயற்சிக்கவும்.')
+
+            // Store JWT token
+            localStorage.setItem('smartgn_token', data.token)
+            localStorage.setItem('smartgn_user_role', data.role)
+            localStorage.setItem('smartgn_user_name', data.user.name)
+
+            if (data.role === 'RESIDENT') {
+                localStorage.setItem('smartgn_user_id', data.user.nic)
+                localStorage.setItem('smartgn_user_division', data.user.division)
+                navigate('/dashboard/resident', {
+                    state: {
+                        successUser: data.user.name,
+                        division: data.user.division,
+                        nic: data.user.nic
+                    }
+                })
+            } else if (data.role === 'OFFICER') {
+                localStorage.setItem('smartgn_user_id', data.user.id)
+                localStorage.setItem('smartgn_user_division', data.user.divisionName)
+                navigate('/dashboard/officer', {
+                    state: {
+                        successUser: data.user.name,
+                        officerId: data.user.id,
+                        division: data.user.divisionName
+                    }
+                })
+            } else if (data.role === 'ADMIN') {
+                localStorage.setItem('smartgn_user_id', data.user.id)
+                navigate('/dashboard/admin', {
+                    state: {
+                        successUser: data.user.name
+                    }
+                })
+            }
+        } catch (err) {
+            setErrorMessage(lang === 'EN' ? 'Network connection error. Please verify the MySQL backend is active.' : lang === 'SI' ? 'ජාල සම්බන්ධතා දෝෂයකි. MySQL පසුබිම් සේවාදායකය ක්‍රියාකාරී දැයි පරීක්ෂා කරන්න.' : 'பிணைய இணைப்பு பிழை. MySQL பின்தள சேவையகம் செயலில் உள்ளதா என சரிபார்க்கவும்.')
         }
     }
 
