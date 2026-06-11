@@ -44,3 +44,106 @@ function OfficerProfile({ onOpenHelp }) {
   const [editProfilePhoto, setEditProfilePhoto] = useState(null)
   const [editIdCardFront, setEditIdCardFront] = useState(null)
   const [editIdCardBack, setEditIdCardBack] = useState(null)
+
+  // Initialize and load from localStorage
+  useEffect(() => {
+   const saved = localStorage.getItem('smartgn_officer_profile')
+    if (saved) {
+      setProfile(JSON.parse(saved))
+    } else {
+      const defaultProfile = {
+        firstName: 'Kamal',
+        lastName: 'Perera',
+        fullName: 'Dissanayake Mudiyanselage Kamal Perera',
+        division: 'Colombo, Borella',
+        serviceTime: '2',
+        email: 'Nirmal.Perera@example.com',
+        mobile: '0703564478',
+        profilePhoto: null,
+        idCardFront: null,
+        idCardBack: null
+      }
+      localStorage.setItem('smartgn_officer_profile', JSON.stringify(defaultProfile))
+      setProfile(defaultProfile)
+    }
+  }, [])
+
+  // Enter edit mode uploader
+  const handleEnterEdit = () => {
+    setEditFirstName(profile.firstName)
+    setEditLastName(profile.lastName)
+    setEditFullName(profile.fullName)
+    setEditDivision(profile.division)
+    setEditServiceTime(profile.serviceTime)
+    setEditEmail(profile.email)
+    setEditMobile(profile.mobile)
+    setEditProfilePhoto(profile.profilePhoto)
+    setEditIdCardFront(profile.idCardFront)
+    setEditIdCardBack(profile.idCardBack)
+    setViewMode('EDIT')
+  }
+
+  // Handle Photo uploads (Base64 uploader)
+  const handlePhotoUpload = (e, target) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        if (target === 'profilePhoto') {
+          setEditProfilePhoto(reader.result)
+        } else if (target === 'idCardFront') {
+          setEditIdCardFront(reader.result)
+        } else if (target === 'idCardBack') {
+          setEditIdCardBack(reader.result)
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  // Handle saving the updated profile info
+  const handleSaveProfile = (e) => {
+    e.preventDefault()
+
+    const updatedProfile = {
+      firstName: editFirstName,
+      lastName: editLastName,
+      fullName: editFullName,
+      division: editDivision,
+      serviceTime: editServiceTime,
+      email: editEmail,
+      mobile: editMobile,
+      profilePhoto: editProfilePhoto,
+      idCardFront: editIdCardFront,
+      idCardBack: editIdCardBack
+    }
+
+    localStorage.setItem('smartgn_officer_profile', JSON.stringify(updatedProfile))
+    setProfile(updatedProfile)
+    setViewMode('VIEW')
+    alert('GN Profile details updated successfully.')
+  }
+
+  return (
+    <div className="dashboard-container">
+
+      {/* 1. Header */}
+      <header className="dashboard-header">
+        <div className="landing-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <span className="logo-smart">Smart</span>
+          <span className="logo-gn">GN</span>
+          <p className="logo-subtext">{t.tagline}</p>
+        </div>
+
+        <div className="header-right">
+          <LanguageSelector />
+
+          {/* Notifications */}
+          <div className="notification-bell">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="bell-badge">2</span>
+          </div>
+
