@@ -14,8 +14,8 @@ function Login() {
 
     const loginTranslations = {
         EN: {
-            title: "Village Resident Login",
-            identifierLabel: "Enter your NIC Number",
+            title: "Login",
+            identifierLabel: "Enter your Username",
             identifierPlaceholder: "e.g., 199912345678, email, or username",
             passwordLabel: "Enter Password",
             passwordPlaceholder: "Enter your password",
@@ -27,8 +27,8 @@ function Login() {
             contactSupport: "Contact Support",
         },
         SI: {
-            title: "ග්‍රාමීය පදිංචිකරුවන්ගේ ඇතුල්වීම",
-            identifierLabel: "ඔබගේ ජාතික හැඳුනුම්පත් අංකය ඇතුළත් කරන්න",
+            title: "ඇතුල්වීම",
+            identifierLabel: "ඔබගේ පරිශීලක නාමය ඇතුළත් කරන්න",
             identifierPlaceholder: "උදා: 199912345678, විද්‍යුත් තැපෑල හෝ පරිශීලක නාමය",
             passwordLabel: "මුරපදය ඇතුළත් කරන්න",
             passwordPlaceholder: "ඔබගේ මුරපදය ඇතුළත් කරන්න",
@@ -40,8 +40,8 @@ function Login() {
             contactSupport: "සහාය අමතන්න",
         },
         TA: {
-            title: "கிராம குடியிருப்பாளர் உள்நுழைவு",
-            identifierLabel: "உங்கள் தேசிய அடையாள அட்டை (NIC) எண்ணை உள்ளிடவும்",
+            title: "உள்நுழைவு",
+            identifierLabel: "உங்கள் பயனர் பெயரை உள்ளிடவும்",
             identifierPlaceholder: "உதா: 199912345678, மின்னஞ்சல் அல்லது பயனர் பெயர்",
             passwordLabel: "கடவுச்சொல்லை உள்ளிடவும்",
             passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
