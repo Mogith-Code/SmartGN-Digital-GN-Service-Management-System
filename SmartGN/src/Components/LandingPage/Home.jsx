@@ -67,7 +67,7 @@ function Home() {
 
         {/* REGISTER BUTTON */}
         <button className="flex items-center justify-center gap-2.5 px-[50px] py-2.5 bg-[#D69E2E] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[20px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#FFAA00] hover:text-white transition-all duration-300 cursor-pointer" 
-                onClick={() => console.log("register clicked")}> {/*TODO: replace navigate('/register') instead of console.log()*/}
+                onClick={() => navigate('/register')}>
           {t.register}
           <img src={registerIcon} alt="Register Icon" className="w-5 h-5" />
         </button>

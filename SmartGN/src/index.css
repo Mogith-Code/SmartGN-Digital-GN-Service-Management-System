@@ -3,19 +3,28 @@
 
 @tailwind utilities;
 
+:root {
+  --bg-gradient-start: #EBF8FF;
+  --bg-gradient-end: #F7FAFC;
+  --text-primary: #2D3748;
+  --text-secondary: #718096;
+  --font-sans: 'Roboto', sans-serif;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px; /* Adjust based on your navbar height */
 }
 
 body {
-  @apply m-0 p-0 min-h-screen flex items-center justify-center overflow-x-hidden relative border border-green-500;
-    font-family: var(--font-sans);
-    color: var(--text-primary);
-    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  @apply m-0 p-0 min-h-screen flex items-center justify-center overflow-x-hidden relative;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
 }
 
 #root {
  @apply flex justify-center items-center w-full min-h-screen;
 }
+
 
