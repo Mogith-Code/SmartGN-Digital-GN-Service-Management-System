@@ -133,9 +133,24 @@ function Register() {
   const [divisions, setDivisions] = useState([])
   const [errorMessage, setErrorMessage] = useState('')
 
+    // Fetch divisions on mount
+  useEffect(() => {
+    const fetchDivisions = async () => {
+      try {
+        const response = await fetch('/api/auth/divisions')
+        if (response.ok) {
+          const data = await response.json()
+          setDivisions(data.map(d => d.name))
+        } else {
+          setDivisions(['Colombo 03', 'Colombo 07', 'Kandy Town', 'Galle Fort', 'Negombo South', 'Colombo, Borella'])
+        }
+      } catch (err) {
+        console.error('Error fetching divisions:', err)
+        setDivisions(['Colombo 03', 'Colombo 07', 'Kandy Town', 'Galle Fort', 'Negombo South', 'Colombo, Borella'])
+      }
+    }
+  }
 }
-  
-
 
 
 export default Register
