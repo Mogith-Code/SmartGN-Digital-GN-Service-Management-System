@@ -308,7 +308,7 @@ function OfficerProfile({ onOpenHelp }) {
                   Edit profile
                 </button>
               </div>
-              
+
               {/* Main Content Layout Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '32px', alignItems: 'start' }}>
                 
@@ -432,5 +432,188 @@ function OfficerProfile({ onOpenHelp }) {
                             onChange={(e) => setEditFirstName(e.target.value)} 
                             required 
                           />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="lastName" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Last Name *</label>
+                          <input 
+                            type="text" 
+                            id="lastName" 
+                            className="register-control" 
+                            value={editLastName} 
+                            onChange={(e) => setEditLastName(e.target.value)} 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="fullName" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Full Name *</label>
+                        <input 
+                          type="text" 
+                          id="fullName" 
+                          className="register-control" 
+                          value={editFullName} 
+                          onChange={(e) => setEditFullName(e.target.value)} 
+                          required 
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '16px' }}>
+                        <div className="form-group">
+                          <label htmlFor="division" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Gramaseva Division *</label>
+                          <input 
+                            type="text" 
+                            id="division" 
+                            className="register-control" 
+                            value={editDivision} 
+                            onChange={(e) => setEditDivision(e.target.value)} 
+                            required 
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label htmlFor="serviceTime" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Service Time (Years) *</label>
+                          <input 
+                            type="number" 
+                            id="serviceTime" 
+                            className="register-control" 
+                            value={editServiceTime} 
+                            onChange={(e) => setEditServiceTime(e.target.value)} 
+                            required 
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="email" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Email Address *</label>
+                        <input 
+                          type="email" 
+                          id="email" 
+                          className="register-control" 
+                          value={editEmail} 
+                          onChange={(e) => setEditEmail(e.target.value)} 
+                          required 
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="mobile" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>Mobile Number *</label>
+                        <input 
+                          type="text" 
+                          id="mobile" 
+                          className="register-control" 
+                          value={editMobile} 
+                          onChange={(e) => setEditMobile(e.target.value)} 
+                          required 
+                        />
+                      </div>
+
+                    </div>
+
+                    {/* Right Form ID Card Uploaders */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
+                      <label style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>GN Identity Card Images</label>
+                      
+                      {/* Front Dropzone card */}
+                      <div className="form-group">
+                        <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Identity Card (Front)</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '160px', border: '2px dashed #cbd5e1', borderRadius: '12px', overflow: 'hidden', position: 'relative', backgroundColor: '#f8fafc' }}>
+                          {editIdCardFront ? (
+                            <>
+                              <img src={editIdCardFront} alt="GN ID Front" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button type="button" onClick={() => setEditIdCardFront(null)} style={{ position: 'absolute', right: '10px', top: '10px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '10.5px', cursor: 'pointer', fontWeight: '800' }}>Remove</button>
+                            </>
+                          ) : (
+                            <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', padding: '20px', gap: '8px' }}>
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                              </svg>
+                              <span style={{ fontSize: '12.5px', color: '#475569', fontWeight: '750' }}>Upload Front Image</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                onChange={(e) => handlePhotoUpload(e, 'idCardFront')} 
+                              />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Back Dropzone card */}
+                      <div className="form-group">
+                        <label style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Identity Card (Back)</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '160px', border: '2px dashed #cbd5e1', borderRadius: '12px', overflow: 'hidden', position: 'relative', backgroundColor: '#f8fafc' }}>
+                          {editIdCardBack ? (
+                            <>
+                              <img src={editIdCardBack} alt="GN ID Back" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <button type="button" onClick={() => setEditIdCardBack(null)} style={{ position: 'absolute', right: '10px', top: '10px', backgroundColor: 'rgba(239, 68, 68, 0.9)', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '10.5px', cursor: 'pointer', fontWeight: '800' }}>Remove</button>
+                            </>
+                          ) : (
+                            <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', padding: '20px', gap: '8px' }}>
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                              </svg>
+                              <span style={{ fontSize: '12.5px', color: '#475569', fontWeight: '750' }}>Upload Back Image</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                onChange={(e) => handlePhotoUpload(e, 'idCardBack')} 
+                              />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  {/* Form Action Controls */}
+                  <div className="form-action-row" style={{ marginTop: '36px', display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                    <button type="button" className="btn-form-reset" onClick={() => setViewMode('VIEW')} style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#ef4444', color: '#ffffff', border: 'none' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn-form-submit" style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: '160px', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      Update Profile
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
+
+          {/* Floating Help Button Widget */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  )
+}
+
+export default OfficerProfile
+
 
               
