@@ -296,7 +296,7 @@ function OfficerProfile({ onOpenHelp }) {
                     <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>{profile.division.split(',')[0]}</span>
                   </div>
                 </div>
-
+              
                 <button 
                   onClick={handleEnterEdit}
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '50px', border: '1.5px solid #d97706', background: '#ffffff', color: '#d97706', fontSize: '13px', fontWeight: '750', cursor: 'pointer', boxShadow: '0 2px 8px rgba(217, 119, 6, 0.05)' }}
@@ -308,8 +308,129 @@ function OfficerProfile({ onOpenHelp }) {
                   Edit profile
                 </button>
               </div>
+              
+              {/* Main Content Layout Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '32px', alignItems: 'start' }}>
+                
+                {/* Left Card: Personal information */}
+                <div className="dashboard-announcements-card" style={{ padding: '32px', textAlign: 'left' }}>
+                  <h3 className="card-inner-title" style={{ fontSize: '16px', marginBottom: '24px' }}>Personal information</h3>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                    <div>
+                      <span style={{ display: 'block', fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Full Name</span>
+                      <span style={{ fontSize: '14.5px', fontWeight: '700', color: '#1e293b' }}>{profile.fullName}</span>
+                    </div>
 
+                    <div>
+                      <span style={{ display: 'block', fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Gramaseva Division</span>
+                      <span style={{ fontSize: '14.5px', fontWeight: '700', color: '#1e293b' }}>{profile.division}</span>
+                    </div>
 
+                    <div>
+                      <span style={{ display: 'block', fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Service time within current division</span>
+                      <span style={{ fontSize: '14.5px', fontWeight: '700', color: '#1e293b' }}>{profile.serviceTime} Years</span>
+                    </div>
 
+                    <div>
+                      <span style={{ display: 'block', fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Email Address</span>
+                      <span style={{ fontSize: '14.5px', fontWeight: '700', color: '#1e293b' }}>{profile.email}</span>
+                    </div>
 
+                    <div>
+                      <span style={{ display: 'block', fontSize: '12px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Mobile Number</span>
+                      <span style={{ fontSize: '14.5px', fontWeight: '700', color: '#1e293b' }}>{profile.mobile}</span>
+                    </div>
+                  </div>
+                </div>
 
+                {/* Right Cards: Grama Niladhari Identity Card uploads */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', textAlign: 'left' }}>
+                  <h3 className="card-inner-title" style={{ fontSize: '16px', margin: '0' }}>Grama Niladhari Identity Card</h3>
+                  
+                  {/* Front card image slot */}
+                  <div className="announcement-row-placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '170px', borderRadius: '16px', overflow: 'hidden', border: '2px dashed #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer' }} onClick={handleEnterEdit}>
+                    {profile.idCardFront ? (
+                      <img src={profile.idCardFront} alt="ID Front preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ color: '#475569', fontSize: '14.5px', fontWeight: '750' }}>Front image here</span>
+                    )}
+                  </div>
+
+                  {/* Back card image slot */}
+                  <div className="announcement-row-placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '170px', borderRadius: '16px', overflow: 'hidden', border: '2px dashed #cbd5e1', backgroundColor: '#ffffff', cursor: 'pointer' }} onClick={handleEnterEdit}>
+                    {profile.idCardBack ? (
+                      <img src={profile.idCardBack} alt="ID Back preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ color: '#475569', fontSize: '14.5px', fontWeight: '750' }}>Back image here</span>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </>
+          )}
+
+          {/* Sub-view: EDIT (Edit profile details & dropzone uploader) */}
+          {viewMode === 'EDIT' && (
+            <>
+              {/* Back chevron trigger */}
+              <div className="form-header" style={{ marginBottom: '16px', justifyContent: 'flex-start' }}>
+                <button className="btn-back" onClick={() => setViewMode('VIEW')}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                  </svg>
+                  Back
+                </button>
+              </div>
+
+              <h2 className="content-greeting" style={{ marginBottom: '24px', textAlign: 'left' }}>Edit Profile</h2>
+
+              <div className="dashboard-announcements-card" style={{ padding: '36px' }}>
+                <form onSubmit={handleSaveProfile}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+                    
+                    {/* Left Form Inputs */}
+                    <div className="form-grid" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      
+                      {/* Avatar circular preview dropzone */}
+                      <div className="form-group" style={{ alignItems: 'flex-start' }}>
+                        <label style={{ fontWeight: '700', color: '#334155', fontSize: '13px', marginBottom: '8px' }}>Profile Picture</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <div style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px dashed #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
+                            {editProfilePhoto ? (
+                              <img src={editProfilePhoto} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                              </svg>
+                            )}
+                          </div>
+                          
+                          <label className="nic-upload-select-btn" style={{ borderRadius: '6px', padding: '8px 14px', fontSize: '12.5px', cursor: 'pointer' }}>
+                            Choose Photo
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              style={{ display: 'none' }} 
+                              onChange={(e) => handlePhotoUpload(e, 'profilePhoto')} 
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div className="form-group">
+                          <label htmlFor="firstName" style={{ fontWeight: '700', color: '#334155', fontSize: '13px' }}>First Name *</label>
+                          <input 
+                            type="text" 
+                            id="firstName" 
+                            className="register-control" 
+                            value={editFirstName} 
+                            onChange={(e) => setEditFirstName(e.target.value)} 
+                            required 
+                          />
+
+              
