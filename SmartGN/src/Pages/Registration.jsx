@@ -133,7 +133,7 @@ function Register() {
   const [divisions, setDivisions] = useState([])
   const [errorMessage, setErrorMessage] = useState('')
 
-    // Fetch divisions on mount
+ // Fetch divisions
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
@@ -149,8 +149,90 @@ function Register() {
         setDivisions(['Colombo 03', 'Colombo 07', 'Kandy Town', 'Galle Fort', 'Negombo South', 'Colombo, Borella'])
       }
     }
-  }
-}
+    fetchDivisions()
+  }, [])
 
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!nic || !household || !firstName || !lastName || !email || !dob || !gender || !mobile || !division || !password || !confirmPassword) {
+      setErrorMessage(t.errorAllFields)
+      return
+    }
+    
+    if (password !== confirmPassword) {
+      setErrorMessage(t.errorPasswordMatch)
+      return
+    }
+
+    try {
+      const bodyPayload = {
+        nic,
+        name: `${firstName} ${lastName}`,
+        dob,
+        password,
+        gender,
+        mobile,
+        email,
+        householdNumber: household,
+        division
+      }
+
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload)
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        setErrorMessage(data.error || t.errorRegistrationFailed)
+        return
+      }
+
+      setErrorMessage('')
+      navigate('/success', { 
+        state: { 
+          successUser: `${firstName} ${lastName} (NIC: ${nic})`,
+          isRegister: true
+        } 
+      })
+    } catch (err) {
+      setErrorMessage(t.errorNetwork)
+    }
+  }
+  return (
+    <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
+      {/* Language Selector floating in top right */}
+      <div className="absolute top-6 right-8">
+        <LanguageSelector />
+      </div>
+
+      {/* Registration Card */}
+      <div className="w-full max-w-[700px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
+        
+        {/* Card Title */}
+        <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-8 tracking-tight">
+          {t.title}
+        </h2>
+        
+        <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* NIC Number */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="nic" className="text-[14px] font-medium text-[#2D3748] text-left">
+                {t.nicLabel}
+              </label>
+              <input 
+                type="text" 
+                id="nic" 
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+                placeholder={t.nicPlaceholder}
+                value={nic}
+                onChange={(e) => setNic(e.target.value)}
+                required
+  } 
+}
 
 export default Register
