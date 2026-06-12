@@ -215,6 +215,101 @@ function OfficerProfile({ onOpenHelp }) {
               <span>{t.certificates}</span>
             </button>
 
-            
+            <button className="menu-btn" onClick={() => navigate('/dashboard/officer/appointments', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>{t.appointments}</span>
+            </button>
+
+            <button className="menu-btn" onClick={() => navigate('/dashboard/officer/allowances', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+              </svg>
+              <span>{t.allowances}</span>
+            </button>
+
+            <button className="menu-btn" onClick={() => navigate('/dashboard/officer/disasters', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>{t.disaster}</span>
+            </button>
+
+            <button className="menu-btn" onClick={() => navigate('/dashboard/officer/announcements', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span>{t.announcements}</span>
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main Panel Content */}
+        <main className="dashboard-content">
+
+          {/* Sub-view: VIEW (Profile Dashboard View) */}
+          {viewMode === 'VIEW' && (
+            <>
+              {/* Dismissible Alert Banner */}
+              {showAlert && (!profile.idCardFront || !profile.idCardBack) && (
+                <div className="dashboard-alert-banner">
+                  <div className="alert-text-wrapper">
+                    <span>Please upload a high-quality image of your GN Identity Card</span>
+                  </div>
+                  <button className="alert-close-btn" onClick={() => setShowAlert(false)} aria-label="Close Alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {/* Title Greeting */}
+              <div style={{ textAlign: 'left', marginBottom: '24px' }}>
+                <h2 className="content-greeting" style={{ margin: 0 }}>My profile</h2>
+              </div>
+
+              {/* Profile Header Box Card */}
+              <div className="allowance-status-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 36px', background: '#e8edf3', border: '1px solid #cbd5e1', borderRadius: '16px', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#cbd5e1', display: 'flex', alignItems: 'center', justifyItems: 'center', overflow: 'hidden', border: '2.5px solid #ffffff' }}>
+                    {profile.profilePhoto ? (
+                      <img src={profile.profilePhoto} alt="Kamal Perera" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" style={{ margin: 'auto' }}>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: '800', color: '#1a2e56' }}>{profile.firstName} {profile.lastName}</h3>
+                    <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' }}>{profile.division.split(',')[0]}</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleEnterEdit}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '50px', border: '1.5px solid #d97706', background: '#ffffff', color: '#d97706', fontSize: '13px', fontWeight: '750', cursor: 'pointer', boxShadow: '0 2px 8px rgba(217, 119, 6, 0.05)' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  Edit profile
+                </button>
+              </div>
+
+
+
 
 
