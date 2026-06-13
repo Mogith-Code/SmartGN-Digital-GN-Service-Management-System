@@ -83,7 +83,7 @@ function Home() {
           {/* LOGIN BUTTON */}
           {/* ============================================================== */}
           <button
-            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
             onClick={() => navigate("/login")}
           >
             <span>{t.login}</span>
@@ -98,7 +98,7 @@ function Home() {
           {/* REGISTER BUTTON */}
           {/* ============================================================== */}
           <button
-            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
+            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
             onClick={() => navigate("/register")}
           >
             <span>{t.register}</span>
@@ -115,7 +115,7 @@ function Home() {
       {/* FLOATING HELP BUTTON - Fixed position at bottom right corner */}
       {/* ================================================================ */}
       <button
-        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 bg-[#D69E2E] p-2 sm:p-2.5 md:p-3 rounded-full cursor-pointer flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:bg-[#FFAA00] z-50 group"
+        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 bg-[#D69E2E] p-2 sm:p-2.5 md:p-3 rounded-full cursor-pointer flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] transition-all duration-200 hover:bg-[#FFAA00] z-50 group"
         aria-label="Help Center"
         onClick={handleHelpClick}
       >
