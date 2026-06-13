@@ -19,9 +19,6 @@ function LandingPage() {
       <Services />
       <hr className="border border-[#2D37482D]" />
       <Footer />
-
-      {/* MAIN CONTENT SECTION - Home, About, Services will be added here    */}
-      {/* TODO: Add Home, About, Services components here */}
     </div>
   );
 }
