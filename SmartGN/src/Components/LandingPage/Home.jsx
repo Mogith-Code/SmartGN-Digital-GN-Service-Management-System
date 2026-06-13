@@ -84,7 +84,7 @@ function Home() {
           {/* ============================================================== */}
           <button
             className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
-            onClick={() => navigate("/RAppointment")}
+            onClick={() => navigate("/login")}
           >
             <span>{t.login}</span>
             <img
@@ -99,7 +99,7 @@ function Home() {
           {/* ============================================================== */}
           <button
             className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-md hover:shadow-lg text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
-            onClick={() => console.log("register clicked")}
+            onClick={() => navigate("/register")}
           >
             <span>{t.register}</span>
             <img

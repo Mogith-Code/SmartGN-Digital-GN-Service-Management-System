@@ -97,9 +97,6 @@ function RSidebar() {
 
   // Function to determine which icon to show for a specific item
   const getIconForItem = (item, isActive) => {
-    // Show active icon if:
-    // 1. The item is currently active (user is on that page)
-    // 2. The item is the one being hovered
     if (isActive || hoveredItemId === item.id) {
       return item.iconActive;
     }
@@ -108,51 +105,47 @@ function RSidebar() {
 
   // Function to determine button styles for a specific item
   const getButtonStylesForItem = (item, isActive) => {
-    // Apply hover/active styles if:
-    // 1. The item is currently active
-    // 2. The item is the one being hovered
     if (isActive || hoveredItemId === item.id) {
       if (isActive) {
-        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full";
+        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full shadow-md";
       }
-      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full";
+      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full shadow-sm";
     }
-    return "bg-transparent text-[#2D3748]";
+    return "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900 rounded-r-full";
   };
 
   return (
-    <>
-      {/* Sidebar Nav */}
-      <aside className="w-[280px] bg-white border-r border-[#2D37482D] pt-[60px] pr-[20px]">
-        <nav className="flex flex-col gap-[5px]">
-          {menuItems.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              onMouseEnter={() => setHoveredItemId(item.id)}
-              onMouseLeave={() => setHoveredItemId(null)}
-              className={({ isActive }) => `
-                flex items-center gap-[10px] w-full border-none 
-                ${getButtonStylesForItem(item, isActive)}
-                py-[10px] px-[30px] cursor-pointer text-[16px] font-regular text-left transition-all duration-200
-              `}
-            >
-              {({ isActive }) => (
-                <>
-                  {/* Icon - Shows active icon when active OR this specific item is hovered */}
-                  <img
-                    src={getIconForItem(item, isActive)}
-                    alt={`${item.name} Icon`}
-                    className="w-auto h-[20px]"
-                  />
-                  <span>{item.name}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
-    </>
+    <aside className="w-64 sm:w-72 md:w-80 lg:w-[280px] bg-white border-r border-[#2D37482D] pt-12 sm:pt-14 md:pt-16 lg:pt-[60px] pr-2 sm:pr-3 md:pr-4 lg:pr-[20px] h-screen sticky top-0 overflow-y-auto">
+      <nav className="flex flex-col gap-1 sm:gap-1.5 md:gap-2 lg:gap-[5px]">
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            onMouseEnter={() => setHoveredItemId(item.id)}
+            onMouseLeave={() => setHoveredItemId(null)}
+            className={({ isActive }) => `
+              flex items-center gap-2 sm:gap-2.5 lg:gap-[10px] w-full border-none 
+              ${getButtonStylesForItem(item, isActive)}
+              py-2 sm:py-2.5 md:py-3 lg:py-[10px] px-4 sm:px-5 md:px-6 lg:px-[30px] 
+              cursor-pointer text-xs sm:text-sm md:text-base lg:text-[16px] font-regular text-left 
+              transition-all duration-200 hover:translate-x-1
+            `}
+          >
+            {({ isActive }) => (
+              <>
+                {/* Icon - Shows active icon when active OR this specific item is hovered */}
+                <img
+                  src={getIconForItem(item, isActive)}
+                  alt={`${item.name} Icon`}
+                  className="w-4 h-4 sm:w-5 sm:h-5 lg:w-[20px] lg:h-[20px] object-contain flex-shrink-0"
+                />
+                <span className="truncate">{item.name}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+    </aside>
   );
 }
 
