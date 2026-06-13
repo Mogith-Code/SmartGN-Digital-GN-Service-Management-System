@@ -1,3 +1,4 @@
+// src/components/AfterlogNavbar.jsx
 import React from "react";
 import logoImage from "../../assets/logo.png";
 import { useState, useEffect, useRef } from "react";
@@ -32,10 +33,10 @@ function AfterlogNavbar() {
   const { lang } = useLanguage();
   const t = translations[lang];
 
-  // State to track which menu item is being hovered (only ONE item at a time)
+  // State to track which menu item is being hovered
   const [hoveredItemId, setHoveredItemId] = useState(null);
 
-  // Menu items configuration - Single source of truth
+  // Menu items configuration
   const menuItems = [
     {
       id: "home",
@@ -102,54 +103,40 @@ function AfterlogNavbar() {
     },
   ];
 
-  // Function to determine which icon to show for a specific item
+  // Function to determine which icon to show
   const getIconForItem = (item, isActive) => {
-    // Show active icon if:
-    // 1. The item is currently active (user is on that page)
-    // 2. The item is the one being hovered
     if (isActive || hoveredItemId === item.id) {
       return item.iconActive;
     }
     return item.icon;
   };
 
-  // Function to determine button styles for a specific item
+  // Function to determine button styles
   const getButtonStylesForItem = (item, isActive) => {
-    // Apply hover/active styles if:
-    // 1. The item is currently active
-    // 2. The item is the one being hovered
     if (isActive || hoveredItemId === item.id) {
       if (isActive) {
-        return "bg-[#005BBD] text-[#F7FAFC]";
+        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full";
       }
-      return "bg-[#1B365D] text-[#F7FAFC]";
+      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full";
     }
     return "bg-transparent text-[#2D3748]";
   };
 
-  // STATE MANAGEMENT
-  // Mobile menu management state - controls the visibility of mobile sidebar.
+  // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Ref for mobile menu DOM element - To detect clicks outside the menu.
   const mobileMenuRef = useRef(null);
 
-  // MOBILE MENU HANDLERS
-  // Toggles the mobile sidebar menu visibility (opens/closes the menu)
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Closes the mobile sidebar menu - called when clicking outside or on a link
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
-  // SIDE EFFECTS (useEffect Hooks)
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is outside mobile menu AND sidebar is open
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target)
@@ -158,225 +145,216 @@ function AfterlogNavbar() {
       }
     };
 
-    // Only add event listener when sidebar is open to improve performance
     if (isMobileMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup: remove event listener when component unmounts or sidebar closes
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMobileMenuOpen]);
 
-  // Prevent body scroll when mobile sidebar is open.
+  // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Disable scrolling on body when sidebar is open
       document.body.style.overflow = "hidden";
     } else {
-      // Re-enable scrolling when sidebar closes
       document.body.style.overflow = "unset";
     }
 
-    // Cleanup: ensure scrolling is re-enabled when component unmounts
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isMobileMenuOpen]); // Re-run effect when isMobileMenuOpen changes
+  }, [isMobileMenuOpen]);
 
   const currentYear = new Date().getFullYear();
 
   return (
-    <header className="flex justify-between items-center py-[20px] px-[100px] bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.2)] max-lg:px-[60px] max-md:px-[30px] py-[10px]">
-      {/* DESKTOP NAVBAR - Visible on tablets and desktops (md and above)*/}
+    <header className="flex justify-between items-center py-3 sm:py-4 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-16 xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.2)]">
+      {/* ==================================================================== */}
+      {/* DESKTOP NAVBAR - Visible on tablets and desktops (768px and above) */}
+      {/* ==================================================================== */}
       <div className="flex w-full justify-between items-center max-md:hidden">
-        {/* Logo Section - Clickable to navigate home */}
+        {/* Logo Section */}
         <div
-          className="w-[280px] max-lg:w-[200px]"
+          className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 cursor-pointer"
           onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
         >
-          <img src={logoImage} alt="SmartGN Logo" />
+          <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
         </div>
 
-        <div className="flex items-center gap-[20px]">
-          {/* Language Selector Component */}
+        {/* Right Section */}
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-[20px]">
+          {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications */}
-          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200">
+          {/* Notifications Bell */}
+          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
             <img
               src={notificationIcon}
               alt="Notifications"
-              className="w-auto h-[30px]"
+              className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-[30px] lg:h-[30px] object-contain"
             />
-            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[12px] font-medium w-[20px] h-[20px] rounded-full flex items-center justify-center">
+            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] sm:text-[11px] md:text-[12px] font-medium w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] rounded-full flex items-center justify-center">
               2
             </span>
           </div>
 
           {/* User Profile Info */}
-          <div className="flex items-center gap-[10px]">
-            <div className="flex flex-col text-right ">
-              <span className="text-[10px] font-regular text-[#2D3748]">
+          <div className="flex items-center gap-2 sm:gap-2.5 md:gap-[10px]">
+            <div className="hidden xs:flex flex-col text-right">
+              <span className="text-[8px] sm:text-[9px] md:text-[10px] font-regular text-[#2D3748]">
                 Colombo
               </span>
-              <span className="text-[16px] font-medium text-[#2D3748]">
+              <span className="text-xs sm:text-sm md:text-base lg:text-[16px] font-medium text-[#2D3748]">
                 Janith
               </span>
             </div>
-            <div className="w-[50px] h-[50px] rounded-full bg-slate-200 flex items-center justify-cente border-[1.5px] border-slate-300">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden">
               <img
                 src={accountIcon}
                 alt="User Profile"
-                className="w-auto h-[50px]"
+                className="w-full h-full object-cover"
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* MOBILE NAVBAR - Visible only on mobile devices (max-md) */}
-      <div className="hidden max-md:w-full max-md:flex max-md:justify-between max-md:items-center ">
-        {/*Menu Button - Toggles mobile sidebar */}
+      {/* ==================================================================== */}
+      {/* MOBILE NAVBAR - Visible only on mobile devices (below 768px) */}
+      {/* ==================================================================== */}
+      <div className="flex w-full justify-between items-center md:hidden">
+        {/* Menu Button */}
         <button
-          className="relative cursor-pointer"
+          className="relative cursor-pointer p-2 -ml-2"
           onClick={toggleMobileMenu}
           aria-label="Open navigation menu"
           aria-expanded={isMobileMenuOpen}
         >
-          <img src={menuIcon} alt="Menu" className="w-auto h-6" />
+          <img
+            src={menuIcon}
+            alt="Menu"
+            className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+          />
         </button>
 
-        <div className="flex items-center gap-[20px]">
-          {/* Language Selector Component */}
+        {/* Right Section - Icons only on mobile */}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications */}
-          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200">
+          {/* Notifications Bell */}
+          <div className="relative cursor-pointer flex items-center justify-center">
             <img
               src={notificationIcon}
               alt="Notifications"
-              className="w-auto h-[30px]"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
             />
-            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[12px] font-medium w-[20px] h-[20px] rounded-full flex items-center justify-center">
+            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] font-medium w-4 h-4 rounded-full flex items-center justify-center">
               2
             </span>
           </div>
 
-          {/* User Profile Info */}
-          <div className="flex items-center gap-[10px]">
-            <div className="w-[50px] h-[50px] rounded-full bg-slate-200 flex items-center justify-cente border-[1.5px] border-slate-300">
-              <img
-                src={accountIcon}
-                alt="User Profile"
-                className="w-auto h-[50px]"
-              />
-            </div>
+          {/* User Avatar (No text on mobile) */}
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden">
+            <img
+              src={accountIcon}
+              alt="User Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ==================================================================== */}
+      {/* MOBILE SIDEBAR MENU */}
+      {/* ==================================================================== */}
+
+      {/* Overlay Background */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          onClick={closeMobileMenu}
+          aria-label="Close menu overlay"
+          role="presentation"
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <div
+        ref={mobileMenuRef}
+        className={`fixed top-0 left-0 w-[280px] sm:w-[320px] h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-label="Navigation menu"
+        role="navigation"
+      >
+        {/* Sidebar Header */}
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-[#2D37481D]">
+          <div
+            className="w-24 sm:w-28 cursor-pointer"
+            onClick={() => {
+              navigate("/");
+              closeMobileMenu();
+            }}
+          >
+            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
           </div>
         </div>
 
-        {/* Overlay Background - Darkens page content when sidebar is open */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-            onClick={closeMobileMenu}
-            aria-label="Close menu overlay"
-            role="presentation"
-          />
-        )}
+        {/* Navigation Menu */}
+        <div className="flex flex-col h-[calc(100%-140px)] overflow-y-auto">
+          <nav className="flex flex-col gap-1 p-3 sm:p-4">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                onClick={closeMobileMenu}
+                onMouseEnter={() => setHoveredItemId(item.id)}
+                onMouseLeave={() => setHoveredItemId(null)}
+                className={({ isActive }) => `
+                  flex items-center gap-3 w-full border-none rounded-lg
+                  ${getButtonStylesForItem(item, isActive)}
+                  py-2.5 px-4 cursor-pointer text-xs sm:text-sm font-regular text-left transition-all duration-200
+                `}
+              >
+                {({ isActive }) => (
+                  <>
+                    <img
+                      src={getIconForItem(item, isActive)}
+                      alt={`${item.name} Icon`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    />
+                    <span>{item.name}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
-        {/* VERTICAL NAVIGATION SIDEBAR - Slides in from left on mobile      */}
-        <div
-          ref={mobileMenuRef}
-          className={`fixed top-0 left-0 w-[300px] h-full bg-white shadow-2xl z-1000 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
-          aria-label="Navigation menu"
-          role="navigation"
-        >
-          {/* Sidebar Header - Title section */}
-          <div className="px-8 py-[27px] border-b border-[#2D37481D]">
-            <div
-              className="max-md:w-[150px]"
-              onClick={() => navigate("/")}
-              style={{ cursor: "pointer" }}
-            >
-              <img src={logoImage} alt="SmartGN Logo" />
+        {/* Sidebar Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-[#1B365D] p-3 sm:p-4">
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="text-xs sm:text-sm font-regular text-[#F7FAFC8D]">
+              © {currentYear} SmartGN. All rights reserved.
+            </p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-xs sm:text-sm font-medium text-[#F7FAFC]">
+                Admin Support:
+              </p>
+              <a
+                href="tel:+94255731913"
+                className="text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
+              >
+                Mobile: 0255731913
+              </a>
+              <a
+                href="mailto:warapitiyalakshan@gmail.com"
+                className="text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300 break-all text-center"
+              >
+                Email: warapitiyalakshan@gmail.com
+              </a>
             </div>
-          </div>
-
-          {/* Vertical Navigation Links - Optimized for mobile touch targets */}
-          <div className="flex flex-col mb-0 mt-[40px] overflow-y-auto max-h-100vh">
-            <nav className="flex flex-col gap-[5px]">
-              {menuItems.map((item) => (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  onMouseEnter={() => setHoveredItemId(item.id)}
-                  onMouseLeave={() => setHoveredItemId(null)}
-                  className={({ isActive }) => `
-                            flex items-center gap-[10px] w-full border-none 
-                            ${getButtonStylesForItem(item, isActive)}
-                            py-[10px] px-[30px] cursor-pointer text-[12px] font-regular text-left transition-all duration-200
-                          `}
-                >
-                  {({ isActive }) => (
-                    <>
-                      {/* Icon - Shows active icon when active OR this specific item is hovered */}
-                      <img
-                        src={getIconForItem(item, isActive)}
-                        alt={`${item.name} Icon`}
-                        className="w-auto h-[20px]"
-                      />
-                      <span>{item.name}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
-            </nav>
-
-            <footer className="w-full bg-[#1B365D] mt-[50px] p-[10px]">
-              <div className="w-full flex items-center justify-between gap-8 max-md:gap-[10px] max-md:flex-col max-md:text-center">
-                {/* RIGHTS CONTAINER - Copyright Text */}
-                <div className="flex-shrink-0">
-                  <p className="text-[16px] max-md:text-[12px] font-regular text-[#F7FAFC8D]">
-                    © {currentYear} SmartGN. All rights reserved.
-                  </p>
-                </div>
-
-                {/* CONTACT CONTAINER - Admin Support Information */}
-                <div className="flex flex-col items-start gap-1 max-md:items-center">
-                  {/* Admin Support Title */}
-                  <p className="text-[16px] max-md:text-[12px] font-medium text-[#F7FAFC]">
-                    Admin Support:
-                  </p>
-
-                  {/* Mobile Number */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] max-md:text-[12px] font-regular text-[#F7FAFC]">
-                      Mobile:
-                    </span>
-                    <a
-                      href="tel:+94255731913"
-                      className="text-[14px] max-md:text-[12px] font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
-                    >
-                      0255731913
-                    </a>
-                  </div>
-
-                  {/* Email */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-regular text-[#F7FAFC]">
-                      Email:
-                    </span>
-                    <a
-                      href="mailto:Admin@gmail.com"
-                      className="text-[14px] font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
-                    >
-                      warapitiyalakshan@gmail.com
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </footer>
           </div>
         </div>
       </div>
