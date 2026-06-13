@@ -1,6 +1,7 @@
 import React from "react";
 import CardLayout from "./CardLayout";
 import CalenderLayout from "./CalenderLayout";
+import BookingForm from "./BookingForm";
 
 function AppointmentLayoutPage() {
   return (
@@ -13,7 +14,7 @@ function AppointmentLayoutPage() {
         <CardLayout />
       </div>
 
-      <div className="flex text-[24px] font-medium text-[#1B365D] mt-[30px] mx-[100px] p-[20px] border border-[red]">
+      <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
         <CalenderLayout />
       </div>
     </>
