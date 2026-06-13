@@ -450,7 +450,13 @@ function Register() {
             <span className="text-[18px]">←</span> {t.back}
           </button>
 
-          
+          {/* SmartGN Logo */}
+          <img 
+            src={logoImage} 
+            alt="SmartGN Logo" 
+            className="w-[120px] h-auto object-contain cursor-pointer" 
+            onClick={() => navigate('/')}
+          />
         </div>
 
       </div>
