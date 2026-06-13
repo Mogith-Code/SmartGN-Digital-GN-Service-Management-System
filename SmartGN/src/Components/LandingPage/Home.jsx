@@ -111,6 +111,7 @@ function Home() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* ================================================================ */}
       {/* FLOATING HELP BUTTON - Fixed position at bottom right corner */}
       {/* ================================================================ */}
@@ -127,6 +128,34 @@ function Home() {
       </button>
     </section>
   );
+=======
+      {/* BUTTON CONTAINER */}
+      <div className="w-full flex items-center justify-center gap-5 mt-[10px]">
+          
+        {/* LOGIN BUTTON */}
+        <button className="flex items-center justify-center gap-2.5 max-md:gap-[5px] px-[50px] py-2.5 bg-[#1B365D] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[30px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#005BBD] hover:text-white transition-all duration-300 cursor-pointer"
+                onClick={() => navigate('/login')}>
+          {t.login}
+          <img src={loginIcon} alt="Login Icon" className="w-5 h-5" />
+        </button>
+
+        {/* REGISTER BUTTON */}
+        <button className="flex items-center justify-center gap-2.5 px-[50px] py-2.5 bg-[#D69E2E] shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-[16px] max-md:text-[12px] max-md:py-[8px] max-md:px-[20px] rounded-[15px] max-md:rounded-[12px] hover:bg-[#FFAA00] hover:text-white transition-all duration-300 cursor-pointer" 
+                onClick={() => navigate('/register')}>
+          {t.register}
+          <img src={registerIcon} alt="Register Icon" className="w-5 h-5" />
+        </button>
+
+        {/* HELP BUTTON - Fixed position at bottom right corner */}
+        <button className="bg-[#D69E2E] z-[100] ml-[1270px] max-md:ml-[400px] fixed p-[10px] rounded-full cursor-pointer flex items-center justify-center shadow-[0_3px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_5px_20px_rgba(0,0,0,0.6)] transition-all duration-200  hover:bg-[#FFAA00]" aria-label="Help Center" 
+                onClick={() => console.log("help clicked")}> {/*TODO: replace = {onOpenHelp} instead of console.log()*/}
+        <img src={helpIcon} alt="Help Icon" className="h-[30px] max-md:h-[20px]" />
+        </button>
+      </div>
+    </div>
+  </section>
+  )
+>>>>>>> d8118520afd2aaa694fda0cc6dc0b50c65bc2d54
 }
 
 export default Home;
