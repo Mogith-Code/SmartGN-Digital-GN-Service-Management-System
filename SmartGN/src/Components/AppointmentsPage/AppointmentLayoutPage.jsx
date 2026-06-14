@@ -27,7 +27,7 @@ function AppointmentLayoutPage() {
         <CalenderLayout />
       </div>
 
-      <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
+      <div className="flex justify-center mt-[30px] mx-[75px] p-[20px] border border-[red]">
         <AppointmentSummary />
       </div>
     </>
