@@ -23,7 +23,7 @@ function AppointmentLayoutPage() {
         <CardLayout />
       </div>
 
-      <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
+      <div className="flex mt-[30px] mx-[100px] p-[20px]">
         <CalenderLayout />
       </div>
 
