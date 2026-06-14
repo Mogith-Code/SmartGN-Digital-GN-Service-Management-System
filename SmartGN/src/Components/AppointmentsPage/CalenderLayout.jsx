@@ -108,7 +108,7 @@ function CalenderLayout() {
             <span
               key={index}
               className={`aspect-[3] flex flex-col items-center justify-center text-[16px] font-medium text-[#2D3748] cursor-pointer rounded-[10px] transition-all duration-200 relative select-none hover:bg-[#E2E8F0] 
-                ${cell.wrapped ? "other-month" : ""} ${hasBooking ? "has-booking" : ""} ${isSelected ? "selected-day" : ""}`}
+                ${cell.wrapped ? "text-slate-300 cursor-not-allowed" : ""} ${hasBooking ? "bg-amber-600 text-white font-bold hover:bg-amber-700" : ""} ${isSelected ? "ring-2 ring-[#1c355e] ring-offset-0" : ""}`}
               onClick={() => cell.day && setSelectedDay(cell.day)}
             >
               {cell.day < 10 ? "0" + cell.day : cell.day}
