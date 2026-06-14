@@ -19,21 +19,12 @@ function AppointmentLayoutPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-6 mx-[75px] mt-[30px] border border-[red]">
-        <CardLayout
-          isBookingMode={isBookingMode}
-          onBookingModeToggle={handleBookingModeToggle}
-        />
+        <CardLayout />
       </div>
 
-      {!isBookingMode ? (
-        <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
-          <CalenderLayout />
-        </div>
-      ) : (
-        <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
-          <BookingForm />
-        </div>
-      )}
+      <div className="flex mt-[30px] mx-[100px] p-[20px] border border-[red]">
+        <CalenderLayout />
+      </div>
     </>
   );
 }
