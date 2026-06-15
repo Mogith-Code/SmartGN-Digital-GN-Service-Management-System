@@ -2,13 +2,14 @@ import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./Pages/LandingPage.jsx";
 import RAppointment from "./Pages/RAppointment.jsx";
+import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
 import Login from "./Pages/Login.jsx";
 import RHousehold from "./Pages/RHousehold.jsx";
 import Register from "./Pages/Registration.jsx";
 import ResidentProfile from "./Pages/ResidentProfile.jsx";
 import OfficerProfile from "./Pages/OfficerProfile.jsx";
 import ResidentCertificates from "./Pages/RCertificates.jsx";
-import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
+import ApplyCharacterCertificate from "./Pages/ApplyCharacterCertificate.jsx";
 
 function App() {
   return (
@@ -27,6 +28,10 @@ function App() {
         <Route
           path="/dashboard/resident/certificates"
           element={<ResidentCertificates />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/apply-character"
+          element={<ApplyCharacterCertificate />}
         />
       </Routes>
     </Router>
