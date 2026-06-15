@@ -225,3 +225,129 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     required
                   />
                 </div>
+
+                {/* Row 5 */}
+                <div className="flex flex-col">
+                  <label htmlFor="nationality" className="text-[13px] font-semibold text-[#334155] mb-1.5">Whether Sri Lankan :</label>
+                  <input 
+                    type="text" 
+                    id="nationality" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="religion" className="text-[13px] font-semibold text-[#334155] mb-1.5">Religion :</label>
+                  <input 
+                    type="text" 
+                    id="religion" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={religion}
+                    onChange={(e) => setReligion(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 6 */}
+                <div className="flex flex-col">
+                  <label htmlFor="occupation" className="text-[13px] font-semibold text-[#334155] mb-1.5">Present Occupation :</label>
+                  <input 
+                    type="text" 
+                    id="occupation" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={occupation}
+                    onChange={(e) => setOccupation(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="villagePeriod" className="text-[13px] font-semibold text-[#334155] mb-1.5">Period of residence in the village :</label>
+                  <input 
+                    type="text" 
+                    id="villagePeriod" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={villagePeriod}
+                    onChange={(e) => setVillagePeriod(e.target.value)}
+                  />
+                </div>
+
+                {/* Row 7 */}
+                <div className="flex flex-col">
+                  <label htmlFor="electoral" className="text-[13px] font-semibold text-[#334155] mb-1.5">Number of the Electoral Register and Particulars of Registration :</label>
+                  <input 
+                    type="text" 
+                    id="electoral" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={electoralRegister}
+                    onChange={(e) => setElectoralRegister(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="nic" className="text-[13px] font-semibold text-[#334155] mb-1.5">National Identity Card No. :</label>
+                  <input 
+                    type="text" 
+                    id="nic" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={nicNumber}
+                    onChange={(e) => setNicNumber(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 8 - Full Width Father details (Dual stacked input) */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="fatherDetails" className="text-[13px] font-semibold text-[#334155] mb-1.5">Name and Address of the Father :</label>
+                  <input 
+                    type="text" 
+                    id="fatherDetails" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 mb-3" 
+                    placeholder="Father's Name"
+                    value={fatherNameAddress1}
+                    onChange={(e) => setFatherNameAddress1(e.target.value)}
+                  />
+                  <input 
+                    type="text" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    placeholder="Father's Address"
+                    value={fatherNameAddress2}
+                    onChange={(e) => setFatherNameAddress2(e.target.value)}
+                  />
+                </div>
+
+                {/* Row 9 - Full Width Purpose */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="purpose" className="text-[13px] font-semibold text-[#334155] mb-1.5">Purpose for which the certificate is required :</label>
+                  <input 
+                    type="text" 
+                    id="purpose" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 10 - GN Period (Left column) */}
+                <div className="flex flex-col">
+                  <label htmlFor="gnPeriod" className="text-[13px] font-semibold text-[#334155] mb-1.5">Period of residence in the Grama Niladhari Division :</label>
+                  <input 
+                    type="text" 
+                    id="gnPeriod" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={gnPeriod}
+                    onChange={(e) => setGnPeriod(e.target.value)}
+                    required
+                  />
+                </div>
+
+              </div>
+
+              {errorMessage && (
+                <p style={{ color: '#ef4444', fontSize: '13px', margin: '12px 0', textAlign: 'left' }}>
+                  {errorMessage}
+                </p>
+              )}
