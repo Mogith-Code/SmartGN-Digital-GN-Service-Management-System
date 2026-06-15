@@ -95,4 +95,133 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       setErrorMessage(err.message || 'Error connecting to backend server.')
     }
   }
-  
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      
+      {/* 1. Header */}
+      <AfterlogNavbar />
+
+      {/* 2. Main Layout Grid */}
+      <div className="flex gap-[20px] flex-1">
+        
+        {/* Sidebar Nav */}
+        <div className="flex bg-[#FFFFFF]">
+          <RSidebar />
+        </div>
+
+        {/* Main Panel Content */}
+        <main className="w-full bg-[#FFFFFF] border-l border-[#2D37482D] p-6 sm:p-8 md:p-10 relative">
+          
+          {/* Back button */}
+          <div className="flex justify-start items-center mb-4">
+            <button className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]" onClick={() => navigate('/dashboard/resident/certificates', { state: { successUser, division: userDivision } })}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              Back
+            </button>
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">Application for Character Certificates</h2>
+
+          {/* Form Container Card */}
+          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-8 flex flex-col">
+            
+            {/* Warning block note */}
+            <div className="flex items-center justify-between py-4 px-6 bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-semibold text-[14px] mb-6 text-left">
+              <span>This certificate is issued by the Grama Niladhari of the division in which the applicant resides is valid only for 06 months from the date issued.</span>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
+                
+                {/* Row 1 */}
+                <div className="flex flex-col">
+                  <label htmlFor="divSecretariat" className="text-[13px] font-semibold text-[#334155] mb-1.5">District and Divisional Secretary's Division :</label>
+                  <input 
+                    type="text" 
+                    id="divSecretariat" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={divisionalSecretariat}
+                    onChange={(e) => setDivisionalSecretariat(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="gnDivNumber" className="text-[13px] font-semibold text-[#334155] mb-1.5">Grama Niladhari Division and Number :</label>
+                  <input 
+                    type="text" 
+                    id="gnDivNumber" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={gnDivisionNumber}
+                    onChange={(e) => setGnDivisionNumber(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 2 */}
+                <div className="flex flex-col">
+                  <label htmlFor="fullName" className="text-[13px] font-semibold text-[#334155] mb-1.5">Name :</label>
+                  <input 
+                    type="text" 
+                    id="fullName" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="age" className="text-[13px] font-semibold text-[#334155] mb-1.5">Age :</label>
+                  <input 
+                    type="text" 
+                    id="age" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 3 - Full Width */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="address" className="text-[13px] font-semibold text-[#334155] mb-1.5">Address</label>
+                  <input 
+                    type="text" 
+                    id="address" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Row 4 */}
+                <div className="flex flex-col">
+                  <label htmlFor="sex" className="text-[13px] font-semibold text-[#334155] mb-1.5">Sex :</label>
+                  <input 
+                    type="text" 
+                    id="sex" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={sex}
+                    onChange={(e) => setSex(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label htmlFor="civilStatus" className="text-[13px] font-semibold text-[#334155] mb-1.5">Civil Status :</label>
+                  <input 
+                    type="text" 
+                    id="civilStatus" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={civilStatus}
+                    onChange={(e) => setCivilStatus(e.target.value)}
+                    required
+                  />
+                </div>
