@@ -119,4 +119,35 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         return
       }
     }
-  }}
+
+    setErrorMessage('')
+    
+    try {
+      const token = localStorage.getItem('smartgn_token')
+      const headers = {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json'
+      }
+      const response = await fetch('/api/certificates/apply', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          certificateType: 'INCOME',
+          purpose: purpose,
+          requestDate: new Date().toISOString().split('T')[0],
+          supportingDocs: []
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to submit certificate application')
+      }
+
+      alert('Income Certificate Application submitted successfully!')
+      navigate('/dashboard/resident/certificates', { state: { successUser, division: userDivision } })
+    } catch (err) {
+      setErrorMessage(err.message || 'Error connecting to backend server.')
+    }
+  }
+}
