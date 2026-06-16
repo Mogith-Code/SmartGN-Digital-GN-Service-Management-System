@@ -603,4 +603,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                 </div>
 
               </div>
-                
+
+              {errorMessage && (
+                <p style={{ color: '#ef4444', fontSize: '13px', margin: '12px 0', textAlign: 'left' }} className="font-semibold">
+                  {errorMessage}
+                </p>
+              )}
