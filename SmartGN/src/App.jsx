@@ -10,6 +10,7 @@ import ResidentProfile from "./Pages/ResidentProfile.jsx";
 import OfficerProfile from "./Pages/OfficerProfile.jsx";
 import ResidentCertificates from "./Pages/RCertificates.jsx";
 import ApplyCharacterCertificate from "./Pages/ApplyCharacterCertificate.jsx";
+import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
 
 function App() {
   return (
@@ -32,6 +33,10 @@ function App() {
         <Route
           path="/dashboard/resident/certificates/apply-character"
           element={<ApplyCharacterCertificate />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/apply-income"
+          element={<ApplyIncomeCertificate />}
         />
       </Routes>
     </Router>
