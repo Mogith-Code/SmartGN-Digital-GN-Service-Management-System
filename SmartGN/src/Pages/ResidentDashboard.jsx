@@ -77,3 +77,55 @@ function ResidentDashboard({ onOpenHelp }) {
     fetchAnnouncements()
   }, [])
   
+  const localDict = {
+    EN: {
+      alertNic: "Please upload a high-quality image of your National Identity Card",
+      greeting: `Have a Nice Day ${firstName}!`,
+      pendingReq: "Pending requests",
+      approvedReq: "Approved requests",
+      upcomingApp: "Upcoming Appointments",
+      quickActions: "Quick Actions",
+      requestCert: "Request Certificates",
+      bookApp: "Book Appointments",
+      applyAllow: "Apply for Allowances",
+      disasterRelief: "Disaster Relief",
+      announcements: "Announcements",
+      viewAll: "View All",
+      camp: "Community Health Camp",
+      campTag: "Health"
+    },
+    SI: {
+      alertNic: "කරුණාකර ඔබගේ ජාතික හැඳුනුම්පතේ පැහැදිලි ඡායාරූපයක් එක් කරන්න",
+      greeting: `සුභ දවසක් ${firstName}!`,
+      pendingReq: "පූරණය වෙමින් පවතින ඉල්ලීම්",
+      approvedReq: "අනුමත ඉල්ලීම්",
+      upcomingApp: "ඉදිරි හමුවීම්",
+      quickActions: "ඉක්මන් ක්‍රියාමාර්ග",
+      requestCert: "සහතික ඉල්ලීම්",
+      bookApp: "හමුවීම් වෙන්කරවා ගැනීම",
+      applyAllow: "දීමනා සඳහා ඉල්ලුම් කිරීම",
+      disasterRelief: "ආපදා සහන",
+      announcements: "නිවේදන",
+      viewAll: "සියල්ල බලන්න",
+      camp: "ප්‍රජා සෞඛ්‍ය කඳවුර",
+      campTag: "සෞඛ්‍ය"
+    },
+    TA: {
+      alertNic: "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் தெளிவான படத்தை பதிவேற்றவும்",
+      greeting: `இனிய நாள் ${firstName}!`,
+      pendingReq: "நிலுவையிலுள்ள கோரிக்கைகள்",
+      approvedReq: "அங்கீகரிக்கப்பட்ட கோரிக்கைகள்",
+      upcomingApp: "வரவிருக்கும் சந்திப்புகள்",
+      quickActions: "விரைவான நடவடிக்கைகள்",
+      requestCert: "சான்றிதழ்களைக் கோருங்கள்",
+      bookApp: "சந்திப்புகளை முன்பதிவு செய்க",
+      applyAllow: "கொடுப்பனவுகளுக்கு விண்ணப்பிக்கவும்",
+      disasterRelief: "பேரழிவு நிவாரணம்",
+      announcements: "அறிவிப்புகள்",
+      viewAll: "அனைத்தையும் காட்டு",
+      camp: "சமூக சுகாதார முகாம்",
+      campTag: "சுகாதாரம்"
+    }
+  }
+
+  const d = localDict[lang] || localDict.EN
