@@ -641,3 +641,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
           </button>
         </main>
       </div>
+
+      {/* 3. Footer */}
+      <Footer />
+    </div>
+  )
+}
+
+export default ApplyIncomeCertificate
