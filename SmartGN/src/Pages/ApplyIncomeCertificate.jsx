@@ -327,4 +327,280 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         </label>
                       </div>
                     </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="identityApplicant" className="text-[13px] font-semibold text-[#334155] mb-1.5">The identity of the applicant as the land owner :</label>
+                      <input 
+                        type="text" 
+                        id="identityApplicant" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={ownerIdentity}
+                        onChange={(e) => setOwnerIdentity(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {/* Financial details divider */}
+                    <div className="md:col-span-2 mt-4 border-b border-[#cbd5e1] pb-2">
+                      <h4 className="text-[15px] font-bold text-[#1B365D]">Income Details:</h4>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="amountObtained" className="text-[13px] font-semibold text-[#334155] mb-1.5">Amount of paddy/ banana/ coconut etc. obtained :</label>
+                      <input 
+                        type="text" 
+                        id="amountObtained" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={amountObtained}
+                        onChange={(e) => setAmountObtained(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="expenses" className="text-[13px] font-semibold text-[#334155] mb-1.5">Expenses (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="expenses" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={expenses}
+                        onChange={(e) => setExpenses(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="priceKg" className="text-[13px] font-semibold text-[#334155] mb-1.5">Price per kilogram (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="priceKg" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={pricePerKg}
+                        onChange={(e) => setPricePerKg(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="totalIncomeVal" className="text-[13px] font-semibold text-[#334155] mb-1.5">Total Income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="totalIncomeVal" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={totalIncome}
+                        onChange={(e) => setTotalIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="totalAnnual" className="text-[13px] font-semibold text-[#334155] mb-1.5">Total annual income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="totalAnnual" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={annualIncome}
+                        onChange={(e) => setAnnualIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+                  </>
+                )}
+
+                {/* DYNAMIC FORM SEGMENT: Active stream Business */}
+                {incomeStream === 'Business' && (
+                  <>
+                    <div className="flex flex-col">
+                      <label htmlFor="businessName" className="text-[13px] font-semibold text-[#334155] mb-1.5">Name of the business :</label>
+                      <input 
+                        type="text" 
+                        id="businessName" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="businessNature" className="text-[13px] font-semibold text-[#334155] mb-1.5">Nature of the business :</label>
+                      <input 
+                        type="text" 
+                        id="businessNature" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={businessNature}
+                        onChange={(e) => setBusinessNature(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="uploadReg" className="text-[13px] font-semibold text-[#334155] mb-1.5">Business registration Copy (certified copy) :</label>
+                      <div className="relative border-2 border-dashed border-[#cbd5e1] rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer min-h-[100px]">
+                        <input 
+                          type="file" 
+                          id="uploadReg"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setBusinessFileName(e.target.files[0].name)
+                            }
+                          }}
+                        />
+                        <label htmlFor="uploadReg" className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                          </svg>
+                          <span className="text-[13.5px] text-[#64748b] font-medium text-center">
+                            {businessFileName ? businessFileName : 'Upload Business Registration Copy'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="taxReceipt" className="text-[13px] font-semibold text-[#334155] mb-1.5">Receipt number of tax paid to the Pradeshiya Sabha :</label>
+                      <input 
+                        type="text" 
+                        id="taxReceipt" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={taxReceiptNumber}
+                        onChange={(e) => setTaxReceiptNumber(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {/* Financial details divider */}
+                    <div className="md:col-span-2 mt-4 border-b border-[#cbd5e1] pb-2">
+                      <h4 className="text-[15px] font-bold text-[#1B365D]">Income Details:</h4>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="dailyMonthlyIncome" className="text-[13px] font-semibold text-[#334155] mb-1.5">Daily/Monthly Income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="dailyMonthlyIncome" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={dailyMonthlyIncome}
+                        onChange={(e) => setDailyMonthlyIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="businessAnnualIncome" className="text-[13px] font-semibold text-[#334155] mb-1.5">Annual income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="businessAnnualIncome" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={businessAnnualIncome}
+                        onChange={(e) => setBusinessAnnualIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="netIncome" className="text-[13px] font-semibold text-[#334155] mb-1.5">Net income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="netIncome" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={netIncome}
+                        onChange={(e) => setNetIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+                  </>
+                )}
+
+                {/* DYNAMIC FORM SEGMENT: Active stream Carpenter/Masonry/Laborer/Other */}
+                {incomeStream === 'Laborer' && (
+                  <>
+                    <div className="flex flex-col">
+                      <label htmlFor="dailySalary" className="text-[13px] font-semibold text-[#334155] mb-1.5">Daily Salary (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="dailySalary" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={dailySalary}
+                        onChange={(e) => setDailySalary(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="hoursWorked" className="text-[13px] font-semibold text-[#334155] mb-1.5">Number of hours worked per week :</label>
+                      <input 
+                        type="text" 
+                        id="hoursWorked" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={hoursWorked}
+                        onChange={(e) => setHoursWorked(e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    {/* Financial details divider */}
+                    <div className="md:col-span-2 mt-4 border-b border-[#cbd5e1] pb-2">
+                      <h4 className="text-[15px] font-bold text-[#1B365D]">Income Details:</h4>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="monthlyIncome" className="text-[13px] font-semibold text-[#334155] mb-1.5">Monthly Income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="monthlyIncome" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={monthlyIncome}
+                        onChange={(e) => setMonthlyIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+
+                    <div className="flex flex-col">
+                      <label htmlFor="laborerAnnualIncome" className="text-[13px] font-semibold text-[#334155] mb-1.5">Annual income (Rs.) :</label>
+                      <input 
+                        type="text" 
+                        id="laborerAnnualIncome" 
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                        value={laborerAnnualIncome}
+                        onChange={(e) => setLaborerAnnualIncome(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="hidden md:block"></div>
+                  </>
+                )}
+
+                {/* Purpose Field */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="requireCert" className="text-[13px] font-semibold text-[#334155] mb-1.5">Need to require the income certificate (Purpose) :</label>
+                  <input 
+                    type="text" 
+                    id="requireCert" 
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    required
+                  />
+                </div>
+
+              </div>
                 
