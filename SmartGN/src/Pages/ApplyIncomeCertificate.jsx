@@ -55,4 +55,43 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
   
   const [purpose, setPurpose] = useState('')
   const [fileName, setFileName] = useState('')
+
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const handleReset = () => {
+    setFullName('')
+    setGnDivisionNumber('')
+    setAddress('')
+    setIncomeStream('Laborer')
+    
+    // Paddy states
+    setLandOwnerName('')
+    setLandAmount('')
+    setGrantSheetNumber('')
+    setOwnerIdentity('')
+    setAmountObtained('')
+    setExpenses('')
+    setPricePerKg('')
+    setTotalIncome('')
+    setAnnualIncome('')
+    
+    // Business states
+    setBusinessName('')
+    setBusinessNature('')
+    setBusinessFileName('')
+    setTaxReceiptNumber('')
+    setDailyMonthlyIncome('')
+    setBusinessAnnualIncome('')
+    setNetIncome('')
+
+    // Laborer states
+    setDailySalary('')
+    setHoursWorked('')
+    setMonthlyIncome('')
+    setLaborerAnnualIncome('')
+    
+    setPurpose('')
+    setFileName('')
+    setErrorMessage('')
+  }
 }
