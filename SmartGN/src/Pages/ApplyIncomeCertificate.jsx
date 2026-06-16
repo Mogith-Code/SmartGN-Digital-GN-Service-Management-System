@@ -609,3 +609,35 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   {errorMessage}
                 </p>
               )}
+
+               {/* Submit / Reset Actions Row */}
+              <div className="flex justify-end gap-4 mt-8">
+                <button type="button" className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5" onClick={handleReset}>
+                  Reset
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                  </svg>
+                </button>
+                
+                <button type="submit" className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5">
+                  Submit
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+          {/* Floating Help Trigger */}
+          <button 
+            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+            aria-label="Help Trigger" 
+            onClick={onOpenHelp}
+          >
+            ?
+          </button>
+        </main>
+      </div>
