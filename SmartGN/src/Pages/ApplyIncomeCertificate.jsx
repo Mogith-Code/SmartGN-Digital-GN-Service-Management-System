@@ -94,4 +94,29 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
     setFileName('')
     setErrorMessage('')
   }
-}
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (incomeStream === 'Paddy') {
+      if (!fullName || !gnDivisionNumber || !address || !landOwnerName || !landAmount || !ownerIdentity || !amountObtained || !expenses || !pricePerKg || !totalIncome || !annualIncome || !purpose) {
+        setErrorMessage('Please fill in all required fields.')
+        return
+      }
+    } else if (incomeStream === 'Business') {
+      if (!fullName || !gnDivisionNumber || !address || !businessName || !businessNature || !taxReceiptNumber || !dailyMonthlyIncome || !businessAnnualIncome || !netIncome || !purpose) {
+        setErrorMessage('Please fill in all required fields.')
+        return
+      }
+    } else if (incomeStream === 'Laborer') {
+      if (!fullName || !gnDivisionNumber || !address || !dailySalary || !hoursWorked || !monthlyIncome || !laborerAnnualIncome || !purpose) {
+        setErrorMessage('Please fill in all required fields.')
+        return
+      }
+    } else {
+      if (!fullName || !gnDivisionNumber || !address || !purpose) {
+        setErrorMessage('Please fill in all required fields.')
+        return
+      }
+    }
+  }}
