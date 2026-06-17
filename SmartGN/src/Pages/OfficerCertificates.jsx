@@ -326,3 +326,136 @@ function OfficerCertificates({ onOpenHelp }) {
               <h2 className="text-[24px] font-bold text-[#1B365D] m-0">Certificate Approval</h2>
               <span className="text-[14px] text-[#64748b]">Review and manage resident certificate requests for your division.</span>
             </div>
+
+            {/* Filter Buttons */}
+            <div className="flex gap-2 bg-[#f1f5f9] p-1 rounded-lg border border-[#e2e8f0]">
+              {['All', 'Pending', 'Approved', 'Rejected'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`px-3 py-1.5 text-[13px] font-bold rounded-md border-0 cursor-pointer transition-all duration-150 ${
+                    filterStatus === status 
+                      ? 'bg-white text-[#1B365D] shadow-sm' 
+                      : 'bg-transparent text-[#64748b] hover:text-[#1e293b]'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Box Row */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 p-4 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search residents by name, NIC, or tracking ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 text-[14.5px] rounded-lg border border-[#cbd5e1] bg-white text-[#1e293b] focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 transition-all duration-200"
+                />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" className="absolute left-3 top-3">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </div>
+
+              <button
+                className="flex items-center justify-center w-10 h-10 rounded-lg border border-[#cbd5e1] bg-white text-[#475569] hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                aria-label="Filter Options"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="4" y1="21" x2="4" y2="14"></line>
+                  <line x1="4" y1="10" x2="4" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12" y2="3"></line>
+                  <line x1="20" y1="21" x2="20" y2="16"></line>
+                  <line x1="20" y1="12" x2="20" y2="3"></line>
+                  <line x1="1" y1="14" x2="7" y2="14"></line>
+                  <line x1="9" y1="8" x2="15" y2="8"></line>
+                  <line x1="17" y1="16" x2="23" y2="16"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Certificate Requests List */}
+          <div className="flex flex-col gap-4 mb-6">
+            {filteredCerts.slice(0, visibleCount).map((item) => (
+              <div
+                key={item.id}
+                onClick={() => navigate(`/dashboard/officer/certificates/${item.id}`, { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}
+                className="flex justify-between items-center bg-white border border-[#cbd5e1] rounded-2xl p-6 shadow-sm hover:border-[#D69E2E] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer text-left"
+              >
+                {/* Left: Info Card */}
+                <div className="flex items-center gap-5">
+                  {/* Circular Icon */}
+                  <div className="w-12 h-12 rounded-xl bg-[#EBF8FF] flex items-center justify-center text-[#1B365D]">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-3.5 mb-1.5">
+                      <h4 className="text-[17px] font-bold text-[#1B365D] m-0">
+                        {item.type}
+                      </h4>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${
+                        item.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                        item.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                        'bg-amber-100 text-amber-700'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13.5px] text-[#475569]">
+                      <span className="flex items-center gap-1.5">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#64748b]">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <strong>{item.name}</strong>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#64748b]">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Purpose: {item.purpose}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-[#64748b]">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Submitted: {item.submittedDate}
+                      </span>
+                    </div>
+                    <div className="text-[12px] text-[#64748b] mt-1.5 font-semibold">
+                      Division: {item.division}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Actions */}
+                <div className="flex gap-3" onClick={(e) => e.stopPropagation()}>
+                  {item.status === 'Pending' ? (
+                    <>
+                      <button
+                        onClick={(e) => handleApprove(item.id, e)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Approve
+                      </button>
+
