@@ -482,3 +482,21 @@ function OfficerCertificates({ onOpenHelp }) {
               </div>
             ))}
 
+            {filteredCerts.length === 0 && (
+              <div className="flex items-center justify-center p-12 bg-white border border-[#cbd5e1] rounded-2xl text-[#64748b] text-[15px]">
+                No certificate requests match the selected search or filter status.
+              </div>
+            )}
+          </div>
+
+          {/* Load More Button */}
+          {filteredCerts.length > visibleCount && (
+            <div className="text-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                className="bg-[#1B365D] hover:bg-[#005BBD] text-white border-0 px-8 py-3 rounded-full text-[14.5px] font-bold cursor-pointer shadow-md transition-colors duration-150"
+              >
+                Load More Requests
+              </button>
+            </div>
+          )}
