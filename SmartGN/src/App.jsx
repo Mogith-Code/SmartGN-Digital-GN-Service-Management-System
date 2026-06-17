@@ -8,6 +8,7 @@ import RHousehold from "./Pages/RHousehold.jsx";
 import Register from "./Pages/Registration.jsx";
 import ResidentProfile from "./Pages/ResidentProfile.jsx";
 import OfficerProfile from "./Pages/OfficerProfile.jsx";
+import OfficerCertificates from "./Pages/OfficerCertificates.jsx";
 import ResidentCertificates from "./Pages/RCertificates.jsx";
 import ApplyCharacterCertificate from "./Pages/ApplyCharacterCertificate.jsx";
 import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
@@ -24,6 +25,10 @@ function App() {
         <Route path="/RHousehold" element={<RHousehold />} />
         <Route path="/dashboard/resident" element={<ResidentProfile />} />
         <Route path="/dashboard/officer" element={<OfficerProfile />} />
+        <Route
+          path="/dashboard/officer/certificates"
+          element={<OfficerCertificates />}
+        />
         <Route path="/profile" element={<ResidentProfile />} />
         <Route path="/certificates" element={<ResidentCertificates />} />
         <Route
