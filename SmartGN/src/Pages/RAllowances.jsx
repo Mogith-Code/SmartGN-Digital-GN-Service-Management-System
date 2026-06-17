@@ -69,3 +69,51 @@ function ResidentAllowances({ onOpenHelp }) {
       if (saved) setRequests(JSON.parse(saved))
     }
   }
+
+  // Load requests on mount
+  useEffect(() => {
+    // Attempt to load from profile for names/NIC pre-fill
+    const savedProfile = localStorage.getItem('smartgn_resident_profile')
+    if (savedProfile) {
+      const parsed = JSON.parse(savedProfile)
+      setApplicantName(parsed.fullName || `${parsed.firstName} ${parsed.lastName}`)
+      setApplicantNic(parsed.nic || localStorage.getItem('smartgn_user_id') || '200324511540')
+      setAccountHolder(parsed.fullName || `${parsed.firstName} ${parsed.lastName}`)
+    }
+    loadRequests()
+  }, [])
+
+  // Calculate dynamic stats
+  const pendingCount = requests.filter(item => item.status === 'Pending').length
+  const approvedCount = requests.filter(item => item.status === 'Approved').length
+  const rejectedCount = requests.filter(item => item.status === 'Rejected').length
+
+  // Main visual status list
+  const visibleHistory = requests
+
+  // Trigger Modal Open with pre-selected program
+  const handleOpenApply = (programName) => {
+    setSelectedProgram(programName)
+    setErrorMessage('')
+    setIncome('')
+    setRemarks('')
+    setBankBranch('')
+    setBankAccount('')
+    setIsModalOpen(true)
+  }
+
+  // Handle Application Submit
+  const handleConfirmApplication = async (e) => {
+    e.preventDefault()
+
+    if (!income) {
+      setErrorMessage('Please enter your estimated monthly household income.')
+      return
+    }
+
+    if (!bankBranch || !bankAccount) {
+      setErrorMessage('Please enter your complete bank account details.')
+      return
+    }
+
+    setErrorMessage('')
