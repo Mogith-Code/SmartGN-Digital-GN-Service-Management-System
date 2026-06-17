@@ -459,3 +459,26 @@ function OfficerCertificates({ onOpenHelp }) {
                         Approve
                       </button>
 
+                       <button
+                        onClick={(e) => handleReject(item.id, e)}
+                        className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Reject
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => navigate(`/dashboard/officer/certificates/${item.id}`, { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}
+                      className="bg-transparent hover:bg-gray-50 text-[#475569] border border-[#cbd5e1] px-5 py-2 rounded-full text-[13px] font-semibold cursor-pointer"
+                    >
+                      View Details ➔
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+
