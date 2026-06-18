@@ -193,7 +193,7 @@ function CalendarLayout() {
           {/* Today Button */}
           <button
             onClick={goToToday}
-            className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
+            className="text-xs px-3 py-2 text-[#2D3748] rounded-[10px] hover:bg-[#22C55E] hover:text-[#F7FAFC] transition-colors duration-200 cursor-pointer"
           >
             Today
           </button>
