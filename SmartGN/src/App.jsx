@@ -12,6 +12,7 @@ import OfficerCertificates from "./Pages/OfficerCertificates.jsx";
 import ResidentCertificates from "./Pages/RCertificates.jsx";
 import ApplyCharacterCertificate from "./Pages/ApplyCharacterCertificate.jsx";
 import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
+import PendingAppointmentRequests from "./Components/AppointmentsPage/PendingAppointmentRequests.jsx";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/RAppointment" element={<RAppointment />} />
         <Route path="/RAppointment/BookingForm" element={<BookingForm />} />
+        <Route
+          path="/RAppointment/PendingAppointmentRequests"
+          element={<PendingAppointmentRequests />}
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/RHousehold" element={<RHousehold />} />
