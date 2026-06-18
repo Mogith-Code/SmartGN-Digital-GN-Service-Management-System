@@ -117,3 +117,37 @@ function ResidentAllowances({ onOpenHelp }) {
     }
 
     setErrorMessage('')
+
+    
+    try {
+      const response = await fetch('/api/allowances/apply', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          allowanceType: selectedProgram,
+          incomeDetails: `Household Monthly Income: LKR ${income}. Purpose: ${purpose}. Remarks: ${remarks}`,
+          bankDetails: {
+            bankName,
+            branch: bankBranch,
+            accountNumber: bankAccount,
+            accountHolderName: accountHolder
+          }
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to submit application.')
+      }
+
+      const resData = await response.json()
+      setIsModalOpen(false)
+      loadRequests()
+      alert(`Application for ${selectedProgram} submitted successfully! Your secure tracking ID is ${resData.allowanceId}.`)
+    } catch (err) {
+      setErrorMessage(err.message || 'Error submitting application.')
+    }
+  }
+
+  return (
+    <div className="dashboard-container"></div>
