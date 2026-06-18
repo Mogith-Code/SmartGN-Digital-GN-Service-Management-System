@@ -24,7 +24,7 @@ function CardLayout() {
       </div>
 
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl border border-[#2D37482D] p-[15px] flex flex-col items-center"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
         onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
       >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
