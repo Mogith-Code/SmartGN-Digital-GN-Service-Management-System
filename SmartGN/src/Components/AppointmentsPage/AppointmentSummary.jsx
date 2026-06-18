@@ -36,8 +36,7 @@ function AppointmentSummary({ day, month, year }) {
         No Appointments scheduled for {formattedDate}.
       </p>
       <p className="text-[14px] text-[#2D37488D]">
-        Click highlighted days in amber to check booking summaries, or click
-        "Book Now" to schedule a meeting.
+        Click on "Book an appointment" to schedule a meeting.
       </p>
     </div>
   );
