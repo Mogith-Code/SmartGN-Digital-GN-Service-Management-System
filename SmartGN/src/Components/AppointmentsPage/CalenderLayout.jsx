@@ -337,10 +337,6 @@ function CalendarLayout() {
           <div className="w-3 h-3 bg-[#D69E2E] rounded-full"></div>
           <span className="text-[#2D3748]">Booked</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-white ring-2 ring-[#2D3748] rounded-full"></div>
-          <span className="text-[#2D3748]">Selected</span>
-        </div>
       </div>
     </div>
   );
