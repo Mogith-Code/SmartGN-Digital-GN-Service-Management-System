@@ -217,7 +217,7 @@ function CalendarLayout() {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]"
           >
             {day}
           </span>
@@ -237,13 +237,13 @@ function CalendarLayout() {
           const today = isToday(year, month, cell.day) && cell.isCurrentMonth;
 
           // Determine cell styling
-          let cellClasses = `
-            aspect-[1.2] sm:aspect-[1.4] 
+          let cellClasses = `py-[20px]
             flex flex-col items-center justify-center 
             text-xs sm:text-sm md:text-[16px] 
             rounded-lg sm:rounded-xl 
             transition-all duration-200 
             relative select-none 
+            w-full
           `;
 
           // ================================================================
@@ -293,24 +293,33 @@ function CalendarLayout() {
                 }
               }}
             >
-              {/* Day Number */}
-              <span className="text-xs sm:text-sm md:text-base font-medium">
-                {cell.day < 10 ? `0${cell.day}` : cell.day}
-              </span>
+              {/* ============================================================ */}
+              {/* CONTENT CONTAINER - With gap between date and dot */}
+              {/* ============================================================ */}
+              <div className="flex flex-col items-center justify-center gap-[10px]">
+                {/* Day Number */}
+                <span className="text-xs sm:text-sm md:text-base font-medium">
+                  {cell.day < 10 ? `0${cell.day}` : cell.day}
+                </span>
 
-              {/* ============================================================ */}
-              {/* TODAY INDICATOR DOT - Green dot for today */}
-              {/* ============================================================ */}
-              {today && (
-                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-[#22C55E] rounded-full"></span>
-              )}
+                {/* ========================================================== */}
+                {/* INDICATOR DOTS - With 20px gap from date number */}
+                {/* ========================================================== */}
+                <div className="h-1.5 w-1.5 flex items-center justify-center">
+                  {/* TODAY INDICATOR DOT - Green dot for today */}
+                  {today && (
+                    <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full"></span>
+                  )}
 
-              {/* ============================================================ */}
-              {/* BOOKING INDICATOR DOT - Amber dot for booked dates */}
-              {/* ============================================================ */}
-              {hasBooking && cell.isCurrentMonth && !isSelected && !today && (
-                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-[#D69E2E] rounded-full"></span>
-              )}
+                  {/* BOOKING INDICATOR DOT - Amber dot for booked dates */}
+                  {hasBooking &&
+                    cell.isCurrentMonth &&
+                    !isSelected &&
+                    !today && (
+                      <span className="w-1.5 h-1.5 bg-[#D69E2E] rounded-full"></span>
+                    )}
+                </div>
+              </div>
             </div>
           );
         })}
@@ -333,6 +342,20 @@ function CalendarLayout() {
           <span className="text-[#2D3748]">Selected</span>
         </div>
       </div>
+
+      {/* ==================================================================== */}
+      {/* SELECTED DATE DISPLAY */}
+      {/* ==================================================================== */}
+      {selectedDay && (
+        <div className="mt-4 p-3 bg-slate-50 rounded-lg w-full text-center">
+          <p className="text-sm text-slate-700">
+            Selected:{" "}
+            <span className="font-semibold text-[#1c355e]">
+              {getMonthName(month)} {selectedDay}, {year}
+            </span>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
