@@ -7,8 +7,8 @@ function CalendarLayout() {
   // ============================================================================
 
   // Current date state - tracks the displayed month/year
-  const [currentDate, setCurrentDate] = useState(new Date()); // May 2026
-  const [selectedDay, setSelectedDay] = useState(16);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(null);
   const [appointments, setAppointments] = useState([]);
 
   // ============================================================================
@@ -178,7 +178,7 @@ function CalendarLayout() {
         <button
           onClick={goToPreviousMonth}
           disabled={isPrevDisabled}
-          className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Previous month"
         >
           ←
@@ -186,14 +186,14 @@ function CalendarLayout() {
 
         {/* Month/Year Display */}
         <div className="flex items-center gap-4">
-          <span className="text-base md:text-lg font-semibold text-[#2D3748]">
+          <span className="text-base md:text-lg font-medium text-[#2D3748]">
             {getMonthName(month)} {year}
           </span>
 
           {/* Today Button */}
           <button
             onClick={goToToday}
-            className="text-xs px-3 py-1 bg-[#D69E2E] text-white rounded-full hover:bg-[#B8860B] transition-colors duration-200"
+            className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
           >
             Today
           </button>
@@ -217,7 +217,7 @@ function CalendarLayout() {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-xs sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
           >
             {day}
           </span>
@@ -255,32 +255,25 @@ function CalendarLayout() {
             `;
           }
           // ================================================================
-          // CURRENT MONTH DAYS - Color: #2D3748, All clickable
+          // CURRENT MONTH DAYS
           // ================================================================
           else {
-            // Selected day
+            // Selected day - White background with border
             if (isSelected) {
               cellClasses += `
-                bg-white text-[#1c355e] font-semibold 
-                ring-2 ring-[#1c355e] ring-opacity-15 
-                hover:bg-slate-50 cursor-pointer
+                bg-white text-[#2D3748] font-medium 
+                ring-2 ring-[#2D3748]
+                hover:bg-[#E2E8F0] cursor-pointer
               `;
             }
-            // Today
-            else if (today) {
-              cellClasses += `
-                bg-[#D69E2E] text-white font-bold 
-                hover:bg-[#B8860B] cursor-pointer
-              `;
-            }
-            // Has booking
+            // Has booking - Amber background
             else if (hasBooking) {
               cellClasses += `
                 bg-amber-600 text-white font-bold 
                 hover:bg-amber-700 hover:shadow-md cursor-pointer
               `;
             }
-            // Regular day (All clickable)
+            // Regular day (All clickable) - Including today without special background
             else {
               cellClasses += `
                 text-[#2D3748] 
@@ -305,14 +298,18 @@ function CalendarLayout() {
                 {cell.day < 10 ? `0${cell.day}` : cell.day}
               </span>
 
-              {/* Booking Indicator Dot */}
-              {hasBooking && cell.isCurrentMonth && !isSelected && !today && (
-                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
+              {/* ============================================================ */}
+              {/* TODAY INDICATOR DOT - Green dot for today */}
+              {/* ============================================================ */}
+              {today && (
+                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-[#22C55E] rounded-full"></span>
               )}
 
-              {/* Today Indicator */}
-              {today && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              {/* ============================================================ */}
+              {/* BOOKING INDICATOR DOT - Amber dot for booked dates */}
+              {/* ============================================================ */}
+              {hasBooking && cell.isCurrentMonth && !isSelected && !today && (
+                <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-[#D69E2E] rounded-full"></span>
               )}
             </div>
           );
@@ -324,20 +321,16 @@ function CalendarLayout() {
       {/* ==================================================================== */}
       <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 pt-4 border-t border-[#2D37482D] text-xs">
         <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-[#22C55E] rounded-full"></div>
+          <span className="text-[#2D3748]">Today</span>
+        </div>
+        <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-[#D69E2E] rounded-full"></div>
-          <span className="text-slate-600">Today</span>
+          <span className="text-[#2D3748]">Booked</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-amber-600 rounded-full"></div>
-          <span className="text-slate-600">Booked</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 ring-2 ring-[#1c355e] ring-opacity-15 bg-white rounded-full"></div>
-          <span className="text-slate-600">Selected</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-slate-200 rounded-full"></div>
-          <span className="text-slate-600">Available</span>
+          <div className="w-3 h-3 bg-white ring-2 ring-[#2D3748] rounded-full"></div>
+          <span className="text-[#2D3748]">Selected</span>
         </div>
       </div>
 
@@ -345,7 +338,7 @@ function CalendarLayout() {
       {/* SELECTED DATE DISPLAY */}
       {/* ==================================================================== */}
       {selectedDay && (
-        <div className="mt-4 p-3 bg-slate-50 rounded-lg w-full text-center">
+        <div className="mt-4 p-3 bg-[#E2E8F0] rounded-lg w-full text-center">
           <p className="text-sm text-slate-700">
             Selected:{" "}
             <span className="font-semibold text-[#1c355e]">
