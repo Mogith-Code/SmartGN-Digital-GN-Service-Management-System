@@ -12,7 +12,10 @@ function CardLayout() {
       <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl border border-[#2D37482D] p-[15px] flex flex-col items-center">
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col gap-[10px] items-center">
+        <div
+          className="flex flex-col gap-[10px] items-center"
+          onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+        >
           <span className="text-[16px] font-regular text-[#2D3748]">
             Pending appointment requests
           </span>
