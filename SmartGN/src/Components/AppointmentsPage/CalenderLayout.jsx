@@ -297,20 +297,20 @@ function CalendarLayout({ onDateSelect }) {
                 }
               }}
             >
-              <div className="flex flex-col items-center justify-center gap-[20px]">
+              <div className="flex flex-col items-center justify-center gap-[5px]">
                 <span className="text-xs sm:text-sm md:text-base font-medium">
                   {cell.day < 10 ? `0${cell.day}` : cell.day}
                 </span>
 
-                <div className="h-1.5 w-1.5 flex items-center justify-center">
+                <div className="h-2 w-2 flex items-center justify-center">
                   {today && (
-                    <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full"></span>
+                    <span className="w-2 h-2 bg-[#22C55E] rounded-full"></span>
                   )}
                   {hasBooking &&
                     cell.isCurrentMonth &&
                     !isSelected &&
                     !today && (
-                      <span className="w-1.5 h-1.5 bg-[#D69E2E] rounded-full"></span>
+                      <span className="w-2 h-2 bg-[#D69E2E] rounded-full"></span>
                     )}
                 </div>
               </div>
