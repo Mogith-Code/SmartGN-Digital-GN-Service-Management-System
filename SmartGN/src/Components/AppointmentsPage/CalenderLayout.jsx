@@ -254,8 +254,7 @@ function CalendarLayout({ onDateSelect }) {
           const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
           const today = isToday(year, month, cell.day) && cell.isCurrentMonth;
 
-          let cellClasses = `
-            aspect-square
+          let cellClasses = `py-2
             flex flex-col items-center justify-center 
             text-xs sm:text-sm md:text-[16px] 
             rounded-lg sm:rounded-xl 
