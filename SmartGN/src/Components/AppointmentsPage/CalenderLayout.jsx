@@ -1,7 +1,8 @@
 // src/components/CalendarLayout.jsx
 import React, { useState, useEffect } from "react";
 
-function CalendarLayout() {
+function CalendarLayout({ onDateSelect }) {
+  // Receive onDateSelect as prop
   // ============================================================================
   // STATE MANAGEMENT
   // ============================================================================
@@ -104,6 +105,11 @@ function CalendarLayout() {
     const today = new Date();
     setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
     setSelectedDay(today.getDate());
+
+    // Notify parent when Today button is clicked
+    if (onDateSelect) {
+      onDateSelect(today.getDate(), today.getMonth(), today.getFullYear());
+    }
   };
 
   // ============================================================================
@@ -154,6 +160,23 @@ function CalendarLayout() {
   };
 
   // ============================================================================
+  // HANDLE DATE CLICK
+  // ============================================================================
+
+  const handleDateClick = (day) => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Update selected day state
+    setSelectedDay(day);
+
+    // Notify parent component about the selected date
+    if (onDateSelect) {
+      onDateSelect(day, month, year);
+    }
+  };
+
+  // ============================================================================
   // RENDER CALENDAR
   // ============================================================================
 
@@ -174,7 +197,6 @@ function CalendarLayout() {
       {/* CALENDAR HEADER - Month/Year Navigation */}
       {/* ==================================================================== */}
       <div className="flex justify-between items-center w-full mb-6">
-        {/* Previous Month Button */}
         <button
           onClick={goToPreviousMonth}
           disabled={isPrevDisabled}
@@ -184,22 +206,18 @@ function CalendarLayout() {
           ←
         </button>
 
-        {/* Month/Year Display */}
         <div className="flex items-center gap-4">
           <span className="text-base md:text-lg font-medium text-[#2D3748]">
             {getMonthName(month)} {year}
           </span>
-
-          {/* Today Button */}
           <button
             onClick={goToToday}
-            className="text-xs px-3 py-2 text-[#2D3748] rounded-[10px] hover:bg-[#22C55E] hover:text-[#F7FAFC] transition-colors duration-200 cursor-pointer"
+            className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
           >
             Today
           </button>
         </div>
 
-        {/* Next Month Button */}
         <button
           onClick={goToNextMonth}
           disabled={isNextDisabled}
@@ -217,7 +235,7 @@ function CalendarLayout() {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
           >
             {day}
           </span>
@@ -236,8 +254,8 @@ function CalendarLayout() {
           const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
           const today = isToday(year, month, cell.day) && cell.isCurrentMonth;
 
-          // Determine cell styling
-          let cellClasses = `py-[20px]
+          let cellClasses = `
+            aspect-square
             flex flex-col items-center justify-center 
             text-xs sm:text-sm md:text-[16px] 
             rounded-lg sm:rounded-xl 
@@ -246,35 +264,23 @@ function CalendarLayout() {
             w-full
           `;
 
-          // ================================================================
-          // OTHER MONTH DAYS (Previous/Next) - Color: #2D37482D, Not clickable
-          // ================================================================
           if (!cell.isCurrentMonth) {
             cellClasses += `
               text-[#2D37482D] cursor-not-allowed
             `;
-          }
-          // ================================================================
-          // CURRENT MONTH DAYS
-          // ================================================================
-          else {
-            // Selected day - White background with border
+          } else {
             if (isSelected) {
               cellClasses += `
                 bg-white text-[#2D3748] font-medium 
                 ring-2 ring-[#2D3748]
                 hover:bg-[#E2E8F0] cursor-pointer
               `;
-            }
-            // Has booking - Amber background
-            else if (hasBooking) {
+            } else if (hasBooking) {
               cellClasses += `
                 bg-amber-600 text-white font-bold 
                 hover:bg-amber-700 hover:shadow-md cursor-pointer
               `;
-            }
-            // Regular day (All clickable) - Including today without special background
-            else {
+            } else {
               cellClasses += `
                 text-[#2D3748] 
                 hover:bg-[#E2E8F0] cursor-pointer
@@ -287,31 +293,20 @@ function CalendarLayout() {
               key={index}
               className={cellClasses}
               onClick={() => {
-                // Only allow clicking on current month dates
                 if (cell.isCurrentMonth) {
-                  setSelectedDay(cell.day);
+                  handleDateClick(cell.day);
                 }
               }}
             >
-              {/* ============================================================ */}
-              {/* CONTENT CONTAINER - With gap between date and dot */}
-              {/* ============================================================ */}
-              <div className="flex flex-col items-center justify-center gap-[10px]">
-                {/* Day Number */}
+              <div className="flex flex-col items-center justify-center gap-[20px]">
                 <span className="text-xs sm:text-sm md:text-base font-medium">
                   {cell.day < 10 ? `0${cell.day}` : cell.day}
                 </span>
 
-                {/* ========================================================== */}
-                {/* INDICATOR DOTS - With 20px gap from date number */}
-                {/* ========================================================== */}
                 <div className="h-1.5 w-1.5 flex items-center justify-center">
-                  {/* TODAY INDICATOR DOT - Green dot for today */}
                   {today && (
                     <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full"></span>
                   )}
-
-                  {/* BOOKING INDICATOR DOT - Amber dot for booked dates */}
                   {hasBooking &&
                     cell.isCurrentMonth &&
                     !isSelected &&
@@ -336,6 +331,10 @@ function CalendarLayout() {
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-[#D69E2E] rounded-full"></div>
           <span className="text-[#2D3748]">Booked</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-white ring-2 ring-[#2D3748] rounded-full"></div>
+          <span className="text-[#2D3748]">Selected</span>
         </div>
       </div>
     </div>
