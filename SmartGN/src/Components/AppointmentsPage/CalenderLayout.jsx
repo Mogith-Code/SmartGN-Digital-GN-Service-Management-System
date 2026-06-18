@@ -342,20 +342,6 @@ function CalendarLayout() {
           <span className="text-[#2D3748]">Selected</span>
         </div>
       </div>
-
-      {/* ==================================================================== */}
-      {/* SELECTED DATE DISPLAY */}
-      {/* ==================================================================== */}
-      {selectedDay && (
-        <div className="mt-4 p-3 bg-slate-50 rounded-lg w-full text-center">
-          <p className="text-sm text-slate-700">
-            Selected:{" "}
-            <span className="font-semibold text-[#1c355e]">
-              {getMonthName(month)} {selectedDay}, {year}
-            </span>
-          </p>
-        </div>
-      )}
     </div>
   );
 }
