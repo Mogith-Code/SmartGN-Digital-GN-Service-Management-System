@@ -38,4 +38,52 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   // Officer Quick Check states
   const [signatureMatch, setSignatureMatch] = useState(false)
   const [billsVerified, setBillsVerified] = useState(false)
-}
+
+  // Local helper for Authorization Headers
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('smartgn_token')
+    return {
+      'Authorization': token ? `Bearer ${token}` : '',
+      'Content-Type': 'application/json'
+    }
+  }
+
+  // Load profile from localStorage (for dynamic header display)
+  useEffect(() => {
+    const saved = localStorage.getItem('smartgn_officer_profile')
+    if (saved) {
+      setProfile(JSON.parse(saved))
+    }
+  }, [])
+
+  const loadCertDetails = async () => {
+    try {
+      const response = await fetch('/api/certificates/officer', {
+        headers: getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to load certificate requests.')
+      const data = await response.json()
+      const found = data.find(r => (r.request_id === id || r.id === id))
+      if (found) {
+        const formatted = {
+          id: found.request_id || found.id,
+          type: found.certificate_type === 'INCOME' ? 'Income Certificate' : found.certificate_type === 'CHARACTER' ? 'Character Certificate' : (found.type || 'Residence Certificate'),
+          status: found.status === 'PENDING' ? 'Pending' : found.status === 'APPROVED' ? 'Approved' : found.status === 'REJECTED' ? 'Rejected' : found.status,
+          name: found.resident_name || found.name || 'Resident',
+          purpose: found.purpose,
+          submittedDate: found.request_date ? found.request_date.split('T')[0] : (found.submittedDate || ''),
+          division: found.division || 'Colombo',
+          nic: found.resident_nic || found.nic || '789456123V',
+          address: found.resident_address || found.address || ''
+        }
+        setCertRequest(formatted)
+        
+        if (formatted.status === 'Approved') {
+          setDocumentAuditCheck(true)
+          setSignatureMatch(true)
+          setBillsVerified(true)
+        } else if (formatted.status === 'Rejected') {
+          setDocumentAuditCheck(false)
+          setSignatureMatch(false)
+          setBillsVerified(false)
+        }
