@@ -138,3 +138,99 @@ function OfficerAllowances({ onOpenHelp }) {
       alert("Please verify the bank account registry with the Central Bank registry first.")
       return
     }
+
+    setTransferringId(id)
+    setTransferStep(1) // Connecting
+
+    setTimeout(() => {
+      setTransferStep(2) // clearing
+
+      setTimeout(() => {
+        setTransferStep(3) // Completed
+
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`/api/allowances/${id}/disburse`, {
+              method: 'POST',
+              headers: getAuthHeaders(),
+              body: JSON.stringify({
+                disburseAmount: parseFloat(transferAmount)
+              })
+            })
+
+            if (!response.ok) {
+              const data = await response.json()
+              throw new Error(data.error || 'Failed to disburse funds.')
+            }
+
+            const resData = await response.json()
+            await loadRequests()
+            setTransferringId(null)
+            setTransferStep(0)
+            alert('RTGS Secure Funds Disbursed successfully.')
+
+            const completedItem = {
+              id: id,
+              program: item.program,
+              status: 'Approved',
+              paymentStatus: 'Paid',
+              paymentAmount: resData.transaction.amount,
+              paymentTransferredAt: new Date(resData.transaction.timestamp).toLocaleString(),
+              paymentTransactionRef: resData.transaction.txnRef,
+              applicantName: item.applicantName,
+              bankDetails: item.bankDetails
+            }
+            setReceiptRequest(completedItem)
+            setShowReceiptId(id)
+          } catch (err) {
+            alert(err.message || 'Error disbursing allowance funds.')
+            setTransferringId(null)
+            setTransferStep(0)
+          }
+        }, 800)
+      }, 1000)
+    }, 800)
+  }
+
+  // View existing receipt
+  const viewReceipt = (item, e) => {
+    e.stopPropagation()
+    setReceiptRequest(item)
+    setShowReceiptId(item.id)
+  }
+
+  // Filter & Search logic
+  const filteredRequests = requests.filter(r => {
+    const applicant = r.applicantName || r.bankDetails?.accountHolderName || 'Resident'
+    const matchesSearch = applicant.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          r.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          String(r.id).includes(searchQuery)
+    
+    if (filterStatus === 'All') return matchesSearch
+    return matchesSearch && r.status === filterStatus
+  })
+
+  return (
+    <div className="dashboard-container">
+      
+      {/* 1. Header */}
+      <header className="dashboard-header">
+        <div className="landing-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <span className="logo-smart">Smart</span>
+          <span className="logo-gn">GN</span>
+          <p className="logo-subtext">{t.tagline}</p>
+        </div>
+
+        <div className="header-right">
+          {/* Language Selector */}
+          <LanguageSelector />
+
+          {/* Notifications */}
+          <div className="notification-bell">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="bell-badge">2</span>
+          </div>
+
