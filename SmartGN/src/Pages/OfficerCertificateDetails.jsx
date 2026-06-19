@@ -554,3 +554,31 @@ function OfficerCertificateDetails({ onOpenHelp }) {
               </div>
             </div>
           </div>
+
+          {/* Action Row Buttons: Approve & Reject */}
+          <div className="flex gap-4 justify-end mb-8">
+            <button
+              onClick={() => navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}
+              className="bg-transparent hover:bg-gray-100 text-[#475569] border border-[#cbd5e1] px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer"
+            >
+              Cancel Review
+            </button>
+
+            {certRequest.status === 'Pending' && (
+              <>
+                <button
+                  onClick={handleReject}
+                  className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                >
+                  Reject Application
+                </button>
+
+                <button
+                  onClick={handleApprove}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-8 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 shadow-md transition-colors duration-150"
+                >
+                  Approve Application
+                </button>
+              </>
+            )}
+          </div>
