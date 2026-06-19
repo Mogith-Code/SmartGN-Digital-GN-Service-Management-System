@@ -87,3 +87,29 @@ function OfficerCertificateDetails({ onOpenHelp }) {
           setSignatureMatch(false)
           setBillsVerified(false)
         }
+
+        return
+      }
+    } catch (err) {
+      console.error('API load failed, trying local fallback:', err)
+    }
+
+    // Local Storage Lookup Fallback
+    const saved = localStorage.getItem('smartgn_certificate_requests')
+    if (saved) {
+      const list = JSON.parse(saved)
+      const found = list.find(r => (r.id === id || r.request_id === id))
+      if (found) {
+        setCertRequest(found)
+        if (found.status === 'Approved' || found.status === 'APPROVED') {
+          setDocumentAuditCheck(true)
+          setSignatureMatch(true)
+          setBillsVerified(true)
+        } else if (found.status === 'Rejected' || found.status === 'REJECTED') {
+          setDocumentAuditCheck(false)
+          setSignatureMatch(false)
+          setBillsVerified(false)
+        }
+      }
+    }
+  }
