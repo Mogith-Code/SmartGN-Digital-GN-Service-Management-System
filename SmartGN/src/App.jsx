@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./Pages/LandingPage.jsx";
 import RAppointment from "./Pages/RAppointment.jsx";
 import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
+import { default as PendingAppointmentRequests } from "./Components/AppointmentsPage/PendingAppointmentRequests.jsx";
+import { default as ApprovedAppointmentsRequests } from "./Components/AppointmentsPage/ApprovedAppointmentsRequests.jsx";
 import Login from "./Pages/Login.jsx";
 import RHousehold from "./Pages/RHousehold.jsx";
 import Register from "./Pages/Registration.jsx";
@@ -13,8 +15,7 @@ import OfficerCertificateDetails from "./Pages/OfficerCertificateDetails.jsx";
 import ResidentCertificates from "./Pages/RCertificates.jsx";
 import ApplyCharacterCertificate from "./Pages/ApplyCharacterCertificate.jsx";
 import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
-import PendingAppointmentRequests from "./Components/AppointmentsPage/PendingAppointmentRequests.jsx";
-import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/ApprovedAppointmentsRequests.jsx";
+import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
 
 function App() {
   return (
@@ -57,6 +58,10 @@ function App() {
         <Route
           path="/dashboard/resident/certificates/apply-income"
           element={<ApplyIncomeCertificate />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/rejected"
+          element={<RejectedCertificates />}
         />
       </Routes>
     </Router>
