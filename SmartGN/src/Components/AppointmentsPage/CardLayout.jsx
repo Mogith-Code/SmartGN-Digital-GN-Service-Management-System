@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
@@ -7,6 +8,34 @@ import { useNavigate } from "react-router-dom";
 
 function CardLayout() {
   const navigate = useNavigate();
+
+  const { lang } = useLanguage();
+
+  // TRANSLATION OBJECTS
+  // Contains all text content in three languages: English (EN),
+  // Sinhala (SI), and Tamil (TA)
+  const CardLayoutTranslations = {
+    EN: {
+      Card1Title: "Pending appointment requests",
+      Card2Title: "Approved appointment requests",
+      Card3Title: "Book an appointment",
+    },
+
+    SI: {
+      Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
+      Card2Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්",
+      Card3Title: "හමුවක් වෙන් කරන්න",
+    },
+
+    TA: {
+      Card1Title: "நிலுவையில் உள்ள சந்திப்பு கோரிக்கைகள்",
+      Card2Title: "அங்கீகாரம் பெற்ற சந்திப்பு கோரிக்கைகள்",
+      Card3Title: "சந்திப்பை பதிவு செய்யவும்",
+    },
+  };
+
+  // Select the appropriate translation based on current language
+  const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
   return (
     <>
       <div
@@ -16,8 +45,8 @@ function CardLayout() {
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
 
         <div className="flex flex-col gap-[10px] items-center">
-          <span className="text-[16px] font-regular text-[#2D3748]">
-            Pending appointment requests
+          <span className="text-[16px] font-regular text-[#2D3748] text-center">
+            {t.Card1Title}
           </span>
           <span className="text-[20px] font-medium text-[#2D3748]">5</span>
         </div>
@@ -31,7 +60,7 @@ function CardLayout() {
 
         <div className="flex flex-col gap-[10px] items-center">
           <span className="text-[16px] font-regular text-[#2D3748]">
-            Approved appointment requests
+            {t.Card2Title}
           </span>
           <span className="text-[20px] font-medium text-[#2D3748]">5</span>
         </div>
@@ -45,7 +74,7 @@ function CardLayout() {
 
         <div className="flex flex-col gap-[10px] items-center">
           <span className="text-[16px] font-regular text-[#2D3748]">
-            Book an appointment
+            {t.Card3Title}
           </span>
         </div>
       </div>
