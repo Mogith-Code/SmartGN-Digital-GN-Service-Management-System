@@ -164,7 +164,7 @@ function BookingForm() {
 
           {/* Booking Form */}
           <form onSubmit={handleSubmit}>
-            <div className="mx-[50px] mt-[30px] flex flex-col gap-5 border border-[#2D37482D] rounded-[15px] p-[20px]">
+            <div className="mx-[50px] my-[30px] flex flex-col gap-5 border border-[#2D37482D] rounded-[15px] p-[20px]">
               {/* ============================================================ */}
               {/* APPOINTMENT PURPOSE - TEXT INPUT */}
               {/* ============================================================ */}
