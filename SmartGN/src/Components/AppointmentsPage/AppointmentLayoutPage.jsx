@@ -6,6 +6,18 @@ import BookingForm from "./BookingForm";
 import AppointmentSummary from "./AppointmentSummary";
 
 function AppointmentLayoutPage() {
+  // State to track the selected date from calendar
+  const [selectedDate, setSelectedDate] = useState({
+    day: new Date().getDate(),
+    month: new Date().getMonth(),
+    year: new Date().getFullYear(),
+  });
+
+  // Handler for date selection from calendar
+  const handleDateSelect = (day, month, year) => {
+    setSelectedDate({ day, month, year });
+  };
+
   const [isBookingMode, setIsBookingMode] = useState(false);
 
   // Function to handle booking mode toggle
@@ -23,12 +35,16 @@ function AppointmentLayoutPage() {
         <CardLayout />
       </div>
 
-      <div className="flex mt-[30px] mx-[100px] p-[20px]">
-        <CalenderLayout />
+      <div className="flex mt-[30px] mx-[100px] mt-[30px]">
+        <CalenderLayout onDateSelect={handleDateSelect} />
       </div>
 
-      <div className="flex justify-center mt-[30px] mx-[75px] p-[20px] border border-[red]">
-        <AppointmentSummary />
+      <div className="flex justify-center mx-[75px] my-[30px]">
+        <AppointmentSummary
+          day={selectedDate.day}
+          month={selectedDate.month}
+          year={selectedDate.year}
+        />
       </div>
     </>
   );
