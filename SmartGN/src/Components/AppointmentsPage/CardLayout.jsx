@@ -9,7 +9,10 @@ function CardLayout() {
   const navigate = useNavigate();
   return (
     <>
-      <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl border border-[#2D37482D] p-[15px] flex flex-col items-center">
+      <div
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+      >
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
 
         <div className="flex flex-col gap-[10px] items-center">
@@ -20,7 +23,10 @@ function CardLayout() {
         </div>
       </div>
 
-      <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl border border-[#2D37482D] p-[15px] flex flex-col items-center">
+      <div
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
+      >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
 
         <div className="flex flex-col gap-[10px] items-center">

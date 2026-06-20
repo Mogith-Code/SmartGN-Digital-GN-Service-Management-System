@@ -1,123 +1,343 @@
-import React from "react";
-import { useState, useEffect } from "react";
+// src/components/CalendarLayout.jsx
+import React, { useState, useEffect } from "react";
 
-function CalenderLayout() {
-  // Booking states
+function CalendarLayout({ onDateSelect }) {
+  // Receive onDateSelect as prop
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+
+  // Current date state - tracks the displayed month/year
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [selectedDay, setSelectedDay] = useState(16); // Default selected day May 16 matching screenshot
 
-  // Calendar cells generation for May 2026
-  // Sunday 31 is wrapped to row 1, Mon/Tue/Wed/Thu are empty, Fri 01, Sat 02
-  const calendarCells = [
-    { day: 31, isCurrent: true, wrapped: true },
-    { day: null, isCurrent: false },
-    { day: null, isCurrent: false },
-    { day: null, isCurrent: false },
-    { day: null, isCurrent: false },
-    { day: 1, isCurrent: true },
-    { day: 2, isCurrent: true },
+  // ============================================================================
+  // HELPER FUNCTIONS
+  // ============================================================================
 
-    { day: 3, isCurrent: true },
-    { day: 4, isCurrent: true },
-    { day: 5, isCurrent: true },
-    { day: 6, isCurrent: true },
-    { day: 7, isCurrent: true },
-    { day: 8, isCurrent: true },
-    { day: 9, isCurrent: true },
+  // Get month name
+  const getMonthName = (monthIndex) => {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    return months[monthIndex];
+  };
 
-    { day: 10, isCurrent: true },
-    { day: 11, isCurrent: true },
-    { day: 12, isCurrent: true },
-    { day: 13, isCurrent: true },
-    { day: 14, isCurrent: true },
-    { day: 15, isCurrent: true },
-    { day: 16, isCurrent: true },
+  // Get number of days in a month
+  const getDaysInMonth = (year, month) => {
+    return new Date(year, month + 1, 0).getDate();
+  };
 
-    { day: 17, isCurrent: true },
-    { day: 18, isCurrent: true },
-    { day: 19, isCurrent: true },
-    { day: 20, isCurrent: true },
-    { day: 21, isCurrent: true },
-    { day: 22, isCurrent: true },
-    { day: 23, isCurrent: true },
+  // Get first day of the month (0 = Sunday, 1 = Monday, etc.)
+  const getFirstDayOfMonth = (year, month) => {
+    return new Date(year, month, 1).getDay();
+  };
 
-    { day: 24, isCurrent: true },
-    { day: 25, isCurrent: true },
-    { day: 26, isCurrent: true },
-    { day: 27, isCurrent: true },
-    { day: 28, isCurrent: true },
-    { day: 29, isCurrent: true },
-    { day: 30, isCurrent: true },
-  ];
+  // Get days from previous month to display
+  const getPreviousMonthDays = (year, month) => {
+    const firstDay = getFirstDayOfMonth(year, month);
+    const prevMonthDate = new Date(year, month, 0);
+    const prevMonthDays = prevMonthDate.getDate();
+    const days = [];
+
+    for (let i = firstDay - 1; i >= 0; i--) {
+      days.push(prevMonthDays - i);
+    }
+    return days;
+  };
+
+  // Get days from next month to display
+  const getNextMonthDays = (year, month) => {
+    const daysInMonth = getDaysInMonth(year, month);
+    const lastDay = new Date(year, month, daysInMonth).getDay();
+    const days = [];
+
+    for (let i = 1; i < 7 - lastDay; i++) {
+      days.push(i);
+    }
+    return days;
+  };
+
+  // Check if a date is today
+  const isToday = (year, month, day) => {
+    const today = new Date();
+    return (
+      year === today.getFullYear() &&
+      month === today.getMonth() &&
+      day === today.getDate()
+    );
+  };
+
+  // ============================================================================
+  // NAVIGATION HANDLERS
+  // ============================================================================
+
+  // Navigate to previous month
+  const goToPreviousMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+    );
+    setSelectedDay(null);
+  };
+
+  // Navigate to next month
+  const goToNextMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1),
+    );
+    setSelectedDay(null);
+  };
+
+  // Navigate to today
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDay(today.getDate());
+
+    // Notify parent when Today button is clicked
+    if (onDateSelect) {
+      onDateSelect(today.getDate(), today.getMonth(), today.getFullYear());
+    }
+  };
+
+  // ============================================================================
+  // GENERATE CALENDAR CELLS
+  // ============================================================================
+
+  const generateCalendarCells = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const daysInMonth = getDaysInMonth(year, month);
+    const previousMonthDays = getPreviousMonthDays(year, month);
+    const nextMonthDays = getNextMonthDays(year, month);
+
+    const cells = [];
+
+    // Previous month days
+    previousMonthDays.forEach((day) => {
+      cells.push({
+        day: day,
+        isCurrentMonth: false,
+        isPreviousMonth: true,
+        isNextMonth: false,
+      });
+    });
+
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push({
+        day: day,
+        isCurrentMonth: true,
+        isPreviousMonth: false,
+        isNextMonth: false,
+      });
+    }
+
+    // Next month days
+    nextMonthDays.forEach((day) => {
+      cells.push({
+        day: day,
+        isCurrentMonth: false,
+        isPreviousMonth: false,
+        isNextMonth: true,
+      });
+    });
+
+    return cells;
+  };
+
+  // ============================================================================
+  // HANDLE DATE CLICK
+  // ============================================================================
+
+  const handleDateClick = (day) => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // Update selected day state
+    setSelectedDay(day);
+
+    // Notify parent component about the selected date
+    if (onDateSelect) {
+      onDateSelect(day, month, year);
+    }
+  };
+
+  // ============================================================================
+  // RENDER CALENDAR
+  // ============================================================================
+
+  const calendarCells = generateCalendarCells();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  // Weekday headers
+  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Check if navigation should be disabled (past 10 years or future 10 years)
+  const isPrevDisabled = year <= new Date().getFullYear() - 10;
+  const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37482D] rounded-[15px] p-[20px]">
-      <div className="flex justify-center items-center gap-[100px] mb-[30px] text-[16px] font-medium text-[#2D3748]">
-        <button className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-2 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800">
-          {"<"}
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37482D] rounded-[15px] p-4 sm:p-5 md:p-6">
+      {/* ==================================================================== */}
+      {/* CALENDAR HEADER - Month/Year Navigation */}
+      {/* ==================================================================== */}
+      <div className="flex justify-between items-center w-full mb-6">
+        <button
+          onClick={goToPreviousMonth}
+          disabled={isPrevDisabled}
+          className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Previous month"
+        >
+          ←
         </button>
 
-        <span>May 2026</span>
+        <div className="flex items-center gap-4">
+          <span className="text-base md:text-lg font-medium text-[#2D3748]">
+            {getMonthName(month)} {year}
+          </span>
+          <button
+            onClick={goToToday}
+            className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
+          >
+            Today
+          </button>
+        </div>
 
-        <button className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-2 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800">
-          {">"}
+        <button
+          onClick={goToNextMonth}
+          disabled={isNextDisabled}
+          className="bg-transparent border-none text-base font-medium text-[#2D3748] cursor-pointer py-1 px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Next month"
+        >
+          →
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-3 w-full text-center">
-        {/* Weekdays headers */}
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Sun
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Mon
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Tue
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Wed
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Thu
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Fri
-        </span>
-        <span className="text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-[10px]">
-          Sat
-        </span>
+      {/* ==================================================================== */}
+      {/* WEEKDAY HEADERS */}
+      {/* ==================================================================== */}
+      <div className="grid grid-cols-7 gap-2 w-full text-center">
+        {weekdays.map((day) => (
+          <span
+            key={day}
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
+          >
+            {day}
+          </span>
+        ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-3 w-full text-center">
-        {/* Calendar Days */}
+      {/* ==================================================================== */}
+      {/* CALENDAR DAYS GRID */}
+      {/* ==================================================================== */}
+      <div className="grid grid-cols-7 gap-2 w-full text-center">
         {calendarCells.map((cell, index) => {
-          const hasBooking = appointments.some((app) => app.day === cell.day);
-          const isSelected = selectedDay === cell.day;
+          const hasBooking = appointments.some(
+            (app) =>
+              app.day === cell.day && app.month === month && app.year === year,
+          );
+          const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
+          const today = isToday(year, month, cell.day) && cell.isCurrentMonth;
 
-          if (cell.day === null) {
-            return (
-              <span
-                key={index}
-                className="text-[#2D3748] cursor-not-allowed"
-              ></span>
-            );
+          let cellClasses = `py-2
+            flex flex-col items-center justify-center 
+            text-xs sm:text-sm md:text-[16px] 
+            rounded-lg sm:rounded-xl 
+            transition-all duration-200 
+            relative select-none 
+            w-full
+          `;
+
+          if (!cell.isCurrentMonth) {
+            cellClasses += `
+              text-[#2D37482D] cursor-not-allowed
+            `;
+          } else {
+            if (isSelected) {
+              cellClasses += `
+                bg-white text-[#2D3748] font-medium 
+                ring-2 ring-[#2D3748]
+                hover:bg-[#E2E8F0] cursor-pointer
+              `;
+            } else if (hasBooking) {
+              cellClasses += `
+                bg-amber-600 text-white font-bold 
+                hover:bg-amber-700 hover:shadow-md cursor-pointer
+              `;
+            } else {
+              cellClasses += `
+                text-[#2D3748] 
+                hover:bg-[#E2E8F0] cursor-pointer
+              `;
+            }
           }
 
           return (
-            <span
+            <div
               key={index}
-              className={`aspect-[3] flex flex-col items-center justify-center text-[16px] font-medium text-[#2D3748] cursor-pointer rounded-[10px] transition-all duration-200 relative select-none hover:bg-[#E2E8F0] 
-                ${cell.wrapped ? "text-slate-300 cursor-not-allowed" : ""} ${hasBooking ? "bg-amber-600 text-white font-bold hover:bg-amber-700" : ""} ${isSelected ? "ring-2 ring-[#1c355e] ring-offset-0" : ""}`}
-              onClick={() => cell.day && setSelectedDay(cell.day)}
+              className={cellClasses}
+              onClick={() => {
+                if (cell.isCurrentMonth) {
+                  handleDateClick(cell.day);
+                }
+              }}
             >
-              {cell.day < 10 ? "0" + cell.day : cell.day}
-            </span>
+              <div className="flex flex-col items-center justify-center gap-[5px]">
+                <span className="text-xs sm:text-sm md:text-base font-medium">
+                  {cell.day < 10 ? `0${cell.day}` : cell.day}
+                </span>
+
+                <div className="h-2 w-2 flex items-center justify-center">
+                  {today && (
+                    <span className="w-2 h-2 bg-[#22C55E] rounded-full"></span>
+                  )}
+                  {hasBooking &&
+                    cell.isCurrentMonth &&
+                    !isSelected &&
+                    !today && (
+                      <span className="w-2 h-2 bg-[#D69E2E] rounded-full"></span>
+                    )}
+                </div>
+              </div>
+            </div>
           );
         })}
+      </div>
+
+      {/* ==================================================================== */}
+      {/* LEGEND */}
+      {/* ==================================================================== */}
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 pt-4 border-t border-[#2D37482D] text-xs">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-[#22C55E] rounded-full"></div>
+          <span className="text-[#2D3748]">Today</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-[#D69E2E] rounded-full"></div>
+          <span className="text-[#2D3748]">Booked</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-white ring-2 ring-[#2D3748] rounded-full"></div>
+          <span className="text-[#2D3748]">Selected</span>
+        </div>
       </div>
     </div>
   );
 }
 
-export default CalenderLayout;
+export default CalendarLayout;
