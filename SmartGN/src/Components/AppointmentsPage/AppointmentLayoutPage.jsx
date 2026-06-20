@@ -1,11 +1,28 @@
+// src/pages/AppointmentLayoutPage.jsx
 import React from "react";
 import { useState } from "react";
+import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 import CardLayout from "./CardLayout";
 import CalenderLayout from "./CalenderLayout";
 import BookingForm from "./BookingForm";
 import AppointmentSummary from "./AppointmentSummary";
+import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import { useNavigate } from "react-router-dom";
 
 function AppointmentLayoutPage() {
+  const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  // TRANSLATION OBJECTS
+  const AppointmentLayoutTranslations = {
+    EN: { Title: "Meetings" },
+    SI: { Title: "හමුවවීම්" },
+    TA: { Title: "சந்திப்புகள்" },
+  };
+
+  const t =
+    AppointmentLayoutTranslations[lang] || AppointmentLayoutTranslations.EN;
+
   // State to track the selected date from calendar
   const [selectedDate, setSelectedDate] = useState({
     day: new Date().getDate(),
@@ -18,33 +35,107 @@ function AppointmentLayoutPage() {
     setSelectedDate({ day, month, year });
   };
 
-  const [isBookingMode, setIsBookingMode] = useState(false);
+  // ============================================================================
+  // BOOKING STATES - CORRECTLY CREATING DATES
+  // ============================================================================
+  const [appointments, setAppointments] = useState([
+    {
+      id: 1,
+      purpose: "Meeting with Officer A",
+      date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
+      time: "10:00 AM",
+      contact: "0703891153",
+      status: "Pending",
+    },
+    {
+      id: 2,
+      purpose: "Certificate Collection",
+      date: new Date(2026, 5, 25), // June 25, 2026
+      time: "2:30 PM",
+      contact: "0771234567",
+      status: "Approved",
+    },
+  ]);
 
-  // Function to handle booking mode toggle
-  const handleBookingModeToggle = () => {
-    setIsBookingMode(!isBookingMode);
+  // Get appointment for selected date if it exists
+  const getAppointmentForSelectedDate = () => {
+    return appointments.find((appointment) => {
+      const appDate = appointment.date;
+      return (
+        appDate.getDate() === selectedDate.day &&
+        appDate.getMonth() === selectedDate.month &&
+        appDate.getFullYear() === selectedDate.year
+      );
+    });
   };
+
+  const activeAppointment = getAppointmentForSelectedDate();
 
   return (
     <>
       <div className="flex text-[24px] font-medium text-[#1B365D] mt-[60px] mx-[30px]">
-        Appointments
+        {t.Title}
       </div>
 
       <div className="grid grid-cols-3 gap-6 mx-[75px] mt-[30px]">
         <CardLayout />
       </div>
 
-      <div className="flex mt-[30px] mx-[100px] mt-[30px]">
+      <div className="flex mt-[30px] mx-[100px]">
         <CalenderLayout onDateSelect={handleDateSelect} />
       </div>
 
       <div className="flex justify-center mx-[75px] my-[30px]">
-        <AppointmentSummary
-          day={selectedDate.day}
-          month={selectedDate.month}
-          year={selectedDate.year}
-        />
+        {activeAppointment ? (
+          // ================================================================
+          // ACTIVE APPOINTMENT DISPLAY
+          // ================================================================
+          <div className="flex w-full flex-col p-[30px] border-[1.5px] border-[#2D37488D] rounded-xl">
+            <p className="font-medium text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37488D] ">
+              Appointment Summary
+            </p>
+
+            <div className="flex flex-col gap-[5px] mt-[20px]">
+              <p className="text-[16px] text-[#2D3748]">
+                <span className="font-medium">Purpose:</span>{" "}
+                {activeAppointment.purpose}
+              </p>
+              <p className="text-[16px] text-[#2D3748]">
+                <span className="font-medium">Time:</span>{" "}
+                {activeAppointment.time}
+              </p>
+              <p className="text-[16px] text-[#2D3748]">
+                <span className="font-medium">Status:</span>{" "}
+                {activeAppointment.status}
+              </p>
+            </div>
+
+            <div className="mt-[20px] flex justify-center">
+              <button
+                className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer"
+                onClick={() => {
+                  if (activeAppointment.status === "Pending") {
+                    navigate("/RAppointment/PendingAppointmentRequests");
+                  } else if (activeAppointment.status === "Approved") {
+                    navigate("/RAppointment/ApprovedAppointmentRequests");
+                  }
+                }}
+              >
+                <span>View More Details</span>
+                <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          // ================================================================
+          // NO APPOINTMENT - Show Appointment Summary
+          // ================================================================
+          <AppointmentSummary
+            day={selectedDate.day}
+            month={selectedDate.month}
+            year={selectedDate.year}
+          />
+        )}
       </div>
     </>
   );

@@ -1,7 +1,102 @@
 // src/components/CalendarLayout.jsx
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 
 function CalendarLayout({ onDateSelect }) {
+  const { lang } = useLanguage();
+
+  // TRANSLATION OBJECTS
+  // Contains all text content in three languages: English (EN),
+  // Sinhala (SI), and Tamil (TA)
+  const CalenderLayoutTranslations = {
+    EN: {
+      January: "January",
+      February: "February",
+      March: "March",
+      April: "April",
+      May: "May",
+      June: "June",
+      July: "July",
+      August: "August",
+      September: "September",
+      October: "October",
+      November: "November",
+      December: "December",
+
+      Today: "Today",
+
+      Sun: "Sun",
+      Mon: "Mon",
+      Tue: "Tue",
+      Wed: "Wed",
+      Thu: "Thu",
+      Fri: "Fri",
+      Sat: "Sat",
+
+      Booked: "Booked",
+      Selected: "Selected",
+    },
+
+    SI: {
+      January: "ජනවාරි",
+      February: "පෙබරවාරි",
+      March: "මාර්තු",
+      April: "අප්‍රේල්",
+      May: "මැයි",
+      June: "ජූනි",
+      July: "ජූලි",
+      August: "අගෝස්තු",
+      September: "සැප්තැම්බර්",
+      October: "ඔක්තෝබර්",
+      November: "නවම්බර්",
+      December: "දෙසැම්බර්",
+
+      Today: "අද",
+
+      Sun: "ඉරිදා",
+      Mon: "සඳුදා",
+      Tue: "අඟහරු.",
+      Wed: "බදාදා",
+      Thu: "බ්‍රහස්.",
+      Fri: "සිකු.",
+      Sat: "සෙන.",
+
+      Booked: "වෙන්කර ඇත",
+      Selected: "තෝරාගත්",
+    },
+
+    TA: {
+      January: "ஜனவரி",
+      February: "பிப்ரவரி",
+      March: "மார்ச்",
+      April: "ஏப்ரல்",
+      May: "மே",
+      June: "ஜூன்",
+      July: "ஜூலை",
+      August: "ஆகஸ்ட்",
+      September: "செப்டம்பர்",
+      October: "அக்டோபர்",
+      November: "நவம்பர்",
+      December: "டிசம்பர்",
+
+      Today: "இன்று",
+
+      Sun: "ஞாயிறு",
+      Mon: "திங்கள்",
+      Tue: "செவ்வாய்",
+      Wed: "புதன்",
+      Thu: "வியாழன்",
+      Fri: "வெள்ளி",
+      Sat: "சனி",
+
+      Booked: "நேரம் கொடுக்கப்பட்டது",
+      Selected: "தேர்ந்தெடுக்கப்பட்டது",
+    },
+  };
+
+  // Select the appropriate translation based on current language
+  const t = CalenderLayoutTranslations[lang] || CalenderLayoutTranslations.EN;
+
   // Receive onDateSelect as prop
   // ============================================================================
   // STATE MANAGEMENT
@@ -19,18 +114,18 @@ function CalendarLayout({ onDateSelect }) {
   // Get month name
   const getMonthName = (monthIndex) => {
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      t.January,
+      t.February,
+      t.March,
+      t.April,
+      t.May,
+      t.June,
+      t.July,
+      t.August,
+      t.September,
+      t.October,
+      t.November,
+      t.December,
     ];
     return months[monthIndex];
   };
@@ -185,14 +280,14 @@ function CalendarLayout({ onDateSelect }) {
   const month = currentDate.getMonth();
 
   // Weekday headers
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekdays = [t.Sun, t.Mon, t.Tue, t.Wed, t.Thu, t.Fri, t.Sat];
 
   // Check if navigation should be disabled (past 10 years or future 10 years)
   const isPrevDisabled = year <= new Date().getFullYear() - 10;
   const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37482D] rounded-[15px] p-4 sm:p-5 md:p-6">
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37488D] rounded-[15px] p-4 sm:p-5 md:p-6">
       {/* ==================================================================== */}
       {/* CALENDAR HEADER - Month/Year Navigation */}
       {/* ==================================================================== */}
@@ -214,7 +309,7 @@ function CalendarLayout({ onDateSelect }) {
             onClick={goToToday}
             className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
           >
-            Today
+            {t.Today}
           </button>
         </div>
 
@@ -235,7 +330,7 @@ function CalendarLayout({ onDateSelect }) {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37488D] mb-2"
           >
             {day}
           </span>
@@ -325,15 +420,15 @@ function CalendarLayout({ onDateSelect }) {
       <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 pt-4 border-t border-[#2D37482D] text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-[#22C55E] rounded-full"></div>
-          <span className="text-[#2D3748]">Today</span>
+          <span className="text-[#2D3748]">{t.Today}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-[#D69E2E] rounded-full"></div>
-          <span className="text-[#2D3748]">Booked</span>
+          <span className="text-[#2D3748]">{t.Booked}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-white ring-2 ring-[#2D3748] rounded-full"></div>
-          <span className="text-[#2D3748]">Selected</span>
+          <span className="text-[#2D3748]">{t.Selected}</span>
         </div>
       </div>
     </div>
