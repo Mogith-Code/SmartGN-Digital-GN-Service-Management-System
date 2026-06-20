@@ -110,7 +110,7 @@ function AppointmentLayoutPage() {
 
             <div className="mt-[20px] flex justify-center">
               <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-white rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer">
-                <span>View Details</span>
+                <span>View More Details</span>
                 <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
               </button>
             </div>
