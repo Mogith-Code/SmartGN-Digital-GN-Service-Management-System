@@ -802,4 +802,55 @@ function OfficerAllowances({ onOpenHelp }) {
               </div>
             </div>
 
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => alert("Downloading secured CBSL digital signed payment receipt PDF...")}
+                style={{
+                  flex: 1,
+                  background: '#ffffff',
+                  color: '#1a2e56',
+                  border: '1.5px solid #1a2e56',
+                  padding: '10px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
+              >
+                📥 Download PDF
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowReceiptId(null)
+                  setReceiptRequest(null)
+                }}
+                style={{
+                  flex: 1,
+                  background: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '10px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
+                }}
+              >
+                Close Receipt
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default OfficerAllowances
+
+
 
