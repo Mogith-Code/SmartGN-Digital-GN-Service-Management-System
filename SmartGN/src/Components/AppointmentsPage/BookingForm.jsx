@@ -6,6 +6,8 @@ import Footer from "../Common/Footer";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function BookingForm() {
   // Booking Form States
@@ -156,13 +158,13 @@ function BookingForm() {
           </div>
 
           {/* Page Title */}
-          <div className="flex text-[24px] font-medium text-[#1B365D] border-b-[1.5px] border-[#2D37482D] pb-3 mb-5 mt-[30px] mx-[30px]">
+          <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             Book New Appointment
           </div>
 
           {/* Booking Form */}
           <form onSubmit={handleSubmit}>
-            <div className="mx-[50px] flex flex-col gap-5 border border-[#2D37482D] rounded-[15px] p-[20px]">
+            <div className="mx-[50px] mt-[30px] flex flex-col gap-5 border border-[#2D37482D] rounded-[15px] p-[20px]">
               {/* ============================================================ */}
               {/* APPOINTMENT PURPOSE - TEXT INPUT */}
               {/* ============================================================ */}
@@ -254,30 +256,6 @@ function BookingForm() {
               </div>
 
               {/* ============================================================ */}
-              {/* OFFICER NAME */}
-              {/* ============================================================ */}
-              <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
-                <label htmlFor="officerName" className="font-medium">
-                  Officer Name:
-                </label>
-                <select
-                  id="officerName"
-                  value={officerName}
-                  onChange={(e) => setOfficerName(e.target.value)}
-                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
-                  required
-                >
-                  <option value="Kamal Silva">Kamal Silva</option>
-                  <option value="Nimal Perera">Nimal Perera</option>
-                  <option value="Sunil Fernando">Sunil Fernando</option>
-                  <option value="Chandana Kumara">Chandana Kumara</option>
-                  <option value="Samantha Rathnayake">
-                    Samantha Rathnayake
-                  </option>
-                </select>
-              </div>
-
-              {/* ============================================================ */}
               {/* CONTACT NUMBER */}
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
@@ -307,22 +285,24 @@ function BookingForm() {
               {/* ============================================================ */}
               {/* ACTION BUTTONS - Reset & Submit */}
               {/* ============================================================ */}
-              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[#2D37482D]">
+              <div className="flex justify-end gap-[20px] mt-[10px] border border-[red]">
                 {/* Reset Button */}
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="px-6 py-2 border border-[#2D3748] text-[#2D3748] rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium"
+                  className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
                 >
-                  Reset
+                  <span>Reset</span>
+                  <img src={resetIcon} alt="resetIcon" className="w-[16px]" />
                 </button>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-[#1B365D] text-white rounded-lg hover:bg-[#2c5f8a] transition-colors text-sm font-medium"
+                  className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
                 >
-                  Book Appointment
+                  <span>Book Appointment</span>
+                  <img src={confirmIcon} alt="resetIcon" className="w-[16px]" />
                 </button>
               </div>
             </div>
