@@ -285,7 +285,7 @@ function BookingForm() {
               {/* ============================================================ */}
               {/* ACTION BUTTONS - Reset & Submit */}
               {/* ============================================================ */}
-              <div className="flex justify-end gap-[20px] mt-[10px] border border-[red]">
+              <div className="flex justify-end gap-[20px] mt-[10px]">
                 {/* Reset Button */}
                 <button
                   type="button"
