@@ -63,4 +63,35 @@ function RejectedCertificates({ onOpenHelp }) {
       isActive: false,
     },
   ]
+
+  const localDict = {
+    EN: {
+      title: "Rejected Certificate requests",
+      requestedDate: "Requested Date",
+      purpose: "Purpose",
+      reasonForRejection: "Reason for the rejection:",
+      editRequest: "Edit request",
+      back: "Back",
+      editingRequest: "Editing rejected request for",
+    },
+    SI: {
+      title: "ප්‍රතික්ෂේපිත සහතික ඉල්ලීම්",
+      requestedDate: "ඉල්ලුම් කළ දිනය",
+      purpose: "අරමුණ",
+      reasonForRejection: "ප්‍රතික්ෂේප කිරීමට හේතුව:",
+      editRequest: "ඉල්ලීම සංස්කරණය කරන්න",
+      back: "ආපසු",
+      editingRequest: "ප්‍රතික්ෂේපිත ඉල්ලීම සංස්කරණය කරමින්",
+    },
+    TA: {
+      title: "நிராகரிக்கப்பட்ட சான்றிதழ் கோரிக்கைகள்",
+      requestedDate: "கோரப்பட்ட தேதி",
+      purpose: "நோக்கம்",
+      reasonForRejection: "நிராகரிப்பதற்கான காரணம்:",
+      editRequest: "கோரிக்கையை திருத்தவும்",
+      back: "திரும்புக",
+      editingRequest: "நிராகரிக்கப்பட்ட கோரிக்கையை திருத்துகிறது",
+    }
+  }
 }
+
