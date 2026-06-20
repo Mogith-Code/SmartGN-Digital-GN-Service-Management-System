@@ -287,7 +287,7 @@ function CalendarLayout({ onDateSelect }) {
   const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37482D] rounded-[15px] p-4 sm:p-5 md:p-6">
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37488D] rounded-[15px] p-4 sm:p-5 md:p-6">
       {/* ==================================================================== */}
       {/* CALENDAR HEADER - Month/Year Navigation */}
       {/* ==================================================================== */}
@@ -330,7 +330,7 @@ function CalendarLayout({ onDateSelect }) {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37482D] mb-2"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37488D] mb-2"
           >
             {day}
           </span>

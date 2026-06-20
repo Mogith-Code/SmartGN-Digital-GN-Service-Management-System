@@ -6,6 +6,7 @@ import CardLayout from "./CardLayout";
 import CalenderLayout from "./CalenderLayout";
 import BookingForm from "./BookingForm";
 import AppointmentSummary from "./AppointmentSummary";
+import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function AppointmentLayoutPage() {
   const { lang } = useLanguage();
@@ -42,6 +43,7 @@ function AppointmentLayoutPage() {
       date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
       time: "10:00 AM",
       contact: "0703891153",
+      status: "Pending",
     },
     {
       id: 2,
@@ -49,6 +51,7 @@ function AppointmentLayoutPage() {
       date: new Date(2026, 5, 25), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
+      status: "Approved",
     },
   ]);
 
@@ -85,10 +88,12 @@ function AppointmentLayoutPage() {
           // ================================================================
           // ACTIVE APPOINTMENT DISPLAY
           // ================================================================
-          <div className="flex w-full flex-col items-center justify-center text-center text-[#2D3748] border-[1.5px] border-[#2D37488D] rounded-xl bg-[#E2E8F0]">
-            <p className="font-medium text-[16px]">Appointment Summary</p>
+          <div className="flex w-full flex-col p-[30px] border-[1.5px] border-[#2D37488D] rounded-xl">
+            <p className="font-medium text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37488D] ">
+              Appointment Summary
+            </p>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-[5px] mt-[20px]">
               <p className="text-[16px] text-[#2D3748]">
                 <span className="font-medium">Purpose:</span>{" "}
                 {activeAppointment.purpose}
@@ -98,16 +103,15 @@ function AppointmentLayoutPage() {
                 {activeAppointment.time}
               </p>
               <p className="text-[16px] text-[#2D3748]">
-                <span className="font-medium">Contact:</span>{" "}
-                {activeAppointment.contact}
+                <span className="font-medium">Status:</span>{" "}
+                {activeAppointment.status}
               </p>
             </div>
-            <div className="mt-4 flex justify-center gap-3">
-              <button className="px-4 py-2 bg-[#1B365D] text-white rounded-lg hover:bg-[#2c5f8a] transition-colors text-sm font-medium">
-                View Details
-              </button>
-              <button className="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium">
-                Cancel Appointment
+
+            <div className="mt-[20px] flex justify-center">
+              <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-white rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer">
+                <span>View Details</span>
+                <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
               </button>
             </div>
           </div>
