@@ -16,6 +16,7 @@ import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
 import PendingAppointmentRequests from "./Components/AppointmentsPage/PendingAppointmentRequests.jsx";
 import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/ApprovedAppointmentsRequests.jsx";
 import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
+import OfficerHousehold from "./Pages/OfficerHousehold.jsx";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/RAppointment" element={<RAppointment />} />
         <Route path="/OfficerAppointment" element={<OfficerAppointment />} />
+        <Route path="/OfficerHousehold" element={<OfficerHousehold />} />
         <Route path="/RAppointment/BookingForm" element={<BookingForm />} />
         <Route
           path="/RAppointment/PendingAppointmentRequests"
