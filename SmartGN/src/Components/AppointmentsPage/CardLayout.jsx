@@ -59,7 +59,7 @@ function CardLayout() {
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
 
         <div className="flex flex-col gap-[10px] items-center">
-          <span className="text-[16px] font-regular text-[#2D3748]">
+          <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card2Title}
           </span>
           <span className="text-[20px] font-medium text-[#2D3748]">5</span>
@@ -73,7 +73,7 @@ function CardLayout() {
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
 
         <div className="flex flex-col gap-[10px] items-center">
-          <span className="text-[16px] font-regular text-[#2D3748]">
+          <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
           </span>
         </div>
