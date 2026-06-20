@@ -66,7 +66,7 @@ function PendingAppointmentRequests() {
             </div>
 
             <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-              <span className="font-regular">Date: 30/06/2026</span>
+              <span className="font-regular">Appointment Date: 30/06/2026</span>
               <span className="font-light">11:30 AM</span>
             </div>
 
