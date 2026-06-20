@@ -6,6 +6,7 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import { useNavigate } from "react-router-dom";
 import editIcon from "../../assets/edit_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import Footer from "../Common/Footer";
 
 function PendingAppointmentRequests() {
   const navigate = useNavigate();
@@ -88,6 +89,8 @@ function PendingAppointmentRequests() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

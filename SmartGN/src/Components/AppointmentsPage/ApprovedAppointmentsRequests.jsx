@@ -4,6 +4,7 @@ import RSidebar from "../Common/RSidebar";
 import { useLanguage } from "../../utils/translate";
 import { useNavigate } from "react-router-dom";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import Footer from "../Common/Footer";
 
 function ApprovedAppointmentsRequests() {
   const navigate = useNavigate();
@@ -67,6 +68,8 @@ function ApprovedAppointmentsRequests() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
