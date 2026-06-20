@@ -370,3 +370,487 @@ function OfficerAllowances({ onOpenHelp }) {
             </div>
           </div>
 
+          {/* Search Box */}
+          <div style={{ position: 'relative', marginBottom: '24px' }}>
+            <input
+              type="text"
+              placeholder="Search by resident name, program (e.g. Aswesuma) or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px 12px 42px',
+                fontSize: '14px',
+                borderRadius: '10px',
+                border: '1.5px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#1e293b',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" style={{ position: 'absolute', left: '14px', top: '14px' }}>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          {/* List of Applications */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {filteredRequests.map((item) => {
+              const applicant = item.applicantName || item.bankDetails?.accountHolderName || 'Resident'
+              const isExpanded = expandedId === item.id
+
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: isExpanded ? '1.5px solid #fedc9b' : '1px solid #cbd5e1',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+                    transition: 'border-color 0.15s ease'
+                  }}
+                >
+                  {/* Collapsed Row Header */}
+                  <div
+                    onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                    style={{
+                      padding: '24px 32px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '24px' }}>★</span>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                          <h4 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#1a2e56' }}>
+                            {item.program}
+                          </h4>
+                          <span
+                            className={`badge-status ${item.status.toLowerCase()}`}
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: '800',
+                              padding: '2px 8px',
+                              borderRadius: '50px',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {item.status}
+                          </span>
+                          
+                          {item.status === 'Approved' && (
+                            <span
+                              className={`badge-status ${item.paymentStatus === 'Paid' ? 'approved' : 'pending'}`}
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: '800',
+                                padding: '2px 8px',
+                                borderRadius: '50px',
+                                textTransform: 'uppercase'
+                              }}
+                            >
+                              {item.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid'}
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#64748b' }}>
+                          <span>Applicant: <strong>{applicant}</strong></span>
+                          <span>NIC: <strong>{item.nic || '200324511540'}</strong></span>
+                          <span>Submitted: <strong>{item.submittedDate || '2024-03-28'}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span style={{ fontSize: '18px', color: '#64748b' }}>
+                      {isExpanded ? '▲' : '▼'}
+                    </span>
+                  </div>
+
+                  {/* Expanded Detail Panel */}
+                  {isExpanded && (
+                    <div style={{ padding: '0 32px 32px 32px', borderTop: '1px solid #cbd5e1', textAlign: 'left', backgroundColor: '#f8fafc' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', paddingTop: '24px' }}>
+                        
+                        {/* Left column details */}
+                        <div>
+                          <h4 style={{ margin: '0 0 16px 0', fontSize: '14.5px', color: '#1a2e56', fontWeight: '800' }}>Application details</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#334155' }}>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Purpose:</span> {item.purpose}
+                            </div>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Monthly Household Income:</span> Rs. {parseFloat(item.income || '20000').toLocaleString()}.00
+                            </div>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Remarks:</span> {item.remarks || 'No remarks provided.'}
+                            </div>
+                            
+                            {/* NEW: Interactive Mock PDF Document Viewer Card */}
+                            <div style={{ marginTop: '16px' }}>
+                              <span style={{ display: 'block', color: '#64748b', fontWeight: '750', marginBottom: '8px', fontSize: '13px' }}>Submitted PDF Document:</span>
+                              <div 
+                                style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#ffffff', border: '1.5px solid #cbd5e1', borderRadius: '12px', padding: '14px 18px', cursor: 'pointer', transition: 'all 0.15s ease' }} 
+                                onClick={() => alert(`Simulating secure document viewer for SmartGN-AL-${item.id}... Loading 'Proof_of_Income_Cert.pdf' (1.4MB)... Verified CBSL Signature.`)}
+                                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#1a2e56'}
+                                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+                              >
+                                <div style={{ width: '40px', height: '40px', backgroundColor: '#fee2e2', color: '#ef4444', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '900' }}>
+                                  PDF
+                                </div>
+                                <div style={{ flex: 1, fontSize: '13px', textAlign: 'left' }}>
+                                  <span style={{ display: 'block', fontWeight: '750', color: '#1e293b' }}>Proof_of_Income_Cert.pdf</span>
+                                  <span style={{ color: '#64748b', fontSize: '11.5px' }}>1.4 MB • Utility bill & Income Statement</span>
+                                </div>
+                                <span style={{ color: '#1a2e56', fontWeight: '800', fontSize: '12px' }}>View PDF ➔</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Reject/Approve Controls */}
+                          {item.status === 'Pending' && (
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                              <button
+                                onClick={(e) => handleReject(item.id, e)}
+                                style={{
+                                  background: '#ffffff',
+                                  color: '#ef4444',
+                                  border: '1.5px solid #ef4444',
+                                  padding: '8px 24px',
+                                  borderRadius: '50px',
+                                  fontSize: '13px',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Reject Application
+                              </button>
+                              <button
+                                onClick={(e) => handleApprove(item.id, e)}
+                                style={{
+                                  background: '#10b981',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  padding: '10px 24px',
+                                  borderRadius: '50px',
+                                  fontSize: '13px',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Approve Application
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right column secure bank details & payment clearance */}
+                        <div style={{ borderLeft: '1.5px solid #e2e8f0', paddingLeft: '40px' }}>
+                          <h4 style={{ margin: '0 0 16px 0', fontSize: '14.5px', color: '#1a2e56', fontWeight: '800' }}>Payment & Transfer Console</h4>
+                          
+                          {item.bankDetails ? (
+                            /* HIGHLY STYLED PREMIUM BANK CARD */
+                            <div style={{ background: '#ecfdf5', border: '1.5px solid #a7f3d0', borderRadius: '16px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.02)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                <span style={{ display: 'block', fontSize: '11px', color: '#047857', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Payment Account</span>
+                                <span style={{ fontSize: '11px', background: '#34d399', color: '#064e3b', fontWeight: '850', padding: '2px 8px', borderRadius: '50px' }}>CBSL matched</span>
+                              </div>
+                              <div style={{ fontSize: '13.5px', color: '#1e293b', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Bank Name:</span> <strong>{item.bankDetails.bankName}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Branch:</span> <strong>{item.bankDetails.branch}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>A/C Number:</span> <strong style={{ fontFamily: 'monospace', fontSize: '14px' }}>{item.bankDetails.accountNumber}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #c6f6d5', paddingTop: '8px', marginTop: '2px' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Account Holder:</span> <strong>{item.bankDetails.accountHolderName}</strong></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ padding: '16px', color: '#e11d48', fontSize: '13px', background: '#fff1f2', borderRadius: '8px', border: '1px solid #fda4af', marginBottom: '20px' }}>
+                              Resident has not provided bank account details yet. Money cannot be transferred.
+                            </div>
+                          )}
+
+                          {/* Bank Actions */}
+                          {item.status === 'Approved' && item.bankDetails && (
+                            <div>
+                              {item.paymentStatus === 'Unpaid' ? (
+                                <>
+                                  {/* Not verified state */}
+                                  {!bankVerifiedMap[item.id] ? (
+                                    <button
+                                      onClick={(e) => handleVerifyBank(item.id, applicant, e)}
+                                      disabled={verifyingBankId === item.id}
+                                      style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        fontSize: '13.5px',
+                                        fontWeight: '800',
+                                        borderRadius: '8px',
+                                        background: '#1a2e56',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {verifyingBankId === item.id ? 'Connecting Central Registry...' : '🔍 Verify Bank Account Registry'}
+                                    </button>
+                                  ) : (
+                                    /* Verified state & Disburse panel */
+                                    <div style={{ textAlign: 'left' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#047857', fontSize: '13.5px', fontWeight: '800', marginBottom: '14px' }}>
+                                        <span>✓ Account Registry Status: verified</span>
+                                      </div>
+
+                                      {/* Amount select input */}
+                                      <div style={{ marginBottom: '16px' }}>
+                                        <label htmlFor={`amount-${item.id}`} style={{ display: 'block', fontSize: '12.5px', fontWeight: '800', color: '#475569', marginBottom: '6px' }}>Transfer Amount (LKR) :</label>
+                                        <input
+                                          type="number"
+                                          id={`amount-${item.id}`}
+                                          className="register-control"
+                                          value={transferAmount}
+                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          style={{ padding: '8px 12px', width: '100%', boxSizing: 'border-box' }}
+                                        />
+                                      </div>
+
+                                      {/* Secure Disburse button */}
+                                      <button
+                                        onClick={(e) => handleSecureTransfer(item.id, item, e)}
+                                        disabled={transferringId === item.id}
+                                        style={{
+                                          width: '100%',
+                                          padding: '12px',
+                                          fontSize: '13.5px',
+                                          fontWeight: '800',
+                                          borderRadius: '8px',
+                                          background: '#10b981',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          cursor: 'pointer',
+                                          boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)'
+                                        }}
+                                      >
+                                        {transferringId === item.id ? (
+                                          <span>
+                                            {transferStep === 1 && 'RTGS: Handshaking clearing gateway...'}
+                                            {transferStep === 2 && 'RTGS: Disbursing secure cleared funds...'}
+                                            {transferStep === 3 && 'RTGS: Finalizing transaction records...'}
+                                          </span>
+                                        ) : (
+                                          '🔒 Securely Transfer Funds via RTGS'
+                                        )}
+                                      </button>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                /* Paid state logs & view receipt trigger */
+                                <div style={{ background: '#ecfdf5', border: '1.5px solid #10b981', borderRadius: '12px', padding: '16px', color: '#065f46' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: '800', fontSize: '13.5px' }}>
+                                    <span>✓ Funds successfully Disbursed</span>
+                                  </div>
+                                  <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
+                                    <div><span style={{ color: '#047857' }}>Transferred:</span> <strong>Rs. {item.paymentAmount}.00</strong></div>
+                                    <div><span style={{ color: '#047857' }}>Cleared Date:</span> <strong>{item.paymentTransferredAt}</strong></div>
+                                    <div><span style={{ color: '#047857' }}>Secure Ref:</span> <code>{item.paymentTransactionRef}</code></div>
+                                  </div>
+                                  
+                                  {/* VIEW SECURED RECEIPT LINK */}
+                                  <button
+                                    onClick={(e) => viewReceipt(item, e)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: '#047857',
+                                      fontWeight: '800',
+                                      fontSize: '12.5px',
+                                      cursor: 'pointer',
+                                      padding: 0,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    🧾 View Payment Receipt
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {item.status !== 'Approved' && (
+                            <span style={{ fontSize: '12.5px', color: '#64748b' }}>Approved requests can clearing secure money transfers instantly.</span>
+                          )}
+
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )
+            })}
+
+            {filteredRequests.length === 0 && (
+              <div style={{ padding: '48px', backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #cbd5e1', color: '#64748b', fontSize: '15px' }}>
+                No allowance applications match the selected filters.
+              </div>
+            )}
+          </div>
+
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+      {/* 4. Payment Portal Secure Transfer Receipt Modal */}
+      {showReceiptId && receiptRequest && (
+        <div className="modal-backdrop-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-form-card animate-zoom-in" style={{ maxWidth: '460px', width: '90%', padding: '32px', borderRadius: '24px', border: '1.5px solid #10b981', backgroundColor: '#ffffff', color: '#1e293b', boxShadow: '0 20px 40px rgba(16, 185, 129, 0.12)' }}>
+            
+            {/* Header: CBSL Seal */}
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2.5px solid #d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto', backgroundColor: '#fdf8f0', color: '#d97706', fontSize: '24px', fontWeight: '800' }}>
+                🇱🇰
+              </div>
+              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: '850', color: '#1a2e56', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Central Bank of Sri Lanka
+              </h3>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '750', display: 'block', marginTop: '3px', letterSpacing: '0.2px' }}>
+                RTGS SECURED CLEARING SYSTEM • SYSTEM RECEIPT
+              </span>
+            </div>
+
+            {/* Receipt Details Box */}
+            <div style={{ borderTop: '2px dashed #cbd5e1', borderBottom: '2px dashed #cbd5e1', padding: '16px 0', margin: '16px 0', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Transaction Status:</span>
+                <span style={{ color: '#047857', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  ● Cleared & Settled
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Transaction Ref:</span>
+                <strong style={{ fontFamily: 'monospace', fontSize: '13.5px', color: '#1e293b' }}>
+                  {receiptRequest.paymentTransactionRef}
+                </strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Disbursed Date:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.paymentTransferredAt}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Allowance Program:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.program}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Applicant Name:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.applicantName || receiptRequest.bankDetails?.accountHolderName}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #cbd5e1', paddingTop: '8px', marginTop: '2px' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Destination Bank:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.bankName}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Branch Office:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.branch}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Credit Account:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.accountNumber}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #cbd5e1', paddingTop: '12px', marginTop: '4px' }}>
+                <span style={{ color: '#1a2e56', fontWeight: '800', fontSize: '14px' }}>Settled Amount:</span>
+                <strong style={{ color: '#10b981', fontSize: '17px', fontWeight: '900' }}>
+                  Rs. {receiptRequest.paymentAmount?.toLocaleString()}.00
+                </strong>
+              </div>
+            </div>
+
+            {/* Official seal mark */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', opacity: 0.85 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', textAlign: 'left' }}>
+                <span style={{ display: 'block', fontWeight: '800', color: '#475569' }}>DIVISIONAL CLEARANCE GATEWAY</span>
+                 Colombo Divisional Secretariat, Sri Lanka
+              </div>
+              <div style={{ border: '2.5px solid #10b981', borderRadius: '8px', color: '#10b981', fontSize: '10px', fontWeight: '900', padding: '3px 8px', textTransform: 'uppercase', transform: 'rotate(-4deg)', letterSpacing: '1px' }}>
+                ★ SmartGN APPROVED ★
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => alert("Downloading secured CBSL digital signed payment receipt PDF...")}
+                style={{
+                  flex: 1,
+                  background: '#ffffff',
+                  color: '#1a2e56',
+                  border: '1.5px solid #1a2e56',
+                  padding: '10px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
+              >
+                📥 Download PDF
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowReceiptId(null)
+                  setReceiptRequest(null)
+                }}
+                style={{
+                  flex: 1,
+                  background: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '10px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
+                }}
+              >
+                Close Receipt
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default OfficerAllowances
+
+
+

@@ -17,6 +17,7 @@ import PendingAppointmentRequests from "./Components/AppointmentsPage/PendingApp
 import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/ApprovedAppointmentsRequests.jsx";
 import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
 import OfficerHousehold from "./Pages/OfficerHousehold.jsx";
+import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
 
 function App() {
   return (
@@ -62,6 +63,10 @@ function App() {
         <Route
           path="/dashboard/resident/certificates/apply-income"
           element={<ApplyIncomeCertificate />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/rejected"
+          element={<RejectedCertificates />}
         />
       </Routes>
     </Router>
