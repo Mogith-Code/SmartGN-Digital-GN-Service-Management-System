@@ -6,15 +6,139 @@ import Footer from "../Common/Footer";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function BookingForm() {
+  const { lang } = useLanguage();
+
+  const BookingFormTranslations = {
+    EN: {
+      Title: "Book New Appointment",
+      back: "Back",
+      Purpose: "Appointment Purpose: ",
+      eg: "e.g. ",
+      date: "Date: ",
+      time: "Time: ",
+      contact: "Contact Number: ",
+      contactPlaceholder: "Enter your contact number",
+
+      January: "January",
+      February: "February",
+      March: "March",
+      April: "April",
+      May: "May",
+      June: "June",
+      July: "July",
+      August: "August",
+      September: "September",
+      October: "October",
+      November: "November",
+      December: "December",
+
+      Today: "Today",
+
+      Sun: "Sun",
+      Mon: "Mon",
+      Tue: "Tue",
+      Wed: "Wed",
+      Thu: "Thu",
+      Fri: "Fri",
+      Sat: "Sat",
+
+      Selected: "Selected: ",
+
+      reset: "Reset",
+      bookAppointment: "Book Appointment",
+    },
+
+    SI: {
+      Title: "නව හමුවක් වෙන්කරන්න",
+      back: "ආපසු",
+      Purpose: "හමුවේ අරමුණ: ",
+      eg: "උදා. ",
+      date: "දිනය: ",
+      time: "වේලාව: ",
+      contact: "සම්බන්ධ කරගත හැකි අංකය: ",
+      contactPlaceholder: "ඔබේ සම්බන්ධ කරගත හැකි අංකය ඇතුළත් කරන්න",
+
+      January: "ජනවාරි",
+      February: "පෙබරවාරි",
+      March: "මාර්තු",
+      April: "අප්‍රේල්",
+      May: "මැයි",
+      June: "ජූනි",
+      July: "ජූලි",
+      August: "අගෝස්තු",
+      September: "සැප්තැම්බර්",
+      October: "ඔක්තෝබර්",
+      November: "නවම්බර්",
+      December: "දෙසැම්බර්",
+
+      Today: "අද",
+
+      Sun: "ඉරිදා",
+      Mon: "සඳුදා",
+      Tue: "අඟහරු.",
+      Wed: "බදාදා",
+      Thu: "බ්‍රහස්.",
+      Fri: "සිකු.",
+      Sat: "සෙන.",
+
+      Selected: "තෝරාගත්: ",
+
+      reset: "නැවත සකසන්න",
+      bookAppointment: "හමුව වෙන්කරන්න",
+    },
+
+    TA: {
+      Title: "புதிய சந்திப்பை பதிவு செய்யவும்",
+      back: "பின்னால்",
+      Purpose: "சந்திப்பின் நோக்கம்: ",
+      eg: "எ.கா. ",
+      date: "தேதி: ",
+      time: "நேரம்: ",
+      contact: "தொடர்பு எண்: ",
+      contactPlaceholder: "உங்கள் தொடர்பு எண்ணை உள்ளிடவும்",
+
+      January: "ஜனவரி",
+      February: "பிப்ரவரி",
+      March: "மார்ச்",
+      April: "ஏப்ரல்",
+      May: "மே",
+      June: "ஜூன்",
+      July: "ஜூலை",
+      August: "ஆகஸ்ட்",
+      September: "செப்டம்பர்",
+      October: "அக்டோபர்",
+      November: "நவம்பர்",
+      December: "டிசம்பர்",
+
+      Today: "இன்று",
+
+      Sun: "ஞாயிறு",
+      Mon: "திங்கள்",
+      Tue: "செவ்வாய்",
+      Wed: "புதன்",
+      Thu: "வியாழன்",
+      Fri: "வெள்ளி",
+      Sat: "சனி",
+
+      Selected: "தேர்ந்தெடுக்கப்பட்டது: ",
+
+      reset: "மீட்டமைக்கவும்",
+      bookAppointment: "சந்திப்பை பதிவு செய்யவும்",
+    },
+  };
+
+  // Select the appropriate translation based on current language
+  const t = BookingFormTranslations[lang] || BookingFormTranslations.EN;
+
   // Booking Form States
   const [purpose, setPurpose] = useState("");
   const [bookDay, setBookDay] = useState(null);
-  const [bookTime, setBookTime] = useState("2:00 PM");
-  const [officerName, setOfficerName] = useState("Kamal Silva");
+  const [bookTime, setBookTime] = useState("9:00 AM");
   const [contactNumber, setContactNumber] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
@@ -62,18 +186,18 @@ function BookingForm() {
   // ============================================================================
   const getMonthName = (monthIndex) => {
     const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      t.January,
+      t.February,
+      t.March,
+      t.April,
+      t.May,
+      t.June,
+      t.July,
+      t.August,
+      t.September,
+      t.October,
+      t.November,
+      t.December,
     ];
     return months[monthIndex];
   };
@@ -82,15 +206,7 @@ function BookingForm() {
   // GET DAY NAME
   // ============================================================================
   const getDayName = (dayIndex) => {
-    const days = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+    const days = [t.Sun, t.Mon, t.Tue, t.Wed, t.Thu, t.Fri, t.Sat];
     return days[dayIndex];
   };
 
@@ -101,8 +217,7 @@ function BookingForm() {
     // Reset all form fields to default values
     setPurpose("");
     setBookDay(availableDates.length > 0 ? availableDates[0].day : null);
-    setBookTime("2:00 PM");
-    setOfficerName("Kamal Silva");
+    setBookTime("9:00 AM");
     setContactNumber("");
     setErrorMessage("");
 
@@ -154,12 +269,12 @@ function BookingForm() {
             onClick={() => navigate("/RAppointment")}
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
-            Back
+            {t.back}
           </div>
 
           {/* Page Title */}
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
-            Book New Appointment
+            {t.Title}
           </div>
 
           {/* Booking Form */}
@@ -170,14 +285,16 @@ function BookingForm() {
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="purposeInput" className="font-medium">
-                  Appointment Purpose:
+                  {t.Purpose}
                 </label>
                 <input
                   type="text"
                   id="purposeInput"
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
-                  placeholder="e.g., Certificate Collection, General Inquiry, etc."
+                  placeholder={
+                    t.eg + " Certificate Collection, General Inquiry, etc."
+                  }
                   className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   required
                 />
@@ -188,7 +305,7 @@ function BookingForm() {
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="daySelect" className="font-medium">
-                  Date:
+                  {t.date}
                 </label>
                 <select
                   id="daySelect"
@@ -208,7 +325,7 @@ function BookingForm() {
 
                       return (
                         <option key={date.day} value={date.day}>
-                          {date.isToday ? "Today" : dayName}, {monthName}{" "}
+                          {date.isToday ? t.Today : dayName}, {monthName}{" "}
                           {date.day < 10 ? `0${date.day}` : date.day},{" "}
                           {date.year}
                           {date.isWeekend}
@@ -221,8 +338,8 @@ function BookingForm() {
                 {/* Display selected date details */}
                 {bookDay && availableDates.length > 0 && (
                   <p className="text-sm text-[#2D37488D] mt-1">
-                    Selected: {getMonthName(availableDates[0].month)} {bookDay},{" "}
-                    {availableDates[0].year}
+                    {t.Selected} {getMonthName(availableDates[0].month)}{" "}
+                    {bookDay}, {availableDates[0].year}
                   </p>
                 )}
               </div>
@@ -232,7 +349,7 @@ function BookingForm() {
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="timeSelect" className="font-medium">
-                  Time:
+                  {t.time}
                 </label>
                 <select
                   id="timeSelect"
@@ -260,14 +377,14 @@ function BookingForm() {
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="contactNumber" className="font-medium">
-                  Contact Number:
+                  {t.contact}
                 </label>
                 <input
                   type="tel"
                   id="contactNumber"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
-                  placeholder="Enter your contact number"
+                  placeholder={t.contactPlaceholder}
                   className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   required
                 />
@@ -292,7 +409,7 @@ function BookingForm() {
                   onClick={handleReset}
                   className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
                 >
-                  <span>Reset</span>
+                  <span>{t.reset}</span>
                   <img src={resetIcon} alt="resetIcon" className="w-[16px]" />
                 </button>
 
@@ -301,7 +418,7 @@ function BookingForm() {
                   type="submit"
                   className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
                 >
-                  <span>Book Appointment</span>
+                  <span>{t.bookAppointment}</span>
                   <img src={confirmIcon} alt="resetIcon" className="w-[16px]" />
                 </button>
               </div>
