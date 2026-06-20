@@ -206,10 +206,10 @@ function BookingForm() {
 
                       return (
                         <option key={date.day} value={date.day}>
-                          {date.isToday ? "⭐ Today" : dayName}, {monthName}{" "}
+                          {date.isToday ? "Today" : dayName}, {monthName}{" "}
                           {date.day < 10 ? `0${date.day}` : date.day},{" "}
                           {date.year}
-                          {date.isWeekend && " 🗓️"}
+                          {date.isWeekend}
                         </option>
                       );
                     })
