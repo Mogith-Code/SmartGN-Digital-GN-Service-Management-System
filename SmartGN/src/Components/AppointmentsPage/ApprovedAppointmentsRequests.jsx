@@ -50,20 +50,20 @@ function ApprovedAppointmentsRequests() {
           <div className="mx-[50px] mt-[30px] flex flex-col gap-[5px] border border-[#2D37488D] rounded-[15px] p-[20px]">
             <div className="flex justify-between text-[16px] text-[#2D3748]">
               <span className="font-medium">Certificate Collection</span>
-              <span className="font-light">25/06/2026</span>
+              <span className="font-light">23/06/2026</span>
             </div>
 
             <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-              <span className="font-regular">Requested Date: 24/06/2026</span>
+              <span className="font-regular">Requested Date: 16/06/2026</span>
               <span className="font-light">11:30 AM</span>
             </div>
 
             <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-              <span className="font-regular">Apointment Date: 30/06/2026</span>
+              <span className="font-regular">Apointment Date: 25/06/2026</span>
             </div>
 
             <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-              <span className="font-regular">Time: 10:00 AM</span>
+              <span className="font-regular">Time: 2:30 PM</span>
             </div>
           </div>
         </div>
