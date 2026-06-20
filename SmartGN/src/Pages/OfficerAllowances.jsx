@@ -370,3 +370,253 @@ function OfficerAllowances({ onOpenHelp }) {
             </div>
           </div>
 
+          {/* Search Box */}
+          <div style={{ position: 'relative', marginBottom: '24px' }}>
+            <input
+              type="text"
+              placeholder="Search by resident name, program (e.g. Aswesuma) or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px 12px 42px',
+                fontSize: '14px',
+                borderRadius: '10px',
+                border: '1.5px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#1e293b',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" style={{ position: 'absolute', left: '14px', top: '14px' }}>
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          {/* List of Applications */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {filteredRequests.map((item) => {
+              const applicant = item.applicantName || item.bankDetails?.accountHolderName || 'Resident'
+              const isExpanded = expandedId === item.id
+
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    backgroundColor: '#ffffff',
+                    border: isExpanded ? '1.5px solid #fedc9b' : '1px solid #cbd5e1',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
+                    transition: 'border-color 0.15s ease'
+                  }}
+                >
+                  {/* Collapsed Row Header */}
+                  <div
+                    onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                    style={{
+                      padding: '24px 32px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '24px' }}>★</span>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
+                          <h4 style={{ margin: 0, fontSize: '17px', fontWeight: '800', color: '#1a2e56' }}>
+                            {item.program}
+                          </h4>
+                          <span
+                            className={`badge-status ${item.status.toLowerCase()}`}
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: '800',
+                              padding: '2px 8px',
+                              borderRadius: '50px',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {item.status}
+                          </span>
+                          
+                          {item.status === 'Approved' && (
+                            <span
+                              className={`badge-status ${item.paymentStatus === 'Paid' ? 'approved' : 'pending'}`}
+                              style={{
+                                fontSize: '11px',
+                                fontWeight: '800',
+                                padding: '2px 8px',
+                                borderRadius: '50px',
+                                textTransform: 'uppercase'
+                              }}
+                            >
+                              {item.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid'}
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#64748b' }}>
+                          <span>Applicant: <strong>{applicant}</strong></span>
+                          <span>NIC: <strong>{item.nic || '200324511540'}</strong></span>
+                          <span>Submitted: <strong>{item.submittedDate || '2024-03-28'}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span style={{ fontSize: '18px', color: '#64748b' }}>
+                      {isExpanded ? '▲' : '▼'}
+                    </span>
+                  </div>
+
+                  {/* Expanded Detail Panel */}
+                  {isExpanded && (
+                    <div style={{ padding: '0 32px 32px 32px', borderTop: '1px solid #cbd5e1', textAlign: 'left', backgroundColor: '#f8fafc' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', paddingTop: '24px' }}>
+                        
+                        {/* Left column details */}
+                        <div>
+                          <h4 style={{ margin: '0 0 16px 0', fontSize: '14.5px', color: '#1a2e56', fontWeight: '800' }}>Application details</h4>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#334155' }}>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Purpose:</span> {item.purpose}
+                            </div>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Monthly Household Income:</span> Rs. {parseFloat(item.income || '20000').toLocaleString()}.00
+                            </div>
+                            <div>
+                              <span style={{ color: '#64748b', fontWeight: '600' }}>Remarks:</span> {item.remarks || 'No remarks provided.'}
+                            </div>
+                            
+                            {/* NEW: Interactive Mock PDF Document Viewer Card */}
+                            <div style={{ marginTop: '16px' }}>
+                              <span style={{ display: 'block', color: '#64748b', fontWeight: '750', marginBottom: '8px', fontSize: '13px' }}>Submitted PDF Document:</span>
+                              <div 
+                                style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#ffffff', border: '1.5px solid #cbd5e1', borderRadius: '12px', padding: '14px 18px', cursor: 'pointer', transition: 'all 0.15s ease' }} 
+                                onClick={() => alert(`Simulating secure document viewer for SmartGN-AL-${item.id}... Loading 'Proof_of_Income_Cert.pdf' (1.4MB)... Verified CBSL Signature.`)}
+                                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#1a2e56'}
+                                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#cbd5e1'}
+                              >
+                                <div style={{ width: '40px', height: '40px', backgroundColor: '#fee2e2', color: '#ef4444', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '900' }}>
+                                  PDF
+                                </div>
+                                <div style={{ flex: 1, fontSize: '13px', textAlign: 'left' }}>
+                                  <span style={{ display: 'block', fontWeight: '750', color: '#1e293b' }}>Proof_of_Income_Cert.pdf</span>
+                                  <span style={{ color: '#64748b', fontSize: '11.5px' }}>1.4 MB • Utility bill & Income Statement</span>
+                                </div>
+                                <span style={{ color: '#1a2e56', fontWeight: '800', fontSize: '12px' }}>View PDF ➔</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Reject/Approve Controls */}
+                          {item.status === 'Pending' && (
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                              <button
+                                onClick={(e) => handleReject(item.id, e)}
+                                style={{
+                                  background: '#ffffff',
+                                  color: '#ef4444',
+                                  border: '1.5px solid #ef4444',
+                                  padding: '8px 24px',
+                                  borderRadius: '50px',
+                                  fontSize: '13px',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Reject Application
+                              </button>
+                              <button
+                                onClick={(e) => handleApprove(item.id, e)}
+                                style={{
+                                  background: '#10b981',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  padding: '10px 24px',
+                                  borderRadius: '50px',
+                                  fontSize: '13px',
+                                  fontWeight: '800',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Approve Application
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right column secure bank details & payment clearance */}
+                        <div style={{ borderLeft: '1.5px solid #e2e8f0', paddingLeft: '40px' }}>
+                          <h4 style={{ margin: '0 0 16px 0', fontSize: '14.5px', color: '#1a2e56', fontWeight: '800' }}>Payment & Transfer Console</h4>
+                          
+                          {item.bankDetails ? (
+                            /* HIGHLY STYLED PREMIUM BANK CARD */
+                            <div style={{ background: '#ecfdf5', border: '1.5px solid #a7f3d0', borderRadius: '16px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(16, 185, 129, 0.02)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                <span style={{ display: 'block', fontSize: '11px', color: '#047857', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Payment Account</span>
+                                <span style={{ fontSize: '11px', background: '#34d399', color: '#064e3b', fontWeight: '850', padding: '2px 8px', borderRadius: '50px' }}>CBSL matched</span>
+                              </div>
+                              <div style={{ fontSize: '13.5px', color: '#1e293b', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Bank Name:</span> <strong>{item.bankDetails.bankName}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Branch:</span> <strong>{item.bankDetails.branch}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#065f46', fontWeight: '600' }}>A/C Number:</span> <strong style={{ fontFamily: 'monospace', fontSize: '14px' }}>{item.bankDetails.accountNumber}</strong></div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #c6f6d5', paddingTop: '8px', marginTop: '2px' }}><span style={{ color: '#065f46', fontWeight: '600' }}>Account Holder:</span> <strong>{item.bankDetails.accountHolderName}</strong></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ padding: '16px', color: '#e11d48', fontSize: '13px', background: '#fff1f2', borderRadius: '8px', border: '1px solid #fda4af', marginBottom: '20px' }}>
+                              Resident has not provided bank account details yet. Money cannot be transferred.
+                            </div>
+                          )}
+
+                          {/* Bank Actions */}
+                          {item.status === 'Approved' && item.bankDetails && (
+                            <div>
+                              {item.paymentStatus === 'Unpaid' ? (
+                                <>
+                                  {/* Not verified state */}
+                                  {!bankVerifiedMap[item.id] ? (
+                                    <button
+                                      onClick={(e) => handleVerifyBank(item.id, applicant, e)}
+                                      disabled={verifyingBankId === item.id}
+                                      style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        fontSize: '13.5px',
+                                        fontWeight: '800',
+                                        borderRadius: '8px',
+                                        background: '#1a2e56',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {verifyingBankId === item.id ? 'Connecting Central Registry...' : '🔍 Verify Bank Account Registry'}
+                                    </button>
+                                  ) : (
+                                    /* Verified state & Disburse panel */
+                                    <div style={{ textAlign: 'left' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#047857', fontSize: '13.5px', fontWeight: '800', marginBottom: '14px' }}>
+                                        <span>✓ Account Registry Status: verified</span>
+                                      </div>
+
+                                      {/* Amount select input */}
+                                      <div style={{ marginBottom: '16px' }}>
+                                        <label htmlFor={`amount-${item.id}`} style={{ display: 'block', fontSize: '12.5px', fontWeight: '800', color: '#475569', marginBottom: '6px' }}>Transfer Amount (LKR) :</label>
+                                        <input
+                                          type="number"
+                                          id={`amount-${item.id}`}
+                                          className="register-control"
+                                          value={transferAmount}
+                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          style={{ padding: '8px 12px', width: '100%', boxSizing: 'border-box' }}
+                                        />
+                                      </div>
+
+
