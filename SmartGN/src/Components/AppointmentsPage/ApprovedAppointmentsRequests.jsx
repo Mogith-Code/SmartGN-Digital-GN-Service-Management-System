@@ -13,7 +13,7 @@ function ApprovedAppointmentsRequests() {
   const ApprovedAppointmentTranslations = {
     EN: {
       back: "Back",
-      Title: "Pending Appointment Requests",
+      Title: "Approved Appointment Requests",
     },
 
     SI: { back: "ආපසු", Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්" },
