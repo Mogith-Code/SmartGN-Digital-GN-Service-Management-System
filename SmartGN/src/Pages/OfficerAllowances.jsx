@@ -619,4 +619,187 @@ function OfficerAllowances({ onOpenHelp }) {
                                         />
                                       </div>
 
+                                      {/* Secure Disburse button */}
+                                      <button
+                                        onClick={(e) => handleSecureTransfer(item.id, item, e)}
+                                        disabled={transferringId === item.id}
+                                        style={{
+                                          width: '100%',
+                                          padding: '12px',
+                                          fontSize: '13.5px',
+                                          fontWeight: '800',
+                                          borderRadius: '8px',
+                                          background: '#10b981',
+                                          color: '#ffffff',
+                                          border: 'none',
+                                          cursor: 'pointer',
+                                          boxShadow: '0 4px 10px rgba(16, 185, 129, 0.2)'
+                                        }}
+                                      >
+                                        {transferringId === item.id ? (
+                                          <span>
+                                            {transferStep === 1 && 'RTGS: Handshaking clearing gateway...'}
+                                            {transferStep === 2 && 'RTGS: Disbursing secure cleared funds...'}
+                                            {transferStep === 3 && 'RTGS: Finalizing transaction records...'}
+                                          </span>
+                                        ) : (
+                                          '🔒 Securely Transfer Funds via RTGS'
+                                        )}
+                                      </button>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                /* Paid state logs & view receipt trigger */
+                                <div style={{ background: '#ecfdf5', border: '1.5px solid #10b981', borderRadius: '12px', padding: '16px', color: '#065f46' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: '800', fontSize: '13.5px' }}>
+                                    <span>✓ Funds successfully Disbursed</span>
+                                  </div>
+                                  <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
+                                    <div><span style={{ color: '#047857' }}>Transferred:</span> <strong>Rs. {item.paymentAmount}.00</strong></div>
+                                    <div><span style={{ color: '#047857' }}>Cleared Date:</span> <strong>{item.paymentTransferredAt}</strong></div>
+                                    <div><span style={{ color: '#047857' }}>Secure Ref:</span> <code>{item.paymentTransactionRef}</code></div>
+                                  </div>
+                                  
+                                  {/* VIEW SECURED RECEIPT LINK */}
+                                  <button
+                                    onClick={(e) => viewReceipt(item, e)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: '#047857',
+                                      fontWeight: '800',
+                                      fontSize: '12.5px',
+                                      cursor: 'pointer',
+                                      padding: 0,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    🧾 View Payment Receipt
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {item.status !== 'Approved' && (
+                            <span style={{ fontSize: '12.5px', color: '#64748b' }}>Approved requests can clearing secure money transfers instantly.</span>
+                          )}
+
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )
+            })}
+
+            {filteredRequests.length === 0 && (
+              <div style={{ padding: '48px', backgroundColor: '#ffffff', borderRadius: '16px', border: '1px solid #cbd5e1', color: '#64748b', fontSize: '15px' }}>
+                No allowance applications match the selected filters.
+              </div>
+            )}
+          </div>
+
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+      {/* 4. Payment Portal Secure Transfer Receipt Modal */}
+      {showReceiptId && receiptRequest && (
+        <div className="modal-backdrop-overlay" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-form-card animate-zoom-in" style={{ maxWidth: '460px', width: '90%', padding: '32px', borderRadius: '24px', border: '1.5px solid #10b981', backgroundColor: '#ffffff', color: '#1e293b', boxShadow: '0 20px 40px rgba(16, 185, 129, 0.12)' }}>
+            
+            {/* Header: CBSL Seal */}
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2.5px solid #d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto', backgroundColor: '#fdf8f0', color: '#d97706', fontSize: '24px', fontWeight: '800' }}>
+                🇱🇰
+              </div>
+              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: '850', color: '#1a2e56', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Central Bank of Sri Lanka
+              </h3>
+              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '750', display: 'block', marginTop: '3px', letterSpacing: '0.2px' }}>
+                RTGS SECURED CLEARING SYSTEM • SYSTEM RECEIPT
+              </span>
+            </div>
+
+            {/* Receipt Details Box */}
+            <div style={{ borderTop: '2px dashed #cbd5e1', borderBottom: '2px dashed #cbd5e1', padding: '16px 0', margin: '16px 0', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Transaction Status:</span>
+                <span style={{ color: '#047857', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  ● Cleared & Settled
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Transaction Ref:</span>
+                <strong style={{ fontFamily: 'monospace', fontSize: '13.5px', color: '#1e293b' }}>
+                  {receiptRequest.paymentTransactionRef}
+                </strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Disbursed Date:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.paymentTransferredAt}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Allowance Program:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.program}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Applicant Name:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.applicantName || receiptRequest.bankDetails?.accountHolderName}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #cbd5e1', paddingTop: '8px', marginTop: '2px' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Destination Bank:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.bankName}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Branch Office:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.branch}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#64748b', fontWeight: '600' }}>Credit Account:</span>
+                <strong style={{ color: '#1e293b' }}>{receiptRequest.bankDetails?.accountNumber}</strong>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #cbd5e1', paddingTop: '12px', marginTop: '4px' }}>
+                <span style={{ color: '#1a2e56', fontWeight: '800', fontSize: '14px' }}>Settled Amount:</span>
+                <strong style={{ color: '#10b981', fontSize: '17px', fontWeight: '900' }}>
+                  Rs. {receiptRequest.paymentAmount?.toLocaleString()}.00
+                </strong>
+              </div>
+            </div>
+
+            {/* Official seal mark */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', opacity: 0.85 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', textAlign: 'left' }}>
+                <span style={{ display: 'block', fontWeight: '800', color: '#475569' }}>DIVISIONAL CLEARANCE GATEWAY</span>
+                 Colombo Divisional Secretariat, Sri Lanka
+              </div>
+              <div style={{ border: '2.5px solid #10b981', borderRadius: '8px', color: '#10b981', fontSize: '10px', fontWeight: '900', padding: '3px 8px', textTransform: 'uppercase', transform: 'rotate(-4deg)', letterSpacing: '1px' }}>
+                ★ SmartGN APPROVED ★
+              </div>
+            </div>
+
 
