@@ -7,8 +7,10 @@ import CalenderLayout from "./CalenderLayout";
 import BookingForm from "./BookingForm";
 import AppointmentSummary from "./AppointmentSummary";
 import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import { useNavigate } from "react-router-dom";
 
 function AppointmentLayoutPage() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -109,7 +111,16 @@ function AppointmentLayoutPage() {
             </div>
 
             <div className="mt-[20px] flex justify-center">
-              <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-white rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer">
+              <button
+                className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer"
+                onClick={() => {
+                  if (activeAppointment.status === "Pending") {
+                    navigate("/RAppointment/PendingAppointmentRequests");
+                  } else if (activeAppointment.status === "Approved") {
+                    navigate("/RAppointment/ApprovedAppointmentRequests");
+                  }
+                }}
+              >
                 <span>View More Details</span>
                 <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
               </button>
