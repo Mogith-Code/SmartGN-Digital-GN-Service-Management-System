@@ -117,7 +117,7 @@ function ApprovedAppointmentsRequests() {
           {approvedAppointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px]"
+              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
             >
               <div className="flex justify-between text-[16px] text-[#2D3748]">
                 <span className="font-medium">{appointment.purpose}</span>
