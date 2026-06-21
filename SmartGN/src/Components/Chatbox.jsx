@@ -46,4 +46,13 @@ function Chatbot({ isOpen, onClose }) {
     } else if (path.includes('/certificates/rejected')) {
       pageName = 'Rejected Certificates'
       helpMsg = "You are viewing rejected certificates. You can click on the list entries to view the rejection comments from your GN officer. Let's see how we can correct the documents and re-apply."
+    } else if (path.includes('/allowances')) {
+      pageName = 'Allowances'
+      helpMsg = "You're browsing active allowance programs (like Aswesuma or Samurdhi). Let me know if you'd like to check eligibility or need guidance filling out the forms."
+    } else if (path.includes('/profile') || path.includes('/dashboard/resident')) {
+      pageName = 'My Profile'
+      helpMsg = "You are on your profile dashboard. Here you can update your occupation, upload your NIC, or edit your contact details. Let me know if you have questions about editing your profile!"
+    } else if (path.includes('/officer')) {
+      pageName = 'Officer Portal'
+      helpMsg = "Welcome, Officer! You are on the officer management board. I can help you with certificate approvals, checking resident household registries, or handling appointment requests."
     }
