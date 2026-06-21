@@ -335,3 +335,32 @@ function Chatbot({ isOpen, onClose }) {
         ))}
       </div>
 
+      {/* Input Field */}
+      <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+        <input 
+          type="text" 
+          placeholder="Type a message..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyPress}
+          className="flex-1 py-2.5 px-4 bg-slate-50 border border-slate-200 rounded-full text-[13px] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 text-slate-800 placeholder-slate-400"
+        />
+        <button 
+          className="w-9 h-9 rounded-full bg-[#005BBD] hover:bg-[#3182CE] flex items-center justify-center text-white transition-all duration-200 shadow-md active:scale-95 border-none cursor-pointer flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed" 
+          onClick={() => handleSendMessage(inputValue)}
+          disabled={!inputValue.trim()}
+          aria-label="Send Message"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  )
+}
+
+export default Chatbot
+
