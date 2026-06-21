@@ -93,8 +93,8 @@ function CalendarLayout({ onDateSelect }) {
   // ============================================================================
   // BOOKINGS DATA - June 25 and 30 are booked
   // ============================================================================
-  const [appointments, setAppointments] = useState([
-    { day: 25, month: 5, year: 2026 }, // June 25, 2026 (Month: 5 = June)
+  const [appointmentsDate, setAppointmentsDate] = useState([
+    { day: 21, month: 5, year: 2026 }, // June 25, 2026 (Month: 5 = June)
     { day: 30, month: 5, year: 2026 }, // June 30, 2026
   ]);
 
@@ -164,7 +164,7 @@ function CalendarLayout({ onDateSelect }) {
   // CHECK IF DATE HAS BOOKING
   // ============================================================================
   const hasBooking = (day, month, year) => {
-    return appointments.some(
+    return appointmentsDate.some(
       (app) => app.day === day && app.month === month && app.year === year,
     );
   };
@@ -375,7 +375,7 @@ function CalendarLayout({ onDateSelect }) {
                 {/* ============================================================ */}
                 {/* INDICATOR DOTS */}
                 {/* ============================================================ */}
-                <div className="h-2 w-2 flex items-center justify-center gap-1">
+                <div className="flex items-center justify-between gap-1">
                   {/* TODAY DOT - Green dot for today */}
                   {today && (
                     <span className="w-2 h-2 bg-[#22C55E] rounded-full"></span>

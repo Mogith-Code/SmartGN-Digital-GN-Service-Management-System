@@ -87,6 +87,34 @@ function PendingAppointmentRequests() {
               </button>
             </div>
           </div>
+
+          <div className="mx-[50px] mt-[30px] flex flex-col gap-[5px] border border-[#2D37488D] rounded-[15px] p-[20px]">
+            <div className="flex justify-between text-[16px] text-[#2D3748]">
+              <span className="font-medium">Document Submission</span>
+              <span className="font-light">26/06/2026</span>
+            </div>
+
+            <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+              <span className="font-regular">Appointment Date: 30/06/2026</span>
+              <span className="font-light">11:30 AM</span>
+            </div>
+
+            <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+              <span className="font-regular">Time: 10:00 AM</span>
+            </div>
+
+            <div className="flex justify-end gap-[10px] mt-[10px]">
+              <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-medium cursor-pointer">
+                <img src={editIcon} alt="editIcon" className="h-[16px]" />
+                <span>{t.edit}</span>
+              </button>
+
+              <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] transition-colors text-[14px] font-medium cursor-pointer">
+                <img src={cancelIcon} alt="cancelIcon" className="h-[16px]" />
+                <span>{t.cancel}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
