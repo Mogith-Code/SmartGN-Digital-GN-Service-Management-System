@@ -7,12 +7,12 @@ import Home from "../Components/LandingPage/Home";
 
 // LANDING PAGE COMPONENT
 // Main landing page that includes navbar, hero section, about, services and footer
-function LandingPage() {
+function LandingPage({ onOpenHelp }) {
   // COMPONENT RENDER
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <Navbar />
-      <Home />
+      <Home onOpenHelp={onOpenHelp} />
       <hr className="border border-[#2D37482D]" />
       <About />
       <hr className="border border-[#2D37482D]" />
