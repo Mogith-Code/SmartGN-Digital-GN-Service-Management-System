@@ -39,7 +39,7 @@ function CardLayout({ pendingCount, approvedCount }) {
   return (
     <>
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
       >
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
@@ -55,7 +55,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       </div>
 
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
       >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
@@ -71,7 +71,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       </div>
 
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/BookingForm")}
       >
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />

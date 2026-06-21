@@ -116,7 +116,7 @@ function AppointmentLayoutPage() {
 
   return (
     <>
-      <div className="flex text-[24px] font-medium text-[#1B365D] mt-[60px] mx-[30px]">
+      <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[60px] mx-[30px]">
         {t.Title}
       </div>
 
@@ -136,8 +136,8 @@ function AppointmentLayoutPage() {
           // ================================================================
           // ACTIVE APPOINTMENT DISPLAY
           // ================================================================
-          <div className="flex w-full flex-col p-[30px] border-[1.5px] border-[#2D37488D] rounded-xl">
-            <p className="font-medium text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37488D] ">
+          <div className="flex w-full flex-col p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl">
+            <p className="font-medium text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D] ">
               Appointment Summary
             </p>
 
@@ -158,7 +158,7 @@ function AppointmentLayoutPage() {
 
             <div className="mt-[20px] flex justify-center">
               <button
-                className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer"
+                className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-101 text-[12px] font-regular cursor-pointer"
                 onClick={() => {
                   if (activeAppointment.status === "Pending") {
                     navigate("/RAppointment/PendingAppointmentRequests");

@@ -407,7 +407,7 @@ function BookingForm() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium hover:bg-[#FF000C]"
+                  className="px-6 py-2 flex gap-[10px] text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group font-regular hover:bg-[#FF000C]"
                 >
                   <span>{t.reset}</span>
                   <img src={resetIcon} alt="resetIcon" className="w-[16px]" />
@@ -416,7 +416,7 @@ function BookingForm() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium hover:bg-[#005BBD]"
+                  className="px-6 py-2 flex gap-[10px] text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer  font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group"
                 >
                   <span>{t.bookAppointment}</span>
                   <img src={confirmIcon} alt="resetIcon" className="w-[16px]" />

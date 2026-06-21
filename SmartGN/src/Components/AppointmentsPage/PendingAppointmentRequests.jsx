@@ -129,7 +129,7 @@ function PendingAppointmentRequests() {
           {pendingAppointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37488D] rounded-[15px] p-[20px]"
+              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px]"
             >
               <div className="flex justify-between text-[16px] text-[#2D3748]">
                 <span className="font-medium">{appointment.purpose}</span>
@@ -156,12 +156,12 @@ function PendingAppointmentRequests() {
               </div>
 
               <div className="flex justify-end gap-[10px] mt-[10px]">
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-medium cursor-pointer">
-                  <img src={editIcon} alt="editIcon" className="h-[16px]" />
+                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
+                  <img src={editIcon} alt="editIcon" className="h-[15px]" />
                   <span>{t.edit}</span>
                 </button>
 
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] transition-colors text-[14px] font-medium cursor-pointer">
+                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
                   <img src={cancelIcon} alt="cancelIcon" className="h-[16px]" />
                   <span>{t.cancel}</span>
                 </button>

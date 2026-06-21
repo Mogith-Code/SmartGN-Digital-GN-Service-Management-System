@@ -262,7 +262,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
   const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37488D] rounded-[15px] p-4 sm:p-5 md:p-6">
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37484D] rounded-[15px] p-4 sm:p-5 md:p-6">
       {/* CALENDAR HEADER */}
       <div className="flex justify-between items-center w-full mb-6">
         <button
@@ -275,12 +275,12 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
         </button>
 
         <div className="flex items-center gap-4">
-          <span className="text-base md:text-lg font-medium text-[#2D3748]">
+          <span className="text-base md:text-lg font-medium text-[#1B365D]">
             {getMonthName(month)} {year}
           </span>
           <button
             onClick={goToToday}
-            className="text-[12px] px-3 py-2 text-[#2D3748] rounded-[10px] hover:underline transition-colors duration-200 cursor-pointer"
+            className="text-[12px] font-medium px-3 py-2 text-[#1B365D] rounded-[10px] hover:underline transition-colors duration-200 cursor-pointer"
           >
             {t.Today}
           </button>
@@ -301,7 +301,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37488D] mb-2"
+            className="text-[16px] sm:text-sm md:text-[16px] font-medium text-[#2D3748] pb-2 border-b-[1.5px] border-[#2D37484D] mb-2"
           >
             {day}
           </span>
@@ -385,7 +385,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
       </div>
 
       {/* LEGEND */}
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 pt-4 border-t border-[#2D37482D] text-xs">
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-4 pt-4 border-t border-[#2D37484D] text-xs">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 bg-[#22C55E] rounded-full"></div>
           <span className="text-[#2D3748]">{t.Today}</span>
