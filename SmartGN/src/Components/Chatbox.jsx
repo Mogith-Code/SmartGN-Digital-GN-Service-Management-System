@@ -162,3 +162,71 @@ function Chatbot({ isOpen, onClose }) {
       handleSendMessage(inputValue)
     }
   }
+
+   // Get prompts dynamically based on active path
+  const getQuickPrompts = (pathname) => {
+    if (pathname.includes('/certificates/apply-income')) {
+      return [
+        "What documents do I need?",
+        "Government commission fee?",
+        "How to fill income details?",
+        "How long does approval take?"
+      ]
+    }
+    if (pathname.includes('/certificates/apply-character')) {
+      return [
+        "What details are required?",
+        "Required documents?",
+        "Who can apply?"
+      ]
+    }
+    if (pathname.includes('/household') || pathname.includes('/RHousehold')) {
+      return [
+        "How to add a family member?",
+        "What is household number?",
+        "How to edit member details?"
+      ]
+    }
+    if (pathname.includes('/appointment') || pathname.includes('/RAppointment')) {
+      return [
+        "How do I book a slot?",
+        "What are the office hours?",
+        "Can I cancel a request?"
+      ]
+    }
+    if (pathname.includes('/certificates/rejected')) {
+      return [
+        "Why was my certificate rejected?",
+        "How do I re-apply?",
+        "How to check GN comments?"
+      ]
+    }
+    if (pathname.includes('/profile') || pathname.includes('/dashboard/resident')) {
+      return [
+        "How to upload NIC images?",
+        "How to edit my profile?",
+        "How do I save changes?"
+      ]
+    }
+    if (pathname.includes('/allowances')) {
+      return [
+        "What allowances can I apply for?",
+        "Who is eligible for Aswesuma?",
+        "How does verification work?"
+      ]
+    }
+    if (pathname.includes('/officer')) {
+      return [
+        "How to approve certificates?",
+        "Check pending appointments?",
+        "Search residents?"
+      ]
+    }
+    return [
+      "How can I edit my profile?",
+      "How do I request certificates?",
+      "Book an appointment",
+      "Report disaster damage"
+    ]
+  }
+
