@@ -76,7 +76,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       >
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col gap-[10px] items-center">
+        <div className="flex flex-col pb-[40px] items-center ">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
           </span>

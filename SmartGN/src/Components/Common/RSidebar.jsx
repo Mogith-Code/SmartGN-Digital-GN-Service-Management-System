@@ -1,4 +1,4 @@
-// src/components/RSidebar.jsx
+// src/components/Common/RSidebar.jsx
 import React, { useState } from "react";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
@@ -115,8 +115,8 @@ function RSidebar() {
   };
 
   return (
-    <aside className="w-64 sm:w-72 md:w-80 lg:w-[280px] bg-white border-r border-[#2D37482D] pt-12 sm:pt-14 md:pt-16 lg:pt-[60px] pr-2 sm:pr-3 md:pr-4 lg:pr-[20px] h-screen sticky top-0 overflow-y-auto">
-      <nav className="flex flex-col gap-1 sm:gap-1.5 md:gap-2 lg:gap-[5px]">
+    <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 sm:pt-12 md:pt-14 lg:pt-16 xl:pt-[60px] pr-2 sm:pr-3 md:pr-4 lg:pr-5 xl:pr-[20px] h-screen sticky top-0 overflow-y-auto flex-shrink-0">
+      <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
         {menuItems.map((item) => (
           <NavLink
             key={item.id}
@@ -124,11 +124,11 @@ function RSidebar() {
             onMouseEnter={() => setHoveredItemId(item.id)}
             onMouseLeave={() => setHoveredItemId(null)}
             className={({ isActive }) => `
-              flex items-center gap-2 sm:gap-2.5 lg:gap-[10px] w-full border-none 
+              flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none 
               ${getButtonStylesForItem(item, isActive)}
-              py-2 sm:py-2.5 md:py-3 lg:py-[10px] px-4 sm:px-5 md:px-6 lg:px-[30px] 
-              cursor-pointer text-xs sm:text-sm md:text-base lg:text-[16px] font-regular text-left 
-              transition-all duration-200 hover:translate-x-1
+              py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] 
+              cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left 
+              transition-all duration-200 hover:translate-x-0.5 sm:hover:translate-x-1
             `}
           >
             {({ isActive }) => (
@@ -137,9 +137,11 @@ function RSidebar() {
                 <img
                   src={getIconForItem(item, isActive)}
                   alt={`${item.name} Icon`}
-                  className="w-4 h-4 sm:w-5 sm:h-5 lg:w-[20px] lg:h-[20px] object-contain flex-shrink-0"
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
                 />
-                <span className="truncate">{item.name}</span>
+                <span className="truncate text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px]">
+                  {item.name}
+                </span>
               </>
             )}
           </NavLink>
