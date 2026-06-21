@@ -230,3 +230,41 @@ function Chatbot({ isOpen, onClose }) {
     ]
   }
 
+  const quickPrompts = getQuickPrompts(path)
+
+  return (
+    <div className="fixed bottom-24 right-6 w-[360px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.18)] border border-slate-200/80 flex flex-col z-[9999] overflow-hidden transition-all duration-300 transform scale-100 origin-bottom-right animate-in fade-in slide-in-from-bottom-5">
+      
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#005BBD] to-[#3182CE] text-white p-4 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center relative flex-shrink-0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+              <circle cx="12" cy="5" r="2"></circle>
+              <path d="M12 7v4"></path>
+              <line x1="8" y1="16" x2="8" y2="16"></line>
+              <line x1="16" y1="16" x2="16" y2="16"></line>
+            </svg>
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
+          </div>
+          <div className="text-left">
+            <h4 className="font-bold text-sm leading-tight text-white m-0">SmartGN Assistant</h4>
+            <span className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-emerald-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              ONLINE
+            </span>
+          </div>
+        </div>
+        <button 
+          className="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/90 hover:text-white transition-all duration-200 cursor-pointer border-0 flex items-center justify-center" 
+          onClick={onClose} 
+          aria-label="Close Chatbot"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
