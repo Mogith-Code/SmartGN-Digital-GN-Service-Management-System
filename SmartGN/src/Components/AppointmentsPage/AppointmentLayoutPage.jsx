@@ -55,6 +55,14 @@ function AppointmentLayoutPage() {
       contact: "0771234567",
       status: "Approved",
     },
+    {
+      id: 3,
+      purpose: "Document Submission",
+      date: new Date(2026, 5, 28), // June 28, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+    },
   ]);
 
   // Calculate dynamic stats
