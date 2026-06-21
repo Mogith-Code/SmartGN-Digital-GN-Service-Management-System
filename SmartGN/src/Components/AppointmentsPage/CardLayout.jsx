@@ -6,7 +6,7 @@ import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_
 import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function CardLayout() {
+function CardLayout({ pendingCount, approvedCount }) {
   const navigate = useNavigate();
 
   const { lang } = useLanguage();
@@ -48,7 +48,9 @@ function CardLayout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card1Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {pendingCount}
+          </span>
         </div>
       </div>
 
@@ -62,7 +64,9 @@ function CardLayout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card2Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {approvedCount}
+          </span>
         </div>
       </div>
 

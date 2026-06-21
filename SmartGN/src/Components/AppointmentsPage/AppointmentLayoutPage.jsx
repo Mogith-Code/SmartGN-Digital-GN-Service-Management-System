@@ -57,6 +57,14 @@ function AppointmentLayoutPage() {
     },
   ]);
 
+  // Calculate dynamic stats
+  const pendingCount = appointments.filter(
+    (item) => item.status === "Pending",
+  ).length;
+  const approvedCount = appointments.filter(
+    (item) => item.status === "Approved",
+  ).length;
+
   // Get appointment for selected date if it exists
   const getAppointmentForSelectedDate = () => {
     return appointments.find((appointment) => {
@@ -78,7 +86,7 @@ function AppointmentLayoutPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-6 mx-[75px] mt-[30px]">
-        <CardLayout />
+        <CardLayout pendingCount={pendingCount} approvedCount={approvedCount} />
       </div>
 
       <div className="flex mt-[30px] mx-[100px]">
