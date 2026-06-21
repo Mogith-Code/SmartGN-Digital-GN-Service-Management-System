@@ -92,6 +92,17 @@ function AppointmentLayoutPage() {
 
   const activeAppointment = getAppointmentForSelectedDate();
 
+  // ============================================================================
+  // FORMAT BOOKINGS FOR CALENDAR
+  // ============================================================================
+  const getBookingsForCalendar = () => {
+    return appointments.map((appointment) => ({
+      day: appointment.date.getDate(),
+      month: appointment.date.getMonth(),
+      year: appointment.date.getFullYear(),
+    }));
+  };
+
   return (
     <>
       <div className="flex text-[24px] font-medium text-[#1B365D] mt-[60px] mx-[30px]">
@@ -103,7 +114,10 @@ function AppointmentLayoutPage() {
       </div>
 
       <div className="flex mt-[30px] mx-[100px]">
-        <CalenderLayout onDateSelect={handleDateSelect} />
+        <CalenderLayout
+          onDateSelect={handleDateSelect}
+          bookings={getBookingsForCalendar()}
+        />
       </div>
 
       <div className="flex justify-center mx-[75px] my-[30px]">
