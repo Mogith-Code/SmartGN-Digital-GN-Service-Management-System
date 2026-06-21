@@ -90,14 +90,59 @@ function CalendarLayout({ onDateSelect }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
 
+  // BOOKING STATES - CORRECTLY CREATING DATES
   // ============================================================================
-  // BOOKINGS DATA - June 25 and 30 are booked
-  // ============================================================================
-  const [appointmentsDate, setAppointmentsDate] = useState([
-    { day: 21, month: 5, year: 2026 }, // June 25, 2026 (Month: 5 = June)
-    { day: 30, month: 5, year: 2026 }, // June 30, 2026
+  const [appointments, setAppointments] = useState([
+    {
+      id: 1,
+      purpose: "Meeting with Officer A",
+      date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
+      time: "10:00 AM",
+      contact: "0703891153",
+      status: "Pending",
+      createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
+    },
+    {
+      id: 2,
+      purpose: "Certificate Collection",
+      date: new Date(2026, 5, 25), // June 25, 2026
+      time: "2:30 PM",
+      contact: "0771234567",
+      status: "Approved",
+      createdAt: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
+    },
+    {
+      id: 3,
+      purpose: "Document Submission",
+      date: new Date(2026, 5, 28), // June 28, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+      createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
+    },
   ]);
 
+  // ============================================================================
+  // BOOKINGS DATA
+  // ============================================================================
+  const appointmentsDate = appointments.map((app) => {
+    const date = app.date;
+    return {
+      ...app,
+      year: date.getFullYear(),
+      month: date.getMonth(),
+      day: date.getDate(),
+    };
+  });
+
+  // ============================================================================
+  // CHECK IF DATE HAS BOOKING
+  // ============================================================================
+  const hasBooking = (day, month, year) => {
+    return appointmentsDate.some(
+      (app) => app.day === day && app.month === month && app.year === year,
+    );
+  };
   // ============================================================================
   // HELPER FUNCTIONS
   // ============================================================================
@@ -157,15 +202,6 @@ function CalendarLayout({ onDateSelect }) {
       year === today.getFullYear() &&
       month === today.getMonth() &&
       day === today.getDate()
-    );
-  };
-
-  // ============================================================================
-  // CHECK IF DATE HAS BOOKING
-  // ============================================================================
-  const hasBooking = (day, month, year) => {
-    return appointmentsDate.some(
-      (app) => app.day === day && app.month === month && app.year === year,
     );
   };
 

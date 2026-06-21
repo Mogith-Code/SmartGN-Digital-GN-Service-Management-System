@@ -35,7 +35,6 @@ function AppointmentLayoutPage() {
     setSelectedDate({ day, month, year });
   };
 
-  // ============================================================================
   // BOOKING STATES - CORRECTLY CREATING DATES
   // ============================================================================
   const [appointments, setAppointments] = useState([
@@ -46,6 +45,7 @@ function AppointmentLayoutPage() {
       time: "10:00 AM",
       contact: "0703891153",
       status: "Pending",
+      createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
       id: 2,
@@ -54,6 +54,7 @@ function AppointmentLayoutPage() {
       time: "2:30 PM",
       contact: "0771234567",
       status: "Approved",
+      createdAt: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
     },
     {
       id: 3,
@@ -62,6 +63,7 @@ function AppointmentLayoutPage() {
       time: "1:00 PM",
       contact: "0771234567",
       status: "Pending",
+      createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
   ]);
 
@@ -137,7 +139,7 @@ function AppointmentLayoutPage() {
                   }
                 }}
               >
-                <span>View More Details</span>
+                <span>More {activeAppointment.status} Appointments</span>
                 <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
               </button>
             </div>
