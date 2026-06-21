@@ -56,3 +56,20 @@ function Chatbot({ isOpen, onClose }) {
       pageName = 'Officer Portal'
       helpMsg = "Welcome, Officer! You are on the officer management board. I can help you with certificate approvals, checking resident household registries, or handling appointment requests."
     }
+
+    if (pageName && helpMsg) {
+      // Check if we already have this help message in history to avoid duplication
+      setMessages(prev => {
+        const alreadyHasMsg = prev.some(m => m.text === helpMsg)
+        if (alreadyHasMsg) return prev
+        return [
+          ...prev,
+          {
+            id: `sys-${Date.now()}`,
+            sender: 'assistant',
+            text: helpMsg
+          }
+        ]
+      })
+    }
+  }, [path, isOpen])
