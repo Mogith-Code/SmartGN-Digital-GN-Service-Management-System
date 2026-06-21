@@ -100,6 +100,7 @@ function CalendarLayout({ onDateSelect }) {
       time: "10:00 AM",
       contact: "0703891153",
       status: "Pending",
+      requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
@@ -109,7 +110,8 @@ function CalendarLayout({ onDateSelect }) {
       time: "2:30 PM",
       contact: "0771234567",
       status: "Approved",
-      createdAt: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
+      requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
+      createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
     {
       id: 3,
@@ -118,6 +120,7 @@ function CalendarLayout({ onDateSelect }) {
       time: "1:00 PM",
       contact: "0771234567",
       status: "Pending",
+      requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
   ]);
@@ -324,7 +327,7 @@ function CalendarLayout({ onDateSelect }) {
           </span>
           <button
             onClick={goToToday}
-            className="text-xs px-3 py-2 bg-[#D69E2E] text-[#F7FAFC] rounded-[10px] hover:bg-[#B8860B] transition-colors duration-200 cursor-pointer"
+            className="text-[12px] px-3 py-2 text-[#2D3748] rounded-[10px] hover:underline transition-colors duration-200 cursor-pointer"
           >
             {t.Today}
           </button>
