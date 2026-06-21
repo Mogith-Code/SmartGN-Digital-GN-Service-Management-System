@@ -130,3 +130,35 @@ function Chatbot({ isOpen, onClose }) {
 
     return "I am here to help you navigate SmartGN! You can ask me about:\n\n• How to edit your profile & upload NIC\n• Requesting Income or Character certificates\n• Booking appointments & officer hours\n• Managing household members\n• Re-applying for rejected certificates"
   }
+
+  const handleSendMessage = (textToSend) => {
+    if (!textToSend.trim()) return
+
+    // 1. Add user message
+    const userMessage = {
+      id: Date.now(),
+      sender: 'user',
+      text: textToSend
+    }
+    setMessages(prev => [...prev, userMessage])
+    setInputValue('')
+    setIsTyping(true)
+
+    // 2. Trigger assistant typing response
+    setTimeout(() => {
+      const responseText = getAssistantResponse(textToSend)
+      const assistantMessage = {
+        id: Date.now() + 1,
+        sender: 'assistant',
+        text: responseText
+      }
+      setMessages(prev => [...prev, assistantMessage])
+      setIsTyping(false)
+    }, 700)
+  }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage(inputValue)
+    }
+  }
