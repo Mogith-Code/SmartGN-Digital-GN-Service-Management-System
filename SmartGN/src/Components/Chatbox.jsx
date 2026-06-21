@@ -95,3 +95,38 @@ function Chatbot({ isOpen, onClose }) {
     if (text.includes('commission') || text.includes('fee') || text.includes('charge')) {
       return "A government commission fee of 1.27% of the certified income value is charged when issuing an income certificate."
     }
+
+    if (text.includes('character certificate') || text.includes('apply-character') || (path.includes('apply-character') && (text.includes('documents') || text.includes('required')))) {
+      return "To apply for a Character Certificate:\n\n1. Go to Certificates -> Apply for Character Certificate.\n2. Ensure your profile has verified NIC uploads.\n3. Fill in applicant name and GN division, and submit. The officer will verify details via your household registry."
+    }
+
+    if (text.includes('re-apply') || text.includes('rejected') || text.includes('remarks') || text.includes('comment')) {
+      return "If your certificate application is rejected:\n\n1. Go to Certificates -> Rejected Certificates.\n2. Check the specific comments from your GN officer.\n3. Re-apply by correcting those specific fields or uploading clear supporting documents."
+    }
+
+    if (text.includes('appointment') || text.includes('book') || text.includes('slot')) {
+      return "To book an appointment:\n\n1. Go to the 'Appointments' tab in the side navigation.\n2. Select your preferred date on the calendar and select an available slot.\n3. Enter the purpose of your visit and click 'Confirm'."
+    }
+
+    if (text.includes('hours') || text.includes('operating') || text.includes('when')) {
+      return "GN officers are available for appointments on weekdays (Monday - Friday) from 9:00 AM to 4:00 PM."
+    }
+
+    if (text.includes('household') || text.includes('family') || text.includes('member')) {
+      return "To manage your household registry:\n\n1. Go to the 'Family' tab in the side navigation.\n2. To add a family member, click 'Add Member', enter details (Name, NIC, Relation, DOB), and click 'Save'."
+    }
+
+    if (text.includes('allowance') || text.includes('aswesuma') || text.includes('samurdhi')) {
+      return "To apply for allowances:\n\n1. Go to the 'Allowances' tab in the sidebar.\n2. Browse active programs (Aswesuma, Samurdhi).\n3. Complete the digital form and submit. It will be sent to the GN emergency/welfare team for verification."
+    }
+
+    if (text.includes('disaster') || text.includes('relief')) {
+      return "To report disaster damage:\n\n1. Navigate to the 'Disaster Relief' section in the sidebar.\n2. Specify the disaster type, estimate damage level, and request medical, food, or shelter aid.\n3. Click Submit to alert the emergency team."
+    }
+
+    if (text.includes('approve') || text.includes('verify') || text.includes('officer')) {
+      return "Officer Guide:\n\n• Certificates: Click on pending certificates, inspect supporting documents, and select Approve or Reject (provide remarks for rejection).\n• Appointments: Accept or reschedule appointment requests under the Appointments tab."
+    }
+
+    return "I am here to help you navigate SmartGN! You can ask me about:\n\n• How to edit your profile & upload NIC\n• Requesting Income or Character certificates\n• Booking appointments & officer hours\n• Managing household members\n• Re-applying for rejected certificates"
+  }
