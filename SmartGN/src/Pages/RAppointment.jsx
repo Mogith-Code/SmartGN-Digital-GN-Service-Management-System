@@ -4,7 +4,7 @@ import RSidebar from "../Components/Common/RSidebar";
 import AppointmentLayoutPage from "../Components/AppointmentsPage/AppointmentLayoutPage";
 import Footer from "../Components/Common/Footer";
 
-function RAppointment() {
+function RAppointment({ onOpenHelp }) {
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
@@ -20,7 +20,7 @@ function RAppointment() {
       </div>
 
       {/* Floating Help Trigger */}
-      <button className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" aria-label="Help Trigger" onClick={() => console.log("Help clicked")}>
+      <button className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" aria-label="Help Trigger" onClick={onOpenHelp}>
         ?
       </button>
 

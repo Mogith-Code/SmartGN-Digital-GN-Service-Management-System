@@ -7,7 +7,7 @@ import registerIcon from "../../assets/how_to_reg_24dp_F7FAFC_FILL0_wght400_GRAD
 import helpIcon from "../../assets/contact_support_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function Home() {
+function Home({ onOpenHelp }) {
   const navigate = useNavigate();
   // Get the current language from the custom hook (EN, SI, or TA)
   const { lang } = useLanguage();
@@ -44,8 +44,7 @@ function Home() {
   // ============================================================================
   const handleHelpClick = () => {
     console.log("help clicked");
-    // TODO: Open help modal or navigate to help page
-    // Example: navigate('/help');
+    if (onOpenHelp) onOpenHelp();
   };
 
   return (
