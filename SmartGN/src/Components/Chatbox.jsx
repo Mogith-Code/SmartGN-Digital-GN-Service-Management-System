@@ -13,4 +13,13 @@ function Chatbot({ isOpen, onClose }) {
       text: "Hello! I'm your official SmartGN Assistant. How can I help you today?"
     }
   ])
-}
+
+  onst [inputValue, setInputValue] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+
+  // Scroll to bottom on new message or when typing status changes
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, isTyping])
