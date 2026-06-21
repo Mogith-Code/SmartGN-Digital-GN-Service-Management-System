@@ -15,7 +15,7 @@ function AppointmentLayoutPage() {
 
   // TRANSLATION OBJECTS
   const AppointmentLayoutTranslations = {
-    EN: { Title: "Meetings" },
+    EN: { Title: "Appointments" },
     SI: { Title: "හමුවවීම්" },
     TA: { Title: "சந்திப்புகள்" },
   };
