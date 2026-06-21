@@ -268,3 +268,70 @@ function Chatbot({ isOpen, onClose }) {
         </button>
       </div>
 
+      {/* Message Area */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50 scroll-smooth">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex items-start gap-2.5 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
+            
+            {msg.sender === 'assistant' && (
+              <div className="w-7 h-7 rounded-full bg-[#005BBD] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#005BBD]/10">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
+                  <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                  <circle cx="12" cy="5" r="2"></circle>
+                  <path d="M12 7v4"></path>
+                </svg>
+              </div>
+            )}
+
+            <div className={`p-3 rounded-2xl shadow-sm text-[13px] leading-relaxed max-w-[78%] text-left whitespace-pre-line ${
+              msg.sender === 'user' 
+                ? 'bg-gradient-to-br from-[#005BBD] to-[#3182CE] text-white rounded-tr-none' 
+                : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none'
+            }`}>
+              {msg.text}
+            </div>
+
+            {msg.sender === 'user' && (
+              <div className="w-7 h-7 rounded-full bg-[#D69E2E] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#D69E2E]/10">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+            )}
+
+          </div>
+        ))}
+
+        {isTyping && (
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-[#005BBD] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#005BBD]/10">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+              </svg>
+            </div>
+            <div className="bg-white text-slate-400 px-3.5 py-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 flex gap-1 items-center">
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+              <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Guided Quick Prompts Chips */}
+      <div className="px-4 py-2 bg-white border-t border-slate-100 flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto">
+        {quickPrompts.map((prompt, idx) => (
+          <button 
+            key={idx} 
+            className="text-[11px] py-1.5 px-3 bg-[#EBF8FF] hover:bg-[#005BBD] text-[#005BBD] hover:text-white font-semibold rounded-full border border-[#005BBD]/15 transition-all duration-200 cursor-pointer shadow-sm active:scale-95 text-left border-none outline-none"
+            onClick={() => handleSendMessage(prompt)}
+          >
+            {prompt}
+          </button>
+        ))}
+      </div>
+
