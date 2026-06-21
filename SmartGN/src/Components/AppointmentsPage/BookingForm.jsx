@@ -407,7 +407,7 @@ function BookingForm() {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
+                  className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium hover:bg-[#FF000C]"
                 >
                   <span>{t.reset}</span>
                   <img src={resetIcon} alt="resetIcon" className="w-[16px]" />
@@ -416,7 +416,7 @@ function BookingForm() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
+                  className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium hover:bg-[#005BBD]"
                 >
                   <span>{t.bookAppointment}</span>
                   <img src={confirmIcon} alt="resetIcon" className="w-[16px]" />
