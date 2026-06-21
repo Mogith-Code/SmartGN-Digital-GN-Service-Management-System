@@ -73,3 +73,25 @@ function Chatbot({ isOpen, onClose }) {
       })
     }
   }, [path, isOpen])
+
+  if (!isOpen) return null
+
+  // Guided response logic
+  const getAssistantResponse = (userText) => {
+    const text = userText.toLowerCase()
+    
+    if (text.includes('profile') || text.includes('edit my profile') || text.includes('update profile')) {
+      return "To edit your profile, please follow these steps:\n\n1. Go to the 'Profile' tab in the side menu.\n2. Click the 'Edit profile' button in the top right.\n3. Update your details (e.g. name, email, mobile) and click 'Update'."
+    }
+    
+    if (text.includes('nic') || text.includes('national identity card') || text.includes('upload card')) {
+      return "To upload your NIC front and back images:\n\n1. Go to your 'Profile' tab.\n2. Click 'Edit profile'.\n3. Scroll to the bottom to upload high-quality front and back images.\n4. Click 'Update' to save the changes."
+    }
+
+    if (text.includes('income certificate') || text.includes('apply-income') || (path.includes('apply-income') && (text.includes('documents') || text.includes('upload')))) {
+      return "For the Income Certificate, required documents depend on your income stream:\n\n• Paddy/Crops: Upload License, Permit, or Grant sheet copy.\n• Business: Upload Business Registration copy and Pradeshiya Sabha tax receipt.\n• Laborer/Other: No upload is mandatory, but you must enter your daily/monthly income details."
+    }
+
+    if (text.includes('commission') || text.includes('fee') || text.includes('charge')) {
+      return "A government commission fee of 1.27% of the certified income value is charged when issuing an income certificate."
+    }
