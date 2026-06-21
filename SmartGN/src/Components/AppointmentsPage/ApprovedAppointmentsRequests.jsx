@@ -57,6 +57,16 @@ function ApprovedAppointmentsRequests() {
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
+    {
+      id: 4,
+      purpose: "Meeting with Officer B",
+      date: new Date(2026, 5, 23), // June 23, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+      requestedDate: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
+      createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
+    },
   ]);
 
   // to get the formatted time in 12-hour format with AM/PM
@@ -107,7 +117,7 @@ function ApprovedAppointmentsRequests() {
           {approvedAppointments.map((appointment) => (
             <div
               key={appointment.id}
-              className="mx-[50px] mt-[30px] flex flex-col gap-[5px] border border-[#2D37488D] rounded-[15px] p-[20px]"
+              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37488D] rounded-[15px] p-[20px]"
             >
               <div className="flex justify-between text-[16px] text-[#2D3748]">
                 <span className="font-medium">{appointment.purpose}</span>

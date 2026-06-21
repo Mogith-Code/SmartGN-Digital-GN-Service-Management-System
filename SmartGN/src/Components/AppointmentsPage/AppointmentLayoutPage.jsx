@@ -68,6 +68,17 @@ function AppointmentLayoutPage() {
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
+
+    {
+      id: 4,
+      purpose: "Meeting with Officer B",
+      date: new Date(2026, 5, 23), // June 23, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+      requestedDate: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
+      createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
+    },
   ]);
 
   // Calculate dynamic stats
