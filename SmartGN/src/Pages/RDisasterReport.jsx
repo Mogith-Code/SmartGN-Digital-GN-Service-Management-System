@@ -64,3 +64,75 @@ function ResidentDisasterReport({ onOpenHelp }) {
       }
     }
   }
+
+  // Handle form reset
+  const handleReset = () => {
+    setDisasterType('Flood')
+    setLocationArea('')
+    setSeverity('low severity')
+    setDescription('')
+    setContactNumber('')
+    setAidRequested('')
+    setErrorMessage('')
+  }
+
+  // Handle submit new report
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    if (!locationArea || !description || !contactNumber) {
+      setErrorMessage('Please fill in all required fields.')
+      return
+    }
+
+    setErrorMessage('')
+
+    try {
+      const response = await fetch('/api/disasters/report', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          disasterType,
+          description,
+          severity,
+          location: locationArea,
+          contact: contactNumber,
+          aidRequested
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit report.')
+      }
+
+      handleReset()
+      loadDisasters()
+      alert('Disaster report submitted successfully! The Grama Niladhari division office has been notified.')
+    } catch (err) {
+      setErrorMessage(err.message || 'Error submitting report.')
+    }
+  }
+
+  return (
+    <div className="dashboard-container">
+      
+      {/* 1. Header */}
+      <header className="dashboard-header">
+        <div className="landing-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <span className="logo-smart">Smart</span>
+          <span className="logo-gn">GN</span>
+          <p className="logo-subtext">{t.tagline}</p>
+        </div>
+
+        <div className="header-right">
+          <LanguageSelector />
+
+          {/* Notifications */}
+          <div className="notification-bell">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="bell-badge">2</span>
+          </div>
