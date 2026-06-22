@@ -25,7 +25,24 @@ function FamilyMemberTable() {
       <tbody className="text-center">
         <tr>
           <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Janith Chamodya Warapitiya
+            Dissanayake Mudiyanselage Nimal Perera
+          </td>
+          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+            197215644896
+          </td>
+          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+            54
+          </td>
+          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+            Government Officer
+          </td>
+          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+            Father
+          </td>
+        </tr>
+        <tr>
+          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+            Warapitiyage Lakshan Janith Chamodya Warapitiya
           </td>
           <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
             200314611639
