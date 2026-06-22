@@ -4,8 +4,10 @@ import FamilyCardLyout from "./FamilyCardLyout";
 import editIcon from "../../assets/edit_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import FamilyMemberTable from "./FamilyMemberTable";
 import HouseholdDetailsLayout from "./HouseholdDetailsLayout";
+import { useNavigate } from "react-router-dom";
 
 function FamilyHouseholdLayout() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -35,7 +37,10 @@ function FamilyHouseholdLayout() {
             Family Members
           </span>
 
-          <button className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer">
+          <button
+            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer"
+            onClick={() => navigate("/RHousehold/EditFamilyDetails")}
+          >
             <img src={editIcon} alt="editIcon" className="h-[16px]" />
             Edit family details
           </button>

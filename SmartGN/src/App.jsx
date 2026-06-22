@@ -21,6 +21,7 @@ import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
 import ResidentAllowances from "./Pages/RAllowances.jsx";
 import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
+import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -63,6 +64,10 @@ function App() {
         <Route
           path="/RHousehold"
           element={<RHousehold onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/RHousehold/EditFamilyDetails"
+          element={<EditFamilyDetails />}
         />
         <Route
           path="/dashboard/resident"
