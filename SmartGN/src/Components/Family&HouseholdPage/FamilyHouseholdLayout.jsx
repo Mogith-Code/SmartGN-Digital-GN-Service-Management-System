@@ -3,6 +3,7 @@ import { useLanguage } from "../../utils/translate";
 import FamilyCardLyout from "./FamilyCardLyout";
 import editIcon from "../../assets/edit_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import FamilyMemberTable from "./FamilyMemberTable";
+import HouseholdDetailsLayout from "./HouseholdDetailsLayout";
 
 function FamilyHouseholdLayout() {
   const { lang } = useLanguage();
@@ -45,7 +46,7 @@ function FamilyHouseholdLayout() {
         </div>
       </div>
 
-      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+      <div className="flex flex-col gap-[10px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
         <div className="flex w-full justify-between items-center mb-[15px]">
           <span className="text-[20px] text-[#1B365D] font-medium">
             Household Details
@@ -55,6 +56,10 @@ function FamilyHouseholdLayout() {
             <img src={editIcon} alt="editIcon" className="h-[16px]" />
             Edit household details
           </button>
+        </div>
+
+        <div className="flex">
+          <HouseholdDetailsLayout />
         </div>
       </div>
     </>
