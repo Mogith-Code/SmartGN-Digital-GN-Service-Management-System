@@ -1,5 +1,6 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
+import totalMembersIcon from "../../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
 function FamilyCardLyout() {
   const { lang } = useLanguage();
@@ -26,7 +27,25 @@ function FamilyCardLyout() {
       Card3Title: "குழந்தைகள்",
     },
   };
-  return <div>FamilyCardLyout</div>;
+
+  // Select the appropriate translation based on current language
+  const t =
+    FamilyCardLayoutTranslations[lang] || FamilyCardLayoutTranslations.EN;
+  return (
+    <div
+      className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+      onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+    >
+      <img src={totalMembersIcon} alt="totalMembersIcon" className="w-[50px]" />
+
+      <div className="flex flex-col gap-[10px] items-center">
+        <span className="text-[16px] font-regular text-[#2D3748] text-center">
+          {t.Card1Title}
+        </span>
+        <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+      </div>
+    </div>
+  );
 }
 
 export default FamilyCardLyout;
