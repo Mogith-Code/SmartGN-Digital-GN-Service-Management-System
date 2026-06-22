@@ -5,15 +5,11 @@ import Footer from "../Components/Common/Footer";
 
 function RHousehold({ onOpenHelp }) {
   return (
-    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
       <AfterlogNavbar />
-      <div className="flex gap-[20px] flex-1">
-        <div className="flex bg-[#FFFFFF]">
-          {/* Sidebar content */}
-          <RSidebar />
-        </div>
-
-        <div className="w-full bg-[#FFFFFF] border-l border-[#2D37482D]"></div>
+      <div className="flex flex-1 w-full">
+        <RSidebar />
+        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto"></main>
       </div>
 
       {/* Floating Help Trigger */}
