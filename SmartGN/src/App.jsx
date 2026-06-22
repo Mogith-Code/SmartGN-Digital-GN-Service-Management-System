@@ -18,57 +18,74 @@ import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/Approved
 import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
 import OfficerHousehold from "./Pages/OfficerHousehold.jsx";
 import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
+import ResidentAllowances from "./Pages/RAllowances.jsx";
+import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
+import Chatbot from "./Components/Chatbox.jsx";
 
 function App() {
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const openChatbot = () => setIsChatbotOpen(true);
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/RAppointment" element={<RAppointment />} />
-        <Route path="/OfficerAppointment" element={<OfficerAppointment />} />
-        <Route path="/OfficerHousehold" element={<OfficerHousehold />} />
-        <Route path="/RAppointment/BookingForm" element={<BookingForm />} />
+        <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
+        <Route path="/RAppointment" element={<RAppointment onOpenHelp={openChatbot} />} />
+        <Route path="/dashboard/resident/appointments" element={<RAppointment onOpenHelp={openChatbot} />} />
+        <Route path="/OfficerAppointment" element={<OfficerAppointment onOpenHelp={openChatbot} />} />
+        <Route path="/OfficerHousehold" element={<OfficerHousehold onOpenHelp={openChatbot} />} />
+        <Route path="/RAppointment/BookingForm" element={<BookingForm onOpenHelp={openChatbot} />} />
         <Route
           path="/RAppointment/PendingAppointmentRequests"
-          element={<PendingAppointmentRequests />}
+          element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
         />
         <Route
           path="/RAppointment/ApprovedAppointmentRequests"
-          element={<ApprovedAppointmentsRequests />}
+          element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/RHousehold" element={<RHousehold />} />
-        <Route path="/dashboard/resident" element={<ResidentProfile />} />
-        <Route path="/dashboard/officer" element={<OfficerProfile />} />
+        <Route path="/RHousehold" element={<RHousehold onOpenHelp={openChatbot} />} />
+        <Route path="/dashboard/resident/household" element={<RHousehold onOpenHelp={openChatbot} />} />
+        <Route path="/dashboard/resident" element={<ResidentProfile onOpenHelp={openChatbot} />} />
+        <Route path="/dashboard/officer" element={<OfficerProfile onOpenHelp={openChatbot} />} />
         <Route
           path="/dashboard/officer/certificates"
-          element={<OfficerCertificates />}
+          element={<OfficerCertificates onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/officer/certificates/:id"
-          element={<OfficerCertificateDetails />}
+          element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/allowances"
+          element={<OfficerAllowances onOpenHelp={openChatbot} />}
         />
 
-        <Route path="/profile" element={<ResidentProfile />} />
-        <Route path="/certificates" element={<ResidentCertificates />} />
+        <Route path="/profile" element={<ResidentProfile onOpenHelp={openChatbot} />} />
+        <Route path="/certificates" element={<ResidentCertificates onOpenHelp={openChatbot} />} />
         <Route
           path="/dashboard/resident/certificates"
-          element={<ResidentCertificates />}
+          element={<ResidentCertificates onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/resident/certificates/apply-character"
-          element={<ApplyCharacterCertificate />}
+          element={<ApplyCharacterCertificate onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/resident/certificates/apply-income"
-          element={<ApplyIncomeCertificate />}
+          element={<ApplyIncomeCertificate onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/resident/certificates/rejected"
-          element={<RejectedCertificates />}
+          element={<RejectedCertificates onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/resident/allowances"
+          element={<ResidentAllowances onOpenHelp={openChatbot} />}
         />
       </Routes>
+      <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </Router>
   );
 }

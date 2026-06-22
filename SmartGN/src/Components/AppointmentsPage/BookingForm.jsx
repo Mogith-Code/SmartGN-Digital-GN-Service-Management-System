@@ -10,7 +10,7 @@ import { useLanguage } from "../../utils/translate"; // Custom hook for multilin
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
-function BookingForm() {
+function BookingForm({ onOpenHelp }) {
   const { lang } = useLanguage();
 
   const BookingFormTranslations = {
@@ -442,7 +442,7 @@ function BookingForm() {
       <button
         className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#D69E2E] text-white border-0 text-base sm:text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00] z-50"
         aria-label="Help Trigger"
-        onClick={() => console.log("Help clicked")}
+        onClick={onOpenHelp}
       >
         ?
       </button>
