@@ -101,19 +101,17 @@ function RejectedCertificates({ onOpenHelp }) {
   }
 
   return (
-    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
       {/* 1. Header */}
       <AfterlogNavbar />
 
-      {/* 2. Main Layout Grid */}
-      <div className="flex gap-[20px] flex-1">
+      {/* 2. Main Layout */}
+      <div className="flex flex-1 w-full">
         {/* Sidebar Nav */}
-        <div className="flex bg-[#FFFFFF]">
-          <RSidebar />
-        </div>
+        <RSidebar />
 
         {/* Main Panel Content */}
-        <main className="w-full bg-[#FFFFFF] border-l border-[#2D37482D] p-6 sm:p-8 md:p-10 relative">
+        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
           
           {/* Back button */}
           <div className="flex justify-start items-center mb-4">

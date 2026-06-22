@@ -1,40 +1,33 @@
-// src/components/AfterlogNavbar.jsx
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logoImage from "../../assets/logo.png";
-import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
-import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import accountIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import homeIcon from "../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import dashBoard from "../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import profileIcon from "../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import householdIcon from "../../assets/home_and_garden_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import certificateIcon from "../../assets/license_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import appointmentIcon from "../../assets/calendar_today_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import allowanceIcon from "../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import disasterIcon from "../../assets/flood_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import announcementIcon from "../../assets/brand_awareness_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import homeIconHovered from "../../assets/home_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import dashBoardIconHovered from "../../assets/team_dashboard_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import profileIconHovered from "../../assets/person_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import householdIconHovered from "../../assets/home_and_garden_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import certificateIconHovered from "../../assets/license_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import appointmentIconHovered from "../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import allowanceIconHovered from "../../assets/edit_document_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import disasterIconHovered from "../../assets/flood_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function AfterlogNavbar() {
   const navigate = useNavigate();
   const { lang } = useLanguage();
   const t = translations[lang];
 
-  // State to track which menu item is being hovered
-  const [hoveredItemId, setHoveredItemId] = useState(null);
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+
+  // Dynamic user profile details fetched from localStorage
+  const [profile, setProfile] = useState({
+    firstName: "Janith",
+    lastName: "",
+    nic: "200324511540",
+    profilePhoto: null,
+  });
+
+  useEffect(() => {
+    const savedProfile = localStorage.getItem("smartgn_resident_profile");
+    if (savedProfile) {
+      setProfile(JSON.parse(savedProfile));
+    }
+  }, []);
 
   // Menu items configuration
   const menuItems = [
@@ -42,89 +35,108 @@ function AfterlogNavbar() {
       id: "home",
       name: t.home,
       path: "/",
-      icon: homeIcon,
-      iconActive: homeIconHovered,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      ),
     },
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard",
-      icon: dashBoard,
-      iconActive: dashBoardIconHovered,
+      path: "/dashboard/resident",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+          <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+          <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+        </svg>
+      ),
     },
     {
       id: "profile",
       name: t.profile,
       path: "/profile",
-      icon: profileIcon,
-      iconActive: profileIconHovered,
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      ),
     },
     {
       id: "household",
       name: t.family,
-      path: "/RHousehold",
-      icon: householdIcon,
-      iconActive: householdIconHovered,
+      path: "/dashboard/resident/household",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <circle cx="9" cy="14" r="2"></circle>
+          <circle cx="15" cy="14" r="2"></circle>
+        </svg>
+      ),
     },
     {
       id: "certificates",
       name: t.certificates,
-      path: "/certificates",
-      icon: certificateIcon,
-      iconActive: certificateIconHovered,
+      path: "/dashboard/resident/certificates",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <circle cx="12" cy="11" r="3"></circle>
+        </svg>
+      ),
     },
     {
       id: "appointments",
       name: t.appointments,
-      path: "/RAppointment",
-      icon: appointmentIcon,
-      iconActive: appointmentIconHovered,
+      path: "/dashboard/resident/appointments",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      ),
     },
     {
       id: "allowances",
       name: t.allowances,
-      path: "/allowances",
-      icon: allowanceIcon,
-      iconActive: allowanceIconHovered,
+      path: "/dashboard/resident/allowances",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+          <line x1="12" y1="4" x2="12" y2="20"></line>
+        </svg>
+      ),
     },
     {
       id: "disaster",
       name: t.disaster,
-      path: "/disaster-relief",
-      icon: disasterIcon,
-      iconActive: disasterIconHovered,
+      path: "/dashboard/resident/disaster",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      ),
     },
     {
       id: "announcements",
       name: t.announcements,
-      path: "/announcements",
-      icon: announcementIcon,
-      iconActive: announcementIconHovered,
+      path: "/dashboard/resident/announcements",
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      ),
     },
   ];
-
-  // Function to determine which icon to show
-  const getIconForItem = (item, isActive) => {
-    if (isActive || hoveredItemId === item.id) {
-      return item.iconActive;
-    }
-    return item.icon;
-  };
-
-  // Function to determine button styles
-  const getButtonStylesForItem = (item, isActive) => {
-    if (isActive || hoveredItemId === item.id) {
-      if (isActive) {
-        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full";
-      }
-      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full";
-    }
-    return "bg-transparent text-[#2D3748]";
-  };
-
-  // Mobile menu state
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const mobileMenuRef = useRef(null);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -168,52 +180,59 @@ function AfterlogNavbar() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <header className="flex justify-between items-center py-3 sm:py-4 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-16 xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.2)]">
+    <header className="flex justify-between items-center px-10 py-4 bg-white border-b border-[#cbd5e1] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.03)] sticky top-0 z-50">
       {/* ==================================================================== */}
       {/* DESKTOP NAVBAR - Visible on tablets and desktops (768px and above) */}
       {/* ==================================================================== */}
       <div className="flex w-full justify-between items-center max-md:hidden">
         {/* Logo Section */}
         <div
-          className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 cursor-pointer"
+          className="w-28 sm:w-32 md:w-40 lg:w-48 cursor-pointer flex flex-col items-start gap-1"
           onClick={() => navigate("/")}
         >
-          <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
+          <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto object-contain" />
+          <p className="text-[10px] text-[#718096] font-normal leading-none">{t.tagline}</p>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-3 sm:gap-4 md:gap-5 lg:gap-[20px]">
+        <div className="flex items-center gap-6">
           {/* Language Selector */}
           <LanguageSelector />
 
           {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-[30px] lg:h-[30px] object-contain"
-            />
-            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] sm:text-[11px] md:text-[12px] font-medium w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] rounded-full flex items-center justify-center">
+          <div className="relative cursor-pointer text-[#475569] flex items-center justify-center transition-colors duration-200 hover:opacity-80">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="absolute -top-1.5 -right-1.5 bg-[#ef4444] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
               2
             </span>
           </div>
 
           {/* User Profile Info */}
-          <div className="flex items-center gap-2 sm:gap-2.5 md:gap-[10px]">
-            <div className="hidden xs:flex flex-col text-right">
-              <span className="text-[8px] sm:text-[9px] md:text-[10px] font-regular text-[#2D3748]">
-                Colombo
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col items-end">
+              <span className="text-[11px] text-[#64748b] font-medium">
+                {profile.nic}
               </span>
-              <span className="text-xs sm:text-sm md:text-base lg:text-[16px] font-medium text-[#2D3748]">
-                Janith
+              <span className="text-[14px] font-semibold text-[#1e293b]">
+                {profile.firstName} {profile.lastName}
               </span>
             </div>
-            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-[50px] lg:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden">
-              <img
-                src={accountIcon}
-                alt="User Profile"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-10 h-10 rounded-full bg-[#cbd5e1] flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+              {profile.profilePhoto ? (
+                <img
+                  src={profile.profilePhoto}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              )}
             </div>
           </div>
         </div>
@@ -225,42 +244,48 @@ function AfterlogNavbar() {
       <div className="flex w-full justify-between items-center md:hidden">
         {/* Menu Button */}
         <button
-          className="relative cursor-pointer p-2 -ml-2"
+          className="relative cursor-pointer p-2 -ml-2 border-0 bg-transparent text-[#475569]"
           onClick={toggleMobileMenu}
           aria-label="Open navigation menu"
           aria-expanded={isMobileMenuOpen}
         >
-          <img
-            src={menuIcon}
-            alt="Menu"
-            className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
-          />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
         </button>
 
         {/* Right Section - Icons only on mobile */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-4">
           {/* Language Selector */}
           <LanguageSelector />
 
           {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
-            />
-            <span className="absolute -top-1.5 -right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[10px] font-medium w-4 h-4 rounded-full flex items-center justify-center">
+          <div className="relative cursor-pointer text-[#475569]">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span className="absolute -top-1.5 -right-1.5 bg-[#ef4444] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
               2
             </span>
           </div>
 
-          {/* User Avatar (No text on mobile) */}
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden">
-            <img
-              src={accountIcon}
-              alt="User Profile"
-              className="w-full h-full object-cover"
-            />
+          {/* User Avatar */}
+          <div className="w-8 h-8 rounded-full bg-[#cbd5e1] flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+            {profile.profilePhoto ? (
+              <img
+                src={profile.profilePhoto}
+                alt="User Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            )}
           </div>
         </div>
       </div>
@@ -289,7 +314,7 @@ function AfterlogNavbar() {
         role="navigation"
       >
         {/* Sidebar Header */}
-        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-[#2D37481D]">
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-[#2D37481D] flex flex-col items-start gap-1">
           <div
             className="w-24 sm:w-28 cursor-pointer"
             onClick={() => {
@@ -297,8 +322,9 @@ function AfterlogNavbar() {
               closeMobileMenu();
             }}
           >
-            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
+            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto object-contain" />
           </div>
+          <p className="text-[10px] text-[#718096] font-normal leading-none">{t.tagline}</p>
         </div>
 
         {/* Navigation Menu */}
@@ -309,24 +335,16 @@ function AfterlogNavbar() {
                 key={item.id}
                 to={item.path}
                 onClick={closeMobileMenu}
-                onMouseEnter={() => setHoveredItemId(item.id)}
-                onMouseLeave={() => setHoveredItemId(null)}
                 className={({ isActive }) => `
-                  flex items-center gap-3 w-full border-none rounded-lg
-                  ${getButtonStylesForItem(item, isActive)}
-                  py-2.5 px-4 cursor-pointer text-xs sm:text-sm font-regular text-left transition-all duration-200
+                  flex items-center gap-3 w-full border-none rounded-lg py-2.5 px-4 cursor-pointer text-xs sm:text-sm font-regular text-left transition-all duration-200
+                  ${isActive 
+                    ? "bg-[#1B365D] text-white font-semibold" 
+                    : "bg-transparent text-[#475569] hover:bg-[#f1f5f9] hover:text-[#1e293b]"
+                  }
                 `}
               >
-                {({ isActive }) => (
-                  <>
-                    <img
-                      src={getIconForItem(item, isActive)}
-                      alt={`${item.name} Icon`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                    />
-                    <span>{item.name}</span>
-                  </>
-                )}
+                {item.icon}
+                <span>{item.name}</span>
               </NavLink>
             ))}
           </nav>
