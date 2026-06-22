@@ -15,7 +15,7 @@ function AppointmentLayoutPage() {
 
   // TRANSLATION OBJECTS
   const AppointmentLayoutTranslations = {
-    EN: { Title: "Meetings" },
+    EN: { Title: "Appointments" },
     SI: { Title: "හමුවවීම්" },
     TA: { Title: "சந்திப்புகள்" },
   };
@@ -35,7 +35,6 @@ function AppointmentLayoutPage() {
     setSelectedDate({ day, month, year });
   };
 
-  // ============================================================================
   // BOOKING STATES - CORRECTLY CREATING DATES
   // ============================================================================
   const [appointments, setAppointments] = useState([
@@ -46,6 +45,8 @@ function AppointmentLayoutPage() {
       time: "10:00 AM",
       contact: "0703891153",
       status: "Pending",
+      requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
+      createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
       id: 2,
@@ -54,8 +55,39 @@ function AppointmentLayoutPage() {
       time: "2:30 PM",
       contact: "0771234567",
       status: "Approved",
+      requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
+      createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
+    },
+    {
+      id: 3,
+      purpose: "Document Submission",
+      date: new Date(2026, 5, 28), // June 28, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+      requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
+      createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
+    },
+
+    {
+      id: 4,
+      purpose: "Meeting with Officer B",
+      date: new Date(2026, 5, 23), // June 23, 2026
+      time: "1:00 PM",
+      contact: "0771234567",
+      status: "Pending",
+      requestedDate: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
+      createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
     },
   ]);
+
+  // Calculate dynamic stats
+  const pendingCount = appointments.filter(
+    (item) => item.status === "Pending",
+  ).length;
+  const approvedCount = appointments.filter(
+    (item) => item.status === "Approved",
+  ).length;
 
   // Get appointment for selected date if it exists
   const getAppointmentForSelectedDate = () => {
@@ -71,48 +103,62 @@ function AppointmentLayoutPage() {
 
   const activeAppointment = getAppointmentForSelectedDate();
 
+  // ============================================================================
+  // FORMAT BOOKINGS FOR CALENDAR
+  // ============================================================================
+  const getBookingsForCalendar = () => {
+    return appointments.map((appointment) => ({
+      day: appointment.date.getDate(),
+      month: appointment.date.getMonth(),
+      year: appointment.date.getFullYear(),
+    }));
+  };
+
   return (
     <>
-      <div className="flex text-[24px] font-medium text-[#1B365D] mt-[60px] mx-[30px]">
+      <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         {t.Title}
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mx-[75px] mt-[30px]">
-        <CardLayout />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+        <CardLayout pendingCount={pendingCount} approvedCount={approvedCount} />
       </div>
 
-      <div className="flex mt-[30px] mx-[100px]">
-        <CalenderLayout onDateSelect={handleDateSelect} />
+      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:mx-[100px]">
+        <CalenderLayout
+          onDateSelect={handleDateSelect}
+          bookings={getBookingsForCalendar()}
+        />
       </div>
 
-      <div className="flex justify-center mx-[75px] my-[30px]">
+      <div className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]">
         {activeAppointment ? (
           // ================================================================
           // ACTIVE APPOINTMENT DISPLAY
           // ================================================================
-          <div className="flex w-full flex-col p-[30px] border-[1.5px] border-[#2D37488D] rounded-xl">
-            <p className="font-medium text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37488D] ">
+          <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl">
+            <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
               Appointment Summary
             </p>
 
-            <div className="flex flex-col gap-[5px] mt-[20px]">
-              <p className="text-[16px] text-[#2D3748]">
+            <div className="flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-[5px] mt-3 sm:mt-4 md:mt-5 lg:mt-[20px]">
+              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                 <span className="font-medium">Purpose:</span>{" "}
                 {activeAppointment.purpose}
               </p>
-              <p className="text-[16px] text-[#2D3748]">
+              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                 <span className="font-medium">Time:</span>{" "}
                 {activeAppointment.time}
               </p>
-              <p className="text-[16px] text-[#2D3748]">
+              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                 <span className="font-medium">Status:</span>{" "}
                 {activeAppointment.status}
               </p>
             </div>
 
-            <div className="mt-[20px] flex justify-center">
+            <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
               <button
-                className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[12px] font-medium cursor-pointer"
+                className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
                 onClick={() => {
                   if (activeAppointment.status === "Pending") {
                     navigate("/RAppointment/PendingAppointmentRequests");
@@ -121,8 +167,12 @@ function AppointmentLayoutPage() {
                   }
                 }}
               >
-                <span>View More Details</span>
-                <img src={viewIcon} alt="viewIcon" className="h-[15px]" />
+                <span>More {activeAppointment.status} Appointments</span>
+                <img
+                  src={viewIcon}
+                  alt="viewIcon"
+                  className="h-3 sm:h-3.5 md:h-4 lg:h-[15px] w-auto"
+                />
               </button>
             </div>
           </div>

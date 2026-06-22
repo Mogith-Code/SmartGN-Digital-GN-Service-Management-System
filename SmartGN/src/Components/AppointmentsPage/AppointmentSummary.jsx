@@ -94,16 +94,16 @@ function AppointmentSummary({ day, month, year }) {
   const formattedDate = `${getMonthName(month)} ${day}, ${year}`;
 
   return (
-    <div className="flex w-full flex-col items-center justify-center py-[30px] text-center text-[#2D37488D] border-[1.5px] border-dashed border-[#2D37488D] rounded-xl bg-[#E2E8F0]">
+    <div className="flex w-full flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
       <img
-        className="mb-3 w-[50px]"
+        className="mb-3 w-10 sm:w-12 md:w-14 lg:w-[50px] opacity-50"
         src={appointmentIcon}
         alt="Appointment Icon"
       />
-      <p className="font-medium text-[16px]">
+      <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
         {t.NoAppointmentsscheduledfor} {formattedDate}.
       </p>
-      <p className="text-[14px] text-[#2D37488D]">
+      <p className="text-xs sm:text-sm md:text-base lg:text-[14px] text-[#2D3748D] mt-1 sm:mt-2">
         {t.clickonBookanappointmenttoscheduleameeting}
       </p>
     </div>

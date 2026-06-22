@@ -248,7 +248,6 @@ function BookingForm({ onOpenHelp }) {
       purpose,
       bookDay,
       bookTime,
-      officerName,
       contactNumber,
     });
     // navigate("/RAppointment");
@@ -257,33 +256,37 @@ function BookingForm({ onOpenHelp }) {
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
-      <div className="flex gap-[20px] flex-1">
-        <div className="flex bg-[#FFFFFF]">
+      <div className="flex flex-col md:flex-row gap-0 md:gap-[20px] flex-1">
+        <div className="hidden md:block bg-[#FFFFFF]">
           <RSidebar />
         </div>
 
-        <div className="w-full bg-[#FFFFFF] border-l border-[#2D37482D]">
+        <div className="w-full bg-[#FFFFFF] border-l-0 md:border-l border-[#2D37482D]">
           {/* Back Button */}
           <div
-            className="flex w-[75px] p-[5px] text-[15px] items-center gap-[10px] font-regular text-[#1B365D] mt-[60px] mx-[30px] cursor-pointer"
+            className="flex w-auto p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
             onClick={() => navigate("/RAppointment")}
           >
-            <img src={backIcon} alt="backIcon" className="w-[16px]" />
+            <img
+              src={backIcon}
+              alt="backIcon"
+              className="w-[14px] sm:w-[16px]"
+            />
             {t.back}
           </div>
 
           {/* Page Title */}
-          <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
+          <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             {t.Title}
           </div>
 
           {/* Booking Form */}
           <form onSubmit={handleSubmit}>
-            <div className="mx-[50px] my-[30px] flex flex-col gap-5 border border-[#2D37482D] rounded-[15px] p-[20px]">
+            <div className="mx-4 sm:mx-5 md:mx-6 lg:mx-[50px] my-4 sm:my-5 md:my-6 lg:my-[30px] flex flex-col gap-4 sm:gap-5 border border-[#2D37482D] rounded-xl sm:rounded-2xl lg:rounded-[15px] p-4 sm:p-5 md:p-6 lg:p-[20px]">
               {/* ============================================================ */}
               {/* APPOINTMENT PURPOSE - TEXT INPUT */}
               {/* ============================================================ */}
-              <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="purposeInput" className="font-medium">
                   {t.Purpose}
                 </label>
@@ -295,7 +298,7 @@ function BookingForm({ onOpenHelp }) {
                   placeholder={
                     t.eg + " Certificate Collection, General Inquiry, etc."
                   }
-                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
+                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-2 sm:p-2.5 md:p-3 lg:p-[10px] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   required
                 />
               </div>
@@ -303,13 +306,13 @@ function BookingForm({ onOpenHelp }) {
               {/* ============================================================ */}
               {/* DATE SELECTION - Dynamic from Today to End of Month */}
               {/* ============================================================ */}
-              <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="daySelect" className="font-medium">
                   {t.date}
                 </label>
                 <select
                   id="daySelect"
-                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
+                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-2 sm:p-2.5 md:p-3 lg:p-[10px] text-sm sm:text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   value={bookDay || ""}
                   onChange={(e) => setBookDay(parseInt(e.target.value))}
                   required
@@ -337,7 +340,7 @@ function BookingForm({ onOpenHelp }) {
 
                 {/* Display selected date details */}
                 {bookDay && availableDates.length > 0 && (
-                  <p className="text-sm text-[#2D37488D] mt-1">
+                  <p className="text-xs sm:text-sm text-[#2D37488D] mt-1">
                     {t.Selected} {getMonthName(availableDates[0].month)}{" "}
                     {bookDay}, {availableDates[0].year}
                   </p>
@@ -347,7 +350,7 @@ function BookingForm({ onOpenHelp }) {
               {/* ============================================================ */}
               {/* TIME SELECTION */}
               {/* ============================================================ */}
-              <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="timeSelect" className="font-medium">
                   {t.time}
                 </label>
@@ -355,7 +358,7 @@ function BookingForm({ onOpenHelp }) {
                   id="timeSelect"
                   value={bookTime}
                   onChange={(e) => setBookTime(e.target.value)}
-                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
+                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-2 sm:p-2.5 md:p-3 lg:p-[10px] text-sm sm:text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   required
                 >
                   <option value="9:00 AM">9:00 AM</option>
@@ -375,7 +378,7 @@ function BookingForm({ onOpenHelp }) {
               {/* ============================================================ */}
               {/* CONTACT NUMBER */}
               {/* ============================================================ */}
-              <div className="flex flex-col items-start gap-[2px] text-[16px] font-regular text-[#2D3748]">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="contactNumber" className="font-medium">
                   {t.contact}
                 </label>
@@ -385,7 +388,7 @@ function BookingForm({ onOpenHelp }) {
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   placeholder={t.contactPlaceholder}
-                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-[10px] focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
+                  className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-2 sm:p-2.5 md:p-3 lg:p-[10px] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#2c5f8a]"
                   required
                 />
               </div>
@@ -394,7 +397,7 @@ function BookingForm({ onOpenHelp }) {
               {/* ERROR MESSAGE */}
               {/* ============================================================ */}
               {errorMessage && (
-                <div className="text-red-500 text-sm font-medium">
+                <div className="text-red-500 text-xs sm:text-sm font-medium">
                   {errorMessage}
                 </div>
               )}
@@ -402,24 +405,32 @@ function BookingForm({ onOpenHelp }) {
               {/* ============================================================ */}
               {/* ACTION BUTTONS - Reset & Submit */}
               {/* ============================================================ */}
-              <div className="flex justify-end gap-[20px] mt-[10px]">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 md:gap-5 lg:gap-[20px] mt-2 sm:mt-3 md:mt-4 lg:mt-[10px]">
                 {/* Reset Button */}
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="px-6 py-2 flex gap-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
+                  className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group font-regular hover:bg-[#FF000C] transition-all duration-200"
                 >
                   <span>{t.reset}</span>
-                  <img src={resetIcon} alt="resetIcon" className="w-[16px]" />
+                  <img
+                    src={resetIcon}
+                    alt="resetIcon"
+                    className="w-3.5 sm:w-4 md:w-4.5 lg:w-[16px]"
+                  />
                 </button>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="px-6 py-2 flex gap-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] cursor-pointer transition-colors text-sm font-medium"
+                  className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group transition-all duration-200"
                 >
                   <span>{t.bookAppointment}</span>
-                  <img src={confirmIcon} alt="resetIcon" className="w-[16px]" />
+                  <img
+                    src={confirmIcon}
+                    alt="confirmIcon"
+                    className="w-3.5 sm:w-4 md:w-4.5 lg:w-[16px]"
+                  />
                 </button>
               </div>
             </div>
@@ -429,7 +440,7 @@ function BookingForm({ onOpenHelp }) {
 
       {/* Floating Help Trigger */}
       <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#D69E2E] text-white border-0 text-base sm:text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00] z-50"
         aria-label="Help Trigger"
         onClick={onOpenHelp}
       >

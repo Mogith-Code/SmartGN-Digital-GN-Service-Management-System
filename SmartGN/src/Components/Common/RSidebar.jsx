@@ -1,138 +1,149 @@
-import React from "react";
+// src/components/Common/RSidebar.jsx
+import React, { useState } from "react";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
+import homeIcon from "../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import dashBoard from "../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import profileIcon from "../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import householdIcon from "../../assets/home_and_garden_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import certificateIcon from "../../assets/license_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import appointmentIcon from "../../assets/calendar_today_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import allowanceIcon from "../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import disasterIcon from "../../assets/flood_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import announcementIcon from "../../assets/brand_awareness_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import homeIconHovered from "../../assets/home_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import dashBoardIconHovered from "../../assets/team_dashboard_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import profileIconHovered from "../../assets/person_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import householdIconHovered from "../../assets/home_and_garden_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import certificateIconHovered from "../../assets/license_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import appointmentIconHovered from "../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import allowanceIconHovered from "../../assets/edit_document_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import disasterIconHovered from "../../assets/flood_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function RSidebar() {
   const { lang } = useLanguage();
   const t = translations[lang];
 
-  // Menu items configuration
+  // State to track which menu item is being hovered (only ONE item at a time)
+  const [hoveredItemId, setHoveredItemId] = useState(null);
+
+  // Menu items configuration - Single source of truth
   const menuItems = [
     {
       id: "home",
       name: t.home,
       path: "/",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-      ),
+      icon: homeIcon,
+      iconActive: homeIconHovered,
     },
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard/resident",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <rect x="3" y="3" width="7" height="9" rx="1"></rect>
-          <rect x="14" y="3" width="7" height="5" rx="1"></rect>
-          <rect x="14" y="12" width="7" height="9" rx="1"></rect>
-          <rect x="3" y="16" width="7" height="5" rx="1"></rect>
-        </svg>
-      ),
+      path: "/dashboard",
+      icon: dashBoard,
+      iconActive: dashBoardIconHovered,
     },
     {
       id: "profile",
       name: t.profile,
       path: "/profile",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      ),
+      icon: profileIcon,
+      iconActive: profileIconHovered,
     },
     {
       id: "household",
       name: t.family,
-      path: "/dashboard/resident/household",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <circle cx="9" cy="14" r="2"></circle>
-          <circle cx="15" cy="14" r="2"></circle>
-        </svg>
-      ),
+      path: "/RHousehold",
+      icon: householdIcon,
+      iconActive: householdIconHovered,
     },
     {
       id: "certificates",
       name: t.certificates,
-      path: "/dashboard/resident/certificates",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          <circle cx="12" cy="11" r="3"></circle>
-        </svg>
-      ),
+      path: "/certificates",
+      icon: certificateIcon,
+      iconActive: certificateIconHovered,
     },
     {
       id: "appointments",
       name: t.appointments,
-      path: "/dashboard/resident/appointments",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-      ),
+      path: "/RAppointment",
+      icon: appointmentIcon,
+      iconActive: appointmentIconHovered,
     },
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/resident/allowances",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
-          <line x1="12" y1="4" x2="12" y2="20"></line>
-        </svg>
-      ),
+      path: "/allowances",
+      icon: allowanceIcon,
+      iconActive: allowanceIconHovered,
     },
     {
       id: "disaster",
       name: t.disaster,
-      path: "/dashboard/resident/disaster",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-          <line x1="12" y1="9" x2="12" y2="13"></line>
-          <line x1="12" y1="17" x2="12.01" y2="17"></line>
-        </svg>
-      ),
+      path: "/disaster-relief",
+      icon: disasterIcon,
+      iconActive: disasterIconHovered,
     },
     {
       id: "announcements",
       name: t.announcements,
-      path: "/dashboard/resident/announcements",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-      ),
+      path: "/announcements",
+      icon: announcementIcon,
+      iconActive: announcementIconHovered,
     },
   ];
 
+  // Function to determine which icon to show for a specific item
+  const getIconForItem = (item, isActive) => {
+    if (isActive || hoveredItemId === item.id) {
+      return item.iconActive;
+    }
+    return item.icon;
+  };
+
+  // Function to determine button styles for a specific item
+  const getButtonStylesForItem = (item, isActive) => {
+    if (isActive || hoveredItemId === item.id) {
+      if (isActive) {
+        return "bg-[#005BBD] text-[#F7FAFC] rounded-r-full shadow-md";
+      }
+      return "bg-[#1B365D] text-[#F7FAFC] rounded-r-full shadow-sm";
+    }
+    return "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900 rounded-r-full";
+  };
+
   return (
-    <aside className="w-[280px] bg-white border-r border-[#cbd5e1] py-6 px-4 flex flex-col flex-shrink-0">
-      <nav className="flex flex-col gap-2">
+    <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 sm:pt-12 md:pt-14 lg:pt-16 xl:pt-[60px] pr-2 sm:pr-3 md:pr-4 lg:pr-5 xl:pr-[20px] h-screen sticky top-0 overflow-y-auto flex-shrink-0">
+      <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
         {menuItems.map((item) => (
           <NavLink
             key={item.id}
             to={item.path}
-            end={item.id === "home" || item.id === "dashboard" || item.id === "profile"}
+            onMouseEnter={() => setHoveredItemId(item.id)}
+            onMouseLeave={() => setHoveredItemId(null)}
             className={({ isActive }) => `
-              flex items-center gap-3 w-full py-3 px-4 rounded-lg border-0 text-[15px] font-medium cursor-pointer transition-all duration-200 text-left
-              ${isActive 
-                ? "bg-[#1B365D] text-white font-semibold" 
-                : "bg-transparent text-[#475569] hover:bg-[#f1f5f9] hover:text-[#1e293b]"
-              }
+              flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none 
+              ${getButtonStylesForItem(item, isActive)}
+              py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] 
+              cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left 
+              transition-all duration-200 hover:translate-x-0.5 sm:hover:translate-x-1
             `}
           >
-            {item.icon}
-            <span>{item.name}</span>
+            {({ isActive }) => (
+              <>
+                {/* Icon - Shows active icon when active OR this specific item is hovered */}
+                <img
+                  src={getIconForItem(item, isActive)}
+                  alt={`${item.name} Icon`}
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+                />
+                <span className="truncate text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px]">
+                  {item.name}
+                </span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>

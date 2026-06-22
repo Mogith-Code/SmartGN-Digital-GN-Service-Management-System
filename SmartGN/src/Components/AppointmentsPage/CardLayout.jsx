@@ -6,7 +6,7 @@ import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_
 import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function CardLayout() {
+function CardLayout({ pendingCount, approvedCount }) {
   const navigate = useNavigate();
 
   const { lang } = useLanguage();
@@ -39,7 +39,7 @@ function CardLayout() {
   return (
     <>
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
       >
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
@@ -48,12 +48,14 @@ function CardLayout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card1Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {pendingCount}
+          </span>
         </div>
       </div>
 
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
       >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
@@ -62,17 +64,19 @@ function CardLayout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card2Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {approvedCount}
+          </span>
         </div>
       </div>
 
       <div
-        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.6)] cursor-pointer"
+        className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/BookingForm")}
       >
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col gap-[10px] items-center">
+        <div className="flex flex-col pb-[40px] items-center ">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
           </span>
