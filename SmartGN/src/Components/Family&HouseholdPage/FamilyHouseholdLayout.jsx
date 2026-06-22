@@ -44,6 +44,19 @@ function FamilyHouseholdLayout() {
           <FamilyMemberTable />
         </div>
       </div>
+
+      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+        <div className="flex w-full justify-between items-center mb-[15px]">
+          <span className="text-[20px] text-[#1B365D] font-medium">
+            Household Details
+          </span>
+
+          <button className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer">
+            <img src={editIcon} alt="editIcon" className="h-[16px]" />
+            Edit household details
+          </button>
+        </div>
+      </div>
     </>
   );
 }
