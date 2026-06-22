@@ -57,7 +57,10 @@ function FamilyHouseholdLayout() {
             Household Details
           </span>
 
-          <button className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer">
+          <button
+            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer"
+            onClick={() => navigate("/RHousehold/EditHouseholdDetails")}
+          >
             <img src={editIcon} alt="editIcon" className="h-[16px]" />
             Edit household details
           </button>

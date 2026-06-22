@@ -22,6 +22,7 @@ import ResidentAllowances from "./Pages/RAllowances.jsx";
 import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
+import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -68,6 +69,10 @@ function App() {
         <Route
           path="/RHousehold/EditFamilyDetails"
           element={<EditFamilyDetails onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/RHousehold/EditHouseholdDetails"
+          element={<EditHouseholdDetails onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/resident"
