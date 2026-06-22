@@ -1,9 +1,11 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
 import totalMembersIcon from "../../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { useNavigate } from "react-router-dom";
 
 function FamilyCardLyout() {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
 
   // TRANSLATION OBJECTS
   // Contains all text content in three languages: English (EN),
@@ -34,7 +36,7 @@ function FamilyCardLyout() {
   return (
     <div
       className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-      onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+      onClick={() => navigate("/")}
     >
       <img src={totalMembersIcon} alt="totalMembersIcon" className="w-[50px]" />
 
