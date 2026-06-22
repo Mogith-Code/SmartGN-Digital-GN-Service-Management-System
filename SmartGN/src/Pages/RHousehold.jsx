@@ -2,6 +2,7 @@ import React from "react";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import FamilyHouseholdLayout from "../Components/Family&HouseholdPage/FamilyHouseholdLayout";
 
 function RHousehold({ onOpenHelp }) {
   return (
@@ -15,7 +16,7 @@ function RHousehold({ onOpenHelp }) {
 
         {/* Main Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          {" "}
+          <FamilyHouseholdLayout />
         </div>
       </div>
 
