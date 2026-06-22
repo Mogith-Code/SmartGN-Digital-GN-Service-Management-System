@@ -14,7 +14,7 @@ function Chatbot({ isOpen, onClose }) {
     }
   ])
 
-  onst [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
 
   // Scroll to bottom on new message or when typing status changes
