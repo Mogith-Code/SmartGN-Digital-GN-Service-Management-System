@@ -255,4 +255,42 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
           <h2 className="content-greeting" style={{ marginBottom: '24px' }}>Disaster Damage Report & Relief Application</h2>
 
+          {/* Form and History columns */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px', alignItems: 'start' }}>
+            
+            {/* Left Column: Form Card */}
+            <div className="dashboard-announcements-card" style={{ padding: '32px' }}>
+              <h3 className="card-inner-title" style={{ borderBottom: '1.5px solid #cbd5e1', paddingBottom: '12px', marginBottom: '20px' }}>
+                Report Disaster Damage
+              </h3>
+
+              <div className="form-alert-note" style={{ marginBottom: '20px' }}>
+                <span>Use this form to report damage caused by natural disasters to your property, crops, or livelihood and apply for official Grama Niladhari relief evaluation.</span>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="form-grid" style={{ gap: '16px' }}>
+                  
+                  {/* Row 1 */}
+                  <div className="form-group">
+                    <label htmlFor="disasterSelect">Type of Disaster</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="disasterSelect" 
+                        className="register-control register-select"
+                        value={disasterType}
+                        onChange={(e) => setDisasterType(e.target.value)}
+                        required
+                      >
+                        <option value="Flood">Flood</option>
+                        <option value="Landslide">Landslide</option>
+                        <option value="Fire">Fire</option>
+                        <option value="Storm">Storm / Cyclone</option>
+                        <option value="Earth Slip">Earth Slip</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
+
 
