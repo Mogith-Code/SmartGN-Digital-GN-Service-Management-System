@@ -395,6 +395,93 @@ function ResidentDisasterReport({ onOpenHelp }) {
                   </button>
                 </div>
 
+              </form>
+            </div>
+
+            {/* Right Column: History Tracking */}
+            <div className="dashboard-announcements-card" style={{ padding: '32px' }}>
+              <h3 className="card-inner-title" style={{ borderBottom: '1.5px solid #cbd5e1', paddingBottom: '12px', marginBottom: '20px' }}>
+                Your Reported Disasters History
+              </h3>
+
+              <div className="announcements-rows-list">
+                {myDisasters.length === 0 ? (
+                  <div className="announcement-row-placeholder" style={{ borderStyle: 'solid', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '13px', fontWeight: '600' }}>
+                    No reported disasters registered to your account yet.
+                  </div>
+                ) : (
+                  myDisasters.map((disaster) => {
+                    const cardClass = disaster.severity.includes('high') 
+                      ? 'high' 
+                      : disaster.severity.includes('medium') 
+                        ? 'medium' 
+                        : 'low'
+
+                    return (
+                      <div key={disaster.id} style={{ border: '1.5px solid #cbd5e1', borderRadius: '12px', padding: '16px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '15px', fontWeight: '800', color: '#1a2e56' }}>{disaster.type}</span>
+                          <span className={`severity-badge ${cardClass}`}>{disaster.severity}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12.5px', color: '#475569', fontWeight: '550' }}>
+                          <div><strong>Location:</strong> {disaster.location}</div>
+                          <div><strong>Date:</strong> {disaster.date}</div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '8px', marginTop: '4px' }}>
+                          <span style={{ fontSize: '12px', color: '#64748b' }}>Status Tracking:</span>
+                          <span className={`badge-status ${disaster.status === 'Resolved' ? 'approved' : disaster.status === 'Pending' ? 'pending' : 'approved'}`} style={{ padding: '2px 10px', fontSize: '11px' }}>
+                            {disaster.status || 'Pending'}
+                          </span>
+                        </div>
+
+                        {disaster.remarks && (
+                          <div className="gn-remarks-box" style={{ marginTop: '4px' }}>
+                            <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#b45309', marginBottom: '2px', fontWeight: '800' }}>
+                              Official GN Remarks & Action:
+                            </div>
+                            {disaster.remarks}
+                          </div>
+                        )}
+
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  )
+}
+
+export default ResidentDisasterReport
+
+
+
+
+
+
+
+
 
 
 
