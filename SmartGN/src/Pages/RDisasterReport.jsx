@@ -306,6 +306,55 @@ function ResidentDisasterReport({ onOpenHelp }) {
                       required
                     />
                   </div>
+
                   
+                  {/* Row 3 */}
+                  <div className="form-group">
+                    <label htmlFor="severitySelect">Estimated Severity</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="severitySelect" 
+                        className="register-control register-select"
+                        value={severity}
+                        onChange={(e) => setSeverity(e.target.value)}
+                        required
+                      >
+                        <option value="low severity">Low Severity</option>
+                        <option value="medium severity">Medium Severity</option>
+                        <option value="high severity">High Severity</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
+
+                  {/* Row 4 */}
+                  <div className="form-group">
+                    <label htmlFor="contactInput">Contact phone number</label>
+                    <input 
+                      type="text" 
+                      id="contactInput"
+                      className="register-control"
+                      placeholder="e.g. 077XXXXXXXX"
+                      value={contactNumber}
+                      onChange={(e) => setContactNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {/* Row 5 */}
+                  <div className="form-group">
+                    <label htmlFor="descInput">Description of damages sustained</label>
+                    <textarea 
+                      id="descInput"
+                      className="register-control"
+                      rows="3"
+                      placeholder="Describe crop damage, structural damage, water levels, or loss..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      style={{ resize: 'none', height: '80px', fontFamily: 'inherit' }}
+                      required
+                    ></textarea>
+                  </div>
+
 
 
