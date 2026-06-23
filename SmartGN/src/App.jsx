@@ -18,6 +18,8 @@ import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/Approved
 import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
 import OfficerHousehold from "./Pages/OfficerHousehold.jsx";
 import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
+import PendingCertificates from "./Pages/PendingCertificates.jsx";
+import ApprovedCertificates from "./Pages/ApprovedCertificates.jsx";
 import ResidentAllowances from "./Pages/RAllowances.jsx";
 import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
@@ -118,6 +120,14 @@ function App() {
         <Route
           path="/dashboard/resident/certificates/rejected"
           element={<RejectedCertificates onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/pending"
+          element={<PendingCertificates onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/resident/certificates/approved"
+          element={<ApprovedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/resident/allowances"
