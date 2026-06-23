@@ -293,4 +293,19 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </div>
                   </div>
 
+                  {/* Row 2 */}
+                  <div className="form-group">
+                    <label htmlFor="locInput">Location / Address of Damage</label>
+                    <input 
+                      type="text" 
+                      id="locInput"
+                      className="register-control"
+                      placeholder="e.g. 45/2 Main Road Area, Colombo"
+                      value={locationArea}
+                      onChange={(e) => setLocationArea(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+
 
