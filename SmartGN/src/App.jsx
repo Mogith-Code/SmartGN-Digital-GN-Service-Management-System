@@ -85,6 +85,18 @@ function App() {
           element={<OfficerProfile onOpenHelp={openChatbot} />}
         />
         <Route
+          path="/dashboard/officer/profile"
+          element={<OfficerProfile onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/household"
+          element={<OfficerHousehold onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/appointments"
+          element={<OfficerAppointment onOpenHelp={openChatbot} />}
+        />
+        <Route
           path="/dashboard/officer/certificates"
           element={<OfficerCertificates onOpenHelp={openChatbot} />}
         />
