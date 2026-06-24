@@ -347,6 +347,7 @@ function OfficerNavbar() {
               <NavLink
                 key={item.id}
                 to={item.path}
+                end={item.id === "dashboard" || item.id === "home"}
                 onClick={closeMobileMenu}
                 onMouseEnter={() => setHoveredItemId(item.id)}
                 onMouseLeave={() => setHoveredItemId(null)}

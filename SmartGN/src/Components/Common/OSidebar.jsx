@@ -121,6 +121,7 @@ function OSidebar() {
           <NavLink
             key={item.id}
             to={item.path}
+            end={item.id === "dashboard" || item.id === "home"}
             onMouseEnter={() => setHoveredItemId(item.id)}
             onMouseLeave={() => setHoveredItemId(null)}
             className={({ isActive }) => `
