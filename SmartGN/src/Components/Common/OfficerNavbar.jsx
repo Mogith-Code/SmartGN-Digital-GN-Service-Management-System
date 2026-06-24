@@ -195,13 +195,10 @@ function OfficerNavbar() {
       <div className="flex w-full justify-between items-center max-md:hidden">
         {/* Logo Section */}
         <div
-          className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0 flex flex-col items-start gap-0.5"
+          className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
           onClick={() => navigate("/")}
         >
           <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
-          <p className="text-[10px] text-[#718096] font-normal leading-none ml-1">
-            {t.tagline}
-          </p>
         </div>
 
         {/* Right Section */}
