@@ -15,4 +15,8 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const officerIdVal = location.state?.officerId || localStorage.getItem('smartgn_user_id') || 'GN-BORELLA'
   const firstName = successUser.split(' ')[0]
 
+  // State to manage list of disasters
+  const [disasters, setDisasters] = useState([])
+  const [selectedDisaster, setSelectedDisaster] = useState(null)
+
 
