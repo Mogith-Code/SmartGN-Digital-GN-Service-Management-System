@@ -19,4 +19,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const [disasters, setDisasters] = useState([])
   const [selectedDisaster, setSelectedDisaster] = useState(null)
 
+   // State for taking action modal
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalSeverity, setModalSeverity] = useState('high severity')
+  const [modalStatus, setModalStatus] = useState('Pending')
+  const [modalRemarks, setModalRemarks] = useState('')
+
 
