@@ -133,4 +133,29 @@ function AdminDashboard({ onOpenHelp }) {
       diagnosticsSuccessAlert: "நோயறிதல் மற்றும் தற்காலிக சேமிப்பு வெற்றிகரமாக அழிக்கப்பட்டது!"
     }
   }
+
+  const dA = adminDict[lang] || adminDict.EN
+
+  // Tabs state: 'overview' | 'officers' | 'residents' | 'troubleshoot'
+  const [activeTab, setActiveTab] = useState('overview')
+
+  // DB list states
+  const [officers, setOfficers] = useState([])
+  const [residents, setResidents] = useState([])
+
+  // Modal display states
+  const [showAddOfficerModal, setShowAddOfficerModal] = useState(false)
+  const [showEditOfficerModal, setShowEditOfficerModal] = useState(false)
+  const [showEditResidentModal, setShowEditResidentModal] = useState(false)
+
+  // Form states
+  const [newOfficer, setNewOfficer] = useState({
+    username: '', name: '', email: '', mobile: '', division: '', password: ''
+  })
+  const [editOfficer, setEditOfficer] = useState({
+    id: '', username: '', name: '', email: '', mobile: '', division: '', status: 'Active'
+  })
+  const [editResident, setEditResident] = useState({
+    nic: '', name: '', email: '', mobile_no: '', status: 'Active', occupation: '', household_number: ''
+  })
 }
