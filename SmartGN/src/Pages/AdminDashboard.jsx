@@ -16,3 +16,10 @@ import residentsIcon from '../assets/home_and_garden_24dp_2D3748_FILL0_wght400_G
 import residentsIconActive from '../assets/home_and_garden_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
 import troubleshootIcon from '../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import troubleshootIconActive from '../assets/edit_document_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg'
+
+function AdminDashboard({ onOpenHelp }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { lang } = useLanguage()
+  const t = translations[lang]
+}
