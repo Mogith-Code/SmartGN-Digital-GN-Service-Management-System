@@ -25,7 +25,6 @@ import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
 import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
-import AdminDashboard from "./Pages/AdminDashboard.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -145,10 +144,6 @@ function App() {
         <Route
           path="/dashboard/resident/allowances"
           element={<ResidentAllowances onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/admin"
-          element={<AdminDashboard onOpenHelp={openChatbot} />}
         />
       </Routes>
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
