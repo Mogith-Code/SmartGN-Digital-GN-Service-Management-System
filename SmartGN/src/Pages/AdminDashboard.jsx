@@ -158,4 +158,9 @@ function AdminDashboard({ onOpenHelp }) {
   const [editResident, setEditResident] = useState({
     nic: '', name: '', email: '', mobile_no: '', status: 'Active', occupation: '', household_number: ''
   })
+
+  // Diagnostic states
+  const [runningDiagnostic, setRunningDiagnostic] = useState(false)
+  const [diagnosticProgress, setDiagnosticProgress] = useState(0)
+  const [diagnosticLogs, setDiagnosticLogs] = useState([])
 }
