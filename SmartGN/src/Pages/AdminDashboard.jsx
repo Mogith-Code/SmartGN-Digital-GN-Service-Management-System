@@ -212,4 +212,24 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error updating officer status.')
     }
   }
+
+  // Toggle Resident status
+  const toggleResidentStatus = async (nic, currentStatus) => {
+    const nextStatus = currentStatus === 'Active' ? 'Suspended' : 'Active'
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${nic}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (res.ok) {
+        alert(`Resident profile has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update resident status.')
+      }
+    } catch (error) {
+      alert('Error updating resident status.')
+    }
+  }
 }
