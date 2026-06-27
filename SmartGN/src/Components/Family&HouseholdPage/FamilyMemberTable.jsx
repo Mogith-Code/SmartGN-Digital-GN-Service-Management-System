@@ -1,24 +1,53 @@
 import React from "react";
+import { useLanguage } from "../../utils/translate";
 
 function FamilyMemberTable() {
+  const { lang } = useLanguage();
+
+  const FamilyMemberTableTranslations = {
+    EN: {
+      fullName: "Full Name",
+      nic: "NIC",
+      age: "Age",
+      occupation: "Occupation",
+      relationship: "Relationship",
+    },
+    SI: {
+      fullName: "සම්පූර්ණ නම",
+      nic: "ජා.හැ.අ",
+      age: "වයස",
+      occupation: "රැකියාව",
+      relationship: "ඥාති සම්බන්ධය",
+    },
+    TA: {
+      fullName: "Full Name",
+      nic: "NIC",
+      age: "Age",
+      occupation: "Occupation",
+      relationship: "Relationship",
+    },
+  };
+
+  const t =
+    FamilyMemberTableTranslations[lang] || FamilyMemberTableTranslations.EN;
   return (
     <table className="w-full">
       <thead>
         <tr>
           <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
-            Full Name
+            {t.fullName}
           </th>
           <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
-            NIC
+            {t.nic}
           </th>
           <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
-            Age
+            {t.age}
           </th>
           <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
-            Occupation
+            {t.occupation}
           </th>
           <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
-            Relationship
+            {t.relationship}
           </th>
         </tr>
       </thead>
