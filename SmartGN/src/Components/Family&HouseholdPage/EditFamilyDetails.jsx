@@ -1,6 +1,7 @@
 import React from "react";
 import AfterlogNavbar from "../Common/AfterlogNavbar";
 import RSidebar from "../Common/RSidebar";
+import EditFamilyDetailsLayout from "./EditFamilyDetailsLayout";
 
 function EditFamilyDetails() {
   return (
@@ -10,6 +11,10 @@ function EditFamilyDetails() {
         {/* Sidebar - Hidden on mobile, visible on md and up */}
         <div className="hidden md:block bg-white">
           <RSidebar />
+        </div>
+
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          <EditFamilyDetailsLayout />
         </div>
       </div>
     </div>
