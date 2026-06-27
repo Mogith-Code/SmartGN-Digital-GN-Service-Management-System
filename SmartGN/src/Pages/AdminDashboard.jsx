@@ -251,4 +251,23 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error deleting GN Officer account.')
     }
   }
+
+  // Delete Resident
+  const handleDeleteResident = async (nic) => {
+    if (!window.confirm('Are you sure you want to permanently delete this Resident account? This action cannot be undone.')) return
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${nic}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('Resident account deleted successfully.')
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to delete Resident account.')
+      }
+    } catch (error) {
+      alert('Error deleting Resident account.')
+    }
+  }
 }
