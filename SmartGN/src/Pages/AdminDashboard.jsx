@@ -163,4 +163,16 @@ function AdminDashboard({ onOpenHelp }) {
   const [runningDiagnostic, setRunningDiagnostic] = useState(false)
   const [diagnosticProgress, setDiagnosticProgress] = useState(0)
   const [diagnosticLogs, setDiagnosticLogs] = useState([])
+
+  const loadOfficers = async () => {
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/officers')
+      if (res.ok) {
+        const data = await res.json()
+        setOfficers(data)
+      }
+    } catch (err) {
+      console.error('Error fetching officers:', err)
+    }
+  }
 }
