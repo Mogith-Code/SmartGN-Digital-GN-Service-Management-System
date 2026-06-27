@@ -270,4 +270,26 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error deleting Resident account.')
     }
   }
+
+  // Create GN Officer
+  const handleCreateOfficer = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch('/api/auth/register/officer', {
+        method: 'POST',
+        body: JSON.stringify(newOfficer)
+      })
+      if (res.ok) {
+        alert('GN Officer account registered successfully.')
+        setShowAddOfficerModal(false)
+        setNewOfficer({ username: '', name: '', email: '', mobile: '', division: '', password: '' })
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to register GN Officer.')
+      }
+    } catch (error) {
+      alert('Error registering GN Officer.')
+    }
+  }
 }
