@@ -158,4 +158,181 @@ function AdminDashboard({ onOpenHelp }) {
   const [editResident, setEditResident] = useState({
     nic: '', name: '', email: '', mobile_no: '', status: 'Active', occupation: '', household_number: ''
   })
+
+  // Diagnostic states
+  const [runningDiagnostic, setRunningDiagnostic] = useState(false)
+  const [diagnosticProgress, setDiagnosticProgress] = useState(0)
+  const [diagnosticLogs, setDiagnosticLogs] = useState([])
+
+  const loadOfficers = async () => {
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/officers')
+      if (res.ok) {
+        const data = await res.json()
+        setOfficers(data)
+      }
+    } catch (err) {
+      console.error('Error fetching officers:', err)
+    }
+  }
+
+  const loadResidents = async () => {
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/residents')
+      if (res.ok) {
+        const data = await res.json()
+        setResidents(data)
+      }
+    } catch (err) {
+      console.error('Error fetching residents:', err)
+    }
+  }
+
+  useEffect(() => {
+    loadOfficers()
+    loadResidents()
+  }, [])
+
+  // Toggle Officer status
+  const toggleOfficerStatus = async (id, currentStatus) => {
+    const nextStatus = currentStatus === 'Active' ? 'Suspended' : 'Active'
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (res.ok) {
+        alert(`Grama Niladhari Officer has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update officer status.')
+      }
+    } catch (error) {
+      alert('Error updating officer status.')
+    }
+  }
+
+  // Toggle Resident status
+  const toggleResidentStatus = async (nic, currentStatus) => {
+    const nextStatus = currentStatus === 'Active' ? 'Suspended' : 'Active'
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${nic}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (res.ok) {
+        alert(`Resident profile has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update resident status.')
+      }
+    } catch (error) {
+      alert('Error updating resident status.')
+    }
+  }
+
+  // Delete GN Officer
+  const handleDeleteOfficer = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this GN Officer account? This action cannot be undone.')) return
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${id}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('GN Officer account deleted successfully.')
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to delete GN Officer account.')
+      }
+    } catch (error) {
+      alert('Error deleting GN Officer account.')
+    }
+  }
+
+  // Delete Resident
+  const handleDeleteResident = async (nic) => {
+    if (!window.confirm('Are you sure you want to permanently delete this Resident account? This action cannot be undone.')) return
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${nic}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('Resident account deleted successfully.')
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to delete Resident account.')
+      }
+    } catch (error) {
+      alert('Error deleting Resident account.')
+    }
+  }
+
+  // Create GN Officer
+  const handleCreateOfficer = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch('/api/auth/register/officer', {
+        method: 'POST',
+        body: JSON.stringify(newOfficer)
+      })
+      if (res.ok) {
+        alert('GN Officer account registered successfully.')
+        setShowAddOfficerModal(false)
+        setNewOfficer({ username: '', name: '', email: '', mobile: '', division: '', password: '' })
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to register GN Officer.')
+      }
+    } catch (error) {
+      alert('Error registering GN Officer.')
+    }
+  }
+
+  // Update GN Officer Details
+  const handleUpdateOfficer = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${editOfficer.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(editOfficer)
+      })
+      if (res.ok) {
+        alert('GN Officer updated successfully.')
+        setShowEditOfficerModal(false)
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update GN Officer details.')
+      }
+    } catch (error) {
+      alert('Error updating GN Officer details.')
+    }
+  }
+
+  // Update Resident Details
+  const handleUpdateResident = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${editResident.nic}`, {
+        method: 'PUT',
+        body: JSON.stringify(editResident)
+      })
+      if (res.ok) {
+        alert('Resident updated successfully.')
+        setShowEditResidentModal(false)
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update Resident details.')
+      }
+    } catch (error) {
+      alert('Error updating Resident details.')
+    }
+  }
 }
+
