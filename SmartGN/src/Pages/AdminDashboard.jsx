@@ -187,4 +187,29 @@ function AdminDashboard({ onOpenHelp }) {
       console.error('Error fetching residents:', err)
     }
   }
+
+  useEffect(() => {
+    loadOfficers()
+    loadResidents()
+  }, [])
+
+  // Toggle Officer status
+  const toggleOfficerStatus = async (id, currentStatus) => {
+    const nextStatus = currentStatus === 'Active' ? 'Suspended' : 'Active'
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: nextStatus })
+      })
+      if (res.ok) {
+        alert(`Grama Niladhari Officer has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update officer status.')
+      }
+    } catch (error) {
+      alert('Error updating officer status.')
+    }
+  }
 }
