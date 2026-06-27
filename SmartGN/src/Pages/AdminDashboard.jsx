@@ -232,4 +232,23 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error updating resident status.')
     }
   }
+
+  // Delete GN Officer
+  const handleDeleteOfficer = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this GN Officer account? This action cannot be undone.')) return
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${id}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('GN Officer account deleted successfully.')
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to delete GN Officer account.')
+      }
+    } catch (error) {
+      alert('Error deleting GN Officer account.')
+    }
+  }
 }
