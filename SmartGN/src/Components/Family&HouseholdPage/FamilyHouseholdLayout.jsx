@@ -12,9 +12,27 @@ function FamilyHouseholdLayout() {
 
   // TRANSLATION OBJECTS
   const FamilyHouseholdLayoutTranslations = {
-    EN: { Title: "Family and Household details" },
-    SI: { Title: "පවුල සහ ගෘහ විස්තර" },
-    TA: { Title: "குடும்ப மற்றும் வீட்டு விவரங்கள்" },
+    EN: {
+      Title: "Family and Household details",
+      familyMembers: "Family Members",
+      editFDetails: "Edit family details",
+      householdDetails: "Household Details",
+      editHDetails: "Edit household details",
+    },
+    SI: {
+      Title: "පවුල සහ ගෘහ විස්තර",
+      familyMembers: "පවුලේ සාමාජිකයින්",
+      editFDetails: "පවුලේ විස්තර සංස්කරණය කරන්න",
+      householdDetails: "ගෘහ විස්තර",
+      editHDetails: "ගෘහ විස්තර සංස්කරණය කරන්න",
+    },
+    TA: {
+      Title: "குடும்ப மற்றும் வீட்டு விவரங்கள்",
+      familyMembers: "පවුලේ සාමාජිකයින්",
+      editFDetails: "පවුලේ විස්තර සංස්කරණය කරන්න",
+      householdDetails: "ගෘහ විස්තර",
+      editHDetails: "ගෘහ විස්තර සංස්කරණය කරන්න",
+    },
   };
 
   const t =
@@ -34,7 +52,7 @@ function FamilyHouseholdLayout() {
       <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
         <div className="flex w-full justify-between items-center mb-[15px]">
           <span className="text-[20px] text-[#1B365D] font-medium">
-            Family Members
+            {t.familyMembers}
           </span>
 
           <button
@@ -42,7 +60,7 @@ function FamilyHouseholdLayout() {
             onClick={() => navigate("/RHousehold/EditFamilyDetails")}
           >
             <img src={editIcon} alt="editIcon" className="h-[16px]" />
-            Edit family details
+            {t.editFDetails}
           </button>
         </div>
 
@@ -54,7 +72,7 @@ function FamilyHouseholdLayout() {
       <div className="flex flex-col gap-[10px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
         <div className="flex w-full justify-between items-center mb-[15px]">
           <span className="text-[20px] text-[#1B365D] font-medium">
-            Household Details
+            {t.householdDetails}
           </span>
 
           <button
@@ -62,7 +80,7 @@ function FamilyHouseholdLayout() {
             onClick={() => navigate("/RHousehold/EditHouseholdDetails")}
           >
             <img src={editIcon} alt="editIcon" className="h-[16px]" />
-            Edit household details
+            {t.editHDetails}
           </button>
         </div>
 
