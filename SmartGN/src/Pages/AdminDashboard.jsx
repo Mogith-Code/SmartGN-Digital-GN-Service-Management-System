@@ -175,4 +175,16 @@ function AdminDashboard({ onOpenHelp }) {
       console.error('Error fetching officers:', err)
     }
   }
+
+  const loadResidents = async () => {
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/residents')
+      if (res.ok) {
+        const data = await res.json()
+        setResidents(data)
+      }
+    } catch (err) {
+      console.error('Error fetching residents:', err)
+    }
+  }
 }
