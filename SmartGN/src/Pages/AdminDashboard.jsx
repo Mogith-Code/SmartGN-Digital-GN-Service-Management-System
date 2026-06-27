@@ -292,4 +292,25 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error registering GN Officer.')
     }
   }
+
+  // Update GN Officer Details
+  const handleUpdateOfficer = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${editOfficer.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(editOfficer)
+      })
+      if (res.ok) {
+        alert('GN Officer updated successfully.')
+        setShowEditOfficerModal(false)
+        loadOfficers()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update GN Officer details.')
+      }
+    } catch (error) {
+      alert('Error updating GN Officer details.')
+    }
+  }
 }
