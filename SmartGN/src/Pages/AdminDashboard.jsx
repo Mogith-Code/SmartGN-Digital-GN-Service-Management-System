@@ -313,4 +313,26 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error updating GN Officer details.')
     }
   }
+
+  // Update Resident Details
+  const handleUpdateResident = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/residents/${editResident.nic}`, {
+        method: 'PUT',
+        body: JSON.stringify(editResident)
+      })
+      if (res.ok) {
+        alert('Resident updated successfully.')
+        setShowEditResidentModal(false)
+        loadResidents()
+      } else {
+        const err = await res.json()
+        alert(err.error || 'Failed to update Resident details.')
+      }
+    } catch (error) {
+      alert('Error updating Resident details.')
+    }
+  }
 }
+
