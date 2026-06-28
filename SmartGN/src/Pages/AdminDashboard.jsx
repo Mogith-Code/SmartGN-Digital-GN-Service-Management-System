@@ -364,4 +364,61 @@ function AdminDashboard({ onOpenHelp }) {
       }
     }, 600)
   }
-}
+
+  return (
+    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC] text-[#2D3748]">
+      
+      {/* 1. Header (EBF8FF background, with shadow, logo.png and notifications/profile info) */}
+      <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
+        <div className="flex w-full justify-between items-center">
+          {/* Logo Section */}
+          <div
+            className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
+            onClick={() => navigate('/')}
+          >
+            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
+          </div>
+
+          {/* Subtitle / System Console Mode */}
+          <div className="hidden md:block bg-[#1B365D]/10 text-[#1B365D] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
+            {dA.consoleTitle} - ROOT Mode
+          </div>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
+            <LanguageSelector />
+
+            {/* Notifications Bell */}
+            <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
+              <img
+                src={notificationIcon}
+                alt="Notifications"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
+              />
+              <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
+                3
+              </span>
+            </div>
+
+            {/* User Profile Info */}
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
+              <div className="hidden xs:flex flex-col text-right">
+                <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#D69E2E] uppercase">
+                  ADMIN
+                </span>
+                <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748]">
+                  {successUser}
+                </span>
+              </div>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+                <img
+                  src={accountIcon}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
