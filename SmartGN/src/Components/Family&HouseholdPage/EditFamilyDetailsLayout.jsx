@@ -134,7 +134,7 @@ function EditFamilyDetailsLayout() {
       </div>
 
       <div className="flex border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
-        <div className="flex w-full">
+        <div className="flex flex-col w-full">
           <EditFamilyMemberTable Editmembers={editMembers} />
         </div>
       </div>
