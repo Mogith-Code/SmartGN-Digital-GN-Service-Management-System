@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 import FamilyCardLyout from "./FamilyCardLyout";
 import editIcon from "../../assets/edit_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
@@ -39,6 +39,25 @@ function FamilyHouseholdLayout() {
     FamilyHouseholdLayoutTranslations[lang] ||
     FamilyHouseholdLayoutTranslations.EN;
 
+  const [members, setMembers] = useState([
+    {
+      id: 1,
+      fullName: "Dissanayake Mudiyanselage Nimal Perera",
+      nic: "197215644896",
+      age: 54,
+      occupation: "Government Officer",
+      relationship: "Father",
+    },
+    {
+      id: 2,
+      fullName: "Warapitiyage Lakshan Janith Chamodya Warapitiya",
+      nic: "200314611639",
+      age: 23,
+      occupation: "None",
+      relationship: "Son",
+    },
+  ]);
+
   return (
     <>
       <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
@@ -65,7 +84,7 @@ function FamilyHouseholdLayout() {
         </div>
 
         <div className="flex">
-          <FamilyMemberTable />
+          <FamilyMemberTable members={members} />
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 
-function FamilyMemberTable() {
+function FamilyMemberTable({ members = [] }) {
   const { lang } = useLanguage();
 
   const FamilyMemberTableTranslations = {
@@ -27,25 +27,6 @@ function FamilyMemberTable() {
       relationship: "Relationship",
     },
   };
-
-  const [members, setMembers] = useState([
-    {
-      id: 1,
-      fullName: "Dissanayake Mudiyanselage Nimal Perera",
-      nic: "197215644896",
-      age: 54,
-      occupation: "Government Officer",
-      relationship: "Father",
-    },
-    {
-      id: 2,
-      fullName: "Warapitiyage Lakshan Janith Chamodya Warapitiya",
-      nic: "200314611639",
-      age: 23,
-      occupation: "None",
-      relationship: "Son",
-    },
-  ]);
 
   const t =
     FamilyMemberTableTranslations[lang] || FamilyMemberTableTranslations.EN;

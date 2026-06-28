@@ -1,14 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import addIcon from "../../assets/add_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import editIcon from "../../assets/edit_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import deleteIcon from "../../assets/delete_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
+
 import { useNavigate } from "react-router-dom";
-import FamilyMemberTable from "./FamilyMemberTable";
+import EditFamilyMemberTable from "./EditFamilyMemberTable";
 
 function EditFamilyDetailsLayout() {
   const navigate = useNavigate();
+
+  const [editMembers, setEditMembers] = useState([
+    {
+      id: 1,
+      fullName: "Dissanayake Mudiyanselage Nimal Perera",
+      nic: "197215644896",
+      age: 54,
+      occupation: "Government Officer",
+      relationship: "Father",
+    },
+    {
+      id: 2,
+      fullName: "Warapitiyage Lakshan Janith Chamodya Warapitiya",
+      nic: "200314611639",
+      age: 23,
+      occupation: "None",
+      relationship: "Son",
+    },
+  ]);
   return (
     <>
       {/* Back Button */}
@@ -89,7 +107,7 @@ function EditFamilyDetailsLayout() {
               {/* Reset Button */}
               <button
                 type="button"
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group font-regular hover:bg-[#FF000C] transition-all duration-200"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200"
               >
                 <span>Reset</span>
                 <img
@@ -101,7 +119,7 @@ function EditFamilyDetailsLayout() {
 
               <button
                 type="button"
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group transition-all duration-200"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group transition-all duration-200"
               >
                 <span>Add member</span>
                 <img
@@ -115,17 +133,9 @@ function EditFamilyDetailsLayout() {
         </form>
       </div>
 
-      <div className="flex gap-[30px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+      <div className="flex border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
         <div className="flex w-full">
-          <FamilyMemberTable />
-        </div>
-        <div className="flex gap-[20px] items-center">
-          <img src={editIcon} alt="editIcon" className="w-[20px] h-[20px]" />
-          <img
-            src={deleteIcon}
-            alt="deleteIcon"
-            className="w-[20px] h-[20px]"
-          />
+          <EditFamilyMemberTable Editmembers={editMembers} />
         </div>
       </div>
     </>
