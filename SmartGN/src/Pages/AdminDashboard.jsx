@@ -506,3 +506,38 @@ function AdminDashboard({ onOpenHelp }) {
             </button>
           </nav>
         </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
+          
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div className="animate-zoom-in">
+              <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">{dA.systemOverview}</h2>
+              
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.totalGN}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">2 Active</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">Colombo, Maharagama</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.regResidents}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">1,240</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">+12 New submissions</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.rtgsTransfers}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">Rs. 17,500</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">{dA.cleared}</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.serverNode}</span>
+                  <span className="text-3xl font-extrabold text-green-600">{dA.healthy}</span>
+                  <span className="text-xs text-gray-500 font-semibold mt-2 bg-gray-50 px-2.5 py-1 rounded-full">DB latency: 2ms</span>
+                </div>
+              </div>
