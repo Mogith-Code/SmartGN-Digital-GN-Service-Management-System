@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 
 function FamilyMemberTable() {
@@ -28,6 +28,25 @@ function FamilyMemberTable() {
     },
   };
 
+  const [members, setMembers] = useState([
+    {
+      id: 1,
+      fullName: "Dissanayake Mudiyanselage Nimal Perera",
+      nic: "197215644896",
+      age: 54,
+      occupation: "Government Officer",
+      relationship: "Father",
+    },
+    {
+      id: 2,
+      fullName: "Warapitiyage Lakshan Janith Chamodya Warapitiya",
+      nic: "200314611639",
+      age: 23,
+      occupation: "None",
+      relationship: "Son",
+    },
+  ]);
+
   const t =
     FamilyMemberTableTranslations[lang] || FamilyMemberTableTranslations.EN;
   return (
@@ -52,40 +71,25 @@ function FamilyMemberTable() {
         </tr>
       </thead>
       <tbody className="text-center">
-        <tr>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Dissanayake Mudiyanselage Nimal Perera
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            197215644896
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            54
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Government Officer
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Father
-          </td>
-        </tr>
-        <tr>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Warapitiyage Lakshan Janith Chamodya Warapitiya
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            200314611639
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            23
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            None
-          </td>
-          <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-            Son
-          </td>
-        </tr>
+        {members.map((member) => (
+          <tr key={member.id}>
+            <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+              {member.fullName}
+            </td>
+            <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+              {member.nic}
+            </td>
+            <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+              {member.age}
+            </td>
+            <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+              {member.occupation}
+            </td>
+            <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+              {member.relationship}
+            </td>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
