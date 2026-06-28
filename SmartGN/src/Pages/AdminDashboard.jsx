@@ -422,3 +422,42 @@ function AdminDashboard({ onOpenHelp }) {
         </div>
       </header>
       
+      /* 2. Main Layout Container (Sidebar + Content) */}
+      <div className="flex flex-1 w-full">
+        
+        {/* Sidebar Nav */}
+        <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
+          <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
+            {/* Tab: Overview */}
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'overview'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'overview' ? dashboardIconActive : dashboardIcon}
+                alt="Overview Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.overview}</span>
+            </button>
+
+            {/* Tab: GN Officer Accounts */}
+            <button
+              onClick={() => setActiveTab('officers')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'officers'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'officers' ? officersIconActive : officersIcon}
+                alt="Officers Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.officers}</span>
+            </button>
