@@ -334,5 +334,334 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error updating Resident details.')
     }
   }
-}
 
+  // Troubleshooter Diagnostic simulation
+  const startTroubleshoot = () => {
+    setRunningDiagnostic(true)
+    setDiagnosticProgress(0)
+    setDiagnosticLogs([])
+
+    const logSteps = [
+      'RTGS-Gateway: Connecting secure fund settlement clearing nodes...',
+      'Registry Audit: Fetching National Voter registries for Division Mahargama & Colombo...',
+      'System Audit: Scanning active Gramaseva certifications indices...',
+      'Troubleshoot: Cleaning redundant cache logs and flushed DB memory blocks...',
+      'Security Sweep: Verifying signature hashes match records... No issues found.',
+      'System Diagnostics: Flush Cache Success! All nodes returned clean status 200 OK.'
+    ]
+
+    let step = 0
+    const interval = setInterval(() => {
+      if (step < logSteps.length) {
+        setDiagnosticLogs(prev => [...prev, `[INFO] ${logSteps[step]}`])
+        setDiagnosticProgress(prev => Math.min(prev + 18, 100))
+        step++
+      } else {
+        clearInterval(interval)
+        setDiagnosticProgress(100)
+        setRunningDiagnostic(false)
+        alert('Diagnostics Sweep & Cache optimization completed successfully!')
+      }
+    }, 600)
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC] text-[#2D3748]">
+      
+      {/* 1. Header (EBF8FF background, with shadow, logo.png and notifications/profile info) */}
+      <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
+        <div className="flex w-full justify-between items-center">
+          {/* Logo Section */}
+          <div
+            className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
+            onClick={() => navigate('/')}
+          >
+            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
+          </div>
+
+          {/* Subtitle / System Console Mode */}
+          <div className="hidden md:block bg-[#1B365D]/10 text-[#1B365D] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
+            {dA.consoleTitle} - ROOT Mode
+          </div>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
+            <LanguageSelector />
+
+            {/* Notifications Bell */}
+            <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
+              <img
+                src={notificationIcon}
+                alt="Notifications"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
+              />
+              <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
+                3
+              </span>
+            </div>
+
+            {/* User Profile Info */}
+            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
+              <div className="hidden xs:flex flex-col text-right">
+                <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#D69E2E] uppercase">
+                  ADMIN
+                </span>
+                <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748]">
+                  {successUser}
+                </span>
+              </div>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+                <img
+                  src={accountIcon}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      /* 2. Main Layout Container (Sidebar + Content) */}
+      <div className="flex flex-1 w-full">
+        
+        {/* Sidebar Nav */}
+        <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
+          <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
+            {/* Tab: Overview */}
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'overview'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'overview' ? dashboardIconActive : dashboardIcon}
+                alt="Overview Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.overview}</span>
+            </button>
+
+            {/* Tab: GN Officer Accounts */}
+            <button
+              onClick={() => setActiveTab('officers')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'officers'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'officers' ? officersIconActive : officersIcon}
+                alt="Officers Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.officers}</span>
+            </button>
+
+            {/* Tab: Resident Profiles */}
+            <button
+              onClick={() => setActiveTab('residents')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'residents'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'residents' ? residentsIconActive : residentsIcon}
+                alt="Residents Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.residents}</span>
+            </button>
+
+            {/* Tab: Troubleshoot Node */}
+            <button
+              onClick={() => setActiveTab('troubleshoot')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'troubleshoot'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'troubleshoot' ? troubleshootIconActive : troubleshootIcon}
+                alt="Troubleshoot Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.troubleshoot}</span>
+            </button>
+
+            {/* Logout Admin */}
+            <button
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-semibold text-red-600 transition-all duration-200 rounded-r-full hover:translate-x-1 hover:bg-red-50 hover:text-red-700 mt-8"
+            >
+              <span className="w-5 text-center flex-shrink-0">➔</span>
+              <span className="truncate">{dA.logout}</span>
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
+          
+          {/* TAB 1: OVERVIEW */}
+          {activeTab === 'overview' && (
+            <div className="animate-zoom-in">
+              <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">{dA.systemOverview}</h2>
+              
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.totalGN}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">2 Active</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">Colombo, Maharagama</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.regResidents}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">1,240</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">+12 New submissions</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.rtgsTransfers}</span>
+                  <span className="text-3xl font-extrabold text-[#1B365D]">Rs. 17,500</span>
+                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">{dA.cleared}</span>
+                </div>
+
+                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+                  <span className="text-sm font-semibold text-gray-500 mb-1">{dA.serverNode}</span>
+                  <span className="text-3xl font-extrabold text-green-600">{dA.healthy}</span>
+                  <span className="text-xs text-gray-500 font-semibold mt-2 bg-gray-50 px-2.5 py-1 rounded-full">DB latency: 2ms</span>
+                </div>
+              </div>
+
+              {/* System alerts logs panel */}
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 text-left">
+                <h3 className="text-lg font-bold text-[#1B365D] border-b border-[#cbd5e1] pb-3 mb-4">
+                  {dA.recentLogs}
+                </h3>
+                <div className="font-mono text-sm text-gray-600 flex flex-col gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:44:02] ADMIN logged in successfully from secure clearing terminal node.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:38:15] RTGS clearing gateway disburse request dished out reference ID TXN-902847120.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:35:10] DRP API successfully authenticated resident Kamala Silva (789456123V) registry checks.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: GN OFFICERS */}
+          {activeTab === 'officers' && (
+            <div className="animate-zoom-in">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="text-left">
+                  <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.officerRegistry}</h2>
+                  <span className="text-sm text-gray-500 mt-1 block">{dA.officerSub}</span>
+                </div>
+                <button
+                  onClick={() => setShowAddOfficerModal(true)}
+                  className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <span>➕</span> Register GN Officer
+                </button>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                        <th className="p-4 sm:p-5">{dA.thName}</th>
+                        <th className="p-4 sm:p-5">Username</th>
+                        <th className="p-4 sm:p-5">{dA.thOffice}</th>
+                        <th className="p-4 sm:p-5">{dA.thStatus}</th>
+                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {officers.length > 0 ? (
+                        officers.map((officer, idx) => (
+                          <tr key={officer.gn_id || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                              <div>{officer.name}</div>
+                              <div className="text-xs text-gray-500 font-normal mt-0.5">{officer.email} | {officer.mobile}</div>
+                            </td>
+                            <td className="p-4 sm:p-5 text-gray-600">{officer.username}</td>
+                            <td className="p-4 sm:p-5 text-[#2D3748]">{officer.division_name || 'Not Assigned'}</td>
+                            <td className="p-4 sm:p-5">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
+                                officer.status === 'Active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {officer.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
+                              </span>
+                            </td>
+                            <td className="p-4 sm:p-5 text-right">
+                              <div className="flex justify-end gap-2 items-center flex-wrap">
+                                <button
+                                  onClick={() => toggleOfficerStatus(officer.gn_id, officer.status)}
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                                    officer.status === 'Active'
+                                      ? 'border-red-500 text-red-500 hover:bg-red-50'
+                                      : 'border-green-600 text-green-600 hover:bg-green-50'
+                                  }`}
+                                >
+                                  {officer.status === 'Active' ? 'Suspend' : 'Activate'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditOfficer({
+                                      id: officer.gn_id,
+                                      username: officer.username,
+                                      name: officer.name,
+                                      email: officer.email,
+                                      mobile: officer.mobile,
+                                      division: officer.division_name || '',
+                                      status: officer.status
+                                    })
+                                    setShowEditOfficerModal(true)
+                                  }}
+                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteOfficer(officer.gn_id)}
+                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="p-8 text-center text-gray-500">
+                            No Grama Niladhari Officers found in the system.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+          
