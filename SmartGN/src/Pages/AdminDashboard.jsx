@@ -334,5 +334,34 @@ function AdminDashboard({ onOpenHelp }) {
       alert('Error updating Resident details.')
     }
   }
-}
 
+  // Troubleshooter Diagnostic simulation
+  const startTroubleshoot = () => {
+    setRunningDiagnostic(true)
+    setDiagnosticProgress(0)
+    setDiagnosticLogs([])
+
+    const logSteps = [
+      'RTGS-Gateway: Connecting secure fund settlement clearing nodes...',
+      'Registry Audit: Fetching National Voter registries for Division Mahargama & Colombo...',
+      'System Audit: Scanning active Gramaseva certifications indices...',
+      'Troubleshoot: Cleaning redundant cache logs and flushed DB memory blocks...',
+      'Security Sweep: Verifying signature hashes match records... No issues found.',
+      'System Diagnostics: Flush Cache Success! All nodes returned clean status 200 OK.'
+    ]
+
+    let step = 0
+    const interval = setInterval(() => {
+      if (step < logSteps.length) {
+        setDiagnosticLogs(prev => [...prev, `[INFO] ${logSteps[step]}`])
+        setDiagnosticProgress(prev => Math.min(prev + 18, 100))
+        step++
+      } else {
+        clearInterval(interval)
+        setDiagnosticProgress(100)
+        setRunningDiagnostic(false)
+        alert('Diagnostics Sweep & Cache optimization completed successfully!')
+      }
+    }, 600)
+  }
+}
