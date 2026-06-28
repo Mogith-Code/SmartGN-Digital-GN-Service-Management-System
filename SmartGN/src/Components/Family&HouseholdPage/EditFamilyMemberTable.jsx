@@ -141,27 +141,32 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
             className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
           />
         </td>
-
-        <div className="flex gap-[20px] ml-[30px] items-center justify-center">
-          {/* Save Button */}
-          <button
-            className="cursor-pointer hover:scale-110 transition-transform"
-            onClick={() => handleSaveClick(member.id)}
-          >
-            <img src={saveIcon} alt="saveIcon" className="w-[20px] h-[20px]" />
-          </button>
-          {/* Cancel Button */}
-          <button
-            className="cursor-pointer hover:scale-110 transition-transform"
-            onClick={() => handleCancelClick(member.id)}
-          >
-            <img
-              src={cancelIcon}
-              alt="cancelIcon"
-              className="w-[20px] h-[20px]"
-            />
-          </button>
-        </div>
+        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+          <div className="flex gap-[20px] ml-[20px] items-center justify-center">
+            {/* Save Button */}
+            <button
+              className="cursor-pointer hover:scale-110 transition-transform"
+              onClick={() => handleSaveClick(member.id)}
+            >
+              <img
+                src={saveIcon}
+                alt="saveIcon"
+                className="w-[30px] h-[30px]"
+              />
+            </button>
+            {/* Cancel Button */}
+            <button
+              className="cursor-pointer hover:scale-110 transition-transform"
+              onClick={() => handleCancelClick(member.id)}
+            >
+              <img
+                src={cancelIcon}
+                alt="cancelIcon"
+                className="w-[30px] h-[30px]"
+              />
+            </button>
+          </div>
+        </td>
       </tr>
     );
   };
@@ -187,24 +192,29 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
           {member.relationship}
         </td>
-
-        <div className="flex gap-[20px] ml-[30px] items-center justify-center">
-          {/* Edit Button */}
-          <button
-            className="cursor-pointer hover:scale-110 transition-transform"
-            onClick={() => handleEditClick(member.id)}
-          >
-            <img src={editIcon} alt="editIcon" className="w-[20px] h-[20px]" />
-          </button>
-          {/* Delete Button */}
-          <button className="cursor-pointer hover:scale-110 transition-transform">
-            <img
-              src={deleteIcon}
-              alt="deleteIcon"
-              className="w-[20px] h-[20px]"
-            />
-          </button>
-        </div>
+        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+          <div className="flex gap-[20px] ml-[30px]items-center justify-center">
+            {/* Edit Button */}
+            <button
+              className="cursor-pointer hover:scale-110 transition-transform"
+              onClick={() => handleEditClick(member.id)}
+            >
+              <img
+                src={editIcon}
+                alt="editIcon"
+                className="w-[20px] h-[20px]"
+              />
+            </button>
+            {/* Delete Button */}
+            <button className="cursor-pointer hover:scale-110 transition-transform">
+              <img
+                src={deleteIcon}
+                alt="deleteIcon"
+                className="w-[20px] h-[20px]"
+              />
+            </button>
+          </div>
+        </td>
       </tr>
     );
   };
