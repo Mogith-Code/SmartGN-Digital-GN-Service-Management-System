@@ -541,3 +541,26 @@ function AdminDashboard({ onOpenHelp }) {
                   <span className="text-xs text-gray-500 font-semibold mt-2 bg-gray-50 px-2.5 py-1 rounded-full">DB latency: 2ms</span>
                 </div>
               </div>
+
+              {/* System alerts logs panel */}
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 text-left">
+                <h3 className="text-lg font-bold text-[#1B365D] border-b border-[#cbd5e1] pb-3 mb-4">
+                  {dA.recentLogs}
+                </h3>
+                <div className="font-mono text-sm text-gray-600 flex flex-col gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:44:02] ADMIN logged in successfully from secure clearing terminal node.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:38:15] RTGS clearing gateway disburse request dished out reference ID TXN-902847120.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600 font-bold">[INFO]</span>
+                    <span>[2026-06-01 12:35:10] DRP API successfully authenticated resident Kamala Silva (789456123V) registry checks.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
