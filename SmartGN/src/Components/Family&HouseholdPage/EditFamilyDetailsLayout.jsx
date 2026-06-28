@@ -1,6 +1,7 @@
 import React from "react";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import addIcon from "../../assets/add_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
 function EditFamilyDetailsLayout() {
@@ -31,7 +32,7 @@ function EditFamilyDetailsLayout() {
               <input
                 type="text"
                 id="purposeInput"
-                className="w-full border-b border-[#2D3748] text-sm sm:text-base focus:outline-none focus:border-b-2"
+                className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2"
               />
             </div>
             <div className="flex w-full justify-between">
@@ -42,7 +43,7 @@ function EditFamilyDetailsLayout() {
                 <input
                   type="text"
                   id="purposeInput"
-                  className="w-[20vw] border-b border-[#2D3748] text-sm sm:text-base focus:outline-none focus:border-b-2"
+                  className="w-[20vw] border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2"
                 />
               </div>
 
@@ -53,7 +54,7 @@ function EditFamilyDetailsLayout() {
                 <input
                   type="text"
                   id="purposeInput"
-                  className="w-[20vw] border-b border-[#2D3748] text-sm sm:text-base focus:outline-none focus:border-b-2"
+                  className="w-[20vw] border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2"
                 />
               </div>
             </div>
@@ -66,7 +67,7 @@ function EditFamilyDetailsLayout() {
                 <input
                   type="text"
                   id="purposeInput"
-                  className="w-[20vw] border-b border-[#2D3748] text-sm sm:text-base focus:outline-none focus:border-b-2"
+                  className="w-[20vw] border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2"
                 />
               </div>
 
@@ -77,7 +78,7 @@ function EditFamilyDetailsLayout() {
                 <input
                   type="text"
                   id="purposeInput"
-                  className="w-[20vw] border-b border-[#2D3748] text-sm sm:text-base focus:outline-none focus:border-b-2"
+                  className="w-[20vw] border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2"
                 />
               </div>
             </div>
@@ -87,7 +88,7 @@ function EditFamilyDetailsLayout() {
                 type="button"
                 className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group font-regular hover:bg-[#FF000C] transition-all duration-200"
               >
-                <span>reset</span>
+                <span>Reset</span>
                 <img
                   src={resetIcon}
                   alt="resetIcon"
@@ -101,8 +102,8 @@ function EditFamilyDetailsLayout() {
               >
                 <span>Add member</span>
                 <img
-                  src={resetIcon}
-                  alt="resetIcon"
+                  src={addIcon}
+                  alt="addIcon"
                   className="w-3.5 sm:w-4 md:w-4.5 lg:w-[16px]"
                 />
               </button>
