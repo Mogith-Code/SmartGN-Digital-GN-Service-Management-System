@@ -34,19 +34,19 @@ function FamilyMemberTable() {
     <table className="w-full">
       <thead>
         <tr>
-          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
+          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
             {t.fullName}
           </th>
-          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
+          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
             {t.nic}
           </th>
-          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
+          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
             {t.age}
           </th>
-          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
+          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
             {t.occupation}
           </th>
-          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] py-[10px]">
+          <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
             {t.relationship}
           </th>
         </tr>

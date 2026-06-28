@@ -2,7 +2,10 @@ import React from "react";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import addIcon from "../../assets/add_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import editIcon from "../../assets/edit_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import deleteIcon from "../../assets/delete_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
+import FamilyMemberTable from "./FamilyMemberTable";
 
 function EditFamilyDetailsLayout() {
   const navigate = useNavigate();
@@ -110,6 +113,20 @@ function EditFamilyDetailsLayout() {
             </div>
           </div>
         </form>
+      </div>
+
+      <div className="flex gap-[30px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+        <div className="flex w-full">
+          <FamilyMemberTable />
+        </div>
+        <div className="flex gap-[20px] items-center">
+          <img src={editIcon} alt="editIcon" className="w-[20px] h-[20px]" />
+          <img
+            src={deleteIcon}
+            alt="deleteIcon"
+            className="w-[20px] h-[20px]"
+          />
+        </div>
       </div>
     </>
   );
