@@ -461,3 +461,48 @@ function AdminDashboard({ onOpenHelp }) {
               />
               <span className="truncate">{dA.officers}</span>
             </button>
+
+            {/* Tab: Resident Profiles */}
+            <button
+              onClick={() => setActiveTab('residents')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'residents'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'residents' ? residentsIconActive : residentsIcon}
+                alt="Residents Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.residents}</span>
+            </button>
+
+            {/* Tab: Troubleshoot Node */}
+            <button
+              onClick={() => setActiveTab('troubleshoot')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
+                activeTab === 'troubleshoot'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <img
+                src={activeTab === 'troubleshoot' ? troubleshootIconActive : troubleshootIcon}
+                alt="Troubleshoot Icon"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+              />
+              <span className="truncate">{dA.troubleshoot}</span>
+            </button>
+
+            {/* Logout Admin */}
+            <button
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-semibold text-red-600 transition-all duration-200 rounded-r-full hover:translate-x-1 hover:bg-red-50 hover:text-red-700 mt-8"
+            >
+              <span className="w-5 text-center flex-shrink-0">➔</span>
+              <span className="truncate">{dA.logout}</span>
+            </button>
+          </nav>
+        </aside>
