@@ -564,3 +564,104 @@ function AdminDashboard({ onOpenHelp }) {
               </div>
             </div>
           )}
+
+          {/* TAB 2: GN OFFICERS */}
+          {activeTab === 'officers' && (
+            <div className="animate-zoom-in">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="text-left">
+                  <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.officerRegistry}</h2>
+                  <span className="text-sm text-gray-500 mt-1 block">{dA.officerSub}</span>
+                </div>
+                <button
+                  onClick={() => setShowAddOfficerModal(true)}
+                  className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <span>➕</span> Register GN Officer
+                </button>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                        <th className="p-4 sm:p-5">{dA.thName}</th>
+                        <th className="p-4 sm:p-5">Username</th>
+                        <th className="p-4 sm:p-5">{dA.thOffice}</th>
+                        <th className="p-4 sm:p-5">{dA.thStatus}</th>
+                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {officers.length > 0 ? (
+                        officers.map((officer, idx) => (
+                          <tr key={officer.gn_id || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                              <div>{officer.name}</div>
+                              <div className="text-xs text-gray-500 font-normal mt-0.5">{officer.email} | {officer.mobile}</div>
+                            </td>
+                            <td className="p-4 sm:p-5 text-gray-600">{officer.username}</td>
+                            <td className="p-4 sm:p-5 text-[#2D3748]">{officer.division_name || 'Not Assigned'}</td>
+                            <td className="p-4 sm:p-5">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
+                                officer.status === 'Active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {officer.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
+                              </span>
+                            </td>
+                            <td className="p-4 sm:p-5 text-right">
+                              <div className="flex justify-end gap-2 items-center flex-wrap">
+                                <button
+                                  onClick={() => toggleOfficerStatus(officer.gn_id, officer.status)}
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                                    officer.status === 'Active'
+                                      ? 'border-red-500 text-red-500 hover:bg-red-50'
+                                      : 'border-green-600 text-green-600 hover:bg-green-50'
+                                  }`}
+                                >
+                                  {officer.status === 'Active' ? 'Suspend' : 'Activate'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditOfficer({
+                                      id: officer.gn_id,
+                                      username: officer.username,
+                                      name: officer.name,
+                                      email: officer.email,
+                                      mobile: officer.mobile,
+                                      division: officer.division_name || '',
+                                      status: officer.status
+                                    })
+                                    setShowEditOfficerModal(true)
+                                  }}
+                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteOfficer(officer.gn_id)}
+                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="p-8 text-center text-gray-500">
+                            No Grama Niladhari Officers found in the system.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+          
