@@ -58,6 +58,12 @@ function FamilyHouseholdLayout() {
     },
   ]);
 
+  const [householdDetails, setHouseholdDetails] = useState({
+    houseNumber: "123456",
+    address: "Colombo",
+    landSize: "2 acres",
+    landOwner: "Kumara",
+  });
   // Calculate dynamic stats
   const totalMembers = members.length;
   const adultMembers = members.filter((m) => parseInt(m.age) >= 18).length;
@@ -112,7 +118,7 @@ function FamilyHouseholdLayout() {
         </div>
 
         <div className="flex">
-          <HouseholdDetailsLayout />
+          <HouseholdDetailsLayout HDetails={householdDetails} />
         </div>
       </div>
     </>

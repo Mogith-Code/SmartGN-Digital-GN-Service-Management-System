@@ -1,7 +1,7 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
 
-function HouseholdDetailsLayout() {
+function HouseholdDetailsLayout({ HDetails }) {
   const { lang } = useLanguage();
 
   const HouseholdDetailsLayoutTranslations = {
@@ -32,22 +32,22 @@ function HouseholdDetailsLayout() {
     <div className="flex flex-col gap-[5px]">
       <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
         <span className="font-medium">{t.householdNmber}</span>
-        <span className="font-regular">123456</span>
+        <span className="font-regular">{HDetails.houseNumber}</span>
       </div>
 
       <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
         <span className="font-medium">{t.address}</span>
-        <span className="font-regular">Colombo</span>
+        <span className="font-regular">{HDetails.address}</span>
       </div>
 
       <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
         <span className="font-medium">{t.sizeLand}</span>
-        <span className="font-regular">2 acres</span>
+        <span className="font-regular">{HDetails.landSize}</span>
       </div>
 
       <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
         <span className="font-medium">{t.landOwner}</span>
-        <span className="font-regular">Kumara</span>
+        <span className="font-regular">{HDetails.landOwner}</span>
       </div>
     </div>
   );
