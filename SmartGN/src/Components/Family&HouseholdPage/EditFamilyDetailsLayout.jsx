@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import addIcon from "../../assets/add_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-
 import { useNavigate } from "react-router-dom";
 import EditFamilyMemberTable from "./EditFamilyMemberTable";
 
