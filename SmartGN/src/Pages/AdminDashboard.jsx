@@ -716,3 +716,43 @@ function AdminDashboard({ onOpenHelp }) {
                                 >
                                   {resident.status === 'Active' ? 'Suspend' : 'Activate'}
                                 </button>
+                                <button
+                                  onClick={() => {
+                                    setEditResident({
+                                      nic: resident.r_nic,
+                                      name: resident.name,
+                                      email: resident.email,
+                                      mobile_no: resident.mobile_no,
+                                      status: resident.status,
+                                      occupation: resident.occupation || '',
+                                      household_number: resident.household_number || ''
+                                    })
+                                    setShowEditResidentModal(true)
+                                  }}
+                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteResident(resident.r_nic)}
+                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="p-8 text-center text-gray-500">
+                            No Registered Residents found in the system.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
