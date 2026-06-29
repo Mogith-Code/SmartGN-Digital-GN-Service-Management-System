@@ -25,4 +25,34 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const [modalStatus, setModalStatus] = useState('Pending')
   const [modalRemarks, setModalRemarks] = useState('')
 
+  const loadDisasters = async () => {
+    try {
+      const response = await fetch('/api/disasters/officer', {
+        headers: getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to load disasters.')
+      const data = await response.json()
+      const formatted = data.map(item => ({
+        id: item.disaster_request_id,
+        type: item.disaster_type,
+        severity: item.severity,
+        location: item.location,
+        reporter: item.resident_name || 'Resident',
+        date: item.request_date ? item.request_date.split('T')[0] : '',
+        description: item.description,
+        contact: item.contact_number,
+        aidRequested: item.aid_requested || 'None specified',
+        status: item.status,
+        remarks: item.officer_remarks || ''
+      }))
+      setDisasters(formatted)
+    } catch (err) {
+      console.error(err)
+      const saved = localStorage.getItem('smartgn_disaster_reports')
+      if (saved) setDisasters(JSON.parse(saved))
+    }
+  }
+
+
+
 
