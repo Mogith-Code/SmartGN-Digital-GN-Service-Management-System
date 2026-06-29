@@ -58,6 +58,16 @@ function OfficerDisasterReports({ onOpenHelp }) {
     loadDisasters()
   }, [])
 
+  // Handle open modal
+  const handleOpenActionModal = (disaster) => {
+    setSelectedDisaster(disaster)
+    setModalSeverity(disaster.severity)
+    setModalStatus(disaster.status || 'Pending')
+    setModalRemarks(disaster.remarks || '')
+    setIsModalOpen(true)
+  }
+
+
 
 
 
