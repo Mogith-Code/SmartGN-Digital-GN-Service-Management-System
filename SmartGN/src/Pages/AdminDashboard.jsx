@@ -685,3 +685,34 @@ function AdminDashboard({ onOpenHelp }) {
                         <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
                       </tr>
                     </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {residents.length > 0 ? (
+                        residents.map((resident, idx) => (
+                          <tr key={resident.r_nic || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                              <div>{resident.name}</div>
+                              <div className="text-xs text-gray-500 font-normal mt-0.5">{resident.email} | {resident.mobile_no}</div>
+                            </td>
+                            <td className="p-4 sm:p-5 text-gray-600">{resident.r_nic}</td>
+                            <td className="p-4 sm:p-5 text-[#2D3748]">{resident.division_name || 'Not Specified'}</td>
+                            <td className="p-4 sm:p-5">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
+                                resident.status === 'Active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {resident.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
+                              </span>
+                            </td>
+                            <td className="p-4 sm:p-5 text-right">
+                              <div className="flex justify-end gap-2 items-center flex-wrap">
+                                <button
+                                  onClick={() => toggleResidentStatus(resident.r_nic, resident.status)}
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                                    resident.status === 'Active'
+                                      ? 'border-red-500 text-red-500 hover:bg-red-50'
+                                      : 'border-green-600 text-green-600 hover:bg-green-50'
+                                  }`}
+                                >
+                                  {resident.status === 'Active' ? 'Suspend' : 'Activate'}
+                                </button>
