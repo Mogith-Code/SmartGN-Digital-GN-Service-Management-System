@@ -107,6 +107,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
           <span className="logo-gn">GN</span>
           <p className="logo-subtext">{t.tagline}</p>
         </div>
+        <div className="header-right">
+          {/* Language Selector */}
+          <LanguageSelector />
+
 
 
 
