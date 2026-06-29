@@ -67,6 +67,12 @@ function OfficerDisasterReports({ onOpenHelp }) {
     setIsModalOpen(true)
   }
 
+  // Handle submit action in modal
+  const handleSaveAction = async (e) => {
+    e.preventDefault()
+    if (!selectedDisaster) return
+
+
 
 
 
