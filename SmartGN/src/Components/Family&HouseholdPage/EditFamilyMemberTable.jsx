@@ -91,54 +91,54 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
   const renderEditableRow = (member) => {
     return (
       <tr key={member.id}>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
             value={member.fullName}
             onChange={(e) =>
               handleInputChange(member.id, "fullName", e.target.value)
             }
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded px-[px] py-[5px]"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded px-[px] py-[5px]"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
             value={member.nic}
             onChange={(e) =>
               handleInputChange(member.id, "nic", e.target.value)
             }
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="number"
             value={member.age}
             onChange={(e) =>
               handleInputChange(member.id, "age", e.target.value)
             }
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
             value={member.occupation}
             onChange={(e) =>
               handleInputChange(member.id, "occupation", e.target.value)
             }
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
             value={member.relationship}
             onChange={(e) =>
               handleInputChange(member.id, "relationship", e.target.value)
             }
-            className="w-full bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
           />
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
