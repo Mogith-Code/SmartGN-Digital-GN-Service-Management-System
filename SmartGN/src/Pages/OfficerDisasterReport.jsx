@@ -53,6 +53,12 @@ function OfficerDisasterReports({ onOpenHelp }) {
     }
   }
 
+  // Load disasters on mount
+  useEffect(() => {
+    loadDisasters()
+  }, [])
+
+
 
 
 
