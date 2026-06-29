@@ -665,4 +665,23 @@ function AdminDashboard({ onOpenHelp }) {
             </div>
           )}
 
+           {/* TAB 3: RESIDENTS */}
+          {activeTab === 'residents' && (
+            <div className="animate-zoom-in">
+              <div className="text-left mb-6">
+                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.residentRegistry}</h2>
+                <span className="text-sm text-gray-500 mt-1 block">{dA.residentSub}</span>
+              </div>
 
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                        <th className="p-4 sm:p-5">{dA.thResName}</th>
+                        <th className="p-4 sm:p-5">{dA.thNIC}</th>
+                        <th className="p-4 sm:p-5">{dA.thResOffice}</th>
+                        <th className="p-4 sm:p-5">{dA.thResStatus}</th>
+                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+                      </tr>
+                    </thead>
