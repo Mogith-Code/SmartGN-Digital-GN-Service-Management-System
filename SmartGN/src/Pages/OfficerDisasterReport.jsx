@@ -97,6 +97,18 @@ function OfficerDisasterReports({ onOpenHelp }) {
     }
   }
 
+  return (
+    <div className="dashboard-container">
+      
+      {/* 1. Header */}
+      <header className="dashboard-header">
+        <div className="landing-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <span className="logo-smart">Smart</span>
+          <span className="logo-gn">GN</span>
+          <p className="logo-subtext">{t.tagline}</p>
+        </div>
+
+
 
 
 
