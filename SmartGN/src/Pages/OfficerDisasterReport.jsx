@@ -71,6 +71,17 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const handleSaveAction = async (e) => {
     e.preventDefault()
     if (!selectedDisaster) return
+    
+    try {
+      const response = await fetch(`/api/disasters/${selectedDisaster.id}/action`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          status: modalStatus,
+          severity: modalSeverity,
+          officerRemarks: modalRemarks
+        })
+      })
 
 
 
