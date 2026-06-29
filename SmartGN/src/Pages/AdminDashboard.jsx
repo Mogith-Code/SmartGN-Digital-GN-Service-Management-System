@@ -784,3 +784,15 @@ function AdminDashboard({ onOpenHelp }) {
                     </div>
                   </div>
                 )}
+
+                {/* Live Logs console */}
+                {diagnosticLogs.length > 0 && (
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 font-mono text-xs text-sky-400 h-44 overflow-y-auto mb-6 flex flex-col gap-1.5 shadow-inner">
+                    {diagnosticLogs.map((log, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <span className="text-slate-500">[{idx+1}]</span>
+                        <span>{log}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
