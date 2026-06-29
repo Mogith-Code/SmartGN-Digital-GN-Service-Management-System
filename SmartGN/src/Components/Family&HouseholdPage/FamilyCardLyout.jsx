@@ -4,7 +4,7 @@ import totalMembersIcon from "../../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD
 import adultIcon from "../../assets/18_up_rating_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import childrenIcon from "../../assets/child_care_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
-function FamilyCardLyout() {
+function FamilyCardLyout({ Total, Adult, Children }) {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -46,7 +46,9 @@ function FamilyCardLyout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card1Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">5</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {Total}
+          </span>
         </div>
       </div>
 
@@ -57,7 +59,9 @@ function FamilyCardLyout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card2Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">2</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {Adult}
+          </span>
         </div>
       </div>
 
@@ -68,7 +72,9 @@ function FamilyCardLyout() {
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
           </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">3</span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {Children}
+          </span>
         </div>
       </div>
     </>
