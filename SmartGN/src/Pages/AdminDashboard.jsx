@@ -756,3 +756,31 @@ function AdminDashboard({ onOpenHelp }) {
               </div>
             </div>
           )}
+
+          {/* TAB 4: TROUBLESHOOT */}
+          {activeTab === 'troubleshoot' && (
+            <div className="animate-zoom-in">
+              <div className="text-left mb-6">
+                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.troubleshoot}</h2>
+                <span className="text-sm text-gray-500 mt-1 block">{dA.troubleshootSub}</span>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-8 text-left">
+                <h3 className="text-lg font-bold text-[#1B365D] mb-3">{dA.diagnosticCenter}</h3>
+                
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                  {dA.diagnosticDesc}
+                </p>
+
+                {/* Progress Bar */}
+                {runningDiagnostic && (
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm text-[#D69E2E] font-bold mb-2">
+                      <span>{lang === 'EN' ? 'Running Security Diagnostics & Flush cache...' : lang === 'SI' ? 'ආරක්ෂක රෝග විනිශ්චය ධාවනය වේ...' : 'பாதுகாப்பு நோயறிதல் இயங்குகிறது...'}</span>
+                      <span>{diagnosticProgress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                      <div className="h-full bg-[#D69E2E] transition-all duration-300 rounded-full" style={{ width: `${diagnosticProgress}%` }}></div>
+                    </div>
+                  </div>
+                )}
