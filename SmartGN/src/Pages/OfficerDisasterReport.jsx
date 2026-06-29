@@ -88,6 +88,15 @@ function OfficerDisasterReports({ onOpenHelp }) {
         throw new Error(data.error || 'Failed to update report.')
       }
 
+      setIsModalOpen(false)
+      setSelectedDisaster(null)
+      loadDisasters()
+      alert('Disaster status updated successfully.')
+    } catch (err) {
+      alert(err.message || 'Error updating report.')
+    }
+  }
+
 
 
 
