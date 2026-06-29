@@ -664,4 +664,157 @@ function AdminDashboard({ onOpenHelp }) {
               </div>
             </div>
           )}
-          
+
+           {/* TAB 3: RESIDENTS */}
+          {activeTab === 'residents' && (
+            <div className="animate-zoom-in">
+              <div className="text-left mb-6">
+                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.residentRegistry}</h2>
+                <span className="text-sm text-gray-500 mt-1 block">{dA.residentSub}</span>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                        <th className="p-4 sm:p-5">{dA.thResName}</th>
+                        <th className="p-4 sm:p-5">{dA.thNIC}</th>
+                        <th className="p-4 sm:p-5">{dA.thResOffice}</th>
+                        <th className="p-4 sm:p-5">{dA.thResStatus}</th>
+                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {residents.length > 0 ? (
+                        residents.map((resident, idx) => (
+                          <tr key={resident.r_nic || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                              <div>{resident.name}</div>
+                              <div className="text-xs text-gray-500 font-normal mt-0.5">{resident.email} | {resident.mobile_no}</div>
+                            </td>
+                            <td className="p-4 sm:p-5 text-gray-600">{resident.r_nic}</td>
+                            <td className="p-4 sm:p-5 text-[#2D3748]">{resident.division_name || 'Not Specified'}</td>
+                            <td className="p-4 sm:p-5">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
+                                resident.status === 'Active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {resident.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
+                              </span>
+                            </td>
+                            <td className="p-4 sm:p-5 text-right">
+                              <div className="flex justify-end gap-2 items-center flex-wrap">
+                                <button
+                                  onClick={() => toggleResidentStatus(resident.r_nic, resident.status)}
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
+                                    resident.status === 'Active'
+                                      ? 'border-red-500 text-red-500 hover:bg-red-50'
+                                      : 'border-green-600 text-green-600 hover:bg-green-50'
+                                  }`}
+                                >
+                                  {resident.status === 'Active' ? 'Suspend' : 'Activate'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditResident({
+                                      nic: resident.r_nic,
+                                      name: resident.name,
+                                      email: resident.email,
+                                      mobile_no: resident.mobile_no,
+                                      status: resident.status,
+                                      occupation: resident.occupation || '',
+                                      household_number: resident.household_number || ''
+                                    })
+                                    setShowEditResidentModal(true)
+                                  }}
+                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteResident(resident.r_nic)}
+                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="p-8 text-center text-gray-500">
+                            No Registered Residents found in the system.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: TROUBLESHOOT */}
+          {activeTab === 'troubleshoot' && (
+            <div className="animate-zoom-in">
+              <div className="text-left mb-6">
+                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.troubleshoot}</h2>
+                <span className="text-sm text-gray-500 mt-1 block">{dA.troubleshootSub}</span>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-8 text-left">
+                <h3 className="text-lg font-bold text-[#1B365D] mb-3">{dA.diagnosticCenter}</h3>
+                
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                  {dA.diagnosticDesc}
+                </p>
+
+                {/* Progress Bar */}
+                {runningDiagnostic && (
+                  <div className="mb-6">
+                    <div className="flex justify-between text-sm text-[#D69E2E] font-bold mb-2">
+                      <span>{lang === 'EN' ? 'Running Security Diagnostics & Flush cache...' : lang === 'SI' ? 'ආරක්ෂක රෝග විනිශ්චය ධාවනය වේ...' : 'பாதுகாப்பு நோயறிதல் இயங்குகிறது...'}</span>
+                      <span>{diagnosticProgress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+                      <div className="h-full bg-[#D69E2E] transition-all duration-300 rounded-full" style={{ width: `${diagnosticProgress}%` }}></div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Live Logs console */}
+                {diagnosticLogs.length > 0 && (
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 font-mono text-xs text-sky-400 h-44 overflow-y-auto mb-6 flex flex-col gap-1.5 shadow-inner">
+                    {diagnosticLogs.map((log, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <span className="text-slate-500">[{idx+1}]</span>
+                        <span>{log}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  onClick={startTroubleshoot}
+                  disabled={runningDiagnostic}
+                  className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${
+                    runningDiagnostic
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#D69E2E] hover:bg-[#b88523] cursor-pointer'
+                  }`}
+                >
+                  {runningDiagnostic ? dA.optimizing : `🔧 ${dA.runDiagnostic}`}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Help Trigger */}
+          <button className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
