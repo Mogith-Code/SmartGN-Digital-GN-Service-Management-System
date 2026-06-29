@@ -71,7 +71,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const handleSaveAction = async (e) => {
     e.preventDefault()
     if (!selectedDisaster) return
-    
+
     try {
       const response = await fetch(`/api/disasters/${selectedDisaster.id}/action`, {
         method: 'PUT',
@@ -82,6 +82,11 @@ function OfficerDisasterReports({ onOpenHelp }) {
           officerRemarks: modalRemarks
         })
       })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update report.')
+      }
 
 
 
