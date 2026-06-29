@@ -684,3 +684,20 @@ function AdminDashboard({ onOpenHelp }) {
                         <th className="p-4 sm:p-5">{dA.thResStatus}</th>
                         <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
                       </tr>
+                      </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {residents.length > 0 ? (
+                        residents.map((resident, idx) => (
+                          <tr key={resident.r_nic || idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                              <div>{resident.name}</div>
+                              <div className="text-xs text-gray-500 font-normal mt-0.5">{resident.email} | {resident.mobile_no}</div>
+                            </td>
+                            <td className="p-4 sm:p-5 text-gray-600">{resident.r_nic}</td>
+                            <td className="p-4 sm:p-5 text-[#2D3748]">{resident.division_name || 'Not Specified'}</td>
+                            <td className="p-4 sm:p-5">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
+                                resident.status === 'Active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}></span>
