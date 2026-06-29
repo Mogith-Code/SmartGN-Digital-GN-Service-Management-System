@@ -796,3 +796,25 @@ function AdminDashboard({ onOpenHelp }) {
                     ))}
                   </div>
                 )}
+
+                <button
+                  onClick={startTroubleshoot}
+                  disabled={runningDiagnostic}
+                  className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${
+                    runningDiagnostic
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-[#D69E2E] hover:bg-[#b88523] cursor-pointer'
+                  }`}
+                >
+                  {runningDiagnostic ? dA.optimizing : `🔧 ${dA.runDiagnostic}`}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Help Trigger */}
+          <button className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
