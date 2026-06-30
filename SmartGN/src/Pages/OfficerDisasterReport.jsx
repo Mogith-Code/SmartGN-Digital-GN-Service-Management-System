@@ -136,6 +136,9 @@ function OfficerDisasterReports({ onOpenHelp }) {
         </div>
       </header>
 
+      {/* 2. Main Layout */}
+      <div className="dashboard-main-layout"></div>
+
 
 
 
