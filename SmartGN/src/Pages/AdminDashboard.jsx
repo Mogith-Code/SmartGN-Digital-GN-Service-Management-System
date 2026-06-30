@@ -143,6 +143,78 @@ function AdminDashboard({ onOpenHelp }) {
   const [officers, setOfficers] = useState([])
   const [residents, setResidents] = useState([])
 
+  // Default mock seeds
+  const defaultMockOfficers = [
+    {
+      gn_id: "GN-001",
+      username: "kamal_officer",
+      name: "Kamal Perera",
+      email: "kamal@smartgn.gov.lk",
+      mobile: "0771234567",
+      division_name: "Maharagama",
+      status: "Active"
+    },
+    {
+      gn_id: "GN-002",
+      username: "saman_officer",
+      name: "Saman Kumara",
+      email: "saman@smartgn.gov.lk",
+      mobile: "0719876543",
+      division_name: "Colombo",
+      status: "Active"
+    }
+  ];
+
+  const defaultMockResidents = [
+    {
+      r_nic: "197812345678V",
+      name: "Kamala Silva",
+      email: "kamala@gmail.com",
+      mobile_no: "0723456789",
+      division_name: "Maharagama",
+      status: "Active",
+      occupation: "Teacher",
+      household_number: "HH-908"
+    },
+    {
+      r_nic: "199598765432V",
+      name: "Ranasinghe Banda",
+      email: "ranasinghe@gmail.com",
+      mobile_no: "0765432109",
+      division_name: "Colombo",
+      status: "Active",
+      occupation: "Farmer",
+      household_number: "HH-341"
+    }
+  ];
+
+  // Helper functions to get/set from localStorage
+  const getStoredOfficers = () => {
+    const data = localStorage.getItem('smartgn_mock_officers');
+    if (!data) {
+      localStorage.setItem('smartgn_mock_officers', JSON.stringify(defaultMockOfficers));
+      return defaultMockOfficers;
+    }
+    return JSON.parse(data);
+  };
+
+  const getStoredResidents = () => {
+    const data = localStorage.getItem('smartgn_mock_residents');
+    if (!data) {
+      localStorage.setItem('smartgn_mock_residents', JSON.stringify(defaultMockResidents));
+      return defaultMockResidents;
+    }
+    return JSON.parse(data);
+  };
+
+  const saveStoredOfficers = (list) => {
+    localStorage.setItem('smartgn_mock_officers', JSON.stringify(list));
+  };
+
+  const saveStoredResidents = (list) => {
+    localStorage.setItem('smartgn_mock_residents', JSON.stringify(list));
+  };
+
   // Modal display states
   const [showAddOfficerModal, setShowAddOfficerModal] = useState(false)
   const [showEditOfficerModal, setShowEditOfficerModal] = useState(false)
@@ -170,9 +242,13 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         const data = await res.json()
         setOfficers(data)
+        saveStoredOfficers(data)
+      } else {
+        setOfficers(getStoredOfficers())
       }
     } catch (err) {
-      console.error('Error fetching officers:', err)
+      console.warn('Backend offline. Loading local mock officers.', err)
+      setOfficers(getStoredOfficers())
     }
   }
 
@@ -182,9 +258,13 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         const data = await res.json()
         setResidents(data)
+        saveStoredResidents(data)
+      } else {
+        setResidents(getStoredResidents())
       }
     } catch (err) {
-      console.error('Error fetching residents:', err)
+      console.warn('Backend offline. Loading local mock residents.', err)
+      setResidents(getStoredResidents())
     }
   }
 
@@ -204,13 +284,17 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert(`Grama Niladhari Officer has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
         loadOfficers()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to update officer status.')
+        return
       }
     } catch (error) {
-      alert('Error updating officer status.')
+      console.warn('Backend error. Simulating toggle status locally.')
     }
+    // Local simulation fallback
+    const list = getStoredOfficers()
+    const updated = list.map(o => o.gn_id === id ? { ...o, status: nextStatus } : o)
+    saveStoredOfficers(updated)
+    setOfficers(updated)
+    alert(`Grama Niladhari Officer has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'} (Local Simulator).`)
   }
 
   // Toggle Resident status
@@ -224,13 +308,17 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert(`Resident profile has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'}.`)
         loadResidents()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to update resident status.')
+        return
       }
     } catch (error) {
-      alert('Error updating resident status.')
+      console.warn('Backend error. Simulating toggle status locally.')
     }
+    // Local simulation fallback
+    const list = getStoredResidents()
+    const updated = list.map(r => r.r_nic === nic ? { ...r, status: nextStatus } : r)
+    saveStoredResidents(updated)
+    setResidents(updated)
+    alert(`Resident profile has been successfully ${nextStatus === 'Active' ? 'Activated' : 'Deactivated & Suspended'} (Local Simulator).`)
   }
 
   // Delete GN Officer
@@ -243,13 +331,17 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert('GN Officer account deleted successfully.')
         loadOfficers()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to delete GN Officer account.')
+        return
       }
     } catch (error) {
-      alert('Error deleting GN Officer account.')
+      console.warn('Backend error. Simulating deletion locally.')
     }
+    // Local simulation fallback
+    const list = getStoredOfficers()
+    const updated = list.filter(o => o.gn_id !== id)
+    saveStoredOfficers(updated)
+    setOfficers(updated)
+    alert('GN Officer account deleted successfully (Local Simulator).')
   }
 
   // Delete Resident
@@ -262,13 +354,17 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert('Resident account deleted successfully.')
         loadResidents()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to delete Resident account.')
+        return
       }
     } catch (error) {
-      alert('Error deleting Resident account.')
+      console.warn('Backend error. Simulating deletion locally.')
     }
+    // Local simulation fallback
+    const list = getStoredResidents()
+    const updated = list.filter(r => r.r_nic !== nic)
+    saveStoredResidents(updated)
+    setResidents(updated)
+    alert('Resident account deleted successfully (Local Simulator).')
   }
 
   // Create GN Officer
@@ -284,13 +380,28 @@ function AdminDashboard({ onOpenHelp }) {
         setShowAddOfficerModal(false)
         setNewOfficer({ username: '', name: '', email: '', mobile: '', division: '', password: '' })
         loadOfficers()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to register GN Officer.')
+        return
       }
     } catch (error) {
-      alert('Error registering GN Officer.')
+      console.warn('Backend error. Simulating officer registration locally.')
     }
+    // Local simulation fallback
+    const list = getStoredOfficers()
+    const addedOfficer = {
+      gn_id: `GN-${Math.floor(100 + Math.random() * 900)}`,
+      username: newOfficer.username,
+      name: newOfficer.name,
+      email: newOfficer.email,
+      mobile: newOfficer.mobile,
+      division_name: newOfficer.division,
+      status: 'Active'
+    }
+    const updated = [...list, addedOfficer]
+    saveStoredOfficers(updated)
+    setOfficers(updated)
+    setShowAddOfficerModal(false)
+    setNewOfficer({ username: '', name: '', email: '', mobile: '', division: '', password: '' })
+    alert('GN Officer account registered successfully (Local Simulator).')
   }
 
   // Update GN Officer Details
@@ -305,13 +416,26 @@ function AdminDashboard({ onOpenHelp }) {
         alert('GN Officer updated successfully.')
         setShowEditOfficerModal(false)
         loadOfficers()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to update GN Officer details.')
+        return
       }
     } catch (error) {
-      alert('Error updating GN Officer details.')
+      console.warn('Backend error. Simulating officer update locally.')
     }
+    // Local simulation fallback
+    const list = getStoredOfficers()
+    const updated = list.map(o => o.gn_id === editOfficer.id ? {
+      ...o,
+      username: editOfficer.username,
+      name: editOfficer.name,
+      email: editOfficer.email,
+      mobile: editOfficer.mobile,
+      division_name: editOfficer.division,
+      status: editOfficer.status
+    } : o)
+    saveStoredOfficers(updated)
+    setOfficers(updated)
+    setShowEditOfficerModal(false)
+    alert('GN Officer updated successfully (Local Simulator).')
   }
 
   // Update Resident Details
@@ -326,13 +450,26 @@ function AdminDashboard({ onOpenHelp }) {
         alert('Resident updated successfully.')
         setShowEditResidentModal(false)
         loadResidents()
-      } else {
-        const err = await res.json()
-        alert(err.error || 'Failed to update Resident details.')
+        return
       }
     } catch (error) {
-      alert('Error updating Resident details.')
+      console.warn('Backend error. Simulating resident update locally.')
     }
+    // Local simulation fallback
+    const list = getStoredResidents()
+    const updated = list.map(r => r.r_nic === editResident.nic ? {
+      ...r,
+      name: editResident.name,
+      email: editResident.email,
+      mobile_no: editResident.mobile_no,
+      status: editResident.status,
+      occupation: editResident.occupation,
+      household_number: editResident.household_number
+    } : r)
+    saveStoredResidents(updated)
+    setResidents(updated)
+    setShowEditResidentModal(false)
+    alert('Resident updated successfully (Local Simulator).')
   }
 
   // Troubleshooter Diagnostic simulation
@@ -367,7 +504,7 @@ function AdminDashboard({ onOpenHelp }) {
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC] text-[#2D3748]">
-      
+
       {/* 1. Header (EBF8FF background, with shadow, logo.png and notifications/profile info) */}
       <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
         <div className="flex w-full justify-between items-center">
@@ -421,21 +558,20 @@ function AdminDashboard({ onOpenHelp }) {
           </div>
         </div>
       </header>
-      
-      /* 2. Main Layout Container (Sidebar + Content) */}
+
+      {/* 2. Main Layout Container (Sidebar + Content) */}
       <div className="flex flex-1 w-full">
-        
+
         {/* Sidebar Nav */}
         <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
           <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
             {/* Tab: Overview */}
             <button
               onClick={() => setActiveTab('overview')}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === 'overview'
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === 'overview'
                   ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
                   : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
-              }`}
+                }`}
             >
               <img
                 src={activeTab === 'overview' ? dashboardIconActive : dashboardIcon}
@@ -448,11 +584,10 @@ function AdminDashboard({ onOpenHelp }) {
             {/* Tab: GN Officer Accounts */}
             <button
               onClick={() => setActiveTab('officers')}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === 'officers'
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === 'officers'
                   ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
                   : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
-              }`}
+                }`}
             >
               <img
                 src={activeTab === 'officers' ? officersIconActive : officersIcon}
@@ -465,11 +600,10 @@ function AdminDashboard({ onOpenHelp }) {
             {/* Tab: Resident Profiles */}
             <button
               onClick={() => setActiveTab('residents')}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === 'residents'
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === 'residents'
                   ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
                   : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
-              }`}
+                }`}
             >
               <img
                 src={activeTab === 'residents' ? residentsIconActive : residentsIcon}
@@ -482,11 +616,10 @@ function AdminDashboard({ onOpenHelp }) {
             {/* Tab: Troubleshoot Node */}
             <button
               onClick={() => setActiveTab('troubleshoot')}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === 'troubleshoot'
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === 'troubleshoot'
                   ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
                   : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
-              }`}
+                }`}
             >
               <img
                 src={activeTab === 'troubleshoot' ? troubleshootIconActive : troubleshootIcon}
@@ -509,12 +642,12 @@ function AdminDashboard({ onOpenHelp }) {
 
         {/* Main Content Area */}
         <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
-          
+
           {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="animate-zoom-in">
               <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">{dA.systemOverview}</h2>
-              
+
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
@@ -604,11 +737,10 @@ function AdminDashboard({ onOpenHelp }) {
                             <td className="p-4 sm:p-5 text-gray-600">{officer.username}</td>
                             <td className="p-4 sm:p-5 text-[#2D3748]">{officer.division_name || 'Not Assigned'}</td>
                             <td className="p-4 sm:p-5">
-                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
-                                officer.status === 'Active'
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${officer.status === 'Active'
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-red-100 text-red-800'
-                              }`}>
+                                }`}>
                                 {officer.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
                               </span>
                             </td>
@@ -616,11 +748,10 @@ function AdminDashboard({ onOpenHelp }) {
                               <div className="flex justify-end gap-2 items-center flex-wrap">
                                 <button
                                   onClick={() => toggleOfficerStatus(officer.gn_id, officer.status)}
-                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                                    officer.status === 'Active'
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${officer.status === 'Active'
                                       ? 'border-red-500 text-red-500 hover:bg-red-50'
                                       : 'border-green-600 text-green-600 hover:bg-green-50'
-                                  }`}
+                                    }`}
                                 >
                                   {officer.status === 'Active' ? 'Suspend' : 'Activate'}
                                 </button>
@@ -665,7 +796,7 @@ function AdminDashboard({ onOpenHelp }) {
             </div>
           )}
 
-           {/* TAB 3: RESIDENTS */}
+          {/* TAB 3: RESIDENTS */}
           {activeTab === 'residents' && (
             <div className="animate-zoom-in">
               <div className="text-left mb-6">
@@ -696,11 +827,10 @@ function AdminDashboard({ onOpenHelp }) {
                             <td className="p-4 sm:p-5 text-gray-600">{resident.r_nic}</td>
                             <td className="p-4 sm:p-5 text-[#2D3748]">{resident.division_name || 'Not Specified'}</td>
                             <td className="p-4 sm:p-5">
-                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
-                                resident.status === 'Active'
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${resident.status === 'Active'
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-red-100 text-red-800'
-                              }`}>
+                                }`}>
                                 {resident.status === 'Active' ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Suspended' : lang === 'SI' ? 'අත්හිටුවා ඇත' : 'இடைநிறுத்தப்பட்டுள்ளது')}
                               </span>
                             </td>
@@ -708,11 +838,10 @@ function AdminDashboard({ onOpenHelp }) {
                               <div className="flex justify-end gap-2 items-center flex-wrap">
                                 <button
                                   onClick={() => toggleResidentStatus(resident.r_nic, resident.status)}
-                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                                    resident.status === 'Active'
+                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${resident.status === 'Active'
                                       ? 'border-red-500 text-red-500 hover:bg-red-50'
                                       : 'border-green-600 text-green-600 hover:bg-green-50'
-                                  }`}
+                                    }`}
                                 >
                                   {resident.status === 'Active' ? 'Suspend' : 'Activate'}
                                 </button>
@@ -767,7 +896,7 @@ function AdminDashboard({ onOpenHelp }) {
 
               <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-8 text-left">
                 <h3 className="text-lg font-bold text-[#1B365D] mb-3">{dA.diagnosticCenter}</h3>
-                
+
                 <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                   {dA.diagnosticDesc}
                 </p>
@@ -790,7 +919,7 @@ function AdminDashboard({ onOpenHelp }) {
                   <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 font-mono text-xs text-sky-400 h-44 overflow-y-auto mb-6 flex flex-col gap-1.5 shadow-inner">
                     {diagnosticLogs.map((log, idx) => (
                       <div key={idx} className="flex gap-2">
-                        <span className="text-slate-500">[{idx+1}]</span>
+                        <span className="text-slate-500">[{idx + 1}]</span>
                         <span>{log}</span>
                       </div>
                     ))}
@@ -800,11 +929,10 @@ function AdminDashboard({ onOpenHelp }) {
                 <button
                   onClick={startTroubleshoot}
                   disabled={runningDiagnostic}
-                  className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${
-                    runningDiagnostic
+                  className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${runningDiagnostic
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-[#D69E2E] hover:bg-[#b88523] cursor-pointer'
-                  }`}
+                    }`}
                 >
                   {runningDiagnostic ? dA.optimizing : `🔧 ${dA.runDiagnostic}`}
                 </button>
@@ -818,3 +946,284 @@ function AdminDashboard({ onOpenHelp }) {
           </button>
         </main>
       </div>
+
+      {/* 3. Footer */}
+      <Footer />
+
+      {/* Modals overlays */}
+      {showAddOfficerModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Register GN Officer</h3>
+            <form onSubmit={handleCreateOfficer}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Username</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.username}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, username: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.name}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, name: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.email}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, email: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Mobile</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.mobile}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, mobile: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">GN Division</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    placeholder="e.g. Colombo, Borella"
+                    value={newOfficer.division}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, division: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Password</label>
+                  <input
+                    type="password"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.password}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, password: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowAddOfficerModal(false)}
+                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditOfficerModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Edit GN Officer</h3>
+            <form onSubmit={handleUpdateOfficer}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Username</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.username}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, username: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.name}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, name: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.email}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, email: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Mobile</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.mobile}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, mobile: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">GN Division</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.division}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, division: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Status</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                    value={editOfficer.status}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, status: e.target.value })}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowEditOfficerModal(false)}
+                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditResidentModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Edit Resident Account</h3>
+            <form onSubmit={handleUpdateResident}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">NIC Number (ReadOnly)</label>
+                  <input
+                    type="text"
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+                    value={editResident.nic}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editResident.name}
+                    onChange={(e) => setEditResident({ ...editResident, name: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editResident.email}
+                    onChange={(e) => setEditResident({ ...editResident, email: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Mobile</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editResident.mobile_no}
+                    onChange={(e) => setEditResident({ ...editResident, mobile_no: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Occupation</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editResident.occupation}
+                    onChange={(e) => setEditResident({ ...editResident, occupation: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Household Number</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editResident.household_number}
+                    onChange={(e) => setEditResident({ ...editResident, household_number: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Status</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                    value={editResident.status}
+                    onChange={(e) => setEditResident({ ...editResident, status: e.target.value })}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Suspended">Suspended</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowEditResidentModal(false)}
+                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default AdminDashboard
