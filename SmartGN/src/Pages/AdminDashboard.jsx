@@ -910,3 +910,30 @@ function AdminDashboard({ onOpenHelp }) {
           </div>
         </div>
       )}
+
+      {showEditOfficerModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Edit GN Officer</h3>
+            <form onSubmit={handleUpdateOfficer}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Username</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.username}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, username: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editOfficer.name}
+                    onChange={(e) => setEditOfficer({ ...editOfficer, name: e.target.value })}
+                  />
+                </div>
