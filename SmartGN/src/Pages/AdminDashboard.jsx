@@ -998,3 +998,19 @@ function AdminDashboard({ onOpenHelp }) {
           </div>
         </div>
       )}
+
+      {showEditResidentModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Edit Resident Account</h3>
+            <form onSubmit={handleUpdateResident}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">NIC Number (ReadOnly)</label>
+                  <input
+                    type="text"
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+                    value={editResident.nic}
+                  />
+                </div>
