@@ -859,3 +859,24 @@ function AdminDashboard({ onOpenHelp }) {
                     onChange={(e) => setNewOfficer({ ...newOfficer, email: e.target.value })}
                   />
                 </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Mobile</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.mobile}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, mobile: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">GN Division</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    placeholder="e.g. Colombo, Borella"
+                    value={newOfficer.division}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, division: e.target.value })}
+                  />
+                </div>
