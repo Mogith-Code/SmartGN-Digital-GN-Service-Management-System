@@ -838,3 +838,24 @@ function AdminDashboard({ onOpenHelp }) {
                     value={newOfficer.username}
                     onChange={(e) => setNewOfficer({ ...newOfficer, username: e.target.value })}
                   />
+                  </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.name}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, name: e.target.value })}
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newOfficer.email}
+                    onChange={(e) => setNewOfficer({ ...newOfficer, email: e.target.value })}
+                  />
+                </div>
