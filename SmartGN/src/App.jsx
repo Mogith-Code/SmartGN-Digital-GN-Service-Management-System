@@ -22,6 +22,7 @@ import PendingCertificates from "./Pages/PendingCertificates.jsx";
 import ApprovedCertificates from "./Pages/ApprovedCertificates.jsx";
 import ResidentAllowances from "./Pages/RAllowances.jsx";
 import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
+import AdminDashboard from "./Pages/AdminDashboard.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
 import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
@@ -107,6 +108,10 @@ function App() {
         <Route
           path="/dashboard/officer/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/admin"
+          element={<AdminDashboard onOpenHelp={openChatbot} />}
         />
 
         <Route
