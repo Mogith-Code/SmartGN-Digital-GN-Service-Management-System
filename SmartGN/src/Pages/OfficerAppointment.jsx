@@ -3,6 +3,7 @@ import React from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
+import OfficerAppointmentsLayoutPage from "../Components/AppointmentsPage/OfficerAppointmentsLayoutPage";
 
 function OfficerAppointment({ onOpenHelp }) {
   return (
@@ -16,7 +17,9 @@ function OfficerAppointment({ onOpenHelp }) {
         </div>
 
         {/* Main Content */}
-        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]"></div>
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          <OfficerAppointmentsLayoutPage />
+        </div>
       </div>
 
       {/* Floating Help Trigger */}
