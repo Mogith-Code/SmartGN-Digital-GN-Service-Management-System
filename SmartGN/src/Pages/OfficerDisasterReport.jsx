@@ -227,6 +227,13 @@ function OfficerDisasterReports({ onOpenHelp }) {
 
              <h2 className="content-greeting" style={{ marginBottom: '24px' }}>Disaster Management</h2>
 
+             {/* Disasters List Container */}
+          <div className="disasters-list-container">
+            {disasters.length === 0 ? (
+              <div className="form-alert-note" style={{ textAlign: 'center' }}>
+                <span>No disaster reports filed in your division currently.</span>
+              </div>
+
           
 
 
