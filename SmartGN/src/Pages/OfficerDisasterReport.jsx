@@ -223,7 +223,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
         </aside>
 
         {/* Main Panel Content */}
-        <main className="dashboard-content">
+          <main className="dashboard-content">
+
+             <h2 className="content-greeting" style={{ marginBottom: '24px' }}>Disaster Management</h2>
+
           
 
 
