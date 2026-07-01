@@ -222,6 +222,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
           </nav>
         </aside>
 
+        {/* Main Panel Content */}
+        <main className="dashboard-content">
+          
+
 
 
 
