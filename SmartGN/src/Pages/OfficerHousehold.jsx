@@ -3,6 +3,7 @@ import React from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
+import OfficerHouseholdLayout from "../Components/Family&HouseholdPage/OfficerHouseholdLayout";
 
 function OfficerHousehold({ onOpenHelp }) {
   return (
@@ -17,7 +18,7 @@ function OfficerHousehold({ onOpenHelp }) {
 
         {/* Main Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          h
+          <OfficerHouseholdLayout />
         </div>
       </div>
 
