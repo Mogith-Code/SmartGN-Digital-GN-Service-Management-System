@@ -241,6 +241,9 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     ? 'medium' 
                     : 'low'
 
+                return (
+                  <div key={disaster.id} className={`disaster-card ${cardClass}`}></div>
+
 
           
 
