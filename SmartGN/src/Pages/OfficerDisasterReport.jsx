@@ -256,6 +256,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
                         <h3 className="disaster-title">{disaster.type}</h3>
                       </div>
 
+                      <span className={`severity-badge ${cardClass}`}>
+                        {disaster.severity}
+                      </span>
+                    </div>
 
 
 
@@ -268,4 +272,5 @@ function OfficerDisasterReports({ onOpenHelp }) {
 
 
 
-                  </></>
+
+                  
