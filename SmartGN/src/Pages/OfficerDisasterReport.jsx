@@ -292,6 +292,8 @@ function OfficerDisasterReports({ onOpenHelp }) {
                         <span className={`badge-status ${disaster.status === 'Resolved' ? 'approved' : disaster.status === 'Pending' ? 'pending' : 'approved'}`} style={{ padding: '2px 10px', fontSize: '11px' }}>
                           Status: {disaster.status || 'Pending'}
                         </span>
+                      </div>
+                    </div>
 
 
 
