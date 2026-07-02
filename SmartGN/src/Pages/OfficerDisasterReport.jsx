@@ -195,6 +195,110 @@ function OfficerDisasterReports({ onOpenHelp }) {
               <span>{t.appointments}</span>
             </button>
 
+             <button className="menu-btn" onClick={() => navigate('/dashboard/officer/allowances', { state: { successUser, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+              </svg>
+              <span>{t.allowances}</span>
+            </button>
+
+            <button className="menu-btn active">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>{t.disaster}</span>
+            </button>
+
+            <button className="menu-btn" onClick={() => navigate('/dashboard/officer/announcements', { state: { successUser, officerId: officerIdVal } })}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="menu-icon">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span>{t.announcements}</span>
+            </button>
+          </nav>
+        </aside>
+
+        {/* Main Panel Content */}
+          <main className="dashboard-content">
+
+             <h2 className="content-greeting" style={{ marginBottom: '24px' }}>Disaster Management</h2>
+
+            {/* Disasters List Container */}
+            <div className="disasters-list-container">
+              {disasters.length === 0 ? (
+                <div className="form-alert-note" style={{ textAlign: 'center' }}>
+                 <span>No disaster reports filed in your division currently.</span>
+                </div>
+              ) : (
+              disasters.map((disaster) => {
+                const cardClass = disaster.severity.includes('high') 
+                  ? 'high' 
+                  : disaster.severity.includes('medium') 
+                    ? 'medium' 
+                    : 'low'
+
+                return (
+                  <div key={disaster.id} className={`disaster-card ${cardClass}`}>
+                    
+                    <div className="disaster-card-header">
+                      <div className="disaster-card-title-group">
+                        <div className={`disaster-icon-box ${cardClass}`}>
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                          </svg>
+                        </div>
+                        <h3 className="disaster-title">{disaster.type}</h3>
+                      </div>
+
+                      <span className={`severity-badge ${cardClass}`}>
+                        {disaster.severity}
+                      </span>
+                    </div>
+
+                    <div className="disaster-meta-grid">
+                      <div className="disaster-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="meta-icon">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                          <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>{disaster.location}</span>
+                      </div>
+
+                      <div className="disaster-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="meta-icon">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <span>Reporter: {disaster.reporter}</span>
+                      </div>
+
+                      <div className="disaster-meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="meta-icon">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Date: {disaster.date}</span>
+                      </div>
+
+                      <div className="disaster-meta-item">
+                        <span className={`badge-status ${disaster.status === 'Resolved' ? 'approved' : disaster.status === 'Pending' ? 'pending' : 'approved'}`} style={{ padding: '2px 10px', fontSize: '11px' }}>
+                          Status: {disaster.status || 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="action-btn-blue"
+                      onClick={() => handleOpenActionModal(disaster)}
+                    ></button>
 
 
 
@@ -205,3 +309,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
 
 
 
+
+
+
+                  
