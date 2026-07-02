@@ -17,14 +17,14 @@ function CardLayout({ pendingCount, approvedCount }) {
   const CardLayoutTranslations = {
     EN: {
       Card1Title: "Appointment requests",
-      Card2Title: "Approved appointment requests",
-      Card3Title: "Book an appointment",
+      Card2Title: "Approved appointments",
+      Card3Title: "Requests for tomorrow",
     },
 
     SI: {
       Card1Title: "හමුවීම් සඳහා ඉල්ලීම්",
-      Card2Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්",
-      Card3Title: "හමුවක් වෙන්කරන්න",
+      Card2Title: "අනුමත හමුවීම්",
+      Card3Title: "හෙට දින සඳහා ඉල්ලීම්",
     },
 
     TA: {
