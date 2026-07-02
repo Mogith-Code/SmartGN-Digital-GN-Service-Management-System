@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
 import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import urgentIcon from "../../assets/work_alert_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function CardLayout({ pendingCount, approvedCount }) {
+function OfficerCardLayout({ pendingCount, approvedCount }) {
   const navigate = useNavigate();
 
   const { lang } = useLanguage();
@@ -14,7 +14,7 @@ function CardLayout({ pendingCount, approvedCount }) {
   // TRANSLATION OBJECTS
   // Contains all text content in three languages: English (EN),
   // Sinhala (SI), and Tamil (TA)
-  const CardLayoutTranslations = {
+  const OCardLayoutTranslations = {
     EN: {
       Card1Title: "Appointment requests",
       Card2Title: "Approved appointments",
@@ -35,7 +35,7 @@ function CardLayout({ pendingCount, approvedCount }) {
   };
 
   // Select the appropriate translation based on current language
-  const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
+  const t = OCardLayoutTranslations[lang] || OCardLayoutTranslations.EN;
   return (
     <>
       <div
@@ -74,7 +74,7 @@ function CardLayout({ pendingCount, approvedCount }) {
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
         onClick={() => navigate("/RAppointment/BookingForm")}
       >
-        <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
+        <img src={urgentIcon} alt="pendingIcon" className="w-[50px]" />
 
         <div className="flex flex-col pb-[40px] items-center ">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
@@ -86,4 +86,4 @@ function CardLayout({ pendingCount, approvedCount }) {
   );
 }
 
-export default CardLayout;
+export default OfficerCardLayout;
