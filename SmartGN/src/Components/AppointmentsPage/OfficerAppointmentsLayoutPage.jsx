@@ -54,7 +54,7 @@ function OfficerAppointmentsLayoutPage() {
       date: new Date(2026, 6, 5), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
@@ -148,22 +148,24 @@ function OfficerAppointmentsLayoutPage() {
             <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
               Appointment Summary
             </p>
-            {activeAppointment.map((appointment) => (
-              <div className="flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-[5px] mt-3 sm:mt-4 md:mt-5 lg:mt-[20px]">
-                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                  <span className="font-medium">Purpose:</span>{" "}
-                  {appointment.purpose}
-                </p>
-                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                  <span className="font-medium">Time:</span> {appointment.time}
-                </p>
-                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                  <span className="font-medium">Status:</span>{" "}
-                  {appointment.status}
-                </p>
-              </div>
-            ))}
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] border border-[red]">
+              {activeAppointment.map((appointment) => (
+                <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
+                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                    <span className="font-medium">Purpose:</span>{" "}
+                    {appointment.purpose}
+                  </p>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                    <span className="font-medium">Time:</span>{" "}
+                    {appointment.time}
+                  </p>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                    <span className="font-medium">Status:</span>{" "}
+                    {appointment.status}
+                  </p>
+                </div>
+              ))}
+            </div>
             <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
               <button className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200">
                 <span>More Appointments</span>
