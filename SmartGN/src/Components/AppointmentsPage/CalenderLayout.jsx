@@ -309,7 +309,10 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
       </div>
 
       {/* CALENDAR DAYS GRID */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 w-full text-center">
+      <a
+        href="#summary"
+        className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 w-full text-center"
+      >
         {calendarCells.map((cell, index) => {
           const hasBookingOnDate = hasBooking(cell.day, month, year);
           const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
@@ -383,7 +386,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
             </div>
           );
         })}
-      </div>
+      </a>
 
       {/* LEGEND */}
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#2D37484D] text-[10px] sm:text-xs">

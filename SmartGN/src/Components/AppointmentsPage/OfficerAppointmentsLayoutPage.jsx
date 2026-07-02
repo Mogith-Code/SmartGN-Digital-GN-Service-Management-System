@@ -36,6 +36,8 @@ function OfficerAppointmentsLayoutPage() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
+      photo: "photo_here",
+      nic: "200314911465",
       purpose: "Meeting with Officer A",
       date: new Date(2026, 6, 5), // June 30, 2026 (Month: 5 = June)
       time: "10:00 AM",
@@ -46,6 +48,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 2,
+      photo: "photo_here",
+      nic: "200314911455",
       purpose: "Certificate Collection",
       date: new Date(2026, 6, 5), // June 25, 2026
       time: "2:30 PM",
@@ -56,6 +60,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 3,
+      photo: "photo_here",
+      nic: "200314911459",
       purpose: "Document Submission",
       date: new Date(2026, 6, 6), // June 28, 2026
       time: "1:00 PM",
@@ -67,6 +73,8 @@ function OfficerAppointmentsLayoutPage() {
 
     {
       id: 4,
+      photo: "photo_here",
+      nic: "200314911460",
       purpose: "Meeting with Officer B",
       date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
@@ -128,8 +136,11 @@ function OfficerAppointmentsLayoutPage() {
         />
       </div>
 
-      <div className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]">
-        {activeAppointment ? (
+      <div
+        className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]"
+        id="summary"
+      >
+        {activeAppointment.length > 0 ? (
           // ================================================================
           // ACTIVE APPOINTMENT DISPLAY
           // ================================================================
