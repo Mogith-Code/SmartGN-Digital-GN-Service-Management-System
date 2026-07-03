@@ -34,7 +34,7 @@ function OSidebar() {
       disaster: "Disaster Report",
       announcements: "Announcements",
       profile: "Profile & Settings",
-      family: "Family & Household",
+      resident: "Residents' Information",
       logout: "Log Out",
     },
 
@@ -47,7 +47,7 @@ function OSidebar() {
       disaster: "ආපදා වාර්තා",
       announcements: "නිවේදන",
       profile: "පැතිකඩ සහ සැකසුම්",
-      family: "පවුලේ සහ ගෘහ විස්තර",
+      resident: "පදිංචිකරුවන්ගේ තොරතුරු",
       logout: "පිටවීම",
     },
 
@@ -60,7 +60,7 @@ function OSidebar() {
       disaster: "பேரழிவு அறிக்கை",
       announcements: "அறிவிப்புகள்",
       profile: "சுயவிவரம் & அமைப்புகள்",
-      family: "குடும்பம் மற்றும் வீட்டு விவரங்கள்",
+      resident: "பதிவுசெய்யப்பட்ட குடும்பங்களின் தகவல்கள்",
       logout: "வெளியேறு",
     },
   };
@@ -95,7 +95,7 @@ function OSidebar() {
     },
     {
       id: "residents' details",
-      name: t.family,
+      name: t.resident,
       path: "/OfficerHousehold",
       icon: householdIcon,
       iconActive: householdIconHovered,
