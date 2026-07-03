@@ -96,7 +96,7 @@ function OSidebar() {
     {
       id: "residents' details",
       name: t.resident,
-      path: "/OfficerHousehold",
+      path: "/OfficerResident",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },

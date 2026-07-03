@@ -48,7 +48,7 @@ function App() {
           element={<OfficerAppointment onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/OfficerHousehold"
+          path="/OfficerResident"
           element={<OfficerHousehold onOpenHelp={openChatbot} />}
         />
         <Route
