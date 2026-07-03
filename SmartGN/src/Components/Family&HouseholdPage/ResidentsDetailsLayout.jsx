@@ -1,14 +1,14 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
 
-function OfficerHouseholdLayout() {
+function ResidentsDetailsLayout() {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
   const OHouseholdLayoutTranslations = {
-    EN: { Title: "Family and Household details" },
-    SI: { Title: "පවුල සහ ගෘහ විස්තර" },
-    TA: { Title: "குடும்ப மற்றும் வீட்டு விவரங்கள்" },
+    EN: { Title: "Residents' details" },
+    SI: { Title: "පදිංචිකරුවන්ගේ විස්තර" },
+    TA: { Title: "குடியிருப்பவர்களின் விவரங்கள்" },
   };
 
   const t =
@@ -22,4 +22,4 @@ function OfficerHouseholdLayout() {
   );
 }
 
-export default OfficerHouseholdLayout;
+export default ResidentsDetailsLayout;

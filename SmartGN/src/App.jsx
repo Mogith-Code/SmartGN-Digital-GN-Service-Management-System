@@ -16,7 +16,6 @@ import ApplyIncomeCertificate from "./Pages/ApplyIncomeCertificate.jsx";
 import PendingAppointmentRequests from "./Components/AppointmentsPage/PendingAppointmentRequests.jsx";
 import ApprovedAppointmentsRequests from "./Components/AppointmentsPage/ApprovedAppointmentsRequests.jsx";
 import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
-import OfficerHousehold from "./Pages/OfficerHousehold.jsx";
 import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
 import PendingCertificates from "./Pages/PendingCertificates.jsx";
 import ApprovedCertificates from "./Pages/ApprovedCertificates.jsx";
@@ -26,6 +25,7 @@ import AdminDashboard from "./Pages/AdminDashboard.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
 import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
+import ResidentsDetails from "./Pages/ResidentsDetails.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -46,10 +46,6 @@ function App() {
         <Route
           path="/OfficerAppointment"
           element={<OfficerAppointment onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/OfficerResident"
-          element={<OfficerHousehold onOpenHelp={openChatbot} />}
         />
         <Route
           path="/RAppointment/BookingForm"
@@ -90,8 +86,8 @@ function App() {
           element={<OfficerProfile onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/officer/household"
-          element={<OfficerHousehold onOpenHelp={openChatbot} />}
+          path="/ResidentsDetails"
+          element={<ResidentsDetails onOpenHelp={openChatbot} />}
         />
         <Route
           path="/dashboard/officer/appointments"

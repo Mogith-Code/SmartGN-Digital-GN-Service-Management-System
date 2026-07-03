@@ -1,0 +1,38 @@
+import React from "react";
+import OfficerNavbar from "../Components/Common/OfficerNavbar";
+import OSidebar from "../Components/Common/OSidebar";
+import Footer from "../Components/Common/Footer";
+import ResidentsDetailsLayout from "../Components/Family&HouseholdPage/ResidentsDetailsLayout";
+
+function ResidentsDetails({ onOpenHelp }) {
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      <OfficerNavbar />
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        <div className="flex flex-1 w-full">
+          <OSidebar />
+        </div>
+
+        {/* Main Content */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          <ResidentsDetailsLayout />
+        </div>
+      </div>
+
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      <Footer />
+    </div>
+  );
+}
+
+export default ResidentsDetails;
