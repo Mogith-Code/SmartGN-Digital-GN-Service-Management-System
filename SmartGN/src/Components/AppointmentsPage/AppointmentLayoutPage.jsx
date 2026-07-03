@@ -131,7 +131,10 @@ function AppointmentLayoutPage() {
         />
       </div>
 
-      <div className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]">
+      <div
+        className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]"
+        id="summary"
+      >
         {activeAppointment ? (
           // ================================================================
           // ACTIVE APPOINTMENT DISPLAY

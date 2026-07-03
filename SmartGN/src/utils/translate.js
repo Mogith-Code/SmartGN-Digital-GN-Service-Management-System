@@ -1,17 +1,5 @@
 export const translations = {
   EN: {
-    // Nav & Menu
-    home: "Home",
-    dashboard: "Dashboard",
-    certificates: "Certificates Services",
-    allowances: "Allowance Programs",
-    appointments: "Appointments",
-    disaster: "Disaster Report",
-    announcements: "Announcements",
-    profile: "Profile & Settings",
-    family: "Family & Household",
-    logout: "Log Out",
-    
     // Header
     selectLanguage: "English",
     tagline: "Digital Grama Niladhari Service Management System",
@@ -58,18 +46,6 @@ export const translations = {
     diagnosticSuccess: "System Optimization and Security Sweep completed successfully!"
   },
   SI: {
-    // Nav & Menu
-    home: "මුල් පිටුව",
-    dashboard: "පාලන පුවරුව",
-    certificates: "සහතික සේවා",
-    allowances: "දීමනා වැඩසටහන්",
-    appointments: "හමුවීම්",
-    disaster: "ආපදා වාර්තා",
-    announcements: "නිවේදන",
-    profile: "පැතිකඩ සහ සැකසුම්",
-    family: "පවුලේ සහ ගෘහ විස්තර",
-    logout: "පිටවීම",
-
     // Header
     selectLanguage: "සිංහල",
     tagline: "ඩිජිටල් ග්‍රාම නිලධාරී සේවා කළමනාකරණ පද්ධතිය",
@@ -116,18 +92,6 @@ export const translations = {
     diagnosticSuccess: "පද්ධති ප්‍රශස්තකරණය සහ ආරක්ෂක පරීක්ෂාව සාර්ථකව නිම කරන ලදී!"
   },
   TA: {
-    // Nav & Menu
-    home: "முகப்பு",
-    dashboard: "டாஷ்போர்டு",
-    certificates: "சான்றிதழ் சேவைகள்",
-    allowances: "கொடுப்பனவு திட்டங்கள்",
-    appointments: "சந்திப்புகள்",
-    disaster: "பேரழிவு அறிக்கை",
-    announcements: "அறிவிப்புகள்",
-    profile: "சுயவிவரம் & அமைப்புகள்",
-    family: "குடும்பம் மற்றும் வீட்டு விவரங்கள்",
-    logout: "வெளியேறு",
-
     // Header
     selectLanguage: "தமிழ்",
     tagline: "டிஜிட்டல் கிராம நிலதாரி சேவை மேலாண்மை அமைப்பு",
