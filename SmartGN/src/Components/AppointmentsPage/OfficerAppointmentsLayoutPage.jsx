@@ -159,11 +159,11 @@ function OfficerAppointmentsLayoutPage() {
             <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
               Appointment Summary
             </p>
-            <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 mx-4  mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-between">
+            <div className="flex flex-col gap-[15px] my-[20px]">
               {activeAppointment.map((appointment) => (
-                <div className="gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] flex flex-col">
-                  <div className="flex gap-[20px] items-center">
-                    <div className="flex items-center">
+                <div className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] py-[20px] px-[30px]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex w-[30%] items-center">
                       <img
                         src={profileIcon}
                         alt="Resident Photo"
@@ -183,22 +183,27 @@ function OfficerAppointmentsLayoutPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col ml-[10px]">
+                    <div className="flex w-[60%] justify-between">
                       <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                        <span className="font-medium">Purpose:</span>{" "}
+                        <span className="font-medium">Purpose :</span>{" "}
                         {appointment.purpose}
                       </p>
 
                       <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                        <span className="font-medium">Time:</span>{" "}
+                        <span className="font-medium">Time :</span>{" "}
                         {appointment.time}
+                      </p>
+
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Contact :</span>{" "}
+                        {appointment.contact}
                       </p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
+            <div className="flex justify-center">
               <button
                 className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
                 onClick={() =>
