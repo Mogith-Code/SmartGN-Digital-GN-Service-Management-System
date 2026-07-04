@@ -160,37 +160,39 @@ function OfficerAppointmentsLayoutPage() {
             <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 mx-4  mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-between">
               {activeAppointment.map((appointment) => (
                 <div className="gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] flex flex-col">
-                  <div className="flex items-center">
-                    <img
-                      src={profileIcon}
-                      alt="Resident Photo"
-                      className="w-[100px] h-[100px] rounded-full"
-                    />
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <img
+                        src={profileIcon}
+                        alt="Resident Photo"
+                        className="w-[100px] h-[100px] rounded-full"
+                      />
+
+                      <div className="flex flex-col ml-[10px]">
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                          {appointment.firstName} {appointment.lastName}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                          {appointment.nic}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
+                          View Profile
+                        </span>
+                      </div>
+                    </div>
 
                     <div className="flex flex-col ml-[10px]">
-                      <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                        {appointment.firstName} {appointment.lastName}
-                      </span>
-                      <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                        {appointment.nic}
-                      </span>
-                      <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                        View Profile
-                      </span>
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Purpose:</span>{" "}
+                        {appointment.purpose}
+                      </p>
+
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Time:</span>{" "}
+                        {appointment.time}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Purpose:</span>{" "}
-                    {appointment.purpose}
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Time:</span>{" "}
-                    {appointment.time}
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Status:</span>{" "}
-                    {appointment.status}
-                  </p>
                 </div>
               ))}
             </div>
