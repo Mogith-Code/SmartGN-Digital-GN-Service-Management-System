@@ -17,18 +17,18 @@ function Navbar() {
   // LANGUAGE & TRANSLATION SETUP
   // ============================================================================
   const { lang } = useLanguage();
-  const t = translations[lang];
+  // const t = translations[lang];
 
   // Navigation translations for different languages (EN, SI, TA)
   const navTranslations = {
-    EN: { about: "About", services: "Services" },
-    SI: { about: "අපි ගැන", services: "සේවාවන්" },
-    TA: { about: "எங்களைப் பற்றி", services: "சேவைகள்" },
+    EN: { home: "Home", about: "About", services: "Services" },
+    SI: { home: "මුල් පිටුව", about: "අපි ගැන", services: "සේවාවන්" },
+    TA: { home: "முகப்பு", about: "எங்களைப் பற்றி", services: "சேவைகள்" },
   };
 
   // Navigation links data array
   const navLinks = [
-    { name: t.home, icon: homeIcon, href: "#home" },
+    { name: navTranslations[lang].home, icon: homeIcon, href: "#home" },
     { name: navTranslations[lang].about, icon: aboutIcon, href: "#about" },
     {
       name: navTranslations[lang].services,
