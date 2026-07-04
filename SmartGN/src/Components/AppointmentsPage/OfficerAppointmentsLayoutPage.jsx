@@ -160,7 +160,7 @@ function OfficerAppointmentsLayoutPage() {
             <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 mx-4  mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-between">
               {activeAppointment.map((appointment) => (
                 <div className="gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] flex flex-col">
-                  <div className="flex justify-between items-center">
+                  <div className="flex gap-[20px] items-center">
                     <div className="flex items-center">
                       <img
                         src={profileIcon}
