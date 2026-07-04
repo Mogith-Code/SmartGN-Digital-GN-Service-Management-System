@@ -27,6 +27,7 @@ import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetai
 import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
 import ResidentsDetails from "./Pages/ResidentsDetails.jsx";
 import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPendingAppointment.jsx";
+import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -78,6 +79,11 @@ function App() {
         <Route
           path="/OfficerAppointment/OfficerPendingAppointment"
           element={<OfficerPendingAppointment onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerAppointment/OfficerApprovedAppointment"
+          element={<OfficerApprovedAppointment onOpenHelp={openChatbot} />}
         />
 
         <Route path="/login" element={<Login />} />
