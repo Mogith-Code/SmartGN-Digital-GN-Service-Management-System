@@ -42,7 +42,6 @@ function OfficerPendingAppointment({ onOpenHelp }) {
           <OSidebar />
         </div>
 
-        {/* Main Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
           {/* Back Button */}
           <div
@@ -51,6 +50,11 @@ function OfficerPendingAppointment({ onOpenHelp }) {
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
             {t.back}
+          </div>
+
+          {/* Page Title */}
+          <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
+            {t.Title}
           </div>
         </div>
       </div>
