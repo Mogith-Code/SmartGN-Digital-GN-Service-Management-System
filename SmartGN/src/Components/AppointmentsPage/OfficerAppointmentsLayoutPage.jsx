@@ -6,8 +6,10 @@ import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_G
 import OfficerCardLayout from "./OfficerCardLayout";
 import CalendarLayout from "./CalenderLayout";
 import AppointmentSummary from "./AppointmentSummary";
+import { useNavigate } from "react-router-dom";
 
 function OfficerAppointmentsLayoutPage() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -197,7 +199,12 @@ function OfficerAppointmentsLayoutPage() {
               ))}
             </div>
             <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
-              <button className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200">
+              <button
+                className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
+                onClick={() =>
+                  navigate("/OfficerAppointment/OfficerApprovedAppointment")
+                }
+              >
                 <span>More Appointments</span>
                 <img
                   src={viewIcon}
