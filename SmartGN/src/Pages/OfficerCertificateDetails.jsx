@@ -39,6 +39,18 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   const [signatureMatch, setSignatureMatch] = useState(false)
   const [billsVerified, setBillsVerified] = useState(false)
 
+  // Official Assessment Fields (Editable by Officer)
+  const [personalKnown, setPersonalKnown] = useState('No')
+  const [personalKnownSince, setPersonalKnownSince] = useState('')
+  const [natureOfOtherEvidences, setNatureOfOtherEvidences] = useState('')
+  const [convictedByCourt, setConvictedByCourt] = useState('No')
+  const [convictedDetails, setConvictedDetails] = useState('')
+  const [publicActivitiesInterest, setPublicActivitiesInterest] = useState('No')
+  const [publicActivitiesDetails, setPublicActivitiesDetails] = useState('')
+  const [character, setCharacter] = useState('Good')
+  const [remarks, setRemarks] = useState('')
+  const [certificateNo, setCertificateNo] = useState('')
+
   // Local helper for Authorization Headers
   const getAuthHeaders = () => {
     const token = localStorage.getItem('smartgn_token')
@@ -67,17 +79,54 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       if (found) {
         const formatted = {
           id: found.request_id || found.id,
-          type: found.certificate_type === 'INCOME' ? 'Income Certificate' : found.certificate_type === 'CHARACTER' ? 'Character Certificate' : (found.type || 'Residence Certificate'),
+          type: found.certificate_type === 'INCOME' ? 'Income Certificate' : 'Character Certificate',
           status: found.status === 'PENDING' ? 'Pending' : found.status === 'APPROVED' ? 'Approved' : found.status === 'REJECTED' ? 'Rejected' : found.status,
           name: found.resident_name || found.name || 'Resident',
           purpose: found.purpose,
           submittedDate: found.request_date ? found.request_date.split('T')[0] : (found.submittedDate || ''),
           division: found.division || 'Colombo',
           nic: found.resident_nic || found.nic || '789456123V',
-          address: found.resident_address || found.address || ''
+          address: found.resident_address || found.address || '',
+          
+          // Custom fields populated if present
+          divisionalSecretariat: found.divisionalSecretariat || '',
+          gnDivisionNumber: found.gnDivisionNumber || '',
+          sex: found.sex || '',
+          age: found.age || '',
+          civilStatus: found.civilStatus || '',
+          nationality: found.nationality || 'Sri Lankan',
+          religion: found.religion || '',
+          occupation: found.occupation || '',
+          villagePeriod: found.villagePeriod || '',
+          electoralRegister: found.electoralRegister || '',
+          fatherName: found.fatherName || '',
+          fatherAddress: found.fatherAddress || '',
+          gnPeriod: found.gnPeriod || '',
+          natureOfOtherEvidences: found.natureOfOtherEvidences || '',
+          convictedByCourt: found.convictedByCourt || 'No',
+          convictedDetails: found.convictedDetails || '',
+          publicActivitiesInterest: found.publicActivitiesInterest || 'No',
+          publicActivitiesDetails: found.publicActivitiesDetails || '',
+          character: found.character || 'Good',
+          remarks: found.remarks || '',
+          personalKnown: found.personalKnown || 'No',
+          personalKnownSince: found.personalKnownSince || '',
+          certificateNo: found.certificateNo || ''
         }
         setCertRequest(formatted)
         
+        // Seed official state
+        setPersonalKnown(formatted.personalKnown)
+        setPersonalKnownSince(formatted.personalKnownSince)
+        setNatureOfOtherEvidences(formatted.natureOfOtherEvidences || 'Utility Bill')
+        setConvictedByCourt(formatted.convictedByCourt)
+        setConvictedDetails(formatted.convictedDetails)
+        setPublicActivitiesInterest(formatted.publicActivitiesInterest)
+        setPublicActivitiesDetails(formatted.publicActivitiesDetails)
+        setCharacter(formatted.character)
+        setRemarks(formatted.remarks)
+        setCertificateNo(formatted.certificateNo || `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`)
+
         if (formatted.status === 'Approved') {
           setDocumentAuditCheck(true)
           setSignatureMatch(true)
@@ -101,6 +150,18 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       const found = list.find(r => (r.id === id || r.request_id === id))
       if (found) {
         setCertRequest(found)
+        
+        setPersonalKnown(found.personalKnown || 'No')
+        setPersonalKnownSince(found.personalKnownSince || '')
+        setNatureOfOtherEvidences(found.natureOfOtherEvidences || 'Utility Bill')
+        setConvictedByCourt(found.convictedByCourt || 'No')
+        setConvictedDetails(found.convictedDetails || '')
+        setPublicActivitiesInterest(found.publicActivitiesInterest || 'No')
+        setPublicActivitiesDetails(found.publicActivitiesDetails || '')
+        setCharacter(found.character || 'Good')
+        setRemarks(found.remarks || '')
+        setCertificateNo(found.certificateNo || `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`)
+
         if (found.status === 'Approved' || found.status === 'APPROVED') {
           setDocumentAuditCheck(true)
           setSignatureMatch(true)
@@ -132,11 +193,27 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       if (!confirmApprove) return
     }
 
+    const payload = {
+      status: 'APPROVED',
+      personalKnown,
+      personalKnownSince,
+      natureOfOtherEvidences,
+      convictedByCourt,
+      convictedDetails,
+      publicActivitiesInterest,
+      publicActivitiesDetails,
+      character,
+      remarks,
+      certificateNo,
+      approvedDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      officerName: `${profile.firstName} ${profile.lastName}`
+    }
+
     try {
       const response = await fetch(`/api/certificates/${id}/action`, {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status: 'APPROVED' })
+        body: JSON.stringify(payload)
       })
 
       if (!response.ok) {
@@ -149,16 +226,27 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       alert(`Certificate request ${id} has been Approved and Issued successfully!`)
       navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })
     } catch (err) {
-      console.error('API failed, executing local fallback:', err)
+      console.warn('API failed, executing local fallback update:', err.message)
+      
+      // Update Officer local fallback list
       const saved = localStorage.getItem('smartgn_certificate_requests')
       if (saved) {
         const list = JSON.parse(saved)
-        const updated = list.map(c => (c.id === id || c.request_id === id) ? { ...c, status: 'Approved' } : c)
+        const updated = list.map(c => (c.id === id || c.request_id === id) ? { ...c, ...payload, status: 'APPROVED' } : c)
         localStorage.setItem('smartgn_certificate_requests', JSON.stringify(updated))
       }
+
+      // Update Resident local fallback list
+      const residentSaved = localStorage.getItem('smartgn_certificates')
+      if (residentSaved) {
+        const resList = JSON.parse(residentSaved)
+        const updatedRes = resList.map(c => (c.id === id || c.request_id === id) ? { ...c, ...payload, status: 'APPROVED' } : c)
+        localStorage.setItem('smartgn_certificates', JSON.stringify(updatedRes))
+      }
+
       setCertRequest(prev => prev ? { ...prev, status: 'Approved' } : null)
       setDocumentAuditCheck(true)
-      alert(`Certificate request ${id} has been Approved and Issued successfully! (local fallback)`)
+      alert(`Certificate request ${id} has been Approved and Issued successfully! (offline data synced)`)
       navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })
     }
   }
@@ -183,18 +271,29 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       alert(`Certificate request ${id} has been Rejected.`)
       navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })
     } catch (err) {
-      console.error('API failed, executing local fallback:', err)
+      console.warn('API failed, executing local fallback reject:', err.message)
+      
       const saved = localStorage.getItem('smartgn_certificate_requests')
       if (saved) {
         const list = JSON.parse(saved)
-        const updated = list.map(c => (c.id === id || c.request_id === id) ? { ...c, status: 'Rejected', rejectionReason: reason || 'Incomplete supporting documents.' } : c)
+        const updated = list.map(c => (c.id === id || c.request_id === id) ? { ...c, status: 'REJECTED', rejectionReason: reason || 'Incomplete supporting documents.' } : c)
         localStorage.setItem('smartgn_certificate_requests', JSON.stringify(updated))
       }
+
+      const residentSaved = localStorage.getItem('smartgn_certificates')
+      if (residentSaved) {
+        const resList = JSON.parse(residentSaved)
+        const updatedRes = resList.map(c => (c.id === id || c.request_id === id) ? { ...c, status: 'REJECTED', rejectionReason: reason || 'Incomplete supporting documents.' } : c)
+        localStorage.setItem('smartgn_certificates', JSON.stringify(updatedRes))
+      }
+
       setCertRequest(prev => prev ? { ...prev, status: 'Rejected' } : null)
-      alert(`Certificate request ${id} has been Rejected. (local fallback)`)
+      alert(`Certificate request ${id} has been Rejected. (offline data synced)`)
       navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })
     }
   }
+
+  const isCharacterCert = certRequest.type === 'Character Certificate' || certRequest.certificate_type === 'CHARACTER';
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
@@ -230,8 +329,8 @@ function OfficerCertificateDetails({ onOpenHelp }) {
             </div>
 
             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[13px] font-bold uppercase ${
-              certRequest.status === 'Approved' ? 'bg-green-100 text-green-700' :
-              certRequest.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+              certRequest.status === 'Approved' || certRequest.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+              certRequest.status === 'Rejected' || certRequest.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
               'bg-amber-100 text-amber-700'
             }`}>
               {certRequest.status === 'Pending' ? 'Pending Review' : certRequest.status}
@@ -250,46 +349,176 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                 </div>
-                <h3 className="text-[17px] font-bold text-[#1B365D] m-0">Applicant Information</h3>
+                <h3 className="text-[17px] font-bold text-[#1B365D] m-0">Applicant Information Form Details</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                <div>
-                  <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Full Name</span>
-                  <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.name}</span>
-                </div>
-                <div>
-                  <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">NIC Number</span>
-                  <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.nic || '789456123V'}</span>
-                </div>
-              </div>
+              {!isCharacterCert ? (
+                // Income Certificate / Default View
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Full Name</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.name}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">NIC Number</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.nic || '789456123V'}</span>
+                    </div>
+                  </div>
 
-              <div className="mb-5">
-                <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Residential Address</span>
-                <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.address || '45/2, Temple Road, Maharagama.'}</span>
-              </div>
+                  <div>
+                    <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Residential Address</span>
+                    <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.address || '45/2, Temple Road, Maharagama.'}</span>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                <div>
-                  <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Division</span>
-                  <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.division}</span>
-                </div>
-                <div>
-                  <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Submission Date</span>
-                  <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.submittedDate}</span>
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Division</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.division}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Submission Date</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.submittedDate}</span>
+                    </div>
+                  </div>
 
-              <div>
-                <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-2">Purpose of Request</span>
-                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-[13.5px] text-[#1E3A8A] font-medium leading-relaxed">
-                  "{certRequest.purpose || 'Required for official purposes.'}"
+                  <div>
+                    <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-2">Purpose of Request</span>
+                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-[13.5px] text-[#1E3A8A] font-medium leading-relaxed">
+                      "{certRequest.purpose || 'Required for official purposes.'}"
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // Full Official Template Sections for Character Certificates
+                <div className="flex flex-col gap-6">
+                  
+                  {/* SECTION 1 */}
+                  <div>
+                    <h4 className="text-[13.5px] font-bold text-[#1B365D] uppercase tracking-wider mb-3 bg-slate-50 py-1.5 px-3 rounded">
+                      Section (1) - Divisional & Personal Knowledge
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px] pl-2">
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(a) District & Divisional Secretariat:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.divisionalSecretariat || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(b) Grama Niladhari Division & Number:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.gnDivisionNumber || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(c) Personally known to Grama Niladhari?</span>
+                        <span className="text-slate-800 font-bold">{certRequest.personalKnown || "No"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(d) If so, since when?</span>
+                        <span className="text-slate-800 font-bold">{certRequest.personalKnown === 'Yes' ? (certRequest.personalKnownSince || "Since birth") : "N/A"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 2 */}
+                  <div>
+                    <h4 className="text-[13.5px] font-bold text-[#1B365D] uppercase tracking-wider mb-3 bg-slate-50 py-1.5 px-3 rounded">
+                      Section (2) - Applicant Particulars
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px] pl-2">
+                      <div className="md:col-span-2">
+                        <span className="text-slate-500 font-semibold block">(a) Name in Full:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.name}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="text-slate-500 font-semibold block">(b) Residential Address:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.address}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(c) Sex:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.sex || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(d) Age:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.age || "(Not specified)"} Years</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(e) Civil Status:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.civilStatus || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(f) Sri Lankan Nationality:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.nationality || "Sri Lankan"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(g) Religion:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.religion || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(h) Present Occupation:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.occupation || "Student / Unemployed"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(i) Period of Residence in Village:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.villagePeriod || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(j) National Identity Card No:</span>
+                        <span className="text-slate-800 font-bold font-mono text-[14px]">{certRequest.nic}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="text-slate-500 font-semibold block">(k) Electoral Register Particulars:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.electoralRegister || "Registered"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(l) Father's Name:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.fatherName || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(m) Father's Address:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.fatherAddress || "(Not specified)"}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="text-slate-500 font-semibold block">(n) Purpose of Certificate:</span>
+                        <span className="bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1.5 rounded font-bold block mt-1">{certRequest.purpose}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 3 */}
+                  <div>
+                    <h4 className="text-[13.5px] font-bold text-[#1B365D] uppercase tracking-wider mb-3 bg-slate-50 py-1.5 px-3 rounded">
+                      Section (3) - Residence & Background Evidence
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px] pl-2">
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(a) Period of residence in GN Division:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.gnPeriod || "(Not specified)"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(b) Nature of residence proof:</span>
+                        <span className="text-slate-800 font-bold">{certRequest.natureOfOtherEvidences || "Utility bills, GN registry"}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(c) Convicted by Court of Law?</span>
+                        <span className={`font-bold ${certRequest.convictedByCourt === 'Yes' ? 'text-red-600' : 'text-slate-800'}`}>
+                          {certRequest.convictedByCourt === 'Yes' ? `Yes - ${certRequest.convictedDetails}` : 'No'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 font-semibold block">(d) Interested in public/social activities?</span>
+                        <span className="text-slate-800 font-bold">
+                          {certRequest.publicActivitiesInterest === 'Yes' ? `Yes - ${certRequest.publicActivitiesDetails}` : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              )}
             </div>
 
-            {/* Right Card: Checks & History (Col span 1) */}
+            {/* Right Column Checks & History */}
             <div className="flex flex-col gap-6 text-left">
+              
               {/* Verification Checklist Card */}
               <div className="bg-white border border-[#cbd5e1] rounded-2xl p-6 shadow-sm">
                 <h3 className="text-[15.5px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3 mb-4 m-0">
@@ -297,7 +526,6 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                 </h3>
 
                 <div className="flex flex-col gap-4">
-                  {/* Checkbox 1 */}
                   <div className="flex gap-3 items-start">
                     <input
                       type="checkbox"
@@ -311,7 +539,6 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                     </div>
                   </div>
 
-                  {/* Checkbox 2 */}
                   <div className="flex gap-3 items-start">
                     <input
                       type="checkbox"
@@ -325,7 +552,6 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                     </div>
                   </div>
 
-                  {/* Audit Check status */}
                   <div className="flex gap-3 items-start">
                     <div className={`flex items-center justify-center w-5 h-5 rounded-full text-white text-[11px] font-bold mt-0.5 flex-shrink-0 ${
                       documentAuditCheck ? 'bg-emerald-600' : 'bg-amber-500'
@@ -363,6 +589,155 @@ function OfficerCertificateDetails({ onOpenHelp }) {
             </div>
           </div>
 
+          {/* Official Assessment Card (GN Form fields for character cert) */}
+          {isCharacterCert && (certRequest.status === 'Pending' || certRequest.status === 'PENDING') && (
+            <div className="bg-white border border-[#fedc9b] rounded-2xl p-8 shadow-md text-left mb-8 animate-in fade-in slide-in-from-bottom duration-200">
+              <div className="flex items-center gap-2 border-b border-[#fedc9b]/40 pb-4 mb-6 font-sans">
+                <span className="text-xl">✍️</span>
+                <h3 className="text-[17px] font-bold text-[#854d0e] m-0">Grama Niladhari Official Assessment Form</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[13.5px] font-sans">
+                
+                {/* 1. Personally Known */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessKnown" className="font-bold text-[#334155] mb-1.5">Is applicant personally known to you? :</label>
+                  <select 
+                    id="assessKnown" 
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg bg-white"
+                    value={personalKnown}
+                    onChange={(e) => setPersonalKnown(e.target.value)}
+                  >
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+
+                {/* 2. Known Since */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessSince" className="font-bold text-[#334155] mb-1.5">If yes, since when? (e.g. 3 years, Birth) :</label>
+                  <input 
+                    type="text" 
+                    id="assessSince" 
+                    placeholder="Specify period"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={personalKnownSince}
+                    onChange={(e) => setPersonalKnownSince(e.target.value)}
+                    disabled={personalKnown === 'No'}
+                  />
+                </div>
+
+                {/* 3. Evidence of Residence */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessEvidence" className="font-bold text-[#334155] mb-1.5">Proof of Residence Evidence Checked :</label>
+                  <input 
+                    type="text" 
+                    id="assessEvidence" 
+                    placeholder="e.g. Utility Bills / Voter List Registry"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={natureOfOtherEvidences}
+                    onChange={(e) => setNatureOfOtherEvidences(e.target.value)}
+                  />
+                </div>
+
+                {/* 4. Court Conviction */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessConvicted" className="font-bold text-[#334155] mb-1.5">Any record of conviction in Court? :</label>
+                  <select 
+                    id="assessConvicted" 
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg bg-white"
+                    value={convictedByCourt}
+                    onChange={(e) => setConvictedByCourt(e.target.value)}
+                  >
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+
+                {/* 5. Conviction Details */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="assessConvictDetails" className="font-bold text-[#334155] mb-1.5">Conviction Details (if applicable) :</label>
+                  <input 
+                    type="text" 
+                    id="assessConvictDetails" 
+                    placeholder="Write details if any"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={convictedDetails}
+                    onChange={(e) => setConvictedDetails(e.target.value)}
+                    disabled={convictedByCourt === 'No'}
+                  />
+                </div>
+
+                {/* 6. Public Activities */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessPublic" className="font-bold text-[#334155] mb-1.5">Applicant interest in social work/community? :</label>
+                  <select 
+                    id="assessPublic" 
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg bg-white"
+                    value={publicActivitiesInterest}
+                    onChange={(e) => setPublicActivitiesInterest(e.target.value)}
+                  >
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                </div>
+
+                {/* 7. Public Details */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessPublicDetails" className="font-bold text-[#334155] mb-1.5">Public activities details :</label>
+                  <input 
+                    type="text" 
+                    placeholder="Describe activities"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={publicActivitiesDetails}
+                    onChange={(e) => setPublicActivitiesDetails(e.target.value)}
+                    disabled={publicActivitiesInterest === 'No'}
+                  />
+                </div>
+
+                {/* 8. Character Evaluation */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessCharacter" className="font-bold text-[#334155] mb-1.5">Overall Character Assessment :</label>
+                  <select 
+                    id="assessCharacter" 
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg bg-white font-bold text-slate-800"
+                    value={character}
+                    onChange={(e) => setCharacter(e.target.value)}
+                  >
+                    <option value="Good">Good</option>
+                    <option value="Exemplary">Exemplary</option>
+                    <option value="Satisfactory">Satisfactory</option>
+                    <option value="Unsatisfactory">Unsatisfactory</option>
+                  </select>
+                </div>
+
+                {/* 9. Serial Number */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessSerial" className="font-bold text-[#334155] mb-1.5">Generated Certificate Serial Number :</label>
+                  <input 
+                    type="text" 
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg font-bold text-slate-800"
+                    value={certificateNo}
+                    onChange={(e) => setCertificateNo(e.target.value)}
+                  />
+                </div>
+
+                {/* 10. Remarks */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="assessRemarks" className="font-bold text-[#334155] mb-1.5">Grama Niladhari Remarks & Assessment Notes :</label>
+                  <textarea 
+                    rows="3" 
+                    placeholder="Enter additional remarks"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                  />
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* Bottom Card: Supporting Documents */}
           <div className="bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm text-left mb-8">
             <div className="flex justify-between items-center border-b border-[#f1f5f9] pb-4 mb-6">
@@ -394,7 +769,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                 </div>
 
                 {/* Document 2 (only for Income Certs) */}
-                {certRequest.type === 'Income Certificate' && (
+                {!isCharacterCert && (
                   <div className="w-[200px] border border-[#cbd5e1] rounded-xl overflow-hidden bg-[#f8fafc] shadow-sm">
                     <div className="h-[110px] bg-slate-200 flex items-center justify-center text-[#94a3b8] text-[28px] border-b border-[#cbd5e1] relative">
                       🖼️
@@ -440,7 +815,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
           </div>
 
           {/* Action Row Buttons: Approve & Reject */}
-          <div className="flex gap-4 justify-end mb-8">
+          <div className="flex gap-4 justify-end mb-8 font-sans">
             <button
               onClick={() => navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })}
               className="bg-transparent hover:bg-gray-100 text-[#475569] border border-[#cbd5e1] px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer"
@@ -448,7 +823,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
               Cancel Review
             </button>
 
-            {certRequest.status === 'Pending' && (
+            {(certRequest.status === 'Pending' || certRequest.status === 'PENDING') && (
               <>
                 <button
                   onClick={handleReject}
