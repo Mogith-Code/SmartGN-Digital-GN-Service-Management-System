@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import OfficerCardLayout from "./OfficerCardLayout";
 import CalendarLayout from "./CalenderLayout";
 import AppointmentSummary from "./AppointmentSummary";
@@ -36,6 +37,8 @@ function OfficerAppointmentsLayoutPage() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
+      firstName: "Nirmal",
+      lastName: "Perera",
       photo: "photo_here",
       nic: "200314911465",
       purpose: "Meeting with Officer A",
@@ -48,6 +51,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
       photo: "photo_here",
       nic: "200314911455",
       purpose: "Certificate Collection",
@@ -60,6 +65,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 3,
+      firstName: "John",
+      lastName: "Doe",
       photo: "photo_here",
       nic: "200314911459",
       purpose: "Document Submission",
@@ -73,6 +80,8 @@ function OfficerAppointmentsLayoutPage() {
 
     {
       id: 4,
+      firstName: "Alice",
+      lastName: "Johnson",
       photo: "photo_here",
       nic: "200314911460",
       purpose: "Meeting with Officer B",
@@ -148,9 +157,28 @@ function OfficerAppointmentsLayoutPage() {
             <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
               Appointment Summary
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] border border-[red]">
+            <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 mx-4  mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-between">
               {activeAppointment.map((appointment) => (
-                <div className="gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
+                <div className="gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] flex flex-col">
+                  <div className="flex items-center">
+                    <img
+                      src={profileIcon}
+                      alt="Resident Photo"
+                      className="w-[100px] h-[100px] rounded-full"
+                    />
+
+                    <div className="flex flex-col ml-[10px]">
+                      <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                        {appointment.firstName} {appointment.lastName}
+                      </span>
+                      <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                        {appointment.nic}
+                      </span>
+                      <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
+                        View Profile
+                      </span>
+                    </div>
+                  </div>
                   <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                     <span className="font-medium">Purpose:</span>{" "}
                     {appointment.purpose}
