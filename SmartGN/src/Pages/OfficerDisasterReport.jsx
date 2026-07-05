@@ -305,6 +305,12 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       </svg>
                       View Details & Take Action
                     </button>
+                  
+                  </div>
+                )
+              })
+            )}
+          </div>
                     
 
 
