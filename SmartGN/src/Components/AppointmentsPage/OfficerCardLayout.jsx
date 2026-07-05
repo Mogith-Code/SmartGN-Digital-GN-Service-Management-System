@@ -17,14 +17,14 @@ function OfficerCardLayout({ pendingCount, approvedCount, tomorrowCount }) {
   const OCardLayoutTranslations = {
     EN: {
       Card1Title: "Pending Requests",
-      Card2Title: "Approved appointments",
-      Card3Title: "Requests for tomorrow",
+      Card2Title: "Approved Appointments",
+      Card3Title: "Tomorrow's Appointments",
     },
 
     SI: {
       Card1Title: "හමුවීම් සඳහා ඉල්ලීම්",
       Card2Title: "අනුමත හමුවීම්",
-      Card3Title: "හෙට දින සඳහා ඉල්ලීම්",
+      Card3Title: "හෙට හමුවීම්",
     },
 
     TA: {
