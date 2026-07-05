@@ -19,18 +19,27 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       Title: "Pending Appointment Requests",
       reject: "Reject Request",
       approve: "Approve Request",
+      viewProfile: "View Profile",
+      purpose: "Purpose :",
+      appointmentDate: "Appointment Date :",
     },
     SI: {
       back: "ආපසු",
       Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
       reject: "අවලංගු කරන්න",
       approve: "අනුමත කරන්න",
+      viewProfile: "පැතිකඩ බලන්න",
+      purpose: "අරමුණ :",
+      appointmentDate: "හමුවීම් දිනය :",
     },
     TA: {
       back: "பின்னால்",
       Title: "நிலுவையிலான முக்கிய சந்திப்புகள்",
       reject: "ரத்து செய்",
       approve: "அனுமதி செய்",
+      viewProfile: "சுயவிவரத்தைப் பார்க்கவும்",
+      purpose: "நோக்கம் :",
+      appointmentDate: "ஹமுவிம் தேதி :",
     },
   };
 
@@ -165,7 +174,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
                       {appointment.nic}
                     </span>
                     <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                      View Profile
+                      {t.viewProfile}
                     </span>
                   </div>
                 </div>
@@ -185,13 +194,13 @@ function OfficerPendingAppointment({ onOpenHelp }) {
 
               <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
                 <div className="flex gap-[5px]">
-                  <span className="font-medium">Purpose : </span>
+                  <span className="font-medium">{t.purpose} </span>
                   <span> {appointment.purpose}</span>
                 </div>
 
                 <div className="flex gap-[5px]">
                   <span className="font-medium">
-                    <span>Appointment Date :</span>
+                    <span>{t.appointmentDate}</span>
                   </span>
                   <span>
                     {appointment.date.getDate()}/
