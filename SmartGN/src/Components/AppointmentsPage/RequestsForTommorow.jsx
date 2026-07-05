@@ -8,6 +8,7 @@ import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_G
 import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_22C55E_FILL0_wght400_GRAD0_opsz24.svg";
+import pendingIcon from "../../assets/schedule_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
 function RequestsForTommorow() {
   const navigate = useNavigate();
@@ -202,7 +203,7 @@ function RequestsForTommorow() {
                   </div>
                   <hr className="border border-[#2D37482D]" />
                   <div className="flex justify-between items-center">
-                    <div className="flex flex-col w-[50%] text-[16px] text-[#2D3748] my-[10px] border border-[red]">
+                    <div className="flex flex-col w-[50%] text-[16px] text-[#2D3748] my-[10px]">
                       <div className="flex gap-[5px]">
                         <span className="font-medium">{t.purpose} </span>
                         <span> {appointment.purpose}</span>
@@ -231,13 +232,24 @@ function RequestsForTommorow() {
                     </div>
 
                     {appointment.status === "Approved" && (
-                      <div className="flex border gap-[10px] border-[#22C55E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#22C55E] border border-[#22C55E] rounded-[15px] items-center">
+                      <div className="flex border gap-[10px] border-[#22C55E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#22C55E] items-center">
                         <img
                           src={approvedIcon}
                           alt="Resident Photo"
                           className="w-[20px] h-[20px] rounded-full"
                         />
                         <span>Approved</span>
+                      </div>
+                    )}
+
+                    {appointment.status === "Pending" && (
+                      <div className="flex border gap-[10px] border-[#2D3748] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#2D3748] items-center">
+                        <img
+                          src={pendingIcon}
+                          alt="Resident Photo"
+                          className="w-[20px] h-[20px] rounded-full"
+                        />
+                        <span>Pending</span>
                       </div>
                     )}
                   </div>

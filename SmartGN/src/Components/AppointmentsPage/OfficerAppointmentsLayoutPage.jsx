@@ -71,7 +71,7 @@ function OfficerAppointmentsLayoutPage() {
       photo: "photo_here",
       nic: "200314911459",
       purpose: "Document Submission",
-      date: new Date(2026, 6, 6), // June 28, 2026
+      date: new Date(2026, 6, 7), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
       status: "Approved",
