@@ -18,9 +18,51 @@ function Services() {
 
   // TRANSLATION OBJECTS
   const STranslations = {
-    EN: { servicesTitle: "Services You Can Get" },
-    SI: { servicesTitle: "ඔබට ලබාගත හැකි සේවාවන්" },
-    TA: { servicesTitle: "உங்கள் பெறலாம் சேவைகள்" },
+    EN: {
+      servicesTitle: "Services You Can Get",
+      ServicesList: [
+        {
+          listTitle: "Request Certificates",
+          listDesc:
+            "Apply for character certificates, income certificates and more with digital verification.",
+        },
+        {
+          listTitle: "Book Appointments",
+          listDesc:
+            "Schedule meetings with your Grama Niladhari officer at convenient times.",
+        },
+      ],
+    },
+    SI: {
+      servicesTitle: "ඔබට ලබාගත හැකි සේවාවන්",
+      ServicesList: [
+        {
+          listTitle: "සහතික ඉල්ලීම්",
+          listDesc:
+            "ඩිජිටල් සත්‍යාපනය සමඟ චරිත සහතික, ආදායම් සහතික සහ වෙනත් සහතික සඳහා ඉල්ලුම් කරන්න.",
+        },
+        {
+          listTitle: "හමුවීම් වෙන්කරවා ගැනීම",
+          listDesc:
+            "පහසු වේලාවන්හිදී ඔබේ ග්‍රාම නිලධාරීවරයා සමඟ සාකච්ඡා වෙන්කරවා ගන්න.",
+        },
+      ],
+    },
+    TA: {
+      servicesTitle: "உங்கள் பெறலாம் சேவைகள்",
+      ServicesList: [
+        {
+          listTitle: "சான்றிதழ்களைக் கோருங்கள்",
+          listDesc:
+            "டிஜிட்டல் சரிபார்ப்புடன் நற்சான்றிதழ்கள், வருமானச் சான்றிதழ்கள் மற்றும் பிற சான்றிதழ்களுக்கு விண்ணப்பிக்கவும்.",
+        },
+        {
+          listTitle: "சந்திப்புகளை முன்பதிவு செய்க",
+          listDesc:
+            "வசதியான நேரங்களில் உங்கள் கிராம நிலதாரி அதிகாரியுடன் சந்திப்புகளைத் திட்டமிடுங்கள்.",
+        },
+      ],
+    },
   };
 
   const t = STranslations[lang] || STranslations.EN;
@@ -58,15 +100,15 @@ function Services() {
 
   const servicesCard = [
     {
-      title: "Request Certificates",
-      desc: "Apply for character certificates, income certificates and more with digital verification.",
+      title: t.ServicesList[0].listTitle,
+      desc: t.ServicesList[0].listDesc,
       handleClick: handleRequestCertificates(),
       icon1: requestIcon,
       icon2: arrowIcon,
     },
     {
-      title: "Book Appointments",
-      desc: " Schedule meetings with your Grama Niladhari officer at convenient times.",
+      title: t.ServicesList[1].listTitle,
+      desc: t.ServicesList[1].listDesc,
       handleClick: handleBookAppointments(),
       icon1: appointmentIcon,
       icon2: arrowIcon,
