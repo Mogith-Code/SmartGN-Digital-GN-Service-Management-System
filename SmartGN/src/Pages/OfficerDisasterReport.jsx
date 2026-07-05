@@ -329,6 +329,10 @@ function OfficerDisasterReports({ onOpenHelp }) {
               <button className="modal-close" onClick={() => setIsModalOpen(false)} aria-label="Close Modal">×</button>
             </div>
 
+            <form onSubmit={handleSaveAction}>
+              <div className="modal-body">
+                
+
                     
 
 
