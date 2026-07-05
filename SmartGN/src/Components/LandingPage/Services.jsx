@@ -18,9 +18,9 @@ function Services() {
 
   // TRANSLATION OBJECTS
   const servicesTranslations = {
-    EN: { Title: "Appointments" },
-    SI: { Title: "හමුවවීම්" },
-    TA: { Title: "சந்திப்புகள்" },
+    EN: { servicesTitle: "Services You Can Get" },
+    SI: { servicesTitle: "ඔබට ලබා ගත හැකි සේවාවන්" },
+    TA: { servicesTitle: "உங்கள் பெறலாம் சேவைகள்" },
   };
 
   const t = servicesTranslations[lang] || servicesTranslations.EN;
@@ -67,7 +67,7 @@ function Services() {
         {/* ==================================================================== */}
         <div className="w-full text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[32px] font-semibold text-[#1B365D] tracking-tight">
-            Services You Can Get
+            {t.servicesTitle}
           </h2>
         </div>
 
