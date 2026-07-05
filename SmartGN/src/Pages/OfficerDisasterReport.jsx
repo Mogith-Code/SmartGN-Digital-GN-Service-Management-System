@@ -311,6 +311,13 @@ function OfficerDisasterReports({ onOpenHelp }) {
               })
             )}
           </div>
+
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
                     
 
 
