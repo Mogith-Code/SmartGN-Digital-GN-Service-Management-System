@@ -19,6 +19,7 @@ function PendingAppointmentRequests() {
       cancel: "Cancel Request",
       edit: "Edit Request",
       appointmentDate: "Appointment Date : ",
+      time: "Time : ",
     },
     SI: {
       back: "ආපසු",
@@ -26,6 +27,7 @@ function PendingAppointmentRequests() {
       cancel: "අවලංගු කරන්න",
       edit: "සංස්කරණය කරන්න",
       appointmentDate: "හමුවීම් දිනය : ",
+      time: "වේලාව : ",
     },
     TA: {
       back: "பின்னால்",
@@ -33,6 +35,7 @@ function PendingAppointmentRequests() {
       cancel: "ரத்து செய்",
       edit: "திருத்து",
       appointmentDate: "முகாமை தேதி : ",
+      time: "நேரம் : ",
     },
   };
 
@@ -155,7 +158,10 @@ function PendingAppointmentRequests() {
               </div>
 
               <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">Time: {appointment.time}</span>
+                <span className="font-regular">
+                  {t.time}
+                  {appointment.time}
+                </span>
               </div>
 
               <div className="flex justify-end gap-[10px] mt-[10px]">
