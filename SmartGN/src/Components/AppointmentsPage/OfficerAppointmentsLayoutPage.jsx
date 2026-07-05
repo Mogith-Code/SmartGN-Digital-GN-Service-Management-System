@@ -86,7 +86,7 @@ function OfficerAppointmentsLayoutPage() {
       photo: "photo_here",
       nic: "200314911460",
       purpose: "Meeting with Officer B",
-      date: new Date(2026, 5, 23), // June 23, 2026
+      date: new Date(2026, 6, 6), // June 23, 2026
       time: "1:00 PM",
       contact: "0771234567",
       status: "Pending",
@@ -130,14 +130,12 @@ function OfficerAppointmentsLayoutPage() {
 
   // Get tomorrow's date
   const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
   // Filter appointments for tomorrow
   const tomorrowCount = appointments.filter((item) => {
-    const itemDate = item.date;
     return (
-      itemDate.getDate() === tomorrow.getDate() &&
-      itemDate.getMonth() === tomorrow.getMonth() &&
-      itemDate.getFullYear() === tomorrow.getFullYear()
+      item.date.getDate() === tomorrow.getDate() + 1 &&
+      item.date.getMonth() === tomorrow.getMonth() &&
+      item.date.getFullYear() === tomorrow.getFullYear()
     );
   }).length;
   return (
