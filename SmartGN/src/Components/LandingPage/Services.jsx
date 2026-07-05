@@ -81,9 +81,9 @@ function Services() {
 
     {
       title: "Apply for Allowances",
-      desc: " Check the status of your applications (pending, approved, or require further information).",
-      handleClick: handleTrackRequests(),
-      icon1: trackIcon,
+      desc: " Register for Aswesuma, Samurdhi and other government allowance programs.",
+      handleClick: handleApplyAllowances(),
+      icon1: allowanceIcon,
       icon2: arrowIcon,
     },
   ];
@@ -149,41 +149,6 @@ function Services() {
               </div>
             </div>
           ))}
-
-          {/* ================================================================ */}
-          {/* CARD 4: Apply for Allowances */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleApplyAllowances}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleApplyAllowances();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={allowanceIcon}
-              alt="Apply for Allowances icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300"></h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Register for Aswesuma, Samurdhi and other government allowance
-                programs.
-              </p>
-            </div>
-          </div>
 
           {/* ================================================================ */}
           {/* CARD 5: Disaster Relief */}
