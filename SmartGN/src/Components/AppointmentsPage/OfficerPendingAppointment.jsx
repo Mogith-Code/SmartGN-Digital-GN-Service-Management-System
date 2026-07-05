@@ -22,6 +22,8 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       viewProfile: "View Profile",
       purpose: "Purpose :",
       appointmentDate: "Appointment Date :",
+      time: "Time : ",
+      contact: "Contact Number :",
     },
     SI: {
       back: "ආපසු",
@@ -31,6 +33,8 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       viewProfile: "පැතිකඩ බලන්න",
       purpose: "අරමුණ :",
       appointmentDate: "හමුවීම් දිනය :",
+      time: "වේලාව : ",
+      contact: "දුරකථන අංකය :",
     },
     TA: {
       back: "பின்னால்",
@@ -40,6 +44,8 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       viewProfile: "சுயவிவரத்தைப் பார்க்கவும்",
       purpose: "நோக்கம் :",
       appointmentDate: "ஹமுவிம் தேதி :",
+      time: "நேரம் : ",
+      contact: "தொடர்பு எண் :",
     },
   };
 
@@ -210,12 +216,12 @@ function OfficerPendingAppointment({ onOpenHelp }) {
                 </div>
 
                 <div className="flex gap-[5px]">
-                  <span className="font-medium">Time :</span>
+                  <span className="font-medium">{t.time}</span>
                   <span>{appointment.time}</span>
                 </div>
 
                 <div className="flex gap-[5px]">
-                  <span className="font-medium">contact : </span>
+                  <span className="font-medium">{t.contact}</span>
                   <span>{appointment.contact}</span>
                 </div>
               </div>
