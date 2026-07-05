@@ -12,13 +12,13 @@ function RequestsForTommorow() {
   const RFTTranslations = {
     EN: {
       back: "Back",
-      Title: "Pending Appointment Requests",
+      Title: "Tomorrow's Appointments",
       cancel: "Cancel Request",
       edit: "Edit Request",
     },
     SI: {
       back: "ආපසු",
-      Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
+      Title: "හෙට ඇති හමුවීම්",
       cancel: "අවලංගු කරන්න",
       edit: "සංස්කරණය කරන්න",
     },
@@ -48,6 +48,10 @@ function RequestsForTommorow() {
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
             {t.back}
+          </div>
+
+          <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
+            {t.Title}
           </div>
         </div>
       </div>
