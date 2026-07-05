@@ -16,7 +16,7 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
   // Sinhala (SI), and Tamil (TA)
   const OCardLayoutTranslations = {
     EN: {
-      Card1Title: "Appointment requests",
+      Card1Title: "Pending Requests",
       Card2Title: "Approved appointments",
       Card3Title: "Requests for tomorrow",
     },

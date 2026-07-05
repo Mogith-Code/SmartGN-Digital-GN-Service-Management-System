@@ -203,7 +203,12 @@ function OfficerApprovedAppointment() {
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
-              No approved appointments available.
+              <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
+                No approved appointments available.
+              </p>
+              <p className="text-xs sm:text-sm md:text-base lg:text-[14px] text-[#2D3748D] mt-1 sm:mt-2">
+                Please check Pending requests to view and approve requests.
+              </p>
             </div>
           )}
         </div>
