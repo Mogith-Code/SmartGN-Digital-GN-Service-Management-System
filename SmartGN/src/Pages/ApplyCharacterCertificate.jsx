@@ -82,7 +82,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!divisionalSecretariat || !gnDivisionNumber || !fullName || !age || !address || !sex || !civilStatus || !nationality || !religion || !nicNumber || !purpose || !gnPeriod) {
+    if (!divisionalSecretariat || !gnDivisionNumber || !fullName || !age || !address || !sex || !civilStatus || !nationality || !religion || !nicNumber || !purpose) {
       setErrorMessage('Please fill in all required fields.')
       return
     }
@@ -315,7 +315,6 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
                       value={personalKnownSince}
                       onChange={(e) => setPersonalKnownSince(e.target.value)}
-                      disabled={personalKnown === 'No'}
                     />
                   </div>
                 </div>
@@ -533,102 +532,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                 </div>
               </div>
 
-              {/* SECTION 3 */}
-              <div className="mb-8 text-left">
-                <h3 className="text-[16px] font-bold text-[#1B365D] border-b border-slate-100 pb-2 mb-4">
-                  Section (3) - Other Residence & Security Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="flex flex-col">
-                    <label htmlFor="gnPeriod" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      (a) Period of residence in this GN Division <span className="text-red-500">*</span> :
-                    </label>
-                    <input 
-                      type="text" 
-                      id="gnPeriod" 
-                      placeholder="e.g. 5 Years"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
-                      value={gnPeriod}
-                      onChange={(e) => setGnPeriod(e.target.value)}
-                      required
-                    />
-                  </div>
 
-                  <div className="flex flex-col">
-                    <label htmlFor="evidence" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      (b) Nature of other evidences in proof of the period of residence :
-                    </label>
-                    <input 
-                      type="text" 
-                      id="evidence" 
-                      placeholder="e.g. Electricity Bill / Birth Certificate"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
-                      value={natureOfOtherEvidences}
-                      onChange={(e) => setNatureOfOtherEvidences(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label htmlFor="convicted" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      (c) Whether the applicant has been convicted by a Court of Law? :
-                    </label>
-                    <select
-                      id="convicted"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 focus:outline-none focus:border-[#1B365D]"
-                      value={convictedByCourt}
-                      onChange={(e) => setConvictedByCourt(e.target.value)}
-                    >
-                      <option value="No">No</option>
-                      <option value="Yes">Yes</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label htmlFor="convictedDetails" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      Details if convicted :
-                    </label>
-                    <input 
-                      type="text" 
-                      id="convictedDetails" 
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10" 
-                      value={convictedDetails}
-                      onChange={(e) => setConvictedDetails(e.target.value)}
-                      disabled={convictedByCourt === 'No'}
-                      placeholder={convictedByCourt === 'No' ? "No conviction reported" : "Enter conviction particulars"}
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label htmlFor="publicAct" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      (d) Whether he/she has taken interest in public activities, social service work, etc.? :
-                    </label>
-                    <select
-                      id="publicAct"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 focus:outline-none focus:border-[#1B365D]"
-                      value={publicActivitiesInterest}
-                      onChange={(e) => setPublicActivitiesInterest(e.target.value)}
-                    >
-                      <option value="No">No</option>
-                      <option value="Yes">Yes</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label htmlFor="publicActDetails" className="text-[13px] font-semibold text-[#334155] mb-1.5">
-                      Details of public/social work :
-                    </label>
-                    <input 
-                      type="text" 
-                      id="publicActDetails" 
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D]" 
-                      value={publicActivitiesDetails}
-                      onChange={(e) => setPublicActivitiesDetails(e.target.value)}
-                      disabled={publicActivitiesInterest === 'No'}
-                      placeholder={publicActivitiesInterest === 'No' ? "No active social work reported" : "Enter details"}
-                    />
-                  </div>
-                </div>
-              </div>
 
               {errorMessage && (
                 <p style={{ color: '#ef4444', fontSize: '13px', margin: '12px 0', textAlign: 'left' }}>
