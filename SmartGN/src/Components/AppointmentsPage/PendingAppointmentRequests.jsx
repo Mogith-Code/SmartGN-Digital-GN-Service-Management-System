@@ -18,18 +18,21 @@ function PendingAppointmentRequests() {
       Title: "Pending Appointment Requests",
       cancel: "Cancel Request",
       edit: "Edit Request",
+      appointmentDate: "Appointment Date : ",
     },
     SI: {
       back: "ආපසු",
       Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
       cancel: "අවලංගු කරන්න",
       edit: "සංස්කරණය කරන්න",
+      appointmentDate: "හමුවීම් දිනය : ",
     },
     TA: {
       back: "பின்னால்",
       Title: "நிலுவையிலான முக்கிய சந்திப்புகள்",
       cancel: "ரத்து செய்",
       edit: "திருத்து",
+      appointmentDate: "முகாமை தேதி : ",
     },
   };
 
@@ -142,7 +145,7 @@ function PendingAppointmentRequests() {
 
               <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
                 <span className="font-regular">
-                  Appointment Date: {appointment.date.getDate()}/
+                  {t.appointmentDate} {appointment.date.getDate()}/
                   {appointment.date.getMonth() + 1}/
                   {appointment.date.getFullYear()}
                 </span>
