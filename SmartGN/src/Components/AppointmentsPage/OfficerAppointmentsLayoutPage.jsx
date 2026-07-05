@@ -127,6 +127,19 @@ function OfficerAppointmentsLayoutPage() {
   const approvedCount = appointments.filter(
     (item) => item.status === "Approved",
   ).length;
+
+  // Get tomorrow's date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Filter appointments for tomorrow
+  const tomorrowCount = appointments.filter((item) => {
+    const itemDate = item.date;
+    return (
+      itemDate.getDate() === tomorrow.getDate() &&
+      itemDate.getMonth() === tomorrow.getMonth() &&
+      itemDate.getFullYear() === tomorrow.getFullYear()
+    );
+  }).length;
   return (
     <>
       <div className="flex  text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
@@ -137,6 +150,7 @@ function OfficerAppointmentsLayoutPage() {
         <OfficerCardLayout
           pendingCount={pendingCount}
           approvedCount={approvedCount}
+          tomorrowCount={tomorrowCount}
         />
       </div>
 
