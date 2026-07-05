@@ -31,6 +31,11 @@ function Services() {
           listDesc:
             "Schedule meetings with your Grama Niladhari officer at convenient times.",
         },
+        {
+          listTitle: "Track Requests",
+          listDesc:
+            " Check the status of your applications (pending, approved, or require further information).",
+        },
       ],
     },
     SI: {
@@ -46,6 +51,11 @@ function Services() {
           listDesc:
             "පහසු වේලාවන්හිදී ඔබේ ග්‍රාම නිලධාරීවරයා සමඟ සාකච්ඡා වෙන්කරවා ගන්න.",
         },
+        {
+          listTitle: "ඉල්ලීම් ලුහුබැඳීම",
+          listDesc:
+            "ඔබගේ ඉල්ලුම්පත්‍රවල වත්මන් තත්ත්වය (පූරණය වෙමින් පවතින, අනුමත හෝ වැඩිදුර තොරතුරු අවශ්‍ය) පරීක්ෂා කරන්න.",
+        },
       ],
     },
     TA: {
@@ -60,6 +70,11 @@ function Services() {
           listTitle: "சந்திப்புகளை முன்பதிவு செய்க",
           listDesc:
             "வசதியான நேரங்களில் உங்கள் கிராம நிலதாரி அதிகாரியுடன் சந்திப்புகளைத் திட்டமிடுங்கள்.",
+        },
+        {
+          listTitle: "கோரிக்கைகளைக் கண்காணிக்கவும்",
+          listDesc:
+            "உங்கள் விண்ணப்பங்களின் நிலையைக் கண்டறியவும் (நிலுவையில் உள்ளதா, அங்கீகரிக்கப்பட்டதா அல்லது கூடுதல் தகவல் தேவையா).",
         },
       ],
     },
@@ -114,8 +129,8 @@ function Services() {
       icon2: arrowIcon,
     },
     {
-      title: "Track Requests",
-      desc: " Check the status of your applications (pending, approved, or require further information).",
+      title: t.ServicesList[2].listTitle,
+      desc: t.ServicesList[2].listDesc,
       handleClick: handleTrackRequests(),
       icon1: trackIcon,
       icon2: arrowIcon,
