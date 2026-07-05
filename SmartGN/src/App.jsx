@@ -26,6 +26,9 @@ import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
 import EditHouseholdDetails from "./Components/Family&HouseholdPage/EditHouseholdDetails.jsx";
 import ResidentsDetails from "./Pages/ResidentsDetails.jsx";
+import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPendingAppointment.jsx";
+import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
+import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -39,40 +42,64 @@ function App() {
           path="/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
         />
-        <Route
-          path="/dashboard/resident/appointments"
-          element={<RAppointment onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/OfficerAppointment"
-          element={<OfficerAppointment onOpenHelp={openChatbot} />}
-        />
+
         <Route
           path="/RAppointment/BookingForm"
           element={<BookingForm onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/RAppointment/PendingAppointmentRequests"
           element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/RAppointment/ApprovedAppointmentRequests"
           element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route
           path="/RHousehold"
           element={<RHousehold onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/RHousehold/EditFamilyDetails"
           element={<EditFamilyDetails onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/RHousehold/EditHouseholdDetails"
           element={<EditHouseholdDetails onOpenHelp={openChatbot} />}
         />
+
+        <Route
+          path="/OfficerAppointment"
+          element={<OfficerAppointment onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerAppointment/OfficerPendingAppointment"
+          element={<OfficerPendingAppointment onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerAppointment/OfficerApprovedAppointment"
+          element={<OfficerApprovedAppointment onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerAppointment/OfficerApprovedAppointment"
+          element={<OfficerApprovedAppointment onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerAppointment/RequestsForTomorrow"
+          element={<RequestsForTommorow onOpenHelp={openChatbot} />}
+        />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         <Route
           path="/dashboard/resident"
           element={<ResidentProfile onOpenHelp={openChatbot} />}
@@ -89,10 +116,7 @@ function App() {
           path="/ResidentsDetails"
           element={<ResidentsDetails onOpenHelp={openChatbot} />}
         />
-        <Route
-          path="/dashboard/officer/appointments"
-          element={<OfficerAppointment onOpenHelp={openChatbot} />}
-        />
+
         <Route
           path="/dashboard/officer/certificates"
           element={<OfficerCertificates onOpenHelp={openChatbot} />}

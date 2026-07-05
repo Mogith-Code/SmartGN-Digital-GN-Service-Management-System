@@ -6,7 +6,7 @@ import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_
 import urgentIcon from "../../assets/work_alert_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function OfficerCardLayout({ pendingCount, approvedCount }) {
+function OfficerCardLayout({ pendingCount, approvedCount, tomorrowCount }) {
   const navigate = useNavigate();
 
   const { lang } = useLanguage();
@@ -16,15 +16,15 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
   // Sinhala (SI), and Tamil (TA)
   const OCardLayoutTranslations = {
     EN: {
-      Card1Title: "Appointment requests",
-      Card2Title: "Approved appointments",
-      Card3Title: "Requests for tomorrow",
+      Card1Title: "Pending Requests",
+      Card2Title: "Approved Appointments",
+      Card3Title: "Tomorrow's Appointments",
     },
 
     SI: {
       Card1Title: "හමුවීම් සඳහා ඉල්ලීම්",
       Card2Title: "අනුමත හමුවීම්",
-      Card3Title: "හෙට දින සඳහා ඉල්ලීම්",
+      Card3Title: "හෙට හමුවීම්",
     },
 
     TA: {
@@ -40,7 +40,9 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
     <>
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+        onClick={() =>
+          navigate("/OfficerAppointment/OfficerPendingAppointment")
+        }
       >
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
 
@@ -56,7 +58,9 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
 
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
+        onClick={() =>
+          navigate("/OfficerAppointment/OfficerApprovedAppointment")
+        }
       >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
 
@@ -72,13 +76,16 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
 
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/BookingForm")}
+        onClick={() => navigate("/OfficerAppointment/RequestsForTomorrow")}
       >
         <img src={urgentIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col pb-[40px] items-center ">
+        <div className="flex flex-col gap-[10px] items-center">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
+          </span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {tomorrowCount}
           </span>
         </div>
       </div>
