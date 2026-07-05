@@ -5,6 +5,9 @@ import Footer from "../Common/Footer";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
 function OfficerPendingAppointment({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -14,20 +17,20 @@ function OfficerPendingAppointment({ onOpenHelp }) {
     EN: {
       back: "Back",
       Title: "Pending Appointment Requests",
-      cancel: "Cancel Request",
-      edit: "Edit Request",
+      reject: "Reject Request",
+      approve: "Approve Request",
     },
     SI: {
       back: "ආපසු",
       Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
-      cancel: "අවලංගු කරන්න",
-      edit: "සංස්කරණය කරන්න",
+      reject: "අවලංගු කරන්න",
+      approve: "අනුමත කරන්න",
     },
     TA: {
       back: "பின்னால்",
       Title: "நிலுவையிலான முக்கிய சந்திப்புகள்",
-      cancel: "ரத்து செய்",
-      edit: "திருத்து",
+      reject: "ரத்து செய்",
+      approve: "அனுமதி செய்",
     },
   };
 
@@ -43,7 +46,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       photo: "photo_here",
       nic: "200314911465",
       purpose: "Meeting with Officer A",
-      date: new Date(2026, 6, 5), // June 30, 2026 (Month: 5 = June)
+      date: new Date(2026, 6, 5),
       time: "10:00 AM",
       contact: "0703891153",
       status: "Pending",
@@ -140,6 +143,92 @@ function OfficerPendingAppointment({ onOpenHelp }) {
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             {t.Title}
           </div>
+
+          {pendingAppointments.map((appointment) => (
+            <div
+              key={appointment.id}
+              className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+            >
+              <div className="flex justify-between mb-[10px]">
+                <div className="flex w-[30%] items-center">
+                  <img
+                    src={profileIcon}
+                    alt="Resident Photo"
+                    className="w-[100px] h-[100px] rounded-full"
+                  />
+
+                  <div className="flex flex-col ml-[10px]">
+                    <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                      {appointment.firstName} {appointment.lastName}
+                    </span>
+                    <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                      {appointment.nic}
+                    </span>
+                    <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
+                      View Profile
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span key={appointment.id} className="font-light">
+                    {appointment.createdAt.getDate()}/
+                    {appointment.createdAt.getMonth() + 1}/
+                    {appointment.createdAt.getFullYear()}
+                  </span>
+                  <span className="font-light">
+                    {getFormattedTime(appointment.createdAt)}
+                  </span>
+                </div>
+              </div>
+
+              <hr className="border border-[#2D37482D]" />
+
+              <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
+                <div className="flex gap-[5px]">
+                  <span className="font-medium">Purpose : </span>
+                  <span> {appointment.purpose}</span>
+                </div>
+
+                <div className="flex gap-[5px]">
+                  <span className="font-medium">
+                    <span>Appointment Date :</span>
+                  </span>
+                  <span>
+                    {appointment.date.getDate()}/
+                    {appointment.date.getMonth() + 1}/
+                    {appointment.date.getFullYear()}
+                  </span>
+                </div>
+
+                <div className="flex gap-[5px]">
+                  <span className="font-medium">Time :</span>
+                  <span>{appointment.time}</span>
+                </div>
+
+                <div className="flex gap-[5px]">
+                  <span className="font-medium">contact : </span>
+                  <span>{appointment.contact}</span>
+                </div>
+              </div>
+
+              <hr className="border border-[#2D37482D]" />
+              <div className="flex justify-end gap-[10px] mt-[10px]">
+                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
+                  <img
+                    src={confirmIcon}
+                    alt="confirmIcon"
+                    className="h-[15px]"
+                  />
+                  <span>{t.approve}</span>
+                </button>
+
+                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
+                  <img src={cancelIcon} alt="cancelIcon" className="h-[16px]" />
+                  <span>{t.reject}</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
