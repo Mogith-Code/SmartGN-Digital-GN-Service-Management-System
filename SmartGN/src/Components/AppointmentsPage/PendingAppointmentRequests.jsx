@@ -20,6 +20,7 @@ function PendingAppointmentRequests() {
       edit: "Edit Request",
       appointmentDate: "Appointment Date : ",
       time: "Time : ",
+      noPendingAppointments: "No pending appointments available.",
     },
     SI: {
       back: "ආපසු",
@@ -28,6 +29,7 @@ function PendingAppointmentRequests() {
       edit: "සංස්කරණය කරන්න",
       appointmentDate: "හමුවීම් දිනය : ",
       time: "වේලාව : ",
+      noPendingAppointments: "හමුවීම් නොමැත.",
     },
     TA: {
       back: "பின்னால்",
@@ -36,6 +38,7 @@ function PendingAppointmentRequests() {
       edit: "திருத்து",
       appointmentDate: "முகாமை தேதி : ",
       time: "நேரம் : ",
+      noPendingAppointments: "நிலுவையிலான சந்திப்புகள் இல்லை.",
     },
   };
 
@@ -203,7 +206,7 @@ function PendingAppointmentRequests() {
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
-                No pending appointments available.
+                {t.noPendingAppointments}
               </p>
             </div>
           )}
