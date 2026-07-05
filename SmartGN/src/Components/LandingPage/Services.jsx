@@ -46,6 +46,11 @@ function Services() {
           listDesc:
             " Report disaster damage and apply for government relief assistance.",
         },
+        {
+          listTitle: "Announcements",
+          listDesc:
+            " Stay informed with official notices and community announcements.",
+        },
       ],
     },
     SI: {
@@ -74,6 +79,10 @@ function Services() {
         {
           listTitle: "ආපදා සහන",
           listDesc: "ආපදා හානි වාර්තා කර රජයේ සහන ආධාර සඳහා ඉල්ලුම් කරන්න.",
+        },
+        {
+          listTitle: "නිවේදන",
+          listDesc: "නිල නිවේදන සහ ප්‍රජා තොරතුරු පිළිබඳව යාවත්කාලීනව සිටින්න.",
         },
       ],
     },
@@ -104,6 +113,11 @@ function Services() {
           listTitle: "பேரழிவு நிவாரணம்",
           listDesc:
             "பேரழிவு சேதங்களை அறிக்கை செய்து, அரசு நிவாரண உதவிகளுக்கு விண்ணப்பங்கள் அனுப்பவும்.",
+        },
+        {
+          listTitle: "அறிவிப்புகள்",
+          listDesc:
+            "அதிகாரப்பூர்வ அறிவிப்புகள் மற்றும் சமூகச் செய்திகளுடன் உடனுக்குடன் இணைந்திருங்கள்.",
         },
       ],
     },
@@ -181,8 +195,8 @@ function Services() {
     },
 
     {
-      title: "Announcements",
-      desc: " Stay informed with official notices and community announcements.",
+      title: t.ServicesList[5].listTitle,
+      desc: t.ServicesList[5].listDesc,
       handleClick: handleAnnouncements(),
       icon1: announcementIcon,
       icon2: arrowIcon,
