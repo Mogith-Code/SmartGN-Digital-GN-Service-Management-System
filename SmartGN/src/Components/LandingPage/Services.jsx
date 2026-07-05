@@ -17,14 +17,13 @@ function Services() {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
-  const AppointmentLayoutTranslations = {
+  const servicesTranslations = {
     EN: { Title: "Appointments" },
     SI: { Title: "හමුවවීම්" },
     TA: { Title: "சந்திப்புகள்" },
   };
 
-  const t =
-    AppointmentLayoutTranslations[lang] || AppointmentLayoutTranslations.EN;
+  const t = servicesTranslations[lang] || servicesTranslations.EN;
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
