@@ -128,77 +128,84 @@ function OfficerApprovedAppointment() {
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             {t.Title}
           </div>
+          {approvedAppointments.length > 0 ? (
+            <>
+              {approvedAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                >
+                  <div className="flex justify-between mb-[10px]">
+                    <div className="flex w-[30%] items-center">
+                      <img
+                        src={profileIcon}
+                        alt="Resident Photo"
+                        className="w-[100px] h-[100px] rounded-full"
+                      />
 
-          {approvedAppointments.map((appointment) => (
-            <div
-              key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-            >
-              <div className="flex justify-between mb-[10px]">
-                <div className="flex w-[30%] items-center">
-                  <img
-                    src={profileIcon}
-                    alt="Resident Photo"
-                    className="w-[100px] h-[100px] rounded-full"
-                  />
-
-                  <div className="flex flex-col ml-[10px]">
-                    <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                      {appointment.firstName} {appointment.lastName}
-                    </span>
-                    <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                      {appointment.nic}
-                    </span>
-                    <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                      View Profile
-                    </span>
+                      <div className="flex flex-col ml-[10px]">
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                          {appointment.firstName} {appointment.lastName}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                          {appointment.nic}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
+                          View Profile
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span key={appointment.id} className="font-light">
+                        {appointment.createdAt.getDate()}/
+                        {appointment.createdAt.getMonth() + 1}/
+                        {appointment.createdAt.getFullYear()}
+                      </span>
+                      <span className="font-light">
+                        {getFormattedTime(appointment.createdAt)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span key={appointment.id} className="font-light">
-                    {appointment.createdAt.getDate()}/
-                    {appointment.createdAt.getMonth() + 1}/
-                    {appointment.createdAt.getFullYear()}
-                  </span>
-                  <span className="font-light">
-                    {getFormattedTime(appointment.createdAt)}
-                  </span>
-                </div>
-              </div>
 
-              <hr className="border border-[#2D37482D]" />
+                  <hr className="border border-[#2D37482D]" />
 
-              <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
-                <div className="flex gap-[5px]">
-                  <span className="font-medium">Purpose : </span>
-                  <span> {appointment.purpose}</span>
+                  <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
+                    <div className="flex gap-[5px]">
+                      <span className="font-medium">Purpose : </span>
+                      <span> {appointment.purpose}</span>
+                    </div>
+
+                    <div className="flex gap-[5px]">
+                      <span className="font-medium">
+                        <span>Appointment Date :</span>
+                      </span>
+                      <span>
+                        {appointment.date.getDate()}/
+                        {appointment.date.getMonth() + 1}/
+                        {appointment.date.getFullYear()}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-[5px]">
+                      <span className="font-medium">Time :</span>
+                      <span>{appointment.time}</span>
+                    </div>
+
+                    <div className="flex gap-[5px]">
+                      <span className="font-medium">contact : </span>
+                      <span>{appointment.contact}</span>
+                    </div>
+                  </div>
+
+                  <hr className="border border-[#2D37482D]" />
                 </div>
-
-                <div className="flex gap-[5px]">
-                  <span className="font-medium">
-                    <span>Appointment Date :</span>
-                  </span>
-                  <span>
-                    {appointment.date.getDate()}/
-                    {appointment.date.getMonth() + 1}/
-                    {appointment.date.getFullYear()}
-                  </span>
-                </div>
-
-                <div className="flex gap-[5px]">
-                  <span className="font-medium">Time :</span>
-                  <span>{appointment.time}</span>
-                </div>
-
-                <div className="flex gap-[5px]">
-                  <span className="font-medium">contact : </span>
-                  <span>{appointment.contact}</span>
-                </div>
-              </div>
-
-              <hr className="border border-[#2D37482D]" />
+              ))}
+            </>
+          ) : (
+            <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              No approved appointments available.
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>
