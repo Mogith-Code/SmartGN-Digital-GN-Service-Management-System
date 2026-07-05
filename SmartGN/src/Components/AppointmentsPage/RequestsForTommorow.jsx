@@ -9,6 +9,7 @@ import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRA
 import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_22C55E_FILL0_wght400_GRAD0_opsz24.svg";
 import pendingIcon from "../../assets/schedule_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import Footer from "../Common/Footer";
 
 function RequestsForTommorow() {
   const navigate = useNavigate();
@@ -290,6 +291,7 @@ function RequestsForTommorow() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
