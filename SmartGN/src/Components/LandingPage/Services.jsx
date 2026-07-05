@@ -41,6 +41,11 @@ function Services() {
           listDesc:
             " Register for Aswesuma, Samurdhi and other government allowance programs.",
         },
+        {
+          listTitle: "Disaster Relief",
+          listDesc:
+            " Report disaster damage and apply for government relief assistance.",
+        },
       ],
     },
     SI: {
@@ -66,6 +71,10 @@ function Services() {
           listDesc:
             "අස්වැසුම, සමෘද්ධි සහ අනෙකුත් රජයේ දීමනා වැඩසටහන් සඳහා ලියාපදිංචි වන්න.",
         },
+        {
+          listTitle: "ආපදා සහන",
+          listDesc: "ආපදා හානි වාර්තා කර රජයේ සහන ආධාර සඳහා ඉල්ලුම් කරන්න.",
+        },
       ],
     },
     TA: {
@@ -90,6 +99,11 @@ function Services() {
           listTitle: "கொடுப்பனவுகளுக்கு விண்ணப்பிக்கவும்",
           listDesc:
             "அஸ்வெசும, சமூர்த்தி மற்றும் பிற அரசு கொடுப்பனவு திட்டங்களுக்கு பதிவு செய்யவும்.",
+        },
+        {
+          listTitle: "பேரழிவு நிவாரணம்",
+          listDesc:
+            "பேரழிவு சேதங்களை அறிக்கை செய்து, அரசு நிவாரண உதவிகளுக்கு விண்ணப்பங்கள் அனுப்பவும்.",
         },
       ],
     },
@@ -159,8 +173,8 @@ function Services() {
       icon2: arrowIcon,
     },
     {
-      title: "Disaster Relief",
-      desc: " Report disaster damage and apply for government relief assistance.",
+      title: t.ServicesList[4].listTitle,
+      desc: t.ServicesList[4].listDesc,
       handleClick: handleDisasterRelief(),
       icon1: disasterIcon,
       icon2: arrowIcon,
