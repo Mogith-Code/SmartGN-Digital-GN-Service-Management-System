@@ -17,13 +17,13 @@ function Services() {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
-  const servicesTranslations = {
+  const STranslations = {
     EN: { servicesTitle: "Services You Can Get" },
-    SI: { servicesTitle: "ඔබට ලබා ගත හැකි සේවාවන්" },
+    SI: { servicesTitle: "ඔබට ලබාගත හැකි සේවාවන්" },
     TA: { servicesTitle: "உங்கள் பெறலாம் சேவைகள்" },
   };
 
-  const t = servicesTranslations[lang] || servicesTranslations.EN;
+  const t = STranslations[lang] || STranslations.EN;
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
@@ -56,6 +56,23 @@ function Services() {
     // navigate("/services/announcements");
   };
 
+  const servicesCard = [
+    {
+      title: "Request Certificates",
+      desc: "Apply for character certificates, income certificates and more with digital verification.",
+      handleClick: handleRequestCertificates(),
+      icon1: requestIcon,
+      icon2: arrowIcon,
+    },
+    {
+      title: "Book Appointments",
+      desc: " Schedule meetings with your Grama Niladhari officer at convenient times.",
+      handleClick: handleBookAppointments(),
+      icon1: appointmentIcon,
+      icon2: arrowIcon,
+    },
+  ];
+
   return (
     <section
       id="services"
@@ -78,79 +95,45 @@ function Services() {
           {/* ================================================================ */}
           {/* CARD 1: Request Certificates */}
           {/* ================================================================ */}
-          <div
-            onClick={handleRequestCertificates}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleRequestCertificates();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            {/* Left Column: Icon */}
-            <img
-              src={requestIcon}
-              alt="Request Certificates icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
+          {servicesCard.map((service) => (
+            <div
+              onClick={service.handleClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  {
+                    service.handleClick;
+                  }
+                }
+              }}
+              className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
+            >
+              {/* Left Column: Icon */}
+              <img
+                src={service.icon1}
+                alt="Request Certificates icon"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
+              />
 
-            {/* Right Column: Title + Description */}
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Request Certificates
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
+              {/* Right Column: Title + Description */}
+              <div className="flex-1 flex flex-col">
+                <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
+                  <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
+                    {service.title}
+                  </h3>
+                  <img
+                    src={service.icon2}
+                    alt="Arrow icon"
+                    className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
+                  />
+                </div>
+                <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
+                  {service.desc}
+                </p>
               </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Apply for character certificates, income certificates and more
-                with digital verification.
-              </p>
             </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 2: Book Appointments */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleBookAppointments}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleBookAppointments();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={appointmentIcon}
-              alt="Book Appointments icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Book Appointments
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Schedule meetings with your Grama Niladhari officer at
-                convenient times.
-              </p>
-            </div>
-          </div>
+          ))}
 
           {/* ================================================================ */}
           {/* CARD 3: Track Requests */}
