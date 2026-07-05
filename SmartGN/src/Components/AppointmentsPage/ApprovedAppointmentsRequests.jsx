@@ -29,36 +29,53 @@ function ApprovedAppointmentsRequests() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
+      firstName: "Nirmal",
+      lastName: "Perera",
+      photo: "photo_here",
+      nic: "200314911465",
       purpose: "Meeting with Officer A",
-      date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
+      date: new Date(2026, 6, 5),
       time: "10:00 AM",
       contact: "0703891153",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
       id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
+      photo: "photo_here",
+      nic: "200314911455",
       purpose: "Certificate Collection",
-      date: new Date(2026, 5, 25), // June 25, 2026
+      date: new Date(2026, 6, 5), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
     {
       id: 3,
+      firstName: "John",
+      lastName: "Doe",
+      photo: "photo_here",
+      nic: "200314911459",
       purpose: "Document Submission",
-      date: new Date(2026, 5, 28), // June 28, 2026
+      date: new Date(2026, 6, 6), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
+
     {
       id: 4,
+      firstName: "Alice",
+      lastName: "Johnson",
+      photo: "photo_here",
+      nic: "200314911460",
       purpose: "Meeting with Officer B",
       date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
@@ -113,45 +130,56 @@ function ApprovedAppointmentsRequests() {
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             {t.Title}
           </div>
+          {approvedAppointments.length > 0 ? (
+            <>
+              {approvedAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                >
+                  <div className="flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-medium">{appointment.purpose}</span>
+                    <span key={appointment.id} className="font-light">
+                      {appointment.createdAt.getDate()}/
+                      {appointment.createdAt.getMonth() + 1}/
+                      {appointment.createdAt.getFullYear()}
+                    </span>
+                  </div>
 
-          {approvedAppointments.map((appointment) => (
-            <div
-              key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-            >
-              <div className="flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-medium">{appointment.purpose}</span>
-                <span key={appointment.id} className="font-light">
-                  {appointment.createdAt.getDate()}/
-                  {appointment.createdAt.getMonth() + 1}/
-                  {appointment.createdAt.getFullYear()}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      Requested Date: {appointment.requestedDate.getDate()}/
+                      {appointment.requestedDate.getMonth() + 1}/
+                      {appointment.requestedDate.getFullYear()}
+                    </span>
+                    <span className="font-light">
+                      {getFormattedTime(appointment.createdAt)}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">
-                  Requested Date: {appointment.requestedDate.getDate()}/
-                  {appointment.requestedDate.getMonth() + 1}/
-                  {appointment.requestedDate.getFullYear()}
-                </span>
-                <span className="font-light">
-                  {getFormattedTime(appointment.createdAt)}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      Appointment Date: {appointment.date.getDate()}/
+                      {appointment.date.getMonth() + 1}/
+                      {appointment.date.getFullYear()}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">
-                  Appointment Date: {appointment.date.getDate()}/
-                  {appointment.date.getMonth() + 1}/
-                  {appointment.date.getFullYear()}
-                </span>
-              </div>
-
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">Time: {appointment.time}</span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      Time: {appointment.time}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
+                No pending appointments available.
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
