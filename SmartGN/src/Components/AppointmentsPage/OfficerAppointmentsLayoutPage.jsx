@@ -128,16 +128,15 @@ function OfficerAppointmentsLayoutPage() {
     (item) => item.status === "Approved",
   ).length;
 
-  // Get tomorrow's date
-  const tomorrow = new Date();
   // Filter appointments for tomorrow
   const tomorrowCount = appointments.filter((item) => {
     return (
-      item.date.getDate() === tomorrow.getDate() + 1 &&
-      item.date.getMonth() === tomorrow.getMonth() &&
-      item.date.getFullYear() === tomorrow.getFullYear()
+      item.date.getDate() === new Date().getDate() + 1 &&
+      item.date.getMonth() === new Date().getMonth() &&
+      item.date.getFullYear() === new Date().getFullYear()
     );
   }).length;
+
   return (
     <>
       <div className="flex  text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
