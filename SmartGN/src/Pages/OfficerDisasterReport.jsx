@@ -318,6 +318,11 @@ function OfficerDisasterReports({ onOpenHelp }) {
           </button>
         </main>
       </div>
+
+      {/* 3. Take Action Modal */}
+      {isModalOpen && selectedDisaster && (
+        <div className="modal-overlay">
+          <div className="modal-card"></div>
                     
 
 
