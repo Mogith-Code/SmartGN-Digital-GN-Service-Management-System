@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
-import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import OfficerCardLayout from "./OfficerCardLayout";
 import CalendarLayout from "./CalenderLayout";
 import AppointmentSummary from "./AppointmentSummary";
+import { useNavigate } from "react-router-dom";
 
 function OfficerAppointmentsLayoutPage() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -36,6 +38,8 @@ function OfficerAppointmentsLayoutPage() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
+      firstName: "Nirmal",
+      lastName: "Perera",
       photo: "photo_here",
       nic: "200314911465",
       purpose: "Meeting with Officer A",
@@ -48,6 +52,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
       photo: "photo_here",
       nic: "200314911455",
       purpose: "Certificate Collection",
@@ -60,6 +66,8 @@ function OfficerAppointmentsLayoutPage() {
     },
     {
       id: 3,
+      firstName: "John",
+      lastName: "Doe",
       photo: "photo_here",
       nic: "200314911459",
       purpose: "Document Submission",
@@ -73,6 +81,8 @@ function OfficerAppointmentsLayoutPage() {
 
     {
       id: 4,
+      firstName: "Alice",
+      lastName: "Johnson",
       photo: "photo_here",
       nic: "200314911460",
       purpose: "Meeting with Officer B",
@@ -111,18 +121,8 @@ function OfficerAppointmentsLayoutPage() {
   };
   return (
     <>
-      <div className="flex justify-between text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
+      <div className="flex  text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         <span>{t.Title}</span>
-        <div className="flex bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] items-center gap-[10px]">
-          <img
-            src={searchIcon}
-            alt="Search Icon"
-            className="w-[15px] h-[15px] opacity-[50%]"
-          />
-          <span className="text-[16px] font-light text-[#2D3748] opacity-[50%]">
-            Search residents
-          </span>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
@@ -148,26 +148,57 @@ function OfficerAppointmentsLayoutPage() {
             <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
               Appointment Summary
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] border border-[red]">
+            <div className="flex flex-col gap-[15px] my-[20px]">
               {activeAppointment.map((appointment) => (
-                <div className="gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Purpose:</span>{" "}
-                    {appointment.purpose}
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Time:</span>{" "}
-                    {appointment.time}
-                  </p>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                    <span className="font-medium">Status:</span>{" "}
-                    {appointment.status}
-                  </p>
+                <div className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] py-[20px] px-[30px]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex w-[30%] items-center">
+                      <img
+                        src={profileIcon}
+                        alt="Resident Photo"
+                        className="w-[100px] h-[100px] rounded-full"
+                      />
+
+                      <div className="flex flex-col ml-[10px]">
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                          {appointment.firstName} {appointment.lastName}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                          {appointment.nic}
+                        </span>
+                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
+                          View Profile
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex w-[60%] justify-between">
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Purpose :</span>{" "}
+                        {appointment.purpose}
+                      </p>
+
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Time :</span>{" "}
+                        {appointment.time}
+                      </p>
+
+                      <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                        <span className="font-medium">Contact :</span>{" "}
+                        {appointment.contact}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
-              <button className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200">
+            <div className="flex justify-center">
+              <button
+                className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
+                onClick={() =>
+                  navigate("/OfficerAppointment/OfficerApprovedAppointment")
+                }
+              >
                 <span>More Appointments</span>
                 <img
                   src={viewIcon}

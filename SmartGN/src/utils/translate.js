@@ -1,8 +1,5 @@
 export const translations = {
   EN: {
-    // Header
-    selectLanguage: "English",
-    tagline: "Digital Grama Niladhari Service Management System",
     
     // Titles & Subtitles
     certApproval: "Certificate Approval",
@@ -46,9 +43,6 @@ export const translations = {
     diagnosticSuccess: "System Optimization and Security Sweep completed successfully!"
   },
   SI: {
-    // Header
-    selectLanguage: "සිංහල",
-    tagline: "ඩිජිටල් ග්‍රාම නිලධාරී සේවා කළමනාකරණ පද්ධතිය",
 
     // Titles & Subtitles
     certApproval: "සහතික අනුමැතිය",
@@ -92,9 +86,6 @@ export const translations = {
     diagnosticSuccess: "පද්ධති ප්‍රශස්තකරණය සහ ආරක්ෂක පරීක්ෂාව සාර්ථකව නිම කරන ලදී!"
   },
   TA: {
-    // Header
-    selectLanguage: "தமிழ்",
-    tagline: "டிஜிட்டல் கிராம நிலதாரி சேவை மேலாண்மை அமைப்பு",
 
     // Titles & Subtitles
     certApproval: "சான்றிதழ் ஒப்புதல்",
