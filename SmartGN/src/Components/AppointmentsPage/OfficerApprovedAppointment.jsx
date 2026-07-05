@@ -5,6 +5,7 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
+import Footer from "../Common/Footer";
 
 function OfficerApprovedAppointment() {
   const navigate = useNavigate();
@@ -212,6 +213,7 @@ function OfficerApprovedAppointment() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
