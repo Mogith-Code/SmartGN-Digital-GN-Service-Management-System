@@ -31,7 +31,49 @@ function OfficerNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const t = translations[lang];
+
+  const OSidebarTranslations = {
+    EN: {
+      home: "Home",
+      dashboard: "Dashboard",
+      certificates: "Certificates Services",
+      allowances: "Allowance Programs",
+      appointments: "Appointments",
+      disaster: "Disaster Report",
+      announcements: "Announcements",
+      profile: "Profile & Settings",
+      resident: "Residents' Information",
+      logout: "Log Out",
+    },
+
+    SI: {
+      home: "මුල් පිටුව",
+      dashboard: "පාලන පුවරුව",
+      certificates: "සහතික සේවා",
+      allowances: "දීමනා වැඩසටහන්",
+      appointments: "හමුවීම්",
+      disaster: "ආපදා වාර්තා",
+      announcements: "නිවේදන",
+      profile: "පැතිකඩ සහ සැකසුම්",
+      resident: "පදිංචිකරුවන්ගේ තොරතුරු",
+      logout: "පිටවීම",
+    },
+
+    TA: {
+      home: "முகப்பு",
+      dashboard: "டாஷ்போர்டு",
+      certificates: "சான்றிதழ் சேவைகள்",
+      allowances: "கொடுப்பனவு திட்டங்கள்",
+      appointments: "சந்திப்புகள்",
+      disaster: "பேரழிவு அறிக்கை",
+      announcements: "அறிவிப்புகள்",
+      profile: "சுயவிவரம் & அமைப்புகள்",
+      resident: "பதிவுசெய்யப்பட்ட குடும்பங்களின் தகவல்கள்",
+      logout: "வெளியேறு",
+    },
+  };
+
+  const t = OSidebarTranslations[lang] || OSidebarTranslations.EN;
 
   // Dynamic Officer Profile State loaded from local storage
   const [profile, setProfile] = useState({
@@ -80,9 +122,9 @@ function OfficerNavbar() {
       iconActive: profileIconHovered,
     },
     {
-      id: "household",
-      name: t.family,
-      path: "/dashboard/officer/household",
+      id: "residents' details",
+      name: t.resident,
+      path: "/ResidentsDetails",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },
@@ -96,7 +138,7 @@ function OfficerNavbar() {
     {
       id: "appointments",
       name: t.appointments,
-      path: "/dashboard/officer/appointments",
+      path: "/OfficerAppointment",
       icon: appointmentIcon,
       iconActive: appointmentIconHovered,
     },
