@@ -6,7 +6,7 @@ import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_
 import urgentIcon from "../../assets/work_alert_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function OfficerCardLayout({ pendingCount, approvedCount }) {
+function OfficerCardLayout({ pendingCount, approvedCount, tomorrowCount }) {
   const navigate = useNavigate();
 
   const { lang } = useLanguage();
@@ -16,15 +16,15 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
   // Sinhala (SI), and Tamil (TA)
   const OCardLayoutTranslations = {
     EN: {
-      Card1Title: "Appointment requests",
-      Card2Title: "Approved appointments",
-      Card3Title: "Requests for tomorrow",
+      Card1Title: "Pending Requests",
+      Card2Title: "Approved Appointments",
+      Card3Title: "Tomorrow's Appointments",
     },
 
     SI: {
       Card1Title: "හමුවීම් සඳහා ඉල්ලීම්",
       Card2Title: "අනුමත හමුවීම්",
-      Card3Title: "හෙට දින සඳහා ඉල්ලීම්",
+      Card3Title: "හෙට හමුවීම්",
     },
 
     TA: {
@@ -80,9 +80,12 @@ function OfficerCardLayout({ pendingCount, approvedCount }) {
       >
         <img src={urgentIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col pb-[40px] items-center ">
+        <div className="flex flex-col gap-[10px] items-center">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
+          </span>
+          <span className="text-[20px] font-medium text-[#2D3748]">
+            {tomorrowCount}
           </span>
         </div>
       </div>

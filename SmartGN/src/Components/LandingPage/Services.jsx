@@ -10,9 +10,120 @@ import arrowIcon from "../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD
 import allowanceIcon from "../../assets/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import disasterIcon from "../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import announcementIcon from "../../assets/brand_awareness_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { useLanguage } from "../../utils/translate";
 
 function Services() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  // TRANSLATION OBJECTS
+  const STranslations = {
+    EN: {
+      servicesTitle: "Services You Can Get",
+      ServicesList: [
+        {
+          listTitle: "Request Certificates",
+          listDesc:
+            "Apply for character certificates, income certificates and more with digital verification.",
+        },
+        {
+          listTitle: "Book Appointments",
+          listDesc:
+            "Schedule meetings with your Grama Niladhari officer at convenient times.",
+        },
+        {
+          listTitle: "Track Requests",
+          listDesc:
+            " Check the status of your applications (pending, approved, or require further information).",
+        },
+        {
+          listTitle: "Apply for Allowances",
+          listDesc:
+            " Register for Aswesuma, Samurdhi and other government allowance programs.",
+        },
+        {
+          listTitle: "Disaster Relief",
+          listDesc:
+            " Report disaster damage and apply for government relief assistance.",
+        },
+        {
+          listTitle: "Announcements",
+          listDesc:
+            " Stay informed with official notices and community announcements.",
+        },
+      ],
+    },
+    SI: {
+      servicesTitle: "ඔබට ලබාගත හැකි සේවාවන්",
+      ServicesList: [
+        {
+          listTitle: "සහතික ඉල්ලීම්",
+          listDesc:
+            "ඩිජිටල් සත්‍යාපනය සමඟ චරිත සහතික, ආදායම් සහතික සහ වෙනත් සහතික සඳහා ඉල්ලුම් කරන්න.",
+        },
+        {
+          listTitle: "හමුවීම් වෙන්කරවා ගැනීම",
+          listDesc:
+            "පහසු වේලාවන්හිදී ඔබේ ග්‍රාම නිලධාරීවරයා සමඟ සාකච්ඡා වෙන්කරවා ගන්න.",
+        },
+        {
+          listTitle: "ඉල්ලීම් ලුහුබැඳීම",
+          listDesc:
+            "ඔබගේ ඉල්ලුම්පත්‍රවල වත්මන් තත්ත්වය (පූරණය වෙමින් පවතින, අනුමත හෝ වැඩිදුර තොරතුරු අවශ්‍ය) පරීක්ෂා කරන්න.",
+        },
+        {
+          listTitle: "දීමනා සඳහා ඉල්ලුම් කිරීම",
+          listDesc:
+            "අස්වැසුම, සමෘද්ධි සහ අනෙකුත් රජයේ දීමනා වැඩසටහන් සඳහා ලියාපදිංචි වන්න.",
+        },
+        {
+          listTitle: "ආපදා සහන",
+          listDesc: "ආපදා හානි වාර්තා කර රජයේ සහන ආධාර සඳහා ඉල්ලුම් කරන්න.",
+        },
+        {
+          listTitle: "නිවේදන",
+          listDesc: "නිල නිවේදන සහ ප්‍රජා තොරතුරු පිළිබඳව යාවත්කාලීනව සිටින්න.",
+        },
+      ],
+    },
+    TA: {
+      servicesTitle: "உங்கள் பெறலாம் சேவைகள்",
+      ServicesList: [
+        {
+          listTitle: "சான்றிதழ்களைக் கோருங்கள்",
+          listDesc:
+            "டிஜிட்டல் சரிபார்ப்புடன் நற்சான்றிதழ்கள், வருமானச் சான்றிதழ்கள் மற்றும் பிற சான்றிதழ்களுக்கு விண்ணப்பிக்கவும்.",
+        },
+        {
+          listTitle: "சந்திப்புகளை முன்பதிவு செய்க",
+          listDesc:
+            "வசதியான நேரங்களில் உங்கள் கிராம நிலதாரி அதிகாரியுடன் சந்திப்புகளைத் திட்டமிடுங்கள்.",
+        },
+        {
+          listTitle: "கோரிக்கைகளைக் கண்காணிக்கவும்",
+          listDesc:
+            "உங்கள் விண்ணப்பங்களின் நிலையைக் கண்டறியவும் (நிலுவையில் உள்ளதா, அங்கீகரிக்கப்பட்டதா அல்லது கூடுதல் தகவல் தேவையா).",
+        },
+        {
+          listTitle: "கொடுப்பனவுகளுக்கு விண்ணப்பிக்கவும்",
+          listDesc:
+            "அஸ்வெசும, சமூர்த்தி மற்றும் பிற அரசு கொடுப்பனவு திட்டங்களுக்கு பதிவு செய்யவும்.",
+        },
+        {
+          listTitle: "பேரழிவு நிவாரணம்",
+          listDesc:
+            "பேரழிவு சேதங்களை அறிக்கை செய்து, அரசு நிவாரண உதவிகளுக்கு விண்ணப்பங்கள் அனுப்பவும்.",
+        },
+        {
+          listTitle: "அறிவிப்புகள்",
+          listDesc:
+            "அதிகாரப்பூர்வ அறிவிப்புகள் மற்றும் சமூகச் செய்திகளுடன் உடனுக்குடன் இணைந்திருங்கள்.",
+        },
+      ],
+    },
+  };
+
+  const t = STranslations[lang] || STranslations.EN;
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
@@ -45,6 +156,53 @@ function Services() {
     // navigate("/services/announcements");
   };
 
+  const servicesCard = [
+    {
+      title: t.ServicesList[0].listTitle,
+      desc: t.ServicesList[0].listDesc,
+      handleClick: handleRequestCertificates(),
+      icon1: requestIcon,
+      icon2: arrowIcon,
+    },
+    {
+      title: t.ServicesList[1].listTitle,
+      desc: t.ServicesList[1].listDesc,
+      handleClick: handleBookAppointments(),
+      icon1: appointmentIcon,
+      icon2: arrowIcon,
+    },
+    {
+      title: t.ServicesList[2].listTitle,
+      desc: t.ServicesList[2].listDesc,
+      handleClick: handleTrackRequests(),
+      icon1: trackIcon,
+      icon2: arrowIcon,
+    },
+
+    {
+      title: t.ServicesList[3].listTitle,
+      desc: t.ServicesList[3].listDesc,
+      handleClick: handleApplyAllowances(),
+      icon1: allowanceIcon,
+      icon2: arrowIcon,
+    },
+    {
+      title: t.ServicesList[4].listTitle,
+      desc: t.ServicesList[4].listDesc,
+      handleClick: handleDisasterRelief(),
+      icon1: disasterIcon,
+      icon2: arrowIcon,
+    },
+
+    {
+      title: t.ServicesList[5].listTitle,
+      desc: t.ServicesList[5].listDesc,
+      handleClick: handleAnnouncements(),
+      icon1: announcementIcon,
+      icon2: arrowIcon,
+    },
+  ];
+
   return (
     <section
       id="services"
@@ -56,7 +214,7 @@ function Services() {
         {/* ==================================================================== */}
         <div className="w-full text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[32px] font-semibold text-[#1B365D] tracking-tight">
-            Services You Can Get
+            {t.servicesTitle}
           </h2>
         </div>
 
@@ -67,226 +225,45 @@ function Services() {
           {/* ================================================================ */}
           {/* CARD 1: Request Certificates */}
           {/* ================================================================ */}
-          <div
-            onClick={handleRequestCertificates}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleRequestCertificates();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            {/* Left Column: Icon */}
-            <img
-              src={requestIcon}
-              alt="Request Certificates icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
+          {servicesCard.map((service) => (
+            <div
+              onClick={service.handleClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  {
+                    service.handleClick;
+                  }
+                }
+              }}
+              className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
+            >
+              {/* Left Column: Icon */}
+              <img
+                src={service.icon1}
+                alt="Request Certificates icon"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
+              />
 
-            {/* Right Column: Title + Description */}
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Request Certificates
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
+              {/* Right Column: Title + Description */}
+              <div className="flex-1 flex flex-col">
+                <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
+                  <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
+                    {service.title}
+                  </h3>
+                  <img
+                    src={service.icon2}
+                    alt="Arrow icon"
+                    className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
+                  />
+                </div>
+                <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
+                  {service.desc}
+                </p>
               </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Apply for character certificates, income certificates and more
-                with digital verification.
-              </p>
             </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 2: Book Appointments */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleBookAppointments}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleBookAppointments();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={appointmentIcon}
-              alt="Book Appointments icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Book Appointments
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Schedule meetings with your Grama Niladhari officer at
-                convenient times.
-              </p>
-            </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 3: Track Requests */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleTrackRequests}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleTrackRequests();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={trackIcon}
-              alt="Track Requests icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Track Requests
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Check the status of your applications (pending, approved, or
-                require further information).
-              </p>
-            </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 4: Apply for Allowances */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleApplyAllowances}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleApplyAllowances();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={allowanceIcon}
-              alt="Apply for Allowances icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Apply for Allowances
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Register for Aswesuma, Samurdhi and other government allowance
-                programs.
-              </p>
-            </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 5: Disaster Relief */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleDisasterRelief}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleDisasterRelief();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={disasterIcon}
-              alt="Disaster Relief icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Disaster Relief
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Report disaster damage and apply for government relief
-                assistance.
-              </p>
-            </div>
-          </div>
-
-          {/* ================================================================ */}
-          {/* CARD 6: Announcements */}
-          {/* ================================================================ */}
-          <div
-            onClick={handleAnnouncements}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                handleAnnouncements();
-              }
-            }}
-            className="flex items-start gap-3 sm:gap-4 p-5 sm:p-6 md:p-7 lg:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out group cursor-pointer"
-          >
-            <img
-              src={announcementIcon}
-              alt="Announcements icon"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-[20px] md:h-[20px] min-w-[16px] sm:min-w-[20px] object-contain mt-0.5 sm:mt-1"
-            />
-            <div className="flex-1 flex flex-col">
-              <div className="flex justify-between items-center w-full mb-1 sm:mb-2">
-                <h3 className="text-sm sm:text-base md:text-[16px] font-semibold text-[#2D3748] group-hover:text-[#2c5f8a] transition-colors duration-300">
-                  Announcements
-                </h3>
-                <img
-                  src={arrowIcon}
-                  alt="Arrow icon"
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
-                />
-              </div>
-              <p className="text-xs sm:text-sm md:text-[14px] text-gray-500 font-normal leading-relaxed text-left">
-                Stay informed with official notices and community announcements.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
