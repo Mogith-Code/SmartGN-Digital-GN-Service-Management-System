@@ -298,7 +298,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     <button 
                       className="action-btn-blue"
                       onClick={() => handleOpenActionModal(disaster)}
-                    ></button>
+                    >
 
 
 
