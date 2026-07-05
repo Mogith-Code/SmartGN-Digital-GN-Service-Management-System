@@ -36,6 +36,11 @@ function Services() {
           listDesc:
             " Check the status of your applications (pending, approved, or require further information).",
         },
+        {
+          listTitle: "Apply for Allowances",
+          listDesc:
+            " Register for Aswesuma, Samurdhi and other government allowance programs.",
+        },
       ],
     },
     SI: {
@@ -56,6 +61,11 @@ function Services() {
           listDesc:
             "ඔබගේ ඉල්ලුම්පත්‍රවල වත්මන් තත්ත්වය (පූරණය වෙමින් පවතින, අනුමත හෝ වැඩිදුර තොරතුරු අවශ්‍ය) පරීක්ෂා කරන්න.",
         },
+        {
+          listTitle: "දීමනා සඳහා ඉල්ලුම් කිරීම",
+          listDesc:
+            "අස්වැසුම, සමෘද්ධි සහ අනෙකුත් රජයේ දීමනා වැඩසටහන් සඳහා ලියාපදිංචි වන්න.",
+        },
       ],
     },
     TA: {
@@ -75,6 +85,11 @@ function Services() {
           listTitle: "கோரிக்கைகளைக் கண்காணிக்கவும்",
           listDesc:
             "உங்கள் விண்ணப்பங்களின் நிலையைக் கண்டறியவும் (நிலுவையில் உள்ளதா, அங்கீகரிக்கப்பட்டதா அல்லது கூடுதல் தகவல் தேவையா).",
+        },
+        {
+          listTitle: "கொடுப்பனவுகளுக்கு விண்ணப்பிக்கவும்",
+          listDesc:
+            "அஸ்வெசும, சமூர்த்தி மற்றும் பிற அரசு கொடுப்பனவு திட்டங்களுக்கு பதிவு செய்யவும்.",
         },
       ],
     },
@@ -137,8 +152,8 @@ function Services() {
     },
 
     {
-      title: "Apply for Allowances",
-      desc: " Register for Aswesuma, Samurdhi and other government allowance programs.",
+      title: t.ServicesList[3].listTitle,
+      desc: t.ServicesList[3].listDesc,
       handleClick: handleApplyAllowances(),
       icon1: allowanceIcon,
       icon2: arrowIcon,
