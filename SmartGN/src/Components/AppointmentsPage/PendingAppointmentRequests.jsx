@@ -148,52 +148,65 @@ function PendingAppointmentRequests() {
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             {t.Title}
           </div>
+          {pendingAppointments.length > 0 ? (
+            <>
+              {pendingAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                >
+                  <div className="flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-medium">{appointment.purpose}</span>
+                    <span key={appointment.id} className="font-light">
+                      {appointment.createdAt.getDate()}/
+                      {appointment.createdAt.getMonth() + 1}/
+                      {appointment.createdAt.getFullYear()}
+                    </span>
+                  </div>
 
-          {pendingAppointments.map((appointment) => (
-            <div
-              key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-            >
-              <div className="flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-medium">{appointment.purpose}</span>
-                <span key={appointment.id} className="font-light">
-                  {appointment.createdAt.getDate()}/
-                  {appointment.createdAt.getMonth() + 1}/
-                  {appointment.createdAt.getFullYear()}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      {t.appointmentDate} {appointment.date.getDate()}/
+                      {appointment.date.getMonth() + 1}/
+                      {appointment.date.getFullYear()}
+                    </span>
+                    <span className="font-light">
+                      {getFormattedTime(appointment.createdAt)}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">
-                  {t.appointmentDate} {appointment.date.getDate()}/
-                  {appointment.date.getMonth() + 1}/
-                  {appointment.date.getFullYear()}
-                </span>
-                <span className="font-light">
-                  {getFormattedTime(appointment.createdAt)}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      {t.time}
+                      {appointment.time}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">
-                  {t.time}
-                  {appointment.time}
-                </span>
-              </div>
+                  <div className="flex justify-end gap-[10px] mt-[10px]">
+                    <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
+                      <img src={editIcon} alt="editIcon" className="h-[15px]" />
+                      <span>{t.edit}</span>
+                    </button>
 
-              <div className="flex justify-end gap-[10px] mt-[10px]">
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
-                  <img src={editIcon} alt="editIcon" className="h-[15px]" />
-                  <span>{t.edit}</span>
-                </button>
-
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
-                  <img src={cancelIcon} alt="cancelIcon" className="h-[16px]" />
-                  <span>{t.cancel}</span>
-                </button>
-              </div>
+                    <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
+                      <img
+                        src={cancelIcon}
+                        alt="cancelIcon"
+                        className="h-[16px]"
+                      />
+                      <span>{t.cancel}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
+                No pending appointments available.
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
