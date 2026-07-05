@@ -43,10 +43,10 @@ function OfficerAppointmentsLayoutPage() {
       photo: "photo_here",
       nic: "200314911465",
       purpose: "Meeting with Officer A",
-      date: new Date(2026, 6, 5), // June 30, 2026 (Month: 5 = June)
+      date: new Date(2026, 6, 5),
       time: "10:00 AM",
       contact: "0703891153",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
@@ -74,7 +74,7 @@ function OfficerAppointmentsLayoutPage() {
       date: new Date(2026, 6, 6), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
@@ -86,7 +86,7 @@ function OfficerAppointmentsLayoutPage() {
       photo: "photo_here",
       nic: "200314911460",
       purpose: "Meeting with Officer B",
-      date: new Date(2026, 6, 6), // June 23, 2026
+      date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
       contact: "0771234567",
       status: "Pending",
