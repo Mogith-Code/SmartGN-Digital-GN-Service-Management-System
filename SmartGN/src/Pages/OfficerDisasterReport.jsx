@@ -323,6 +323,12 @@ function OfficerDisasterReports({ onOpenHelp }) {
       {isModalOpen && selectedDisaster && (
         <div className="modal-overlay">
           <div className="modal-card"></div>
+
+             <div className="modal-header">
+              <h3 className="modal-title">Disaster Damage Report Details</h3>
+              <button className="modal-close" onClick={() => setIsModalOpen(false)} aria-label="Close Modal">×</button>
+            </div>
+
                     
 
 
