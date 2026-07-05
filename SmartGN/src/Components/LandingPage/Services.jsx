@@ -10,9 +10,21 @@ import arrowIcon from "../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD
 import allowanceIcon from "../../assets/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import disasterIcon from "../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import announcementIcon from "../../assets/brand_awareness_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { useLanguage } from "../../utils/translate";
 
 function Services() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  // TRANSLATION OBJECTS
+  const AppointmentLayoutTranslations = {
+    EN: { Title: "Appointments" },
+    SI: { Title: "හමුවවීම්" },
+    TA: { Title: "சந்திப்புகள்" },
+  };
+
+  const t =
+    AppointmentLayoutTranslations[lang] || AppointmentLayoutTranslations.EN;
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
