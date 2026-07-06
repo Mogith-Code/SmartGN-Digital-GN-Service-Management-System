@@ -64,7 +64,7 @@ function App() {
           element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/RHousehold"
+          path="/ResidentDashboard/RHousehold"
           element={<RHousehold onOpenHelp={openChatbot} />}
         />
 

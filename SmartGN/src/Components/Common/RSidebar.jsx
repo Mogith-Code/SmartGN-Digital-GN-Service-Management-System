@@ -95,7 +95,7 @@ function RSidebar() {
     {
       id: "household",
       name: t.family,
-      path: "/RHousehold",
+      path: "/ResidentDashboard/RHousehold",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },
