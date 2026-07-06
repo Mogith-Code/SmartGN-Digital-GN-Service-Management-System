@@ -119,3 +119,23 @@ async function setupTables(dbPool) {
     'Active', 
     'Teacher'
   ]);
+
+  await dbPool.query(`
+    INSERT IGNORE INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status, occupation)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    '199598765432V', 
+    'Ranasinghe Banda', 
+    '1995-11-20', 
+    residentPasswordHash, 
+    'Male', 
+    '0765432109', 
+    'ranasinghe@gmail.com', 
+    'HH-341', 
+    colomboId, 
+    'Active', 
+    'Farmer'
+  ]);
+
+  console.log('Database tables verified and seeded successfully.');
+}
