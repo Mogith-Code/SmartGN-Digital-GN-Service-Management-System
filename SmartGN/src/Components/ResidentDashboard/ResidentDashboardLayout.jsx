@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import ResidentCardLayout from "./ResidentCardLayout";
+import QuickActions from "./QuickActions";
 
 function ResidentDashboardLayout() {
   const navigate = useNavigate();
@@ -229,23 +230,7 @@ function ResidentDashboardLayout() {
       </div>
 
       <div className="flex mx-[100px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
-        <div className="flex flex-col gap-[25px] justify-center">
-          <span className="text-[#1B365D] text-[20px]">Quick Actions</span>
-          <div className="grid grid-cols-2 gap-[20px]">
-            <button className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
-              {" "}
-            </button>
-            <button className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
-              {" "}
-            </button>
-            <button className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
-              {" "}
-            </button>
-            <button className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
-              {" "}
-            </button>
-          </div>
-        </div>
+        <QuickActions />
       </div>
     </>
   );
