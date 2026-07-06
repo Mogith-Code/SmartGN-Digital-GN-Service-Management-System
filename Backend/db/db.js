@@ -59,4 +59,25 @@ async function setupTables(dbPool) {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  
+
+   // 1. Seed Divisions
+  const defaultDivisions = [
+    'Maharagama', 
+    'Colombo 03', 
+    'Colombo 07', 
+    'Galle Fort', 
+    'Kandy Town', 
+    'Negombo South', 
+    'Colombo, Borella'
+  ];
+
+  for (const divName of defaultDivisions) {
+    await dbPool.query('INSERT IGNORE INTO divisions (name) VALUES (?)', [divName]);
+  }
+
+  // Get Maharagama and Colombo division IDs for seeding
+  const [[maharagamaDiv]] = await dbPool.query('SELECT id FROM divisions WHERE name = "Maharagama"');
+  const [[colomboDiv]] = await dbPool.query('SELECT id FROM divisions WHERE name = "Colombo 03"');
+
+  const maharagamaId = maharagamaDiv ? maharagamaDiv.id : 1;
+  const colomboId = colomboDiv ? colomboDiv.id : 2;
