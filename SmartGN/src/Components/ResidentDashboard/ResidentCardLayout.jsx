@@ -13,9 +13,9 @@ function ResidentCardLayout({ pendingCount, approvedCount }) {
   // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
     EN: {
-      Card1Title: "Pending appointment requests",
-      Card2Title: "Approved appointment requests",
-      Card3Title: "Book an appointment",
+      Card1Title: "Pending requests",
+      Card2Title: "Approved requests",
+      Card3Title: "Upcoming appointments",
     },
     SI: {
       Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
