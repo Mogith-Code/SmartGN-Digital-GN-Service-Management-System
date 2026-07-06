@@ -43,6 +43,7 @@ function App() {
           path="/ResidentDashboard"
           element={<ResidentDashboard onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/ResidentDashboard/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
@@ -54,7 +55,7 @@ function App() {
         />
 
         <Route
-          path="/RAppointment/PendingAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests"
           element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
         />
 

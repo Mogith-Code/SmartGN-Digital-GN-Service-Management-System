@@ -104,7 +104,7 @@ function ApprovedAppointmentsRequests() {
           {/* Back Button */}
           <div
             className="flex w-[75px] p-[5px] text-[15px] items-center gap-[10px] font-regular text-[#1B365D] mt-[60px] mx-[30px] cursor-pointer"
-            onClick={() => navigate("/RAppointment")}
+            onClick={() => navigate("/ResidentDashboard/RAppointment")}
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
             {t.back}

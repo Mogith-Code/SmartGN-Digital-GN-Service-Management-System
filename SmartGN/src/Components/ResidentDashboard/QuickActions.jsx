@@ -47,7 +47,7 @@ function QuickActions() {
               className="h-[20px]"
             />
             <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
+              Book Appointments
             </span>
             <img
               src={arrowIcon}
@@ -70,7 +70,7 @@ function QuickActions() {
               className="h-[20px]"
             />
             <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
+              Apply for Allowances
             </span>
             <img
               src={arrowIcon}
@@ -87,9 +87,7 @@ function QuickActions() {
               alt="certificateIcon"
               className="h-[20px]"
             />
-            <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
-            </span>
+            <span className="text-[16px] text-[#2D3748]">Disaster Relief</span>
             <img
               src={arrowIcon}
               alt="arrowIcon"
