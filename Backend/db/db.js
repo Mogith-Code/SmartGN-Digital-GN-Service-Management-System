@@ -81,3 +81,41 @@ async function setupTables(dbPool) {
 
   const maharagamaId = maharagamaDiv ? maharagamaDiv.id : 1;
   const colomboId = colomboDiv ? colomboDiv.id : 2;
+
+  // 2. Seed Admin
+  const adminPasswordHash = bcrypt.hashSync('admin', 10);
+  await dbPool.query(`
+    INSERT IGNORE INTO admins (id, username, name, email, password)
+    VALUES (?, ?, ?, ?, ?)
+  `, ['ADMIN-001', 'admin', 'System Admin', 'admin@smartgn.gov.lk', adminPasswordHash]);
+
+  // 3. Seed Officers
+  const officerPasswordHash = bcrypt.hashSync('officer', 10);
+  await dbPool.query(`
+    INSERT IGNORE INTO officers (id, username, name, email, mobile, division_id, password, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `, ['GN-001', 'officer', 'Kamal Perera', 'kamal@smartgn.gov.lk', '0771234567', maharagamaId, officerPasswordHash, 'Active']);
+
+  await dbPool.query(`
+    INSERT IGNORE INTO officers (id, username, name, email, mobile, division_id, password, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `, ['GN-002', 'saman_officer', 'Saman Kumara', 'saman@smartgn.gov.lk', '0719876543', colomboId, officerPasswordHash, 'Active']);
+
+  // 4. Seed Residents
+  const residentPasswordHash = bcrypt.hashSync('resident', 10);
+  await dbPool.query(`
+    INSERT IGNORE INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status, occupation)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    '197812345678V', 
+    'Kamala Silva', 
+    '1978-05-12', 
+    residentPasswordHash, 
+    'Female', 
+    '0723456789', 
+    'kamala@gmail.com', 
+    'HH-908', 
+    maharagamaId, 
+    'Active', 
+    'Teacher'
+  ]);
