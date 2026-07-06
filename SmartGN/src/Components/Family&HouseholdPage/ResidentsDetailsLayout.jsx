@@ -26,7 +26,7 @@ function ResidentsDetailsLayout() {
             className="w-[15px] h-[15px] opacity-[50%]"
           />
           <span className="text-[16px] font-light text-[#2D3748] opacity-[50%]">
-            Search residents
+            Search residents using NIC number
           </span>
         </div>
       </div>
