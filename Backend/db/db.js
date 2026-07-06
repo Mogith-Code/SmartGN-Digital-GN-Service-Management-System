@@ -139,3 +139,49 @@ async function setupTables(dbPool) {
 
   console.log('Database tables verified and seeded successfully.');
 }
+
+async function getPool() {
+  if (pool) return pool;
+
+  try {
+    // Connect to MySQL server first (without database to ensure we can create it)
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      port: process.env.DB_PORT || 3306
+    });
+
+    const dbName = process.env.DB_NAME || 'smartgn_db';
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+    await connection.end();
+
+    // Create the connection pool with database selected
+    pool = mysql.createPool({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: dbName,
+      port: process.env.DB_PORT || 3306,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+
+    // Run table setups and seeds
+    await setupTables(pool);
+
+    return pool;
+  } catch (error) {
+    console.error('Failed to connect to MySQL database:', error.message);
+    throw error;
+  }
+}
+
+module.exports = {
+  getPool,
+  query: async (sql, params) => {
+    const activePool = await getPool();
+    return activePool.query(sql, params);
+  }
+};
