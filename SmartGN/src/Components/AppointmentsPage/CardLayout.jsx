@@ -44,7 +44,15 @@ function CardLayout({ pendingCount, approvedCount }) {
   const handleCard3click = () => {
     navigate("/RAppointment/BookingForm");
   };
-  const cards = [{}];
+  //   const cards = [
+  //     {
+  //     handleClick: handleCard1click(), icon: pendingIcon, alt: "pendingIcon", title: t.Card1Title, count: pendingCount
+  //   }, {
+  //     handleClick: handleCard2click(), icon: approvedIcon, alt: "approvedIcon", title: t.Card2Title, count: approvedCount
+  //   }, {
+  //     handleClick: handleCard3click(), icon: addIcon, alt: "addIcon", title: t.Card3Title
+  //   }
+  // ];
 
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
@@ -88,9 +96,12 @@ function CardLayout({ pendingCount, approvedCount }) {
       >
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
 
-        <div className="flex flex-col pb-[40px] items-center ">
+        <div className="flex flex-col gap-[10px] items-center">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
+          </span>
+          <span className="text-[12px] font-light text-[#2D3748] text-center">
+            Only 1 appointment can be booked for a day
           </span>
         </div>
       </div>
