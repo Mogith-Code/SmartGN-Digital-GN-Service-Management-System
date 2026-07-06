@@ -2,7 +2,7 @@ import React from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
-import ResidentsDetailsLayout from "../Components/Family&HouseholdPage/ResidentsDetailsLayout";
+import ResidentsDetailsLayout from "../Components/ResidentsDetails/ResidentsDetailsLayout";
 
 function ResidentsDetails({ onOpenHelp }) {
   return (
