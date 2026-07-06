@@ -74,7 +74,7 @@ function App() {
         />
 
         <Route
-          path="/RHousehold/EditHouseholdDetails"
+          path="/ResidentDashboard/RHousehold/EditHouseholdDetails"
           element={<EditHouseholdDetails onOpenHelp={openChatbot} />}
         />
 
