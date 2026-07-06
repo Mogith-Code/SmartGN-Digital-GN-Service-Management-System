@@ -5,6 +5,7 @@ import { getAuthHeaders } from "../utils/api";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
+import ResidentDashboardLayout from "../Components/ResidentDashboard/ResidentDashboardLayout";
 
 function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -159,7 +160,7 @@ function ResidentDashboard({ onOpenHelp }) {
             <RSidebar />
           </div>
           <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-            hii
+            <ResidentDashboardLayout />
           </div>
         </div>
       </div>
