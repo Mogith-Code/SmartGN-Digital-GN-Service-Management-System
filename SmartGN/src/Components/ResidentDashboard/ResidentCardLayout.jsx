@@ -81,8 +81,7 @@ function ResidentCardLayout({
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={card.onClick}
+          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 

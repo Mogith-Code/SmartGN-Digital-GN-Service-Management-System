@@ -227,6 +227,10 @@ function ResidentDashboardLayout() {
           upcomingAppointmentsCount={upcomingAppointmentsCount}
         />
       </div>
+
+      <div className="flex mx-[100px] border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
+        hii
+      </div>
     </>
   );
 }
