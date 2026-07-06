@@ -18,18 +18,27 @@ function PendingAppointmentRequests() {
       Title: "Pending Appointment Requests",
       cancel: "Cancel Request",
       edit: "Edit Request",
+      appointmentDate: "Appointment Date : ",
+      time: "Time : ",
+      noPendingAppointments: "No pending appointments available.",
     },
     SI: {
       back: "ආපසු",
       Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
       cancel: "අවලංගු කරන්න",
       edit: "සංස්කරණය කරන්න",
+      appointmentDate: "හමුවීම් දිනය : ",
+      time: "වේලාව : ",
+      noPendingAppointments: "හමුවීම් නොමැත.",
     },
     TA: {
       back: "பின்னால்",
       Title: "நிலுவையிலான முக்கிய சந்திப்புகள்",
       cancel: "ரத்து செய்",
       edit: "திருத்து",
+      appointmentDate: "முகாமை தேதி : ",
+      time: "நேரம் : ",
+      noPendingAppointments: "நிலுவையிலான சந்திப்புகள் இல்லை.",
     },
   };
 
@@ -41,36 +50,53 @@ function PendingAppointmentRequests() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
+      firstName: "Nirmal",
+      lastName: "Perera",
+      photo: "photo_here",
+      nic: "200314911465",
       purpose: "Meeting with Officer A",
-      date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
+      date: new Date(2026, 6, 5),
       time: "10:00 AM",
       contact: "0703891153",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
       id: 2,
+      firstName: "Jane",
+      lastName: "Smith",
+      photo: "photo_here",
+      nic: "200314911455",
       purpose: "Certificate Collection",
-      date: new Date(2026, 5, 25), // June 25, 2026
+      date: new Date(2026, 6, 5), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
     {
       id: 3,
+      firstName: "John",
+      lastName: "Doe",
+      photo: "photo_here",
+      nic: "200314911459",
       purpose: "Document Submission",
-      date: new Date(2026, 5, 28), // June 28, 2026
+      date: new Date(2026, 6, 6), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
+
     {
       id: 4,
+      firstName: "Alice",
+      lastName: "Johnson",
+      photo: "photo_here",
+      nic: "200314911460",
       purpose: "Meeting with Officer B",
       date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
@@ -125,49 +151,65 @@ function PendingAppointmentRequests() {
           <div className="flex text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-[10px]  mt-[30px] mx-[30px]">
             {t.Title}
           </div>
+          {pendingAppointments.length > 0 ? (
+            <>
+              {pendingAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                >
+                  <div className="flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-medium">{appointment.purpose}</span>
+                    <span key={appointment.id} className="font-light">
+                      {appointment.createdAt.getDate()}/
+                      {appointment.createdAt.getMonth() + 1}/
+                      {appointment.createdAt.getFullYear()}
+                    </span>
+                  </div>
 
-          {pendingAppointments.map((appointment) => (
-            <div
-              key={appointment.id}
-              className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-            >
-              <div className="flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-medium">{appointment.purpose}</span>
-                <span key={appointment.id} className="font-light">
-                  {appointment.createdAt.getDate()}/
-                  {appointment.createdAt.getMonth() + 1}/
-                  {appointment.createdAt.getFullYear()}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      {t.appointmentDate} {appointment.date.getDate()}/
+                      {appointment.date.getMonth() + 1}/
+                      {appointment.date.getFullYear()}
+                    </span>
+                    <span className="font-light">
+                      {getFormattedTime(appointment.createdAt)}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">
-                  Appointment Date: {appointment.date.getDate()}/
-                  {appointment.date.getMonth() + 1}/
-                  {appointment.date.getFullYear()}
-                </span>
-                <span className="font-light">
-                  {getFormattedTime(appointment.createdAt)}
-                </span>
-              </div>
+                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                    <span className="font-regular">
+                      {t.time}
+                      {appointment.time}
+                    </span>
+                  </div>
 
-              <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
-                <span className="font-regular">Time: {appointment.time}</span>
-              </div>
+                  <div className="flex justify-end gap-[10px] mt-[10px]">
+                    <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
+                      <img src={editIcon} alt="editIcon" className="h-[15px]" />
+                      <span>{t.edit}</span>
+                    </button>
 
-              <div className="flex justify-end gap-[10px] mt-[10px]">
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group">
-                  <img src={editIcon} alt="editIcon" className="h-[15px]" />
-                  <span>{t.edit}</span>
-                </button>
-
-                <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
-                  <img src={cancelIcon} alt="cancelIcon" className="h-[16px]" />
-                  <span>{t.cancel}</span>
-                </button>
-              </div>
+                    <button className="flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] hadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group">
+                      <img
+                        src={cancelIcon}
+                        alt="cancelIcon"
+                        className="h-[16px]"
+                      />
+                      <span>{t.cancel}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
+                {t.noPendingAppointments}
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </div>
 

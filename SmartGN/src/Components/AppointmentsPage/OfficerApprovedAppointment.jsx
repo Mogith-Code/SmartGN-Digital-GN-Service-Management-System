@@ -5,6 +5,7 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
+import Footer from "../Common/Footer";
 
 function OfficerApprovedAppointment() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function OfficerApprovedAppointment() {
       date: new Date(2026, 6, 5),
       time: "10:00 AM",
       contact: "0703891153",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
@@ -64,7 +65,7 @@ function OfficerApprovedAppointment() {
       date: new Date(2026, 6, 6), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
@@ -84,7 +85,6 @@ function OfficerApprovedAppointment() {
       createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
     },
   ]);
-
   // to get the formatted time in 12-hour format with AM/PM
   const getFormattedTime = (date) => {
     let hours = date.getHours();
@@ -213,6 +213,7 @@ function OfficerApprovedAppointment() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
