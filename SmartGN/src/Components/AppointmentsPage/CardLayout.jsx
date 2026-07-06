@@ -33,6 +33,18 @@ function CardLayout({ pendingCount, approvedCount }) {
       Card3Title: "சந்திப்பை பதிவு செய்யவும்",
     },
   };
+  const handleCard1click = () => {
+    navigate("/RAppointment/PendingAppointmentRequests");
+  };
+
+  const handleCard2click = () => {
+    navigate("/RAppointment/ApprovedAppointmentRequests");
+  };
+
+  const handleCard3click = () => {
+    navigate("/RAppointment/BookingForm");
+  };
+  const cards = [{}];
 
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
@@ -40,7 +52,7 @@ function CardLayout({ pendingCount, approvedCount }) {
     <>
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/PendingAppointmentRequests")}
+        onClick={handleCard1click}
       >
         <img src={pendingIcon} alt="pendingIcon" className="w-[50px]" />
 
@@ -56,7 +68,7 @@ function CardLayout({ pendingCount, approvedCount }) {
 
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/ApprovedAppointmentRequests")}
+        onClick={handleCard2click}
       >
         <img src={approvedIcon} alt="approvedIcon" className="w-[50px]" />
 
@@ -72,7 +84,7 @@ function CardLayout({ pendingCount, approvedCount }) {
 
       <div
         className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-        onClick={() => navigate("/RAppointment/BookingForm")}
+        onClick={handleCard3click}
       >
         <img src={addIcon} alt="pendingIcon" className="w-[50px]" />
 
