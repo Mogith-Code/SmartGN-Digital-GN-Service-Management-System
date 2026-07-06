@@ -7,7 +7,7 @@ function ResidentsDetailsLayout() {
 
   // TRANSLATION OBJECTS
   const OHouseholdLayoutTranslations = {
-    EN: { Title: "Residents' details" },
+    EN: { Title: "Residents' Information" },
     SI: { Title: "පදිංචිකරුවන්ගේ විස්තර" },
     TA: { Title: "குடியிருப்பவர்களின் விவரங்கள்" },
   };
