@@ -50,7 +50,7 @@ function App() {
         />
 
         <Route
-          path="/RAppointment/BookingForm"
+          path="/ResidentDashboard/RAppointment/BookingForm"
           element={<BookingForm onOpenHelp={openChatbot} />}
         />
 
@@ -60,7 +60,7 @@ function App() {
         />
 
         <Route
-          path="/RAppointment/ApprovedAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/ApprovedAppointmentRequests"
           element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
         <Route

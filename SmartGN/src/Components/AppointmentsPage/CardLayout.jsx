@@ -35,11 +35,11 @@ function CardLayout({ pendingCount, approvedCount }) {
   };
 
   const handleCard2Click = () => {
-    navigate("/RAppointment/ApprovedAppointmentRequests");
+    navigate("/ResidentDashboard/RAppointment/ApprovedAppointmentRequests");
   };
 
   const handleCard3Click = () => {
-    navigate("/RAppointment/BookingForm");
+    navigate("/ResidentDashboard/RAppointment/BookingForm");
   };
 
   // Select the appropriate translation based on current language
