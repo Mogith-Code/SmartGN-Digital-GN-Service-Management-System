@@ -182,14 +182,14 @@ function Services() {
     {
       title: t.ServicesList[3].listTitle,
       desc: t.ServicesList[3].listDesc,
-      handleClick: handleApplyAllowances(),
+      handleClick: handleApplyAllowances,
       icon1: allowanceIcon,
       icon2: arrowIcon,
     },
     {
       title: t.ServicesList[4].listTitle,
       desc: t.ServicesList[4].listDesc,
-      handleClick: handleDisasterRelief(),
+      handleClick: handleDisasterRelief,
       icon1: disasterIcon,
       icon2: arrowIcon,
     },
@@ -197,7 +197,7 @@ function Services() {
     {
       title: t.ServicesList[5].listTitle,
       desc: t.ServicesList[5].listDesc,
-      handleClick: handleAnnouncements(),
+      handleClick: handleAnnouncements,
       icon1: announcementIcon,
       icon2: arrowIcon,
     },
