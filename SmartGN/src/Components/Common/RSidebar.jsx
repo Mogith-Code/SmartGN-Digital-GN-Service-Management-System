@@ -81,7 +81,7 @@ function RSidebar() {
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard",
+      path: "/ResidentDashboard",
       icon: dashBoard,
       iconActive: dashBoardIconHovered,
     },
