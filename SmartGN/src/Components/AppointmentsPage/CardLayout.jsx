@@ -44,15 +44,6 @@ function CardLayout({ pendingCount, approvedCount }) {
   const handleCard3click = () => {
     navigate("/RAppointment/BookingForm");
   };
-  //   const cards = [
-  //     {
-  //     handleClick: handleCard1click(), icon: pendingIcon, alt: "pendingIcon", title: t.Card1Title, count: pendingCount
-  //   }, {
-  //     handleClick: handleCard2click(), icon: approvedIcon, alt: "approvedIcon", title: t.Card2Title, count: approvedCount
-  //   }, {
-  //     handleClick: handleCard3click(), icon: addIcon, alt: "addIcon", title: t.Card3Title
-  //   }
-  // ];
 
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
