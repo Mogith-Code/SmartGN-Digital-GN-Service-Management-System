@@ -127,12 +127,12 @@ function Services() {
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
-    console.log("Navigating to Request Certificates page");
+    navigate("/certificates");
     // navigate("/services/request-certificates");
   };
 
   const handleBookAppointments = () => {
-    console.log("Navigating to Book Appointments page");
+    navigate("/RAppointment");
     // navigate("/services/book-appointments");
   };
 
