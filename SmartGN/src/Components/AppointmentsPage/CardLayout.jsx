@@ -33,6 +33,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       Card3Title: "சந்திப்பை பதிவு செய்யவும்",
     },
   };
+
   const handleCard1click = () => {
     navigate("/RAppointment/PendingAppointmentRequests");
   };
@@ -47,6 +48,28 @@ function CardLayout({ pendingCount, approvedCount }) {
 
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
+
+  const Card = [
+    {
+      icon: pendingIcon,
+      title: t.Card1Title,
+      count: pendingCount,
+      handleClick: handleCard1click,
+    },
+    {
+      icon: approvedIcon,
+      title: t.Card2Title,
+      count: approvedCount,
+      handleClick: handleCard2click,
+    },
+    {
+      icon: addIcon,
+      title: t.Card3Title,
+      count: "Only 1 appointment can be booked for a day",
+      handleClick: handleCard3click,
+    },
+  ];
+
   return (
     <>
       <div
