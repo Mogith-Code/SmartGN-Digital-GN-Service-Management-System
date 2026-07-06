@@ -29,53 +29,37 @@ function ApprovedAppointmentsRequests() {
   const [appointments, setAppointments] = useState([
     {
       id: 1,
-      firstName: "Nirmal",
-      lastName: "Perera",
-      photo: "photo_here",
-      nic: "200314911465",
       purpose: "Meeting with Officer A",
-      date: new Date(2026, 6, 5),
+      date: new Date(2026, 5, 30), // June 30, 2026 (Month: 5 = June)
       time: "10:00 AM",
       contact: "0703891153",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
     },
     {
       id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      photo: "photo_here",
-      nic: "200314911455",
       purpose: "Certificate Collection",
-      date: new Date(2026, 6, 5), // June 25, 2026
+      date: new Date(2026, 5, 25), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
     {
       id: 3,
-      firstName: "John",
-      lastName: "Doe",
-      photo: "photo_here",
-      nic: "200314911459",
       purpose: "Document Submission",
-      date: new Date(2026, 6, 6), // June 28, 2026
+      date: new Date(2026, 5, 28), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
 
     {
       id: 4,
-      firstName: "Alice",
-      lastName: "Johnson",
-      photo: "photo_here",
-      nic: "200314911460",
       purpose: "Meeting with Officer B",
       date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
