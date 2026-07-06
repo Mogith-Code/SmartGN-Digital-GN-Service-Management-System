@@ -47,7 +47,7 @@ function QuickActions() {
               className="h-[20px]"
             />
             <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
+              Book Appointments
             </span>
             <img
               src={arrowIcon}
@@ -70,7 +70,7 @@ function QuickActions() {
               className="h-[20px]"
             />
             <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
+              Apply for Allowances
             </span>
             <img
               src={arrowIcon}
@@ -80,16 +80,19 @@ function QuickActions() {
           </div>
         </button>
 
-        <button className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_2px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer">
+        <button
+          className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_2px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+          onClick={() => {
+            navigate("/dashboard/resident/allowances");
+          }}
+        >
           <div className="flex items-center gap-[10px]">
             <img
               src={certificateIcon}
               alt="certificateIcon"
               className="h-[20px]"
             />
-            <span className="text-[16px] text-[#2D3748]">
-              Request Certificates
-            </span>
+            <span className="text-[16px] text-[#2D3748]">Disaster Relief</span>
             <img
               src={arrowIcon}
               alt="arrowIcon"

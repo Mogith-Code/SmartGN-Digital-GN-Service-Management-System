@@ -43,37 +43,38 @@ function App() {
           path="/ResidentDashboard"
           element={<ResidentDashboard onOpenHelp={openChatbot} />}
         />
+
         <Route
           path="/ResidentDashboard/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/BookingForm"
+          path="/ResidentDashboard/RAppointment/BookingForm"
           element={<BookingForm onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/PendingAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests"
           element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/ApprovedAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/ApprovedAppointmentRequests"
           element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/RHousehold"
+          path="/ResidentDashboard/RHousehold"
           element={<RHousehold onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RHousehold/EditFamilyDetails"
+          path="/ResidentDashboard/RHousehold/EditFamilyDetails"
           element={<EditFamilyDetails onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RHousehold/EditHouseholdDetails"
+          path="/ResidentDashboard/RHousehold/EditHouseholdDetails"
           element={<EditHouseholdDetails onOpenHelp={openChatbot} />}
         />
 
