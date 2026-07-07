@@ -90,7 +90,7 @@ function AfterlogNavbar() {
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard",
+      path: "/ResidentDashboard",
       icon: dashBoard,
       iconActive: dashBoardIconHovered,
     },
@@ -104,7 +104,7 @@ function AfterlogNavbar() {
     {
       id: "household",
       name: t.family,
-      path: "/RHousehold",
+      path: "/ResidentDashboard/RHousehold",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },
@@ -118,7 +118,7 @@ function AfterlogNavbar() {
     {
       id: "appointments",
       name: t.appointments,
-      path: "/RAppointment",
+      path: "/ResidentDashboard/RAppointment",
       icon: appointmentIcon,
       iconActive: appointmentIconHovered,
     },
@@ -350,6 +350,7 @@ function AfterlogNavbar() {
               <NavLink
                 key={item.id}
                 to={item.path}
+                end
                 onClick={closeMobileMenu}
                 onMouseEnter={() => setHoveredItemId(item.id)}
                 onMouseLeave={() => setHoveredItemId(null)}
