@@ -378,3 +378,36 @@ exports.updateOfficer = async (req, res) => {
     return res.status(500).json({ error: 'Server error updating officer details.' });
   }
 };
+
+// 12. PUT /api/auth/admin/residents/:nic
+exports.updateResident = async (req, res) => {
+  const { nic } = req.params;
+  const { name, email, mobile_no, status, occupation, household_number } = req.body;
+
+  if (!name || !email || !mobile_no || !status || !household_number) {
+    return res.status(400).json({ error: 'Please fill in all required fields.' });
+  }
+
+  try {
+    // Check if email already taken by another resident
+    const [existing] = await db.query('SELECT nic FROM residents WHERE email = ? AND nic != ?', [email, nic]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Email is already taken by another resident.' });
+    }
+
+    const [result] = await db.query(`
+      UPDATE residents 
+      SET name = ?, email = ?, mobile = ?, status = ?, occupation = ?, household_number = ?
+      WHERE nic = ?
+    `, [name, email, mobile_no, status, occupation, household_number, nic]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Resident not found.' });
+    }
+
+    return res.json({ message: 'Resident account updated successfully.' });
+  } catch (error) {
+    console.error('Error updating resident:', error);
+    return res.status(500).json({ error: 'Server error updating resident details.' });
+  }
+};
