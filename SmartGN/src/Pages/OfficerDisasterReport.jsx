@@ -379,6 +379,21 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     {selectedDisaster.aidRequested || 'No specific relief packs requested. Assessment needed.'}
                   </span>
                 </div>
+
+                {/* 2. Admin Action Form */}
+                <h4 className="modal-section-title">GN Officer Action Panel</h4>
+
+                <div className="modal-detail-row">
+                  <div className="form-group">
+                    <label htmlFor="modalSeveritySelect">Update Severity Level</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="modalSeveritySelect"
+                        className="register-control register-select"
+                        value={modalSeverity}
+                        onChange={(e) => setModalSeverity(e.target.value)}
+                        required
+                      ></select>
                 
 
                     
