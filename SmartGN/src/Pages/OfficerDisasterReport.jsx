@@ -436,6 +436,20 @@ function OfficerDisasterReports({ onOpenHelp }) {
                 </div>
 
               </div>
+
+              <div className="modal-header" style={{ borderTop: '1.5px solid #cbd5e1', borderBottom: 'none', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" className="btn-back" style={{ margin: 0 }} onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-form-submit" style={{ margin: 0, padding: '10px 24px' }}>
+                  Save Action & Update
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
                         
 
                 
