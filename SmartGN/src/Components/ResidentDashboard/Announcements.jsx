@@ -18,7 +18,7 @@ function Announcements() {
         </div>
 
         <div className="flex flex-col gap-[10px] w-full justify-between items-center border border-[red]">
-          <div className="flex w-full border border-[#2D37482D] rounded-[15px] p-[20px]">
+          <div className="flex justify-between w-full border border-[#2D37484D] rounded-[15px] p-[20px]">
             <div className="flex gap-[10px] items-center">
               <img
                 src={announcementIcon}
@@ -29,9 +29,15 @@ function Announcements() {
                 Community Health Camp
               </span>
             </div>
+
+            <div className="flex gap-[100px] items-center">
+              <span className="text-[#2D3748] text-[16px]">April 10, 2026</span>
+              <span className="text-[#2D3748] text-[16px]">Health</span>
+            </div>
           </div>
-          <div className="flex border border-[#2D37482D] rounded-[15px] p-[20px]">
-            <div className="flex gap-[10px]">
+
+          <div className="flex justify-between w-full border border-[#2D37484D] rounded-[15px] p-[20px]">
+            <div className="flex gap-[10px] items-center">
               <img
                 src={announcementIcon}
                 alt="announcement icon"
@@ -40,6 +46,11 @@ function Announcements() {
               <span className="text-[#2D3748] text-[16px]">
                 Community Health Camp
               </span>
+            </div>
+
+            <div className="flex gap-[100px] items-center">
+              <span className="text-[#2D3748] text-[16px]">April 10, 2026</span>
+              <span className="text-[#2D3748] text-[16px]">Health</span>
             </div>
           </div>
         </div>
