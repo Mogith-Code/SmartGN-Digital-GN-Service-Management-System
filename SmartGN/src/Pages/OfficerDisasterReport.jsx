@@ -365,6 +365,13 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     <span className="detail-value" style={{ textTransform: 'capitalize' }}>{selectedDisaster.severity}</span>
                   </div>
                 </div>
+
+                <div className="modal-detail-item full-width">
+                  <span className="detail-label">Damage Description</span>
+                  <span className="detail-value" style={{ fontWeight: 'normal', backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                    {selectedDisaster.description}
+                  </span>
+                </div>
                 
 
                     
