@@ -77,12 +77,12 @@ function CardLayout({ pendingCount, approvedCount }) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
           onClick={card.onClick}
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 
-          <div className="flex flex-col gap-[10px] items-center">
+          <div className="flex flex-col items-center">
             <span className="text-[16px] font-regular text-[#2D3748] text-center">
               {card.title}
             </span>
