@@ -28,20 +28,6 @@ function ResidentsDetailsCardLAyout() {
       Card3Title: "சந்திப்பை பதிவு செய்யவும்",
     },
   };
-
-  // Navigation Handlers
-  const handleCard1Click = () => {
-    navigate("/ResidentDashboard/RAppointment/PendingAppointmentRequests");
-  };
-
-  const handleCard2Click = () => {
-    navigate("/ResidentDashboard/RAppointment/ApprovedAppointmentRequests");
-  };
-
-  const handleCard3Click = () => {
-    navigate("/ResidentDashboard/RAppointment/BookingForm");
-  };
-
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
 
@@ -54,21 +40,21 @@ function ResidentsDetailsCardLAyout() {
       icon: totalIcon,
       title: t.Card1Title,
       count: 6,
-      onClick: handleCard1Click,
+      onClick: "/ResidentDashboard/RAppointment/PendingAppointmentRequests",
     },
     {
       id: 2,
       icon: familyIcon,
       title: t.Card2Title,
       count: 5,
-      onClick: handleCard2Click,
+      onClick: "/ResidentDashboard/RAppointment/ApprovedAppointmentRequests",
     },
     {
       id: 3,
       icon: beneficiaryIcon,
       title: t.Card3Title,
       count: 4,
-      onClick: handleCard3Click,
+      onClick: "/ResidentDashboard/RAppointment/BookingForm",
     },
   ];
   return (
@@ -77,7 +63,7 @@ function ResidentsDetailsCardLAyout() {
         <div
           key={card.id}
           className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={card.onClick}
+          onClick={() => navigate(card.onClick)}
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 
