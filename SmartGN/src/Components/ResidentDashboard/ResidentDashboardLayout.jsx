@@ -221,7 +221,7 @@ function ResidentDashboardLayout() {
         {t.Title}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-center">
         <ResidentCardLayout
           totalPendingCount={totalPendingCount}
           totalApprovedCount={totalApprovedCount}
@@ -229,7 +229,7 @@ function ResidentDashboardLayout() {
         />
       </div>
 
-      <div className="flex mx-[100px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
+      <div className="flex mx-[250px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
         <QuickActions />
       </div>
 
