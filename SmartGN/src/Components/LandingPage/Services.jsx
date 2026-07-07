@@ -127,12 +127,12 @@ function Services() {
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
-    console.log("Navigating to Request Certificates page");
+    navigate("/certificates");
     // navigate("/services/request-certificates");
   };
 
   const handleBookAppointments = () => {
-    console.log("Navigating to Book Appointments page");
+    navigate("/RAppointment");
     // navigate("/services/book-appointments");
   };
 
@@ -160,21 +160,21 @@ function Services() {
     {
       title: t.ServicesList[0].listTitle,
       desc: t.ServicesList[0].listDesc,
-      handleClick: handleRequestCertificates(),
+      handleClick: handleRequestCertificates,
       icon1: requestIcon,
       icon2: arrowIcon,
     },
     {
       title: t.ServicesList[1].listTitle,
       desc: t.ServicesList[1].listDesc,
-      handleClick: handleBookAppointments(),
+      handleClick: handleBookAppointments,
       icon1: appointmentIcon,
       icon2: arrowIcon,
     },
     {
       title: t.ServicesList[2].listTitle,
       desc: t.ServicesList[2].listDesc,
-      handleClick: handleTrackRequests(),
+      handleClick: handleTrackRequests,
       icon1: trackIcon,
       icon2: arrowIcon,
     },
@@ -182,14 +182,14 @@ function Services() {
     {
       title: t.ServicesList[3].listTitle,
       desc: t.ServicesList[3].listDesc,
-      handleClick: handleApplyAllowances(),
+      handleClick: handleApplyAllowances,
       icon1: allowanceIcon,
       icon2: arrowIcon,
     },
     {
       title: t.ServicesList[4].listTitle,
       desc: t.ServicesList[4].listDesc,
-      handleClick: handleDisasterRelief(),
+      handleClick: handleDisasterRelief,
       icon1: disasterIcon,
       icon2: arrowIcon,
     },
@@ -197,7 +197,7 @@ function Services() {
     {
       title: t.ServicesList[5].listTitle,
       desc: t.ServicesList[5].listDesc,
-      handleClick: handleAnnouncements(),
+      handleClick: handleAnnouncements,
       icon1: announcementIcon,
       icon2: arrowIcon,
     },

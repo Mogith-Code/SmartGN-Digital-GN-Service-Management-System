@@ -31,7 +31,49 @@ import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FI
 function AfterlogNavbar() {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const t = translations[lang];
+
+  const navTranslations = {
+    EN: {
+      home: "Home",
+      dashboard: "Dashboard",
+      certificates: "Certificates Services",
+      allowances: "Allowance Programs",
+      appointments: "Appointments",
+      disaster: "Disaster Report",
+      announcements: "Announcements",
+      profile: "Profile & Settings",
+      family: "Family & Household",
+      logout: "Log Out",
+    },
+
+    SI: {
+      home: "මුල් පිටුව",
+      dashboard: "පාලන පුවරුව",
+      certificates: "සහතික සේවා",
+      allowances: "දීමනා වැඩසටහන්",
+      appointments: "හමුවීම්",
+      disaster: "ආපදා වාර්තා",
+      announcements: "නිවේදන",
+      profile: "පැතිකඩ සහ සැකසුම්",
+      family: "පවුලේ සහ ගෘහ විස්තර",
+      logout: "පිටවීම",
+    },
+
+    TA: {
+      home: "முகப்பு",
+      dashboard: "டாஷ்போர்டு",
+      certificates: "சான்றிதழ் சேவைகள்",
+      allowances: "கொடுப்பனவு திட்டங்கள்",
+      appointments: "சந்திப்புகள்",
+      disaster: "பேரழிவு அறிக்கை",
+      announcements: "அறிவிப்புகள்",
+      profile: "சுயவிவரம் & அமைப்புகள்",
+      family: "குடும்பம் மற்றும் வீட்டு விவரங்கள்",
+      logout: "வெளியேறு",
+    },
+  };
+
+  const t = navTranslations[lang] || navTranslations.EN;
 
   // State to track which menu item is being hovered
   const [hoveredItemId, setHoveredItemId] = useState(null);

@@ -29,6 +29,7 @@ import ResidentsDetails from "./Pages/ResidentsDetails.jsx";
 import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPendingAppointment.jsx";
 import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
 import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
+import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -39,7 +40,11 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
         <Route
-          path="/RAppointment"
+          path="/ResidentDashboard"
+          element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/ResidentDashboard/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
         />
 

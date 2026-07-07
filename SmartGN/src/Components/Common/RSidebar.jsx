@@ -81,7 +81,7 @@ function RSidebar() {
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard",
+      path: "/ResidentDashboard",
       icon: dashBoard,
       iconActive: dashBoardIconHovered,
     },
@@ -109,7 +109,7 @@ function RSidebar() {
     {
       id: "appointments",
       name: t.appointments,
-      path: "/RAppointment",
+      path: "/ResidentDashboard/RAppointment",
       icon: appointmentIcon,
       iconActive: appointmentIconHovered,
     },
@@ -162,6 +162,7 @@ function RSidebar() {
           <NavLink
             key={item.id}
             to={item.path}
+            end
             onMouseEnter={() => setHoveredItemId(item.id)}
             onMouseLeave={() => setHoveredItemId(null)}
             className={({ isActive }) => `

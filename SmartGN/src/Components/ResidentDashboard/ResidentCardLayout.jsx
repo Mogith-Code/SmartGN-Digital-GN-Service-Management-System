@@ -1,21 +1,25 @@
 import React from "react";
 import { useState } from "react";
 import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
-import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import totalPendingIcon from "../../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import totalapprovedIcon from "../../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import upcomingIcon from "../../assets/event_upcoming_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function CardLayout({ pendingCount, approvedCount }) {
+function ResidentCardLayout({
+  totalPendingCount,
+  totalApprovedCount,
+  upcomingAppointmentsCount,
+}) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
     EN: {
-      Card1Title: "Pending appointment requests",
-      Card2Title: "Approved appointment requests",
-      Card3Title: "Book an appointment",
+      Card1Title: "Pending requests",
+      Card2Title: "Approved requests",
+      Card3Title: "Upcoming appointments",
     },
     SI: {
       Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
@@ -51,24 +55,24 @@ function CardLayout({ pendingCount, approvedCount }) {
   const cards = [
     {
       id: 1,
-      icon: pendingIcon,
+      icon: totalPendingIcon,
       title: t.Card1Title,
-      count: pendingCount,
-      onClick: handleCard1Click, 
+      count: totalPendingCount,
+      onClick: handleCard1Click,
     },
     {
       id: 2,
-      icon: approvedIcon,
+      icon: totalapprovedIcon,
       title: t.Card2Title,
-      count: approvedCount,
-      onClick: handleCard2Click, 
+      count: totalApprovedCount,
+      onClick: handleCard2Click,
     },
     {
       id: 3,
-      icon: addIcon,
+      icon: upcomingIcon,
       title: t.Card3Title,
-      count: null,
-      onClick: handleCard3Click, 
+      count: upcomingAppointmentsCount,
+      onClick: handleCard3Click,
     },
   ];
 
@@ -77,8 +81,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={card.onClick} 
+          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 
@@ -86,16 +89,10 @@ function CardLayout({ pendingCount, approvedCount }) {
             <span className="text-[16px] font-regular text-[#2D3748] text-center">
               {card.title}
             </span>
-            {card.count !== null && (
-              <span className="text-[20px] font-medium text-[#2D3748]">
-                {card.count}
-              </span>
-            )}
-            {card.id === 3 && (
-              <span className="text-[12px] font-light text-[#2D3748] text-center">
-                Only 1 appointment can be booked for a day
-              </span>
-            )}
+
+            <span className="text-[20px] font-medium text-[#2D3748]">
+              {card.count}
+            </span>
           </div>
         </div>
       ))}
@@ -103,4 +100,4 @@ function CardLayout({ pendingCount, approvedCount }) {
   );
 }
 
-export default CardLayout;
+export default ResidentCardLayout;
