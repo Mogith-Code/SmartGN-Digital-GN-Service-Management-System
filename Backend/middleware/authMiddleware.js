@@ -46,3 +46,9 @@ const requireOfficerOrAdmin = (req, res, next) => {
   
   next();
 };
+
+module.exports = {
+  authenticateToken,
+  requireAdmin,
+  requireOfficerOrAdmin
+};
