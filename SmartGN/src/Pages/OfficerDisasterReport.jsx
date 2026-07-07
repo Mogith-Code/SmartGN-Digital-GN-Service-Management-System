@@ -421,6 +421,21 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     </div>
                   </div>
                 </div>
+
+                <div className="form-group">
+                  <label htmlFor="modalRemarksInput">Officer Remarks & Actions Taken</label>
+                  <textarea 
+                    id="modalRemarksInput"
+                    className="register-control"
+                    rows="3"
+                    placeholder="Enter official remarks, dispatch instructions, or relief status details..."
+                    value={modalRemarks}
+                    onChange={(e) => setModalRemarks(e.target.value)}
+                    style={{ resize: 'none', height: '80px', fontFamily: 'inherit' }}
+                  ></textarea>
+                </div>
+
+              </div>
                         
 
                 
