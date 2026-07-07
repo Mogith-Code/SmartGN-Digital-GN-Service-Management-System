@@ -51,4 +51,4 @@ module.exports = {
   authenticateToken,
   requireAdmin,
   requireOfficerOrAdmin
-};
+}; 
