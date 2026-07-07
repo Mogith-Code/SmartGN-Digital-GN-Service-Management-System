@@ -33,50 +33,49 @@ function FamilyCardLyout({ Total, Adult, Children }) {
   // Select the appropriate translation based on current language
   const t =
     FamilyCardLayoutTranslations[lang] || FamilyCardLayoutTranslations.EN;
+
+  const cards = [
+    {
+      id: 1,
+      icon: totalMembersIcon,
+      alt: "Total Members",
+      title: t.Card1Title,
+      count: Total,
+    },
+    {
+      id: 2,
+      icon: adultIcon,
+      alt: "Adult Members",
+      title: t.Card2Title,
+      count: Adult,
+    },
+    {
+      id: 3,
+      icon: childrenIcon,
+      alt: "Children",
+      title: t.Card3Title,
+      count: Children,
+    },
+  ];
   return (
     <>
-      <div className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
-        <img
-          src={totalMembersIcon}
-          alt="totalMembersIcon"
-          className="w-[50px]"
-        />
+      {cards.map((card) => (
+        <div
+          key={card.id}
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
+        >
+          <img src={card.icon} alt={card.alt} className="w-[50px]" />
 
-        <div className="flex flex-col items-center">
-          <span className="text-[16px] font-regular text-[#2D3748] text-center">
-            {t.Card1Title}
-          </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">
-            {Total}
-          </span>
+          <div className="flex flex-col items-center">
+            <span className="text-[16px] font-regular text-[#2D3748] text-center">
+              {card.title}
+            </span>
+            <span className="text-[20px] font-medium text-[#2D3748]">
+              {card.count}
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
-        <img src={adultIcon} alt="adultIcon" className="w-[50px]" />
-
-        <div className="flex flex-col items-center">
-          <span className="text-[16px] font-regular text-[#2D3748] text-center">
-            {t.Card2Title}
-          </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">
-            {Adult}
-          </span>
-        </div>
-      </div>
-
-      <div className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
-        <img src={childrenIcon} alt="childrenIcon" className="w-[50px]" />
-
-        <div className="flex flex-col items-center">
-          <span className="text-[16px] font-regular text-[#2D3748] text-center">
-            {t.Card3Title}
-          </span>
-          <span className="text-[20px] font-medium text-[#2D3748]">
-            {Children}
-          </span>
-        </div>
-      </div>
+      ))}
     </>
   );
 }
