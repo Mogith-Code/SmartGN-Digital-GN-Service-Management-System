@@ -238,3 +238,19 @@ exports.getOfficers = async (req, res) => {
     return res.status(500).json({ error: 'Server error fetching officers.' });
   }
 };
+
+// 6. GET /api/auth/admin/residents
+exports.getResidents = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT r.nic AS r_nic, r.name, r.email, r.mobile AS mobile_no, d.name AS division_name, r.status, r.occupation, r.household_number
+      FROM residents r
+      JOIN divisions d ON r.division_id = d.id
+      ORDER BY r.created_at DESC
+    `);
+    return res.json(rows);
+  } catch (error) {
+    console.error('Error fetching residents list:', error);
+    return res.status(500).json({ error: 'Server error fetching residents.' });
+  }
+};
