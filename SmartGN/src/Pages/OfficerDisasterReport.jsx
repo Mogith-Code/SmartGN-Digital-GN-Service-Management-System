@@ -450,6 +450,17 @@ function OfficerDisasterReports({ onOpenHelp }) {
           </div>
         </div>
       )}
+
+      {/* 4. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  )
+}
                         
 
                 
