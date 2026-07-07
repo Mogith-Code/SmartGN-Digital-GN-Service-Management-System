@@ -401,10 +401,20 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       <span className="select-arrow">▼</span>
                     </div>
                   </div>
+
+                  <div className="form-group">
+                    <label htmlFor="modalStatusSelect">Relief / Action Status</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="modalStatusSelect"
+                        className="register-control register-select"
+                        value={modalStatus}
+                        onChange={(e) => setModalStatus(e.target.value)}
+                        required
+                      >
+                        
+
                 
-
-                    
-
 
 
 
