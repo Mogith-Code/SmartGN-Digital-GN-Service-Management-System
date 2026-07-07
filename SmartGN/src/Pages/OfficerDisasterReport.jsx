@@ -393,7 +393,14 @@ function OfficerDisasterReports({ onOpenHelp }) {
                         value={modalSeverity}
                         onChange={(e) => setModalSeverity(e.target.value)}
                         required
-                      ></select>
+                      >
+                        <option value="low severity">Low Severity</option>
+                        <option value="medium severity">Medium Severity</option>
+                        <option value="high severity">High Severity</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
                 
 
                     
