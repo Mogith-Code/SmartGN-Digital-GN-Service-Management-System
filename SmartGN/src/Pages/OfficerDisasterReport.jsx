@@ -360,6 +360,11 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     <span className="detail-label">Contact Number</span>
                     <span className="detail-value">{selectedDisaster.contact}</span>
                   </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Initial Severity</span>
+                    <span className="detail-value" style={{ textTransform: 'capitalize' }}>{selectedDisaster.severity}</span>
+                  </div>
+                </div>
                 
 
                     
