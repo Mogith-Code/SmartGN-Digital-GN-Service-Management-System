@@ -230,7 +230,7 @@ function ResidentDashboardLayout() {
         />
       </div>
 
-      <div className="flex mx-[250px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
+      <div className="flex mx-[200px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
         <QuickActions />
       </div>
 
