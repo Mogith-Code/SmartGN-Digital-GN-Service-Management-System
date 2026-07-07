@@ -33,3 +33,16 @@ const requireAdmin = (req, res, next) => {
   
   next();
 };
+
+// Middleware to restrict access to ADMIN or OFFICER
+const requireOfficerOrAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  
+  if (req.user.role !== 'ADMIN' && req.user.role !== 'OFFICER') {
+    return res.status(403).json({ error: 'Access forbidden. Officer or Admin privileges required.' });
+  }
+  
+  next();
+};
