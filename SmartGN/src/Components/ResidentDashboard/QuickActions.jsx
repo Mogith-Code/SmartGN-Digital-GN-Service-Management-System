@@ -12,7 +12,7 @@ function QuickActions() {
       </span>
       <div className="grid grid-cols-2 gap-[20px]">
         <button
-          className="bg-[#FFFFFF] flex items-center justify-center py-[20px] px-[50px] rounded-[15px] shadow-[0px_2px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+          className="bg-[#FFFFFF] flex items-center justify-center p-[20px] rounded-[15px] shadow-[0px_2px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
           onClick={() => {
             navigate("/certificates");
           }}
