@@ -328,3 +328,53 @@ exports.deleteResident = async (req, res) => {
     return res.status(500).json({ error: 'Server error deleting resident.' });
   }
 };
+
+// 11. PUT /api/auth/admin/officers/:id
+exports.updateOfficer = async (req, res) => {
+  const { id } = req.params;
+  const { username, name, email, mobile, division, status, password } = req.body;
+
+  if (!username || !name || !email || !mobile || !division || !status) {
+    return res.status(400).json({ error: 'Please fill in all required fields.' });
+  }
+
+  try {
+    // Check if division exists and get ID
+    const [divisions] = await db.query('SELECT id FROM divisions WHERE name = ?', [division]);
+    if (divisions.length === 0) {
+      return res.status(400).json({ error: 'Selected division is invalid.' });
+    }
+    const divisionId = divisions[0].id;
+
+    // Check if username/email already taken by another officer
+    const [existing] = await db.query('SELECT id FROM officers WHERE (username = ? OR email = ?) AND id != ?', [username, email, id]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Username or Email is already taken by another officer.' });
+    }
+
+    let result;
+    if (password && password.trim() !== '') {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      [result] = await db.query(`
+        UPDATE officers 
+        SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password = ?
+        WHERE id = ?
+      `, [username, name, email, mobile, divisionId, status, hashedPassword, id]);
+    } else {
+      [result] = await db.query(`
+        UPDATE officers 
+        SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?
+        WHERE id = ?
+      `, [username, name, email, mobile, divisionId, status, id]);
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Officer not found.' });
+    }
+
+    return res.json({ message: 'Officer account updated successfully.' });
+  } catch (error) {
+    console.error('Error updating officer:', error);
+    return res.status(500).json({ error: 'Server error updating officer details.' });
+  }
+};
