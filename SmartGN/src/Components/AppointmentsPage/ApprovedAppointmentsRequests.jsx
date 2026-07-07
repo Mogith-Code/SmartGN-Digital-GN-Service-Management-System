@@ -5,6 +5,7 @@ import { useLanguage } from "../../utils/translate";
 import { useNavigate } from "react-router-dom";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import approvedIcon2 from "../../assets/verified_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Common/Footer";
 
 function ApprovedAppointmentsRequests() {
@@ -44,7 +45,7 @@ function ApprovedAppointmentsRequests() {
       date: new Date(2026, 5, 25), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
@@ -65,7 +66,7 @@ function ApprovedAppointmentsRequests() {
       date: new Date(2026, 5, 23), // June 23, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
     },
@@ -171,8 +172,13 @@ function ApprovedAppointmentsRequests() {
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              <img
+                src={approvedIcon2}
+                alt="approvedIcon 2"
+                className="w-[80px] opacity-50"
+              />
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
-                No pending appointments available.
+                No Aooroved appointments available.
               </p>
             </div>
           )}
