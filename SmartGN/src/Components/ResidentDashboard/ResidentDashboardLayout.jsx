@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import ResidentCardLayout from "./ResidentCardLayout";
 import QuickActions from "./QuickActions";
+import Announcements from "./Announcements";
 
 function ResidentDashboardLayout() {
   const navigate = useNavigate();
@@ -233,7 +234,9 @@ function ResidentDashboardLayout() {
         <QuickActions />
       </div>
 
-      <div className="flex mx-[200px] justify-center border border-[#2D37482D] rounded-[15px] mt-[30px] p-[30px]"></div>
+      <div className="flex mx-[200px] justify-center border border-[#2D37482D] rounded-[15px] mt-[30px] p-[30px]">
+        <Announcements />
+      </div>
     </>
   );
 }
