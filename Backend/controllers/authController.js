@@ -172,3 +172,53 @@ exports.login = async (req, res) => {
     return res.status(500).json({ error: 'Server error during login authentication.' });
   }
 };
+
+// 4. POST /api/auth/register/officer (Admin creates GN Officer)
+exports.registerOfficer = async (req, res) => {
+  const { username, name, email, mobile, division, password } = req.body;
+
+  if (!username || !name || !email || !mobile || !division || !password) {
+    return res.status(400).json({ error: 'Please enter all fields.' });
+  }
+
+  try {
+    // Check if division exists and get ID
+    const [divisions] = await db.query('SELECT id FROM divisions WHERE name = ?', [division]);
+    if (divisions.length === 0) {
+      return res.status(400).json({ error: 'Selected division is invalid.' });
+    }
+    const divisionId = divisions[0].id;
+
+    // Check if officer username/email already exists
+    const [existing] = await db.query('SELECT id FROM officers WHERE username = ? OR email = ?', [username, email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Officer with this username or email already exists.' });
+    }
+
+    // Generate unique ID like GN-123
+    let uniqueId;
+    let isUnique = false;
+    while (!isUnique) {
+      const randNum = Math.floor(100 + Math.random() * 900);
+      uniqueId = `GN-${randNum}`;
+      const [rows] = await db.query('SELECT id FROM officers WHERE id = ?', [uniqueId]);
+      if (rows.length === 0) {
+        isUnique = true;
+      }
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert Officer
+    await db.query(`
+      INSERT INTO officers (id, username, name, email, mobile, division_id, password, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')
+    `, [uniqueId, username, name, email, mobile, divisionId, hashedPassword]);
+
+    return res.status(201).json({ message: 'GN Officer account registered successfully.' });
+  } catch (error) {
+    console.error('Error creating officer:', error);
+    return res.status(500).json({ error: 'Server error creating officer account.' });
+  }
+};
