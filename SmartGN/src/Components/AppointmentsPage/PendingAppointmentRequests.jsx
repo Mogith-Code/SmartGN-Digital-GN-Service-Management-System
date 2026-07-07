@@ -6,7 +6,8 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import { useNavigate } from "react-router-dom";
 import editIcon from "../../assets/edit_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import pendingIcon from "../../assets/schedule_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import pendingIcon2 from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Common/Footer";
 
 function PendingAppointmentRequests() {
@@ -65,7 +66,7 @@ function PendingAppointmentRequests() {
       date: new Date(2026, 5, 25), // June 25, 2026
       time: "2:30 PM",
       contact: "0771234567",
-      status: "Approved",
+      status: "Pending",
       requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
       createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
     },
@@ -75,7 +76,7 @@ function PendingAppointmentRequests() {
       date: new Date(2026, 5, 28), // June 28, 2026
       time: "1:00 PM",
       contact: "0771234567",
-      status: "Pending",
+      status: "Approved",
       requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
       createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
     },
@@ -144,7 +145,7 @@ function PendingAppointmentRequests() {
                 >
                   <div className="flex gap-[20px] items-center">
                     <img
-                      src={pendingIcon}
+                      src={pendingIcon2}
                       alt="pendingIcon"
                       className="h-[60px] bg-[#E2E8F0] p-[10px] rounded-[15px]"
                     />
@@ -208,6 +209,11 @@ function PendingAppointmentRequests() {
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+              <img
+                src={pendingIcon}
+                alt="pendingIcon"
+                className="w-[80px] opacity-50"
+              />
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D37488D]">
                 {t.noPendingAppointments}
               </p>
