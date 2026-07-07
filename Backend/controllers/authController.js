@@ -275,3 +275,24 @@ exports.updateOfficerStatus = async (req, res) => {
     return res.status(500).json({ error: 'Server error updating officer status.' });
   }
 };
+
+// 8. PUT /api/auth/admin/residents/:nic/status
+exports.updateResidentStatus = async (req, res) => {
+  const { nic } = req.params;
+  const { status } = req.body;
+
+  if (!status || (status !== 'Active' && status !== 'Suspended')) {
+    return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
+  }
+
+  try {
+    const [result] = await db.query('UPDATE residents SET status = ? WHERE nic = ?', [status, nic]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Resident not found.' });
+    }
+    return res.json({ message: 'Resident status updated successfully.' });
+  } catch (error) {
+    console.error('Error updating resident status:', error);
+    return res.status(500).json({ error: 'Server error updating resident status.' });
+  }
+};
