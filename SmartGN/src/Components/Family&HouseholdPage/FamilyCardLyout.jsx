@@ -52,10 +52,10 @@ function FamilyCardLyout({ Total, Adult, Children }) {
         </div>
       </div>
 
-      <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
+      <div className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
         <img src={adultIcon} alt="adultIcon" className="w-[50px]" />
 
-        <div className="flex flex-col gap-[10px] items-center">
+        <div className="flex flex-col items-center">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card2Title}
           </span>
@@ -65,10 +65,10 @@ function FamilyCardLyout({ Total, Adult, Children }) {
         </div>
       </div>
 
-      <div className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
+      <div className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]">
         <img src={childrenIcon} alt="childrenIcon" className="w-[50px]" />
 
-        <div className="flex flex-col gap-[10px] items-center">
+        <div className="flex flex-col items-center">
           <span className="text-[16px] font-regular text-[#2D3748] text-center">
             {t.Card3Title}
           </span>
