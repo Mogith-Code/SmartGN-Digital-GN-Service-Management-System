@@ -343,6 +343,12 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     <span className="detail-value">{selectedDisaster.date}</span>
                   </div>
                 </div>
+
+                <div className="modal-detail-row">
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Location / Area</span>
+                    <span className="detail-value">{selectedDisaster.location}</span>
+                  </div>
                 
 
                     
