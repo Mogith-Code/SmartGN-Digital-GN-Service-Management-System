@@ -296,3 +296,35 @@ exports.updateResidentStatus = async (req, res) => {
     return res.status(500).json({ error: 'Server error updating resident status.' });
   }
 };
+
+// 9. DELETE /api/auth/admin/officers/:id
+exports.deleteOfficer = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query('DELETE FROM officers WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Officer not found.' });
+    }
+    return res.json({ message: 'GN Officer account deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting officer:', error);
+    return res.status(500).json({ error: 'Server error deleting officer.' });
+  }
+};
+
+// 10. DELETE /api/auth/admin/residents/:nic
+exports.deleteResident = async (req, res) => {
+  const { nic } = req.params;
+
+  try {
+    const [result] = await db.query('DELETE FROM residents WHERE nic = ?', [nic]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Resident not found.' });
+    }
+    return res.json({ message: 'Resident account deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting resident:', error);
+    return res.status(500).json({ error: 'Server error deleting resident.' });
+  }
+};
