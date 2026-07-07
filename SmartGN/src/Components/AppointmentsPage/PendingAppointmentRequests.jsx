@@ -150,7 +150,7 @@ function PendingAppointmentRequests() {
                     </span>
                   </div>
 
-                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                  <div className="flex justify-between text-[16px] text-[#2D3748]">
                     <span className="font-regular">
                       {t.appointmentDate} {appointment.date.getDate()}/
                       {appointment.date.getMonth() + 1}/
@@ -161,7 +161,7 @@ function PendingAppointmentRequests() {
                     </span>
                   </div>
 
-                  <div className="ml-[20px] flex justify-between text-[16px] text-[#2D3748]">
+                  <div className="flex justify-between text-[16px] text-[#2D3748]">
                     <span className="font-regular">
                       {t.time}
                       {appointment.time}
