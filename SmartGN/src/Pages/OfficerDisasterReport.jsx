@@ -331,6 +331,18 @@ function OfficerDisasterReports({ onOpenHelp }) {
 
             <form onSubmit={handleSaveAction}>
               <div className="modal-body">
+
+                {/* 1. Report Details */}
+                <div className="modal-detail-row">
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Disaster Type</span>
+                    <span className="detail-value">{selectedDisaster.type}</span>
+                  </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Report Date</span>
+                    <span className="detail-value">{selectedDisaster.date}</span>
+                  </div>
+                </div>
                 
 
                     
