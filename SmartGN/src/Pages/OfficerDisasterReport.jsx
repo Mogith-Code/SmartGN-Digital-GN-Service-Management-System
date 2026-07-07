@@ -349,6 +349,11 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     <span className="detail-label">Location / Area</span>
                     <span className="detail-value">{selectedDisaster.location}</span>
                   </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Reporter Name</span>
+                    <span className="detail-value">{selectedDisaster.reporter}</span>
+                  </div>
+                </div>
                 
 
                     
