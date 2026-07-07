@@ -7,7 +7,7 @@ function ResidentsDetailsLayout() {
 
   // TRANSLATION OBJECTS
   const OHouseholdLayoutTranslations = {
-    EN: { Title: "Residents' details" },
+    EN: { Title: "Residents' Information" },
     SI: { Title: "පදිංචිකරුවන්ගේ විස්තර" },
     TA: { Title: "குடியிருப்பவர்களின் விவரங்கள்" },
   };
@@ -19,14 +19,14 @@ function ResidentsDetailsLayout() {
       <div className="flex justify-between text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         {t.Title}
 
-        <div className="flex bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] items-center gap-[10px]">
+        <div className="flex w-[50%] bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] items-center gap-[10px]">
           <img
             src={searchIcon}
             alt="Search Icon"
             className="w-[15px] h-[15px] opacity-[50%]"
           />
           <span className="text-[16px] font-light text-[#2D3748] opacity-[50%]">
-            Search residents
+            Search residents using NIC number
           </span>
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
-import ResidentsDetailsLayout from "../Components/Family&HouseholdPage/ResidentsDetailsLayout";
+import ResidentsDetailsLayout from "../Components/ResidentsDetails/ResidentsDetailsLayout";
 
 function ResidentsDetails({ onOpenHelp }) {
   return (
@@ -11,7 +11,7 @@ function ResidentsDetails({ onOpenHelp }) {
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
-        <div className="flex flex-1 w-full">
+        <div className="hidden md:block bg-white">
           <OSidebar />
         </div>
 

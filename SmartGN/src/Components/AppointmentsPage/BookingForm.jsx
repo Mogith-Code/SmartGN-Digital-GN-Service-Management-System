@@ -265,7 +265,7 @@ function BookingForm({ onOpenHelp }) {
           {/* Back Button */}
           <div
             className="flex w-auto p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
-            onClick={() => navigate("/RAppointment")}
+            onClick={() => navigate("/ResidentDashboard/RAppointment")}
           >
             <img
               src={backIcon}

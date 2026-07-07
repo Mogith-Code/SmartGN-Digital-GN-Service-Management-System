@@ -29,6 +29,7 @@ import ResidentsDetails from "./Pages/ResidentsDetails.jsx";
 import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPendingAppointment.jsx";
 import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
 import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
+import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -39,36 +40,41 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
         <Route
-          path="/RAppointment"
+          path="/ResidentDashboard"
+          element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/ResidentDashboard/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/BookingForm"
+          path="/ResidentDashboard/RAppointment/BookingForm"
           element={<BookingForm onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/PendingAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests"
           element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RAppointment/ApprovedAppointmentRequests"
+          path="/ResidentDashboard/RAppointment/ApprovedAppointmentRequests"
           element={<ApprovedAppointmentsRequests onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/RHousehold"
+          path="/ResidentDashboard/RHousehold"
           element={<RHousehold onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RHousehold/EditFamilyDetails"
+          path="/ResidentDashboard/RHousehold/EditFamilyDetails"
           element={<EditFamilyDetails onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/RHousehold/EditHouseholdDetails"
+          path="/ResidentDashboard/RHousehold/EditHouseholdDetails"
           element={<EditHouseholdDetails onOpenHelp={openChatbot} />}
         />
 
