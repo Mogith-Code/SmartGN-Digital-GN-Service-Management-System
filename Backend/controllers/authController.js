@@ -52,3 +52,35 @@ exports.registerResident = async (req, res) => {
     return res.status(500).json({ error: 'Server error during registration.' });
   }
 };
+
+// 3. POST /api/auth/login (Universal Login)
+exports.login = async (req, res) => {
+  const { identifier, password } = req.body;
+
+  if (!identifier || !password) {
+    return res.status(400).json({ error: 'Please enter all fields.' });
+  }
+
+  const queryVal = identifier.trim();
+
+  try {
+    // 1. Check in admins table
+    const [admins] = await db.query('SELECT * FROM admins WHERE username = ? OR email = ?', [queryVal, queryVal]);
+    if (admins.length > 0) {
+      const admin = admins[0];
+      const match = await bcrypt.compare(password, admin.password);
+      if (!match) {
+        return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
+      }
+
+      // Generate JWT
+      const token = jwt.sign({ id: admin.id, name: admin.name, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
+      return res.json({
+        token,
+        role: 'ADMIN',
+        user: {
+          id: admin.id,
+          name: admin.name
+        }
+      });
+    }
