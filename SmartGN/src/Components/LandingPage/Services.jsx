@@ -132,12 +132,12 @@ function Services() {
   };
 
   const handleBookAppointments = () => {
-    navigate("/RAppointment");
+    navigate("/ResidentDashboard/RAppointment");
     // navigate("/services/book-appointments");
   };
 
   const handleTrackRequests = () => {
-    console.log("Navigating to Track Requests page");
+    navigate("/ResidentDashboard");
     // navigate("/services/track-requests");
   };
 
