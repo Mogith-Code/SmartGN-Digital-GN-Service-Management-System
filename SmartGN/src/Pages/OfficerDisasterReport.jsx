@@ -372,6 +372,13 @@ function OfficerDisasterReports({ onOpenHelp }) {
                     {selectedDisaster.description}
                   </span>
                 </div>
+
+                <div className="modal-detail-item full-width">
+                  <span className="detail-label">Relief Assistance Requested</span>
+                  <span className="detail-value" style={{ fontWeight: 'normal', backgroundColor: '#fef3c7', padding: '12px', borderRadius: '8px', color: '#78350f', border: '1px solid #fde68a' }}>
+                    {selectedDisaster.aidRequested || 'No specific relief packs requested. Assessment needed.'}
+                  </span>
+                </div>
                 
 
                     
