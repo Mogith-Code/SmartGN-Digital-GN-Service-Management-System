@@ -11,7 +11,6 @@ function ResidentCardLayout({
   totalApprovedCount,
   upcomingAppointmentsCount,
 }) {
-  const navigate = useNavigate();
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -33,19 +32,6 @@ function ResidentCardLayout({
     },
   };
 
-  // Navigation Handlers
-  const handleCard1Click = () => {
-    navigate("/RAppointment/PendingAppointmentRequests");
-  };
-
-  const handleCard2Click = () => {
-    navigate("/RAppointment/ApprovedAppointmentRequests");
-  };
-
-  const handleCard3Click = () => {
-    navigate("/RAppointment/BookingForm");
-  };
-
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
 
@@ -58,21 +44,18 @@ function ResidentCardLayout({
       icon: totalPendingIcon,
       title: t.Card1Title,
       count: totalPendingCount,
-      onClick: handleCard1Click,
     },
     {
       id: 2,
       icon: totalapprovedIcon,
       title: t.Card2Title,
       count: totalApprovedCount,
-      onClick: handleCard2Click,
     },
     {
       id: 3,
       icon: upcomingIcon,
       title: t.Card3Title,
       count: upcomingAppointmentsCount,
-      onClick: handleCard3Click,
     },
   ];
 

@@ -17,7 +17,7 @@ function QuickActions() {
       title: "Book Appointments",
       icon: certificateIcon,
       alt: "appointment icon",
-      route: "/ResidentDashboard/RAppointment",
+      route: "/ResidentDashboard/RAppointment/BookingForm",
     },
     {
       id: 3,
