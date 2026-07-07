@@ -222,3 +222,19 @@ exports.registerOfficer = async (req, res) => {
     return res.status(500).json({ error: 'Server error creating officer account.' });
   }
 };
+
+// 5. GET /api/auth/admin/officers
+exports.getOfficers = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status
+      FROM officers o
+      JOIN divisions d ON o.division_id = d.id
+      ORDER BY o.created_at DESC
+    `);
+    return res.json(rows);
+  } catch (error) {
+    console.error('Error fetching officers list:', error);
+    return res.status(500).json({ error: 'Server error fetching officers.' });
+  }
+};
