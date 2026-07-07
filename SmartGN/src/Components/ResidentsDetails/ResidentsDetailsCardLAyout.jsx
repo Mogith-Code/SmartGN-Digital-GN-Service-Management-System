@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
 import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
-import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import totalIcon from "../../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import familyIcon from "../../assets/family_group_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import beneficiaryIcon from "../../assets/real_estate_agent_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
 function ResidentsDetailsCardLAyout() {
@@ -51,21 +51,21 @@ function ResidentsDetailsCardLAyout() {
   const cards = [
     {
       id: 1,
-      icon: pendingIcon,
+      icon: totalIcon,
       title: t.Card1Title,
       count: 6,
       onClick: handleCard1Click,
     },
     {
       id: 2,
-      icon: approvedIcon,
+      icon: familyIcon,
       title: t.Card2Title,
       count: 5,
       onClick: handleCard2Click,
     },
     {
       id: 3,
-      icon: addIcon,
+      icon: beneficiaryIcon,
       title: t.Card3Title,
       count: 4,
       onClick: handleCard3Click,
