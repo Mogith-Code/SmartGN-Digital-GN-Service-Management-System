@@ -4,6 +4,7 @@ import RSidebar from "../Common/RSidebar";
 import { useLanguage } from "../../utils/translate";
 import { useNavigate } from "react-router-dom";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Common/Footer";
 
 function ApprovedAppointmentsRequests() {
@@ -121,39 +122,48 @@ function ApprovedAppointmentsRequests() {
                   key={appointment.id}
                   className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
                 >
-                  <div className="flex w-full flex-col">
-                    <div className="flex justify-between text-[16px] text-[#2D3748]">
-                      <span className="font-medium">{appointment.purpose}</span>
-                      <span key={appointment.id} className="font-light">
-                        {appointment.createdAt.getDate()}/
-                        {appointment.createdAt.getMonth() + 1}/
-                        {appointment.createdAt.getFullYear()}
-                      </span>
-                    </div>
+                  <div className="flex gap-[20px] items-center">
+                    <img
+                      src={approvedIcon}
+                      alt="approvedIcon"
+                      className="h-[60px] bg-[#E2E8F0] p-[10px] rounded-[15px]"
+                    />
+                    <div className="flex w-full flex-col">
+                      <div className="flex justify-between text-[16px] text-[#2D3748]">
+                        <span className="font-medium">
+                          {appointment.purpose}
+                        </span>
+                        <span key={appointment.id} className="font-light">
+                          {appointment.createdAt.getDate()}/
+                          {appointment.createdAt.getMonth() + 1}/
+                          {appointment.createdAt.getFullYear()}
+                        </span>
+                      </div>
 
-                    <div className="flex justify-between text-[16px] text-[#2D3748]">
-                      <span className="font-regular">
-                        Requested Date: {appointment.requestedDate.getDate()}/
-                        {appointment.requestedDate.getMonth() + 1}/
-                        {appointment.requestedDate.getFullYear()}
-                      </span>
-                      <span className="font-light">
-                        {getFormattedTime(appointment.createdAt)}
-                      </span>
-                    </div>
+                      <div className="flex justify-between text-[16px] text-[#2D3748]">
+                        <span className="font-regular">
+                          Requested Date: {appointment.requestedDate.getDate()}/
+                          {appointment.requestedDate.getMonth() + 1}/
+                          {appointment.requestedDate.getFullYear()}
+                        </span>
+                        <span className="font-light">
+                          {getFormattedTime(appointment.createdAt)}
+                        </span>
+                      </div>
 
-                    <div className="flex justify-between text-[16px] text-[#2D3748]">
-                      <span className="font-regular">
-                        Appointment Date: {appointment.date.getDate()}/
-                        {appointment.date.getMonth() + 1}/
-                        {appointment.date.getFullYear()}
-                      </span>
-                    </div>
+                      <div className="flex justify-between text-[16px] text-[#2D3748]">
+                        <span className="font-regular">
+                          Appointment Date: {appointment.date.getDate()}/
+                          {appointment.date.getMonth() + 1}/
+                          {appointment.date.getFullYear()}
+                        </span>
+                      </div>
 
-                    <div className="flex justify-between text-[16px] text-[#2D3748]">
-                      <span className="font-regular">
-                        Time: {appointment.time}
-                      </span>
+                      <div className="flex justify-between text-[16px] text-[#2D3748]">
+                        <span className="font-regular">
+                          Time: {appointment.time}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
