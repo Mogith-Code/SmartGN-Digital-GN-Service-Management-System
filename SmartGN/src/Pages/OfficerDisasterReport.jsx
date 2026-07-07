@@ -412,6 +412,15 @@ function OfficerDisasterReports({ onOpenHelp }) {
                         onChange={(e) => setModalStatus(e.target.value)}
                         required
                       >
+                        <option value="Pending">Pending</option>
+                        <option value="Relief Approved">Relief Approved</option>
+                        <option value="Aid Dispatched">Aid Dispatched</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
+                </div>
                         
 
                 
