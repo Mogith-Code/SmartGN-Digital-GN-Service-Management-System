@@ -116,7 +116,7 @@ function RSidebar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/allowances",
+      path: "/dashboard/resident/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },
