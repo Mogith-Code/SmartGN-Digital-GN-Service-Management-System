@@ -254,3 +254,24 @@ exports.getResidents = async (req, res) => {
     return res.status(500).json({ error: 'Server error fetching residents.' });
   }
 };
+
+// 7. PUT /api/auth/admin/officers/:id/status
+exports.updateOfficerStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!status || (status !== 'Active' && status !== 'Suspended')) {
+    return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
+  }
+
+  try {
+    const [result] = await db.query('UPDATE officers SET status = ? WHERE id = ?', [status, id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Officer not found.' });
+    }
+    return res.json({ message: 'Officer status updated successfully.' });
+  } catch (error) {
+    console.error('Error updating officer status:', error);
+    return res.status(500).json({ error: 'Server error updating officer status.' });
+  }
+};
