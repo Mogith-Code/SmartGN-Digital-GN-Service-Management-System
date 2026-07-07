@@ -84,3 +84,91 @@ exports.login = async (req, res) => {
         }
       });
     }
+
+    // 2. Check in officers table (join divisions to get division name)
+    const [officers] = await db.query(`
+      SELECT o.*, d.name AS division_name 
+      FROM officers o
+      JOIN divisions d ON o.division_id = d.id
+      WHERE o.username = ? OR o.email = ? OR o.id = ?
+    `, [queryVal, queryVal, queryVal]);
+
+    if (officers.length > 0) {
+      const officer = officers[0];
+
+      if (officer.status !== 'Active') {
+        return res.status(403).json({ error: 'Invalid credentials or suspended account.' });
+      }
+
+      const match = await bcrypt.compare(password, officer.password);
+      if (!match) {
+        return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
+      }
+
+      // Generate JWT
+      const token = jwt.sign({ 
+        id: officer.id, 
+        name: officer.name, 
+        role: 'OFFICER',
+        divisionId: officer.division_id,
+        divisionName: officer.division_name
+      }, JWT_SECRET, { expiresIn: '24h' });
+
+      return res.json({
+        token,
+        role: 'OFFICER',
+        user: {
+          id: officer.id,
+          name: officer.name,
+          divisionName: officer.division_name
+        }
+      });
+    }
+
+    // 3. Check in residents table (join divisions to get division name)
+    const [residents] = await db.query(`
+      SELECT r.*, d.name AS division_name 
+      FROM residents r
+      JOIN divisions d ON r.division_id = d.id
+      WHERE r.nic = ? OR r.email = ?
+    `, [queryVal, queryVal]);
+
+    if (residents.length > 0) {
+      const resident = residents[0];
+
+      if (resident.status !== 'Active') {
+        return res.status(403).json({ error: 'Invalid credentials or suspended account.' });
+      }
+
+      const match = await bcrypt.compare(password, resident.password);
+      if (!match) {
+        return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
+      }
+
+      // Generate JWT
+      const token = jwt.sign({ 
+        id: resident.nic, 
+        name: resident.name, 
+        role: 'RESIDENT',
+        divisionId: resident.division_id,
+        divisionName: resident.division_name
+      }, JWT_SECRET, { expiresIn: '24h' });
+
+      return res.json({
+        token,
+        role: 'RESIDENT',
+        user: {
+          nic: resident.nic,
+          name: resident.name,
+          division: resident.division_name
+        }
+      });
+    }
+
+    // If no match found in any table
+    return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    return res.status(500).json({ error: 'Server error during login authentication.' });
+  }
+};
