@@ -16,8 +16,8 @@ function ResidentCardLayout({
   // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
     EN: {
-      Card1Title: "Pending requests",
-      Card2Title: "Approved requests",
+      Card1Title: "Total Pending requests",
+      Card2Title: "Total Approved requests",
       Card3Title: "Upcoming appointments",
     },
     SI: {
