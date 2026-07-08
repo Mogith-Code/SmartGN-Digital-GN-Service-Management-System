@@ -89,7 +89,7 @@ function FamilyHouseholdLayout() {
           </span>
 
           <button
-            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer"
+            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer hover:underline underline-offset-2"
             onClick={() =>
               navigate("/ResidentDashboard/RHousehold/EditFamilyDetails")
             }
@@ -111,7 +111,7 @@ function FamilyHouseholdLayout() {
           </span>
 
           <button
-            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer"
+            className="flex gap-[10px] items-center text-[16px] text-[#D69E2E] cursor-pointer hover:underline underline-offset-2"
             onClick={() =>
               navigate("/ResidentDashboard/RHousehold/EditHouseholdDetails")
             }
