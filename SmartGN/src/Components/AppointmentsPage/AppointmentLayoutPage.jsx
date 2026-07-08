@@ -130,10 +130,7 @@ function AppointmentLayoutPage() {
           bookings={getBookingsForCalendar()}
         />
 
-        <div
-          className="flex justify-center w-full"
-          id="summary"
-        >
+        <div className="flex justify-center w-full">
           {activeAppointment ? (
             // ================================================================
             // ACTIVE APPOINTMENT DISPLAY
