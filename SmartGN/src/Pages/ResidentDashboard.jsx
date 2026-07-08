@@ -12,7 +12,6 @@ function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const t = translations[lang];
 
   // Retrieve username and division from navigation state if available (defaults to Nimal Perera)
   const successUser =
@@ -94,7 +93,7 @@ function ResidentDashboard({ onOpenHelp }) {
     fetchAnnouncements();
   }, []);
 
-  const localDict = {
+  const DashboardLayoutTranslations = {
     EN: {
       alertNic:
         "Please upload a high-quality image of your National Identity Card",
@@ -147,7 +146,7 @@ function ResidentDashboard({ onOpenHelp }) {
     },
   };
 
-  const d = localDict[lang] || localDict.EN;
+  const t = DashboardLayoutTranslations[lang] || DashboardLayoutTranslations.EN;
 
   return (
     <>
