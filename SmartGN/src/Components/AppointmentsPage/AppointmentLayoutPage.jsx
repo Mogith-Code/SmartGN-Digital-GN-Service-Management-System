@@ -120,79 +120,76 @@ function AppointmentLayoutPage() {
         {t.Title}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
         <CardLayout pendingCount={pendingCount} approvedCount={approvedCount} />
       </div>
 
-      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:mx-[100px]">
+      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:m-[30px] items-start justify-between gap-[30px]">
         <CalenderLayout
           onDateSelect={handleDateSelect}
           bookings={getBookingsForCalendar()}
         />
-      </div>
 
-      <div
-        className="flex justify-center mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] my-4 sm:my-5 md:my-6 lg:my-[30px]"
-        id="summary"
-      >
-        {activeAppointment ? (
-          // ================================================================
-          // ACTIVE APPOINTMENT DISPLAY
-          // ================================================================
-          <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl">
-            <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
-              Appointment Summary
-            </p>
+        <div className="flex justify-center w-full">
+          {activeAppointment ? (
+            // ================================================================
+            // ACTIVE APPOINTMENT DISPLAY
+            // ================================================================
+            <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl">
+              <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
+                Appointment Summary
+              </p>
 
-            <div className="flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-[5px] mt-3 sm:mt-4 md:mt-5 lg:mt-[20px]">
-              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                <span className="font-medium">Purpose:</span>{" "}
-                {activeAppointment.purpose}
-              </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                <span className="font-medium">Time:</span>{" "}
-                {activeAppointment.time}
-              </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                <span className="font-medium">Status:</span>{" "}
-                {activeAppointment.status}
-              </p>
+              <div className="flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-[5px] mt-3 sm:mt-4 md:mt-5 lg:mt-[20px]">
+                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                  <span className="font-medium">Purpose:</span>{" "}
+                  {activeAppointment.purpose}
+                </p>
+                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                  <span className="font-medium">Time:</span>{" "}
+                  {activeAppointment.time}
+                </p>
+                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                  <span className="font-medium">Status:</span>{" "}
+                  {activeAppointment.status}
+                </p>
+              </div>
+
+              <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
+                <button
+                  className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
+                  onClick={() => {
+                    if (activeAppointment.status === "Pending") {
+                      navigate(
+                        "/ResidentDashboard/RAppointment/PendingAppointmentRequests",
+                      );
+                    } else if (activeAppointment.status === "Approved") {
+                      navigate(
+                        "/ResidentDashboard/RAppointment/ApprovedAppointmentRequests",
+                      );
+                    }
+                  }}
+                >
+                  <span>More {activeAppointment.status} Appointments</span>
+                  <img
+                    src={viewIcon}
+                    alt="viewIcon"
+                    className="h-3 sm:h-3.5 md:h-4 lg:h-[15px] w-auto"
+                  />
+                </button>
+              </div>
             </div>
-
-            <div className="mt-3 sm:mt-4 md:mt-5 lg:mt-[20px] flex justify-center">
-              <button
-                className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
-                onClick={() => {
-                  if (activeAppointment.status === "Pending") {
-                    navigate(
-                      "/ResidentDashboard/RAppointment/PendingAppointmentRequests",
-                    );
-                  } else if (activeAppointment.status === "Approved") {
-                    navigate(
-                      "/ResidentDashboard/RAppointment/ApprovedAppointmentRequests",
-                    );
-                  }
-                }}
-              >
-                <span>More {activeAppointment.status} Appointments</span>
-                <img
-                  src={viewIcon}
-                  alt="viewIcon"
-                  className="h-3 sm:h-3.5 md:h-4 lg:h-[15px] w-auto"
-                />
-              </button>
-            </div>
-          </div>
-        ) : (
-          // ================================================================
-          // NO APPOINTMENT - Show Appointment Summary
-          // ================================================================
-          <AppointmentSummary
-            day={selectedDate.day}
-            month={selectedDate.month}
-            year={selectedDate.year}
-          />
-        )}
+          ) : (
+            // ================================================================
+            // NO APPOINTMENT - Show Appointment Summary
+            // ================================================================
+            <AppointmentSummary
+              day={selectedDate.day}
+              month={selectedDate.month}
+              year={selectedDate.year}
+            />
+          )}
+        </div>
       </div>
     </>
   );
