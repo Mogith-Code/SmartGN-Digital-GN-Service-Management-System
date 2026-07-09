@@ -1,13 +1,15 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
-import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+
+import ResidentsDetailsCardLAyout from "./ResidentsDetailsCardLAyout";
+import ProfileSearchingSection from "./ProfileSearchingSection";
 
 function ResidentsDetailsLayout() {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
   const OHouseholdLayoutTranslations = {
-    EN: { Title: "Residents' details" },
+    EN: { Title: "Residents' Information" },
     SI: { Title: "පදිංචිකරුවන්ගේ විස්තර" },
     TA: { Title: "குடியிருப்பவர்களின் விவரங்கள்" },
   };
@@ -18,17 +20,14 @@ function ResidentsDetailsLayout() {
     <>
       <div className="flex justify-between text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         {t.Title}
+      </div>
 
-        <div className="flex w-[50%] bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] items-center gap-[10px]">
-          <img
-            src={searchIcon}
-            alt="Search Icon"
-            className="w-[15px] h-[15px] opacity-[50%]"
-          />
-          <span className="text-[16px] font-light text-[#2D3748] opacity-[50%]">
-            Search residents using NIC number
-          </span>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[75px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+        <ResidentsDetailsCardLAyout />
+      </div>
+
+      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:mx-[75px]">
+        <ProfileSearchingSection />
       </div>
     </>
   );

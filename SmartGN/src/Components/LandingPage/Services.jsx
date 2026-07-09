@@ -132,17 +132,17 @@ function Services() {
   };
 
   const handleBookAppointments = () => {
-    navigate("/RAppointment");
+    navigate("/ResidentDashboard/RAppointment");
     // navigate("/services/book-appointments");
   };
 
   const handleTrackRequests = () => {
-    console.log("Navigating to Track Requests page");
+    navigate("/ResidentDashboard");
     // navigate("/services/track-requests");
   };
 
   const handleApplyAllowances = () => {
-    console.log("Navigating to Apply for Allowances page");
+    navigate("/dashboard/resident/allowances");
     // navigate("/services/apply-for-allowances");
   };
 

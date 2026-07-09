@@ -31,15 +31,15 @@ function CardLayout({ pendingCount, approvedCount }) {
 
   // Navigation Handlers
   const handleCard1Click = () => {
-    navigate("/RAppointment/PendingAppointmentRequests");
+    navigate("/ResidentDashboard/RAppointment/PendingAppointmentRequests");
   };
 
   const handleCard2Click = () => {
-    navigate("/RAppointment/ApprovedAppointmentRequests");
+    navigate("/ResidentDashboard/RAppointment/ApprovedAppointmentRequests");
   };
 
   const handleCard3Click = () => {
-    navigate("/RAppointment/BookingForm");
+    navigate("/ResidentDashboard/RAppointment/BookingForm");
   };
 
   // Select the appropriate translation based on current language
@@ -54,21 +54,21 @@ function CardLayout({ pendingCount, approvedCount }) {
       icon: pendingIcon,
       title: t.Card1Title,
       count: pendingCount,
-      onClick: handleCard1Click, 
+      onClick: handleCard1Click,
     },
     {
       id: 2,
       icon: approvedIcon,
       title: t.Card2Title,
       count: approvedCount,
-      onClick: handleCard2Click, 
+      onClick: handleCard2Click,
     },
     {
       id: 3,
       icon: addIcon,
       title: t.Card3Title,
       count: null,
-      onClick: handleCard3Click, 
+      onClick: handleCard3Click,
     },
   ];
 
@@ -77,12 +77,12 @@ function CardLayout({ pendingCount, approvedCount }) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[15px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={card.onClick} 
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+          onClick={card.onClick}
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 
-          <div className="flex flex-col gap-[10px] items-center">
+          <div className="flex flex-col items-center">
             <span className="text-[16px] font-regular text-[#2D3748] text-center">
               {card.title}
             </span>

@@ -95,7 +95,7 @@ function RSidebar() {
     {
       id: "household",
       name: t.family,
-      path: "/RHousehold",
+      path: "/ResidentDashboard/RHousehold",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },
@@ -116,7 +116,7 @@ function RSidebar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/allowances",
+      path: "/dashboard/resident/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },

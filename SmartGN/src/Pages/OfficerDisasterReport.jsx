@@ -305,8 +305,168 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       </svg>
                       View Details & Take Action
                     </button>
-                    
+                  
+                  </div>
+                )
+              })
+            )}
+          </div>
 
+          {/* Floating Help Trigger */}
+          <button className="floating-dashboard-help" aria-label="Help Trigger" onClick={onOpenHelp}>
+            ?
+          </button>
+        </main>
+      </div>
+
+      {/* 3. Take Action Modal */}
+      {isModalOpen && selectedDisaster && (
+        <div className="modal-overlay">
+          <div className="modal-card"></div>
+
+             <div className="modal-header">
+              <h3 className="modal-title">Disaster Damage Report Details</h3>
+              <button className="modal-close" onClick={() => setIsModalOpen(false)} aria-label="Close Modal">×</button>
+            </div>
+
+            <form onSubmit={handleSaveAction}>
+              <div className="modal-body">
+
+                {/* 1. Report Details */}
+                <div className="modal-detail-row">
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Disaster Type</span>
+                    <span className="detail-value">{selectedDisaster.type}</span>
+                  </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Report Date</span>
+                    <span className="detail-value">{selectedDisaster.date}</span>
+                  </div>
+                </div>
+
+                <div className="modal-detail-row">
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Location / Area</span>
+                    <span className="detail-value">{selectedDisaster.location}</span>
+                  </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Reporter Name</span>
+                    <span className="detail-value">{selectedDisaster.reporter}</span>
+                  </div>
+                </div>
+
+                <div className="modal-detail-row">
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Contact Number</span>
+                    <span className="detail-value">{selectedDisaster.contact}</span>
+                  </div>
+                  <div className="modal-detail-item">
+                    <span className="detail-label">Initial Severity</span>
+                    <span className="detail-value" style={{ textTransform: 'capitalize' }}>{selectedDisaster.severity}</span>
+                  </div>
+                </div>
+
+                <div className="modal-detail-item full-width">
+                  <span className="detail-label">Damage Description</span>
+                  <span className="detail-value" style={{ fontWeight: 'normal', backgroundColor: '#f1f5f9', padding: '12px', borderRadius: '8px' }}>
+                    {selectedDisaster.description}
+                  </span>
+                </div>
+
+                <div className="modal-detail-item full-width">
+                  <span className="detail-label">Relief Assistance Requested</span>
+                  <span className="detail-value" style={{ fontWeight: 'normal', backgroundColor: '#fef3c7', padding: '12px', borderRadius: '8px', color: '#78350f', border: '1px solid #fde68a' }}>
+                    {selectedDisaster.aidRequested || 'No specific relief packs requested. Assessment needed.'}
+                  </span>
+                </div>
+
+                {/* 2. Admin Action Form */}
+                <h4 className="modal-section-title">GN Officer Action Panel</h4>
+
+                <div className="modal-detail-row">
+                  <div className="form-group">
+                    <label htmlFor="modalSeveritySelect">Update Severity Level</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="modalSeveritySelect"
+                        className="register-control register-select"
+                        value={modalSeverity}
+                        onChange={(e) => setModalSeverity(e.target.value)}
+                        required
+                      >
+                        <option value="low severity">Low Severity</option>
+                        <option value="medium severity">Medium Severity</option>
+                        <option value="high severity">High Severity</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="modalStatusSelect">Relief / Action Status</label>
+                    <div className="select-wrapper">
+                      <select 
+                        id="modalStatusSelect"
+                        className="register-control register-select"
+                        value={modalStatus}
+                        onChange={(e) => setModalStatus(e.target.value)}
+                        required
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Relief Approved">Relief Approved</option>
+                        <option value="Aid Dispatched">Aid Dispatched</option>
+                        <option value="Resolved">Resolved</option>
+                      </select>
+                      <span className="select-arrow">▼</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="modalRemarksInput">Officer Remarks & Actions Taken</label>
+                  <textarea 
+                    id="modalRemarksInput"
+                    className="register-control"
+                    rows="3"
+                    placeholder="Enter official remarks, dispatch instructions, or relief status details..."
+                    value={modalRemarks}
+                    onChange={(e) => setModalRemarks(e.target.value)}
+                    style={{ resize: 'none', height: '80px', fontFamily: 'inherit' }}
+                  ></textarea>
+                </div>
+
+              </div>
+
+              <div className="modal-header" style={{ borderTop: '1.5px solid #cbd5e1', borderBottom: 'none', justifyContent: 'flex-end', gap: '12px' }}>
+                <button type="button" className="btn-back" style={{ margin: 0 }} onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-form-submit" style={{ margin: 0, padding: '10px 24px' }}>
+                  Save Action & Update
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* 4. Footer */}
+      <footer className="landing-footer" style={{ padding: '16px 64px', borderTop: 'none' }}>
+        <div className="footer-copyright">
+          <p>© 2026 SmartGN. All rights reserved.</p>
+        </div>
+      </footer>
+
+    </div>
+  )
+}
+  
+
+export default OfficerDisasterReports
+                        
+
+                
 
 
 
