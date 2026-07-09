@@ -32,3 +32,12 @@ const successTranslations = {
     fallbackUser: "குடியுரிமை கணக்கு"
   }
 }
+
+function Success() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { lang } = useLanguage()
+  const t = successTranslations[lang] || successTranslations.EN
+
+  // Retrieve user info from state if navigated from registration
+  const successUser = location.state?.successUser || t.fallbackUser
