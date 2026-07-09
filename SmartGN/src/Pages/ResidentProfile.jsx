@@ -184,7 +184,7 @@ function ResidentProfile({ onOpenHelp }) {
                   My profile
                 </h2>
 
-                <div className="flex justify-end  -mt-[70px]">
+                <div className="flex justify-end -mt-[70px]">
                   {/* Alert Banner */}
                   {showAlert && !profile.nicFront && !profile.nicBack && (
                     <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 ">
@@ -219,9 +219,9 @@ function ResidentProfile({ onOpenHelp }) {
               </div>
 
               {/* Profile Card Header */}
-              <div className="flex justify-between items-center p-[30px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
+              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden  flex items-center justify-center">
+                  <div className="h-20 rounded-full overflow-hidden  flex items-center justify-center">
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
@@ -268,9 +268,9 @@ function ResidentProfile({ onOpenHelp }) {
               </div>
 
               {/* Dynamic split panel for details and NIC */}
-              <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 {/* Personal Information */}
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl p-6 text-left shadow-sm">
+                <div className="border border-[#2D37484D] rounded-2xl p-[20px] text-left">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     Personal information
                   </h3>
@@ -372,7 +372,7 @@ function ResidentProfile({ onOpenHelp }) {
                 </div>
 
                 {/* National Identity Card Display */}
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl p-6 text-left shadow-sm">
+                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left ">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     National Identity Card
                   </h3>
