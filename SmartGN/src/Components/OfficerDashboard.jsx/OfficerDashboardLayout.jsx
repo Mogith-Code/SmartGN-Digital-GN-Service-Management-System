@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import OfficerCardLayout from "./OfficerCardLayout";
 import QuickActions from "./QuickActions";
+import Announcement from "./Announcement";
 
 function OfficerDashboardLayout() {
   const navigate = useNavigate();
@@ -33,6 +34,10 @@ function OfficerDashboardLayout() {
 
       <div className="flex mx-[30px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
         <QuickActions />
+      </div>
+
+      <div className="flex mx-[30px] border border-[#2D37482D] rounded-[15px] my-[30px] p-[20px] ">
+        <Announcement />
       </div>
     </>
   );
