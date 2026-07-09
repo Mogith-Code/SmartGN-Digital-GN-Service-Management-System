@@ -3,6 +3,7 @@ import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
 import OSidebar from "../Components/Common/OSidebar";
+import OfficerDashboardLayout from "../Components/OfficerDashboard.jsx/OfficerDashboardLayout";
 
 function OfficerDashboard({ onOpenHelp }) {
   return (
@@ -15,6 +16,9 @@ function OfficerDashboard({ onOpenHelp }) {
           {/* Sidebar - Hidden on mobile, visible on md and up */}
           <div className="hidden md:block bg-white">
             <OSidebar />
+          </div>
+          <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+            <OfficerDashboardLayout />
           </div>
         </div>
 
