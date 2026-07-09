@@ -93,8 +93,6 @@ function App() {
           element={<OfficerApprovedAppointment onOpenHelp={openChatbot} />}
         />
 
-        
-
         <Route
           path="/OfficerAppointment/RequestsForTomorrow"
           element={<RequestsForTommorow onOpenHelp={openChatbot} />}
@@ -103,10 +101,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/dashboard/resident"
-          element={<ResidentProfile onOpenHelp={openChatbot} />}
-        />
         <Route
           path="/dashboard/officer"
           element={<OfficerProfile onOpenHelp={openChatbot} />}
