@@ -30,6 +30,7 @@ import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPend
 import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
 import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
 import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
+import OfficerDashboard from "./Pages/OfficerDashboard.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -105,6 +106,11 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/OfficerDashboard"
+          element={<OfficerDashboard onOpenHelp={openChatbot} />}
+        />
 
         <Route
           path="/dashboard/officer"
