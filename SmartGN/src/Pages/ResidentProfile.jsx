@@ -429,11 +429,11 @@ function ResidentProfile({ onOpenHelp }) {
               </div>
 
               <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
-                Edit your Profile details
+                Edit your profile
               </div>
 
               {/* Image Upload Zone & Editor Form */}
-              <div className="border border-[#2D37482D] rounded-2xl p-8 mx-[30px]">
+              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] mb-[30px]">
                 <form onSubmit={handleSaveProfile}>
                   {/* Circular profile image upload widget */}
                   <div className="flex flex-col items-center mb-6">
@@ -826,21 +826,17 @@ function ResidentProfile({ onOpenHelp }) {
           )}
         </div>
       </div>
-      {/* 2. Main Layout */}
-      <div className="flex flex-1 w-full">
-        {/* Sidebar Nav */}
 
-        {/* Floating Help Trigger */}
-        <button
-          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-          aria-label="Help Trigger"
-          onClick={() =>
-            onOpenHelp ? onOpenHelp() : console.log("Help clicked")
-          }
-        >
-          ?
-        </button>
-      </div>
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={() =>
+          onOpenHelp ? onOpenHelp() : console.log("Help clicked")
+        }
+      >
+        ?
+      </button>
 
       {/* 3. Footer */}
       <Footer />
