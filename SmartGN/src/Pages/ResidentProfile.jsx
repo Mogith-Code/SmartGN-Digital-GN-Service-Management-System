@@ -4,6 +4,7 @@ import { translations, useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
 import profileIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import backIcon from "../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Components/Common/Footer";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
@@ -415,32 +416,24 @@ function ResidentProfile({ onOpenHelp }) {
           {viewMode === "EDIT" && (
             <>
               {/* Back Button */}
-              <div className="flex justify-start items-center mb-4">
-                <button
-                  className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
-                  onClick={() => setViewMode("VIEW")}
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                  </svg>
-                  Back
-                </button>
+              <div
+                className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
+                onClick={() => setViewMode("VIEW")}
+              >
+                <img
+                  src={backIcon}
+                  alt="backIcon"
+                  className="w-[14px] sm:w-[16px]"
+                />
+                back
               </div>
 
-              <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">
-                Edit your profile
-              </h2>
+              <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
+                Edit your Profile details
+              </div>
 
               {/* Image Upload Zone & Editor Form */}
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm">
+              <div className="border border-[#2D37482D] rounded-2xl p-8 mx-[30px]">
                 <form onSubmit={handleSaveProfile}>
                   {/* Circular profile image upload widget */}
                   <div className="flex flex-col items-center mb-6">
