@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
+import profileIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Components/Common/Footer";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
@@ -218,9 +219,9 @@ function ResidentProfile({ onOpenHelp }) {
               </div>
 
               {/* Profile Card Header */}
-              <div className="flex justify-between items-center p-6 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm m-[30px]">
+              <div className="flex justify-between items-center p-[30px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f1f5f9] border-2 border-white shadow-md flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full overflow-hidden  flex items-center justify-center">
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
@@ -228,20 +229,11 @@ function ResidentProfile({ onOpenHelp }) {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <svg
-                        width="32"
-                        height="32"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-[#cbd5e1]"
-                      >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                      </svg>
+                      <img
+                        src={profileIcon}
+                        alt="Default avatar"
+                        className="w-full h-full object-cover"
+                      />
                     )}
                   </div>
                   <div className="flex flex-col text-left">
