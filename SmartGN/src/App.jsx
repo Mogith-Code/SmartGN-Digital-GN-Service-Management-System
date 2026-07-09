@@ -30,6 +30,7 @@ import OfficerPendingAppointment from "./Components/AppointmentsPage/OfficerPend
 import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApprovedAppointment.jsx";
 import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
 import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
+import OfficerDashboard from "./Pages/OfficerDashboard.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -42,6 +43,11 @@ function App() {
         <Route
           path="/ResidentDashboard"
           element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/ResidentDashboard/profile"
+          element={<ResidentProfile onOpenHelp={openChatbot} />}
         />
 
         <Route
@@ -79,24 +85,22 @@ function App() {
         />
 
         <Route
-          path="/OfficerAppointment"
+          path="/OfficerDashboard/OfficerAppointment"
           element={<OfficerAppointment onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/OfficerAppointment/OfficerPendingAppointment"
+          path="/OfficerDashboard/OfficerAppointment/OfficerPendingAppointment"
           element={<OfficerPendingAppointment onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/OfficerAppointment/OfficerApprovedAppointment"
+          path="/OfficerDashboard/OfficerAppointment/OfficerApprovedAppointment"
           element={<OfficerApprovedAppointment onOpenHelp={openChatbot} />}
         />
 
-        
-
         <Route
-          path="/OfficerAppointment/RequestsForTomorrow"
+          path="/OfficerDashboard/OfficerAppointment/RequestsForTomorrow"
           element={<RequestsForTommorow onOpenHelp={openChatbot} />}
         />
 
@@ -104,24 +108,21 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route
-          path="/dashboard/resident"
-          element={<ResidentProfile onOpenHelp={openChatbot} />}
+          path="/OfficerDashboard"
+          element={<OfficerDashboard onOpenHelp={openChatbot} />}
         />
+
         <Route
-          path="/dashboard/officer"
+          path="/OfficerDashboard/profile"
           element={<OfficerProfile onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/officer/profile"
-          element={<OfficerProfile onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/ResidentsDetails"
+          path="/OfficerDashboard/ResidentsDetails"
           element={<ResidentsDetails onOpenHelp={openChatbot} />}
         />
 
         <Route
-          path="/dashboard/officer/certificates"
+          path="/OfficerDashboard/Certificates"
           element={<OfficerCertificates onOpenHelp={openChatbot} />}
         />
         <Route
@@ -137,10 +138,6 @@ function App() {
           element={<AdminDashboard onOpenHelp={openChatbot} />}
         />
 
-        <Route
-          path="/profile"
-          element={<ResidentProfile onOpenHelp={openChatbot} />}
-        />
         <Route
           path="/certificates"
           element={<ResidentCertificates onOpenHelp={openChatbot} />}
