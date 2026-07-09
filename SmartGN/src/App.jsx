@@ -45,6 +45,11 @@ function App() {
         />
 
         <Route
+          path="/ResidentDashboard/profile"
+          element={<ResidentProfile onOpenHelp={openChatbot} />}
+        />
+
+        <Route
           path="/ResidentDashboard/RAppointment"
           element={<RAppointment onOpenHelp={openChatbot} />}
         />
@@ -131,10 +136,6 @@ function App() {
           element={<AdminDashboard onOpenHelp={openChatbot} />}
         />
 
-        <Route
-          path="/profile"
-          element={<ResidentProfile onOpenHelp={openChatbot} />}
-        />
         <Route
           path="/certificates"
           element={<ResidentCertificates onOpenHelp={openChatbot} />}

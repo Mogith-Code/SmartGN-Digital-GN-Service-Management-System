@@ -97,7 +97,7 @@ function AfterlogNavbar() {
     {
       id: "profile",
       name: t.profile,
-      path: "/profile",
+      path: "/ResidentDashboard/profile",
       icon: profileIcon,
       iconActive: profileIconHovered,
     },
