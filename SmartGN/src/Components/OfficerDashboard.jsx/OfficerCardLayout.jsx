@@ -1,6 +1,6 @@
 import React from "react";
 import { useLanguage } from "../../utils/translate";
-import totalPendingIcon from "../../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import totalResidentsIcon from "../../assets/location_away_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import totalapprovedIcon from "../../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import upcomingIcon from "../../assets/event_upcoming_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
@@ -35,7 +35,7 @@ function OfficerCardLayout() {
   const cards = [
     {
       id: 1,
-      icon: totalPendingIcon,
+      icon: totalResidentsIcon,
       title: t.Card1Title,
       count: 10000,
     },
