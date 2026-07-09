@@ -49,7 +49,7 @@ function OfficerCardLayout() {
       id: 3,
       icon: disasterIcon,
       title: t.Card3Title,
-      count: null,
+      count: 10,
     },
   ];
 

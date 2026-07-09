@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import OfficerCardLayout from "./OfficerCardLayout";
+import QuickActions from "./QuickActions";
 
 function OfficerDashboardLayout() {
   const navigate = useNavigate();
@@ -28,6 +29,10 @@ function OfficerDashboardLayout() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] justify-center">
         <OfficerCardLayout />
+      </div>
+
+      <div className="flex mx-[30px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
+        <QuickActions />
       </div>
     </>
   );
