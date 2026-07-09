@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db/db');
+const db = require('./src/config/database');
 require('dotenv').config();
 
 const app = express();
@@ -19,8 +19,12 @@ app.get('/', (req, res) => {
 });
 
 // Import and mount authentication routes
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./src/routes/authRoutes');
 app.use('/api/auth', authRoutes);
+
+// Import and mount chat routes
+const chatRoutes = require('./src/routes/chatRoutes');
+app.use('/api/chat', chatRoutes);
 
 // Initialize DB and start server
 async function startServer() {
@@ -28,7 +32,7 @@ async function startServer() {
     // This will trigger database creation, table setups, and seeding on startup
     console.log('Connecting to database and verifying schemas...');
     await db.getPool();
-    
+
     app.listen(PORT, () => {
       console.log(`SmartGN Backend Server is running on port ${PORT}`);
       console.log(`Local address: http://localhost:${PORT}`);
