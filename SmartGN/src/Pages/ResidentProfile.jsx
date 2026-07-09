@@ -291,7 +291,7 @@ function ResidentProfile({ onOpenHelp }) {
                         {familyCount} &nbsp;
                         <span
                           onClick={() =>
-                            navigate("/dashboard/resident/household", {
+                            navigate("/ResidentDashboard/RHousehold", {
                               state: {
                                 successUser: `${profile.firstName} ${profile.lastName}`,
                                 division: userDivision,
