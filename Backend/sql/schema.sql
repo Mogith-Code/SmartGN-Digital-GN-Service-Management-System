@@ -1,0 +1,5 @@
+-- SQL Schema script placeholder
+CREATE TABLE IF NOT EXISTS divisions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL
+);

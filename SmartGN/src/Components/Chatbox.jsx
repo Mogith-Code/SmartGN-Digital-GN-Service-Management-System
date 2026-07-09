@@ -131,7 +131,7 @@ function Chatbot({ isOpen, onClose }) {
     return "I am here to help you navigate SmartGN! You can ask me about:\n\n• How to edit your profile & upload NIC\n• Requesting Income or Character certificates\n• Booking appointments & officer hours\n• Managing household members\n• Re-applying for rejected certificates"
   }
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     if (!textToSend.trim()) return
 
     // 1. Add user message
@@ -144,17 +144,47 @@ function Chatbot({ isOpen, onClose }) {
     setInputValue('')
     setIsTyping(true)
 
-    // 2. Trigger assistant typing response
-    setTimeout(() => {
+    try {
+      // Build conversation history to send to backend
+      const history = [...messages, userMessage].map(m => ({
+        role: m.sender === 'user' ? 'user' : 'model',
+        text: m.text
+      }))
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ messages: history })
+      });
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => ({}));
+        const detailedErr = errorJson.details ? JSON.stringify(errorJson.details) : `HTTP error! status: ${response.status}`;
+        throw new Error(detailedErr);
+      }
+
+      const data = await response.json();
+      
+      const assistantMessage = {
+        id: Date.now() + 1,
+        sender: 'assistant',
+        text: data.reply
+      }
+      setMessages(prev => [...prev, assistantMessage])
+    } catch (error) {
+      console.error('Failed to get response from server, using local fallback:', error);
       const responseText = getAssistantResponse(textToSend)
       const assistantMessage = {
         id: Date.now() + 1,
         sender: 'assistant',
-        text: responseText
+        text: responseText + `\n\n*(Note: Connection to AI service failed. Error details: ${error.message}. Displaying offline guidelines.)*`
       }
       setMessages(prev => [...prev, assistantMessage])
+    } finally {
       setIsTyping(false)
-    }, 700)
+    }
   }
 
   const handleKeyPress = (e) => {
