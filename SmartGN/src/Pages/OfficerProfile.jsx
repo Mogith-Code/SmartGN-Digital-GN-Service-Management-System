@@ -160,8 +160,10 @@ function OfficerProfile({ onOpenHelp }) {
               )}
 
               {/* Title Greeting */}
-              <div style={{ textAlign: 'left', marginBottom: '24px' }}>
-                <h2 className="text-[24px] font-bold text-[#1B365D] text-left" style={{ margin: 0 }}>My profile</h2>
+              <div className="text-left mb-6">
+                <h2 className="m-0 text-left text-2xl font-bold text-[#1B365D]">
+                  My Profile
+                </h2>
               </div>
 
               {/* Profile Header Box Card */}
