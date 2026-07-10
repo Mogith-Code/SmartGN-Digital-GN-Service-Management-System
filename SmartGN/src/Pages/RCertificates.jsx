@@ -91,6 +91,12 @@ function ResidentCertificates({ onOpenHelp }) {
       {/* 1. Header */}
       <AfterlogNavbar />
 
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+      </div>
+
       {/* 2. Main Layout */}
       <div className="flex flex-1 w-full">
         {/* Sidebar Nav */}
