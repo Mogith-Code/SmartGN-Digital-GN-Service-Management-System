@@ -778,6 +778,70 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   </span>
                   <div className="w-full border-b-[3px] double border-slate-400 mt-4"></div>
                 </div>
+
+                <div className="text-center mb-8 font-sans">
+                  <h2 className="text-[17px] font-bold text-slate-800 m-0 uppercase tracking-wide">
+                    Certificate of Income issued by the Grama Niladhari
+                  </h2>
+                  <span className="text-[12px] font-medium text-slate-500 block mt-1">
+                    Certificate ID: DRAFT-IC-PREVIEW
+                  </span>
+                  <p className="text-[11px] italic text-slate-500 max-w-xl mx-auto mt-2 font-serif leading-normal">
+                    This certificate is issued by the Grama Niladhari of the
+                    division in which the applicant resides based on declared income details.
+                  </p>
+                </div>
+
+                {/* Section 1: General Details */}
+                <div className="mb-6">
+                  <h3 className="font-sans font-bold text-[13px] text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">
+                    (1) General Information
+                  </h3>
+                  <table className="w-full text-[13px] border-collapse">
+                    <tbody>
+                      <tr>
+                        <td className="w-1/2 py-1.5 font-bold">
+                          Applicant's Full Name:
+                        </td>
+                        <td className="w-1/2 py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                          {fullName || "(Not specified)"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 font-bold">
+                          Grama Niladhari Division and Number:
+                        </td>
+                        <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                          {gnDivisionNumber || "(Not specified)"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 font-bold">
+                          Residential Address:
+                        </td>
+                        <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                          {address || "(Not specified)"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 font-bold">
+                          Income Stream / Category:
+                        </td>
+                        <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-bold">
+                          {incomeStream === 'Paddy' ? 'Paddy / Agriculture' : (incomeStream === 'Business' ? 'Business / Commercial' : 'Carpenter / Laborer / Services')}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 font-bold">
+                          Purpose of Certificate:
+                        </td>
+                        <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                          {purpose || "(Not specified)"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
     </div>
   )
 }
