@@ -104,6 +104,16 @@ function OfficerAnnouncements({ onOpenHelp }) {
       alert(err.message || 'Error publishing announcement.')
     }
   }
+
+  // Edit Announcement Handlers
+  const handleOpenEdit = (item) => {
+    setEditingId(item.id)
+    setTitle(item.title)
+    setCategory(item.category)
+    setContent(item.content)
+    setIsUrgent(item.status === 'Urgent')
+    setViewMode('EDIT')
+  }
 }
 
 export default OfficerAnnouncements
