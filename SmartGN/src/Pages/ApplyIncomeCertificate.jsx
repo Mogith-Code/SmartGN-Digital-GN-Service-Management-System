@@ -758,6 +758,26 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                 ✕
               </button>
             </div>
+
+            {/* Certificate Body Container */}
+            <div className="p-8 md:p-12 overflow-y-auto bg-slate-100 flex-1 max-h-[70vh]">
+              {/* Paper Layout representation */}
+              <div className="bg-white mx-auto border-2 border-slate-300 shadow-md p-10 max-w-[800px] text-left font-serif text-[#1e293b] leading-relaxed relative min-h-[1050px]">
+                {/* Official Branding Header */}
+                <div className="flex flex-col items-center justify-center mb-6 text-center font-sans">
+                  <img
+                    src={logo}
+                    alt="SmartGN Logo"
+                    className="h-14 mb-2 object-contain"
+                  />
+                  <h1 className="text-[20px] font-extrabold uppercase text-[#1B365D] tracking-wider m-0">
+                    SmartGN
+                  </h1>
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
+                    Digital Grama Niladhari Service Management System
+                  </span>
+                  <div className="w-full border-b-[3px] double border-slate-400 mt-4"></div>
+                </div>
     </div>
   )
 }
