@@ -7,7 +7,10 @@ import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
 
 function OfficerAnnouncements({ onOpenHelp }) {
-  
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { lang } = useLanguage()
+  const t = translations[lang]
 }
 
 export default OfficerAnnouncements
