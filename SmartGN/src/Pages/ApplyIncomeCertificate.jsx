@@ -946,6 +946,38 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       </tbody>
                     </table>
                   )}
+
+                  {incomeStream === 'Laborer' && (
+                    <table className="w-full text-[13px] border-collapse">
+                      <tbody>
+                        <tr>
+                          <td className="w-1/2 py-1.5 font-bold">Daily Salary / Rate (Rs.):</td>
+                          <td className="w-1/2 py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            Rs. {dailySalary || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Hours worked per week:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {hoursWorked || "0"} hours
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold text-slate-800">Average Monthly Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-bold">
+                            Rs. {monthlyIncome || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold text-[#1B365D]">Declared Annual Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-[#1B365D] font-sans font-extrabold text-[14px]">
+                            Rs. {laborerAnnualIncome || "0"}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  )}
+                </div>
     </div>
   )
 }
