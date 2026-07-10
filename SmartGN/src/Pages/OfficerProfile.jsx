@@ -188,7 +188,7 @@ function OfficerProfile({ onOpenHelp }) {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center p-6 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm m-[30px]">
+              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "20px" }}
                 >
@@ -290,7 +290,7 @@ function OfficerProfile({ onOpenHelp }) {
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 {/* Left Card: Personal information */}
                 <div
-                  className="bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm"
+                  className="border border-[#2D37484D] rounded-2xl p-[20px]"
                   style={{ textAlign: "left" }}
                 >
                   <h3
@@ -430,14 +430,7 @@ function OfficerProfile({ onOpenHelp }) {
                 </div>
 
                 {/* Right Cards: Grama Niladhari Identity Card uploads */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "24px",
-                    textAlign: "left",
-                  }}
-                >
+                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left gap-[20px] flex flex-col">
                   <h3
                     className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3"
                     style={{ fontSize: "16px", margin: "0" }}
