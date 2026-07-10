@@ -115,23 +115,26 @@ function ResidentCertificates({ onOpenHelp }) {
     {
       id: 1,
       icon: totalMembersIcon,
-      alt: "Total Members",
-      title: "card1",
+      alt: "adultIcon",
+      title: " Pending certificate requests",
       count: 5,
+      navpath: "/dashboard/resident/certificates/pending",
     },
     {
       id: 2,
       icon: adultIcon,
-      alt: "Adult Members",
-      title: "card2",
+      alt: "adultIcon",
+      title: "Approved certificate requests",
       count: 3,
+      navpath: "/dashboard/resident/certificates/approved",
     },
     {
       id: 3,
       icon: childrenIcon,
       alt: "Children",
-      title: "card3",
+      title: "Rejected certificate requests",
       count: 2,
+      navpath: "/dashboard/resident/certificates/rejected",
     },
   ];
 
@@ -190,6 +193,11 @@ function ResidentCertificates({ onOpenHelp }) {
               <div
                 key={card.id}
                 className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
+                onClick={() =>
+                  navigate(card.navpath, {
+                    state: { successUser, division: userDivision },
+                  })
+                }
               >
                 <img src={card.icon} alt={card.alt} className="w-[50px]" />
 
@@ -374,6 +382,14 @@ function ResidentCertificates({ onOpenHelp }) {
             </div>
           </div>
         </div>
+
+        <button
+          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+          aria-label="Help Trigger"
+          onClick={onOpenHelp}
+        >
+          ?
+        </button>
       </div>
 
       <button
