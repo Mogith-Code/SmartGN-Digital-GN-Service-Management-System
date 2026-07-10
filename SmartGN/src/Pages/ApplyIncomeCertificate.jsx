@@ -842,6 +842,67 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Section 2: Stream-specific Income Details */}
+                <div className="mb-6">
+                  <h3 className="font-sans font-bold text-[13px] text-slate-800 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">
+                    (2) Income Stream Breakdown
+                  </h3>
+                  
+                  {incomeStream === 'Paddy' && (
+                    <table className="w-full text-[13px] border-collapse">
+                      <tbody>
+                        <tr>
+                          <td className="w-1/2 py-1.5 font-bold">Land Owner Name:</td>
+                          <td className="w-1/2 py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {landOwnerName || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Amount of Land:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {landAmount || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Identity as Owner:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {ownerIdentity || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Produce Obtained:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {amountObtained || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Price per Kg (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            Rs. {pricePerKg || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Expenses incurred (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic text-red-600">
+                            Rs. {expenses || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold font-sans text-slate-800">Total Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-bold">
+                            Rs. {totalIncome || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold font-sans text-[#1B365D]">Declared Annual Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-[#1B365D] font-sans font-extrabold text-[14px]">
+                            Rs. {annualIncome || "0"}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  )}
     </div>
   )
 }
