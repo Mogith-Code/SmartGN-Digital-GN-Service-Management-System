@@ -978,6 +978,59 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                     </table>
                   )}
                 </div>
+
+                {/* Certification Clause */}
+                <div className="mt-8 pt-4 border-t border-slate-200 text-[12.5px] leading-relaxed">
+                  <p>
+                    It is hereby certified that the above particulars are correct to the best of my knowledge and belief, and that the applicant's declared annual income is 
+                    <span className="font-bold"> Rs. {incomeStream === 'Paddy' ? annualIncome : (incomeStream === 'Business' ? businessAnnualIncome : laborerAnnualIncome)}</span>. 
+                    This draft is for preview purposes only.
+                  </p>
+                </div>
+
+                {/* Official Signatures & Date */}
+                <div className="mt-14 flex justify-between items-end font-sans">
+                  <div>
+                    <span className="block text-[12px] text-slate-500 font-bold">
+                      DATE OF ISSUE:
+                    </span>
+                    <span className="text-[13.5px] font-bold border-b border-slate-300 w-36 block pb-1">
+                      {new Date().toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-52 border-b border-slate-400 pb-1 mb-1 italic text-slate-400 text-[11px] font-serif">
+                      (Computer Generated Draft)
+                    </div>
+                    <span className="block text-[11px] text-slate-500 font-extrabold uppercase">
+                      Grama Niladhari Signature & Seal
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Footer Info */}
+                <div className="absolute bottom-4 left-10 right-10 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-2 font-sans">
+                  <span>
+                    This is a computer-generated document. No signature is
+                    required.
+                  </span>
+                  <span>Contact: 0255731913 | Admin@gmail.com</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Action Buttons */}
+            <div className="bg-slate-50 border-t border-slate-200 py-3 px-6 flex justify-end gap-3">
+              <button
+                onClick={() => setIsPreviewOpen(false)}
+                className="py-2 px-5 bg-slate-200 hover:bg-slate-300 text-[#475569] border-0 rounded-lg text-[13px] font-bold cursor-pointer transition-all duration-200"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
