@@ -51,6 +51,13 @@ function OfficerAnnouncements({ onOpenHelp }) {
           status: isUrgentType ? 'Urgent' : 'Live'
         }
       })
+      setAnnouncements(formatted)
+    } catch (err) {
+      console.error(err)
+      const saved = localStorage.getItem('smartgn_announcements')
+      if (saved) setAnnouncements(JSON.parse(saved))
+    }
+  }
 }
 
 export default OfficerAnnouncements
