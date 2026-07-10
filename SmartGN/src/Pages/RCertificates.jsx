@@ -4,9 +4,9 @@ import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
-import totalMembersIcon from "../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import adultIcon from "../assets/18_up_rating_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import childrenIcon from "../assets/child_care_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import pendingIcon from "../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import approvedIcon from "../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
 function ResidentCertificates({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ function ResidentCertificates({ onOpenHelp }) {
   const cards = [
     {
       id: 1,
-      icon: totalMembersIcon,
+      icon: pendingIcon,
       alt: "adultIcon",
       title: " Pending certificate requests",
       count: 5,
@@ -122,7 +122,7 @@ function ResidentCertificates({ onOpenHelp }) {
     },
     {
       id: 2,
-      icon: adultIcon,
+      icon: approvedIcon,
       alt: "adultIcon",
       title: "Approved certificate requests",
       count: 3,
@@ -130,7 +130,7 @@ function ResidentCertificates({ onOpenHelp }) {
     },
     {
       id: 3,
-      icon: childrenIcon,
+      icon: rejectedIcon,
       alt: "Children",
       title: "Rejected certificate requests",
       count: 2,
