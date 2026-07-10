@@ -4,6 +4,7 @@ import { translations, useLanguage } from '../utils/translate'
 import AfterlogNavbar from '../Components/Common/AfterlogNavbar'
 import RSidebar from '../Components/Common/RSidebar'
 import Footer from '../Components/Common/Footer'
+import logo from '../assets/logo.png'
 
 function ApplyIncomeCertificate({ onOpenHelp }) {
   const navigate = useNavigate()
@@ -57,6 +58,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
   const [fileName, setFileName] = useState('')
 
   const [errorMessage, setErrorMessage] = useState('')
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   const handleReset = () => {
     setFullName('')
@@ -135,7 +137,31 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
           certificateType: 'INCOME',
           purpose: purpose,
           requestDate: new Date().toISOString().split('T')[0],
-          supportingDocs: []
+          supportingDocs: [],
+          fullName,
+          gnDivisionNumber,
+          address,
+          incomeStream,
+          landOwnerName,
+          landAmount,
+          grantSheetNumber,
+          ownerIdentity,
+          amountObtained,
+          expenses,
+          pricePerKg,
+          totalIncome,
+          annualIncome,
+          businessName,
+          businessNature,
+          businessFileName,
+          taxReceiptNumber,
+          dailyMonthlyIncome,
+          businessAnnualIncome,
+          netIncome,
+          dailySalary,
+          hoursWorked,
+          monthlyIncome,
+          laborerAnnualIncome
         })
       })
 
@@ -147,7 +173,61 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
       alert('Income Certificate Application submitted successfully!')
       navigate('/dashboard/resident/certificates', { state: { successUser, division: userDivision } })
     } catch (err) {
-      setErrorMessage(err.message || 'Error connecting to backend server.')
+      console.warn("API error, using Local Storage fallback:", err.message);
+
+      const newRequestId = `REQ-IC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const resolvedAnnualIncome = incomeStream === 'Paddy' ? annualIncome : (incomeStream === 'Business' ? businessAnnualIncome : laborerAnnualIncome);
+      const newRequest = {
+        id: newRequestId,
+        request_id: newRequestId,
+        type: 'Income Certificate',
+        certificate_type: 'INCOME',
+        status: 'PENDING',
+        name: fullName,
+        resident_name: fullName,
+        division: userDivision,
+        submittedDate: new Date().toISOString().split('T')[0],
+        request_date: new Date().toISOString(),
+        purpose: purpose,
+
+        fullName,
+        gnDivisionNumber,
+        address,
+        incomeStream,
+        landOwnerName,
+        landAmount,
+        grantSheetNumber,
+        ownerIdentity,
+        amountObtained,
+        expenses,
+        pricePerKg,
+        totalIncome,
+        annualIncome: resolvedAnnualIncome,
+        businessName,
+        businessNature,
+        businessFileName,
+        taxReceiptNumber,
+        dailyMonthlyIncome,
+        businessAnnualIncome,
+        netIncome,
+        dailySalary,
+        hoursWorked,
+        monthlyIncome,
+        laborerAnnualIncome,
+      };
+
+      // Add to resident certificates store
+      const resCerts = JSON.parse(localStorage.getItem("smartgn_certificates") || "[]");
+      resCerts.unshift(newRequest);
+      localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
+
+      // Add to officer certificates store
+      const offRequests = JSON.parse(localStorage.getItem("smartgn_certificate_requests") || "[]");
+      offRequests.unshift(newRequest);
+      localStorage.setItem("smartgn_certificate_requests", JSON.stringify(offRequests));
+
+      alert('Income Certificate Application submitted successfully! (Stored in Local Storage)');
+      navigate('/dashboard/resident/certificates', { state: { successUser, division: userDivision } });
     }
   }
 
@@ -168,13 +248,32 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
           
           {/* Back button */}
-          <div className="flex justify-start items-center mb-4">
+          <div className="flex justify-between items-center mb-4">
             <button className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]" onClick={() => navigate('/dashboard/resident/certificates', { state: { successUser, division: userDivision } })}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
               </svg>
               Back
+            </button>
+
+            <button
+              type="button"
+              className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm"
+              onClick={() => setIsPreviewOpen(true)}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              Live Certificate Preview
             </button>
           </div>
 
@@ -642,6 +741,8 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
 
       {/* 3. Footer */}
       <Footer />
+
+
     </div>
   )
 }
