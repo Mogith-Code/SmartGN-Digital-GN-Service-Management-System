@@ -272,190 +272,9 @@ function ResidentCertificates({ onOpenHelp }) {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* 2. Main Layout */}
-      <div className="flex flex-1 w-full">
-        {/* Sidebar Nav */}
-        <RSidebar />
-
-        {/* Main Panel Content */}
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
-          {/* Heading */}
-          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
-            Certificates
-          </h2>
-
-          {/* Stats Widgets */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-            {/* Card 1: Pending */}
-            <div
-              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
-              onClick={() =>
-                navigate("/dashboard/resident/certificates/pending", {
-                  state: { successUser, division: userDivision },
-                })
-              }
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#d97706"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-              </div>
-              <span className="text-[13px] font-semibold text-[#718096] text-left">
-                Pending certificate requests
-              </span>
-              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
-                {pendingCount}
-              </span>
-            </div>
-
-            {/* Card 2: Approved */}
-            <div
-              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
-              onClick={() =>
-                navigate("/dashboard/resident/certificates/approved", {
-                  state: { successUser, division: userDivision },
-                })
-              }
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#d97706"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
-              </div>
-              <span className="text-[13px] font-semibold text-[#718096] text-left">
-                Approved certificate requests
-              </span>
-              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
-                {approvedCount}
-              </span>
-            </div>
-
-            {/* Card 3: Rejected */}
-            <div
-              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
-              onClick={() =>
-                navigate("/dashboard/resident/certificates/rejected", {
-                  state: { successUser, division: userDivision },
-                })
-              }
-            >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#d97706"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-              </div>
-              <span className="text-[13px] font-semibold text-[#718096] text-left">
-                Rejected certificate requests
-              </span>
-              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
-                {rejectedCount}
-              </span>
-            </div>
-          </div>
-
-          {/* Request Types Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-8 flex flex-col">
-            <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
-              Certificate types you can request
-            </h3>
-
-            <div className="flex flex-col gap-4">
-              {/* Type 1: Character Certificates */}
-              <div className="flex justify-between items-center py-2">
-                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
-                  Character certificates
-                </span>
-                <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
-                  onClick={() =>
-                    navigate(
-                      "/dashboard/resident/certificates/apply-character",
-                      { state: { successUser, division: userDivision } },
-                    )
-                  }
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="mr-1"
-                  >
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                  </svg>
-                  Apply here
-                </span>
-              </div>
-
-              {/* Type 2: Income Certificates */}
-              <div className="flex justify-between items-center py-4 border-t border-[#fedc9b] mt-2">
-                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
-                  Income certificates
-                </span>
-                <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
-                  onClick={() =>
-                    navigate("/dashboard/resident/certificates/apply-income", {
-                      state: { successUser, division: userDivision },
-                    })
-                  }
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    className="mr-1"
-                  >
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                  </svg>
-                  Apply here
-                </span>
-              </div>
-            </div>
-          </div>
 
           {/* Requested Status Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-8 flex flex-col">
+          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Requested certificates status
             </h3>
@@ -554,19 +373,16 @@ function ResidentCertificates({ onOpenHelp }) {
               )}
             </div>
           </div>
-
-          {/* Floating Help Trigger */}
-          <button
-            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-            aria-label="Help Trigger"
-            onClick={() =>
-              onOpenHelp ? onOpenHelp() : console.log("Help clicked")
-            }
-          >
-            ?
-          </button>
-        </main>
+        </div>
       </div>
+
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
 
       {/* 3. Footer */}
       <Footer />
