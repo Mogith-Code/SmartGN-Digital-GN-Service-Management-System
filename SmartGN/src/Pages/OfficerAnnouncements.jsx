@@ -28,6 +28,29 @@ function OfficerAnnouncements({ onOpenHelp }) {
   const [content, setContent] = useState('')
   const [isUrgent, setIsUrgent] = useState(false)
   const [editingId, setEditingId] = useState(null)
+
+  const loadAnnouncements = async () => {
+    try {
+      const response = await fetch('/api/announcements/officer', {
+        headers: getAuthHeaders()
+      })
+      if (!response.ok) throw new Error('Failed to load announcements.')
+      const data = await response.json()
+      const formatted = data.map(item => {
+        const dateObj = new Date(item.date)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const formattedDate = `${months[dateObj.getMonth()] || 'Oct'} ${dateObj.getDate() || 24}, ${dateObj.getFullYear() || 2026} • ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+
+        const isUrgentType = item.type.toLowerCase() === 'urgent'
+        return {
+          id: item.announcement_id,
+          title: item.title,
+          category: isUrgentType ? 'General' : item.type,
+          date: formattedDate,
+          content: item.description,
+          status: isUrgentType ? 'Urgent' : 'Live'
+        }
+      })
 }
 
 export default OfficerAnnouncements
