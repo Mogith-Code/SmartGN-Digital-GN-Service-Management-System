@@ -548,7 +548,7 @@ function OfficerProfile({ onOpenHelp }) {
                 Edit your profile
               </div>
 
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm">
+              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] mb-[30px]">
                 <form onSubmit={handleSaveProfile}>
                   <div
                     style={{
