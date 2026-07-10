@@ -1,24 +1,18 @@
 import React from "react";
-import { useState } from "react";
-import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
+import { useLanguage } from "../../utils/translate";
+import totalResidentsIcon from "../../assets/location_away_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import totalPendingIcon from "../../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import totalapprovedIcon from "../../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import upcomingIcon from "../../assets/event_upcoming_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import { useNavigate } from "react-router-dom";
+import disasterIcon from "../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
-function ResidentCardLayout({
-  totalPendingCount,
-  totalApprovedCount,
-  upcomingAppointmentsCount,
-}) {
+function OfficerCardLayout() {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
     EN: {
-      Card1Title: "Total Pending requests",
-      Card2Title: "Total Approved requests",
-      Card3Title: "Upcoming appointments",
+      Card1Title: "Total Residents",
+      Card2Title: "Total Pending requests",
+      Card3Title: "Active Disaster",
     },
     SI: {
       Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
@@ -41,21 +35,21 @@ function ResidentCardLayout({
   const cards = [
     {
       id: 1,
-      icon: totalPendingIcon,
+      icon: totalResidentsIcon,
       title: t.Card1Title,
-      count: totalPendingCount,
+      count: 10000,
     },
     {
       id: 2,
-      icon: totalapprovedIcon,
+      icon: totalPendingIcon,
       title: t.Card2Title,
-      count: totalApprovedCount,
+      count: 500,
     },
     {
       id: 3,
-      icon: upcomingIcon,
+      icon: disasterIcon,
       title: t.Card3Title,
-      count: upcomingAppointmentsCount,
+      count: 10,
     },
   ];
 
@@ -83,4 +77,4 @@ function ResidentCardLayout({
   );
 }
 
-export default ResidentCardLayout;
+export default OfficerCardLayout;
