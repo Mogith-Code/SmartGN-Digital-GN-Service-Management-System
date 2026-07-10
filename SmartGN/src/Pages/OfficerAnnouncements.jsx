@@ -58,6 +58,20 @@ function OfficerAnnouncements({ onOpenHelp }) {
       if (saved) setAnnouncements(JSON.parse(saved))
     }
   }
+
+  useEffect(() => {
+    loadAnnouncements()
+  }, [])
+
+  // Create Announcement Handlers
+  const handleOpenCreate = () => {
+    setTitle('')
+    setCategory('General')
+    setContent('')
+    setIsUrgent(false)
+    setEditingId(null)
+    setViewMode('CREATE')
+  }
 }
 
 export default OfficerAnnouncements
