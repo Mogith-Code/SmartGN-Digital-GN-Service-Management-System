@@ -19,8 +19,6 @@ import OfficerAppointment from "./Pages/OfficerAppointment.jsx";
 import RejectedCertificates from "./Pages/RejectedCertificates.jsx";
 import PendingCertificates from "./Pages/PendingCertificates.jsx";
 import ApprovedCertificates from "./Pages/ApprovedCertificates.jsx";
-import ResidentAllowances from "./Pages/RAllowances.jsx";
-import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import AdminDashboard from "./Pages/AdminDashboard.jsx";
 import Chatbot from "./Components/Chatbox.jsx";
 import EditFamilyDetails from "./Components/Family&HouseholdPage/EditFamilyDetails.jsx";
@@ -31,6 +29,11 @@ import OfficerApprovedAppointment from "./Components/AppointmentsPage/OfficerApp
 import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommorow.jsx";
 import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
 import OfficerDashboard from "./Pages/OfficerDashboard.jsx";
+import ResidentAllowances from "./Pages/ResidentAllowances.jsx";
+import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
+import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
+import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
+import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -44,6 +47,11 @@ function App() {
           path="/ResidentDashboard"
           element={<ResidentDashboard onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/dashboard/resident"
+          element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
+
 
         <Route
           path="/ResidentDashboard/profile"
@@ -111,6 +119,11 @@ function App() {
           path="/OfficerDashboard"
           element={<OfficerDashboard onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/dashboard/officer"
+          element={<OfficerDashboard onOpenHelp={openChatbot} />}
+        />
+       
 
         <Route
           path="/OfficerDashboard/profile"
@@ -133,6 +146,15 @@ function App() {
           path="/dashboard/officer/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/dashboard/officer/disasters"
+          element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/announcements"
+          element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
+        />
+        
         <Route
           path="/dashboard/admin"
           element={<AdminDashboard onOpenHelp={openChatbot} />}
@@ -170,6 +192,11 @@ function App() {
           path="/dashboard/resident/allowances"
           element={<ResidentAllowances onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/disaster-relief"
+          element={<ResidentDisasterReport onOpenHelp={openChatbot} />}
+        />
+
       </Routes>
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </Router>
