@@ -72,6 +72,38 @@ function OfficerAnnouncements({ onOpenHelp }) {
     setEditingId(null)
     setViewMode('CREATE')
   }
+
+  const handlePublish = async (e) => {
+    e.preventDefault()
+
+    if (!title || !category || !content) {
+      alert('Please fill in all required fields.')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/announcements/publish', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title,
+          description: content,
+          type: isUrgent ? 'Urgent' : category
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to publish announcement.')
+      }
+
+      setShowSuccessBanner(true)
+      setViewMode('DASHBOARD')
+      loadAnnouncements()
+    } catch (err) {
+      alert(err.message || 'Error publishing announcement.')
+    }
+  }
 }
 
 export default OfficerAnnouncements
