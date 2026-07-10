@@ -187,7 +187,7 @@ function OfficerProfile({ onOpenHelp }) {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center p-6 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm mb-6">
+              <div className="flex justify-between items-center p-6 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm m-[30px]">
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "20px" }}
                 >
@@ -286,14 +286,7 @@ function OfficerProfile({ onOpenHelp }) {
               </div>
 
               {/* Main Content Layout Grid */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1.1fr 1fr",
-                  gap: "32px",
-                  alignItems: "start",
-                }}
-              >
+              <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 {/* Left Card: Personal information */}
                 <div
                   className="bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm"
