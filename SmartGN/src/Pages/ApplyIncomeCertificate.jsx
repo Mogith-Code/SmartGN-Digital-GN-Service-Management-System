@@ -903,6 +903,49 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       </tbody>
                     </table>
                   )}
+
+                  {incomeStream === 'Business' && (
+                    <table className="w-full text-[13px] border-collapse">
+                      <tbody>
+                        <tr>
+                          <td className="w-1/2 py-1.5 font-bold">Name of the Business:</td>
+                          <td className="w-1/2 py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {businessName || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Nature of Business:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {businessNature || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Tax Receipt Number:</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            {taxReceiptNumber || "(Not specified)"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold">Daily/Monthly Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic">
+                            Rs. {dailyMonthlyIncome || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold text-slate-800">Net Business Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-bold">
+                            Rs. {netIncome || "0"}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-1.5 font-bold text-[#1B365D]">Declared Annual Income (Rs.):</td>
+                          <td className="py-1.5 border-b border-dashed border-slate-400 text-[#1B365D] font-sans font-extrabold text-[14px]">
+                            Rs. {businessAnnualIncome || "0"}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  )}
     </div>
   )
 }
