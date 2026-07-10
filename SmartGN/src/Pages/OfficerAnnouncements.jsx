@@ -114,6 +114,38 @@ function OfficerAnnouncements({ onOpenHelp }) {
     setIsUrgent(item.status === 'Urgent')
     setViewMode('EDIT')
   }
+
+  const handleSaveChanges = async (e) => {
+    e.preventDefault()
+
+    if (!title || !category || !content) {
+      alert('Please fill in all required fields.')
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/announcements/${editingId}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title,
+          description: content,
+          type: isUrgent ? 'Urgent' : category
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update announcement.')
+      }
+
+      setViewMode('DASHBOARD')
+      loadAnnouncements()
+      alert('Announcement updated successfully.')
+    } catch (err) {
+      alert(err.message || 'Error updating announcement.')
+    }
+  }
 }
 
 export default OfficerAnnouncements
