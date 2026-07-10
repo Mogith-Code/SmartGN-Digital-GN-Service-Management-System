@@ -742,7 +742,22 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
       {/* 3. Footer */}
       <Footer />
 
-
+    {/* 4. Live Official Certificate Preview Modal */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-8 border border-slate-200 animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="bg-[#1B365D] text-white py-4 px-6 flex justify-between items-center">
+              <span className="font-bold text-[16px] tracking-wide">
+                Official Template Draft Preview
+              </span>
+              <button
+                onClick={() => setIsPreviewOpen(false)}
+                className="text-white/80 hover:text-white bg-transparent border-0 cursor-pointer text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
     </div>
   )
 }
