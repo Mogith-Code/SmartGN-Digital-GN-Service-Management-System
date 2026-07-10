@@ -185,7 +185,7 @@ function ResidentCertificates({ onOpenHelp }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px]">
             {cards.map((card) => (
               <div
                 key={card.id}
@@ -203,6 +203,74 @@ function ResidentCertificates({ onOpenHelp }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Request Types Card */}
+          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] flex flex-col mx-[30px]">
+            <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
+              Certificate types you can request
+            </h3>
+
+            <div className="flex flex-col gap-4">
+              {/* Type 1: Character Certificates */}
+              <div className="flex justify-between items-center py-2">
+                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
+                  Character certificates
+                </span>
+                <span
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
+                  onClick={() =>
+                    navigate(
+                      "/dashboard/resident/certificates/apply-character",
+                      { state: { successUser, division: userDivision } },
+                    )
+                  }
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="mr-1"
+                  >
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  Apply here
+                </span>
+              </div>
+
+              {/* Type 2: Income Certificates */}
+              <div className="flex justify-between items-center py-4 border-t border-[#fedc9b] mt-2">
+                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
+                  Income certificates
+                </span>
+                <span
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
+                  onClick={() =>
+                    navigate("/dashboard/resident/certificates/apply-income", {
+                      state: { successUser, division: userDivision },
+                    })
+                  }
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    className="mr-1"
+                  >
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  Apply here
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
