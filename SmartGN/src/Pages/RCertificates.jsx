@@ -157,6 +157,105 @@ function ResidentCertificates({ onOpenHelp }) {
               )}
             </div>
           </div>
+
+          {/* Stats Widgets */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 my-[30px] mx-[30px]">
+            {/* Card 1: Pending */}
+            <div
+              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
+              onClick={() =>
+                navigate("/dashboard/resident/certificates/pending", {
+                  state: { successUser, division: userDivision },
+                })
+              }
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#d97706"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <span className="text-[13px] font-semibold text-[#718096] text-left">
+                Pending certificate requests
+              </span>
+              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
+                {pendingCount}
+              </span>
+            </div>
+
+            {/* Card 2: Approved */}
+            <div
+              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
+              onClick={() =>
+                navigate("/dashboard/resident/certificates/approved", {
+                  state: { successUser, division: userDivision },
+                })
+              }
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#d97706"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <span className="text-[13px] font-semibold text-[#718096] text-left">
+                Approved certificate requests
+              </span>
+              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
+                {approvedCount}
+              </span>
+            </div>
+
+            {/* Card 3: Rejected */}
+            <div
+              className="bg-white border border-[#2D37481F] rounded-2xl p-5 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2 hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 cursor-pointer"
+              onClick={() =>
+                navigate("/dashboard/resident/certificates/rejected", {
+                  state: { successUser, division: userDivision },
+                })
+              }
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center self-start">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#d97706"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <span className="text-[13px] font-semibold text-[#718096] text-left">
+                Rejected certificate requests
+              </span>
+              <span className="text-[28px] font-extrabold text-[#1B365D] text-left">
+                {rejectedCount}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
