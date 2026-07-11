@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useLanguage } from '../utils/translate'
-import LanguageSelector from '../Components/Common/LanguageSelector'
-import logoImage from '../assets/logo.png'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../utils/translate";
+import LanguageSelector from "../Components/Common/LanguageSelector";
+import logoImage from "../assets/logo.png";
 
 const registrationTranslations = {
   EN: {
     title: "Create Resident Account",
-    nicLabel: "NIC Number", 
+    nicLabel: "NIC Number",
     nicPlaceholder: "Enter NIC Number",
     householdLabel: "Household Number",
     householdPlaceholder: "Enter Household Number",
@@ -38,7 +38,9 @@ const registrationTranslations = {
     errorAllFields: "Please fill in all fields.",
     errorPasswordMatch: "Passwords do not match.",
     errorRegistrationFailed: "Registration failed. Please verify your details.",
-    errorNetwork: "Network connection error. Please make sure the MySQL backend server is active."
+    errorNetwork:
+      "Network connection error. Please make sure the MySQL backend server is active.",
+    householdCreated: "New household created successfully!",
   },
   SI: {
     title: "නේවාසික ගිණුමක් සාදන්න",
@@ -72,8 +74,11 @@ const registrationTranslations = {
     back: "ආපසු",
     errorAllFields: "කරුණාකර සියලු ක්ෂේත්‍ර පුරවන්න.",
     errorPasswordMatch: "මුරපද නොගැලපේ.",
-    errorRegistrationFailed: "ලියාපදිංචි වීම අසාර්ථකයි. කරුණාකර තොරතුරු පරීක්ෂා කරන්න.",
-    errorNetwork: "ජාල සම්බන්ධතා දෝෂයකි. MySQL පසුබිම් සේවාදායකය සක්‍රීය දැයි පරීක්ෂා කරන්න."
+    errorRegistrationFailed:
+      "ලියාපදිංචි වීම අසාර්ථකයි. කරුණාකර තොරතුරු පරීක්ෂා කරන්න.",
+    errorNetwork:
+      "ජාල සම්බන්ධතා දෝෂයකි. MySQL පසුබිම් සේවාදායකය සක්‍රීය දැයි පරීක්ෂා කරන්න.",
+    householdCreated: "නව ගෘහය සාර්ථකව සාදන ලදී!",
   },
   TA: {
     title: "குடியுரிமை கணக்கை உருவாக்கவும்",
@@ -107,63 +112,97 @@ const registrationTranslations = {
     back: "திரும்புக",
     errorAllFields: "தயவுசெய்து அனைத்து புலங்களையும் நிரப்பவும்.",
     errorPasswordMatch: "கடவுச்சொற்கள் பொருந்தவில்லை.",
-    errorRegistrationFailed: "பதிவு தோல்வியடைந்தது. விவரங்களைச் சரிபார்க்கவும்.",
-    errorNetwork: "பிணைய இணைப்பு பிழை. MySQL பின்தள சேவையகம் செயலில் உள்ளதா என சரிபார்க்கவும்."
-  }
-}
+    errorRegistrationFailed:
+      "பதிவு தோல்வியடைந்தது. விவரங்களைச் சரிபார்க்கவும்.",
+    errorNetwork:
+      "பிணைய இணைப்பு பிழை. MySQL பின்தள சேவையகம் செயலில் உள்ளதா என சரிபார்க்கவும்.",
+    householdCreated: "புதிய வீடு வெற்றிகரமாக உருவாக்கப்பட்டது!",
+  },
+};
 
 function Register() {
-  const navigate = useNavigate()
-  const { lang } = useLanguage()
-  const t = registrationTranslations[lang] || registrationTranslations.EN
-  
+  const navigate = useNavigate();
+  const { lang } = useLanguage();
+  const t = registrationTranslations[lang] || registrationTranslations.EN;
+
   // Registration stats
-  const [nic, setNic] = useState('')
-  const [household, setHousehold] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [dob, setDob] = useState('')
-  const [gender, setGender] = useState('')
-  const [mobile, setMobile] = useState('')
-  const [division, setDivision] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  
-  const [divisions, setDivisions] = useState([])
-  const [errorMessage, setErrorMessage] = useState('')
+  const [nic, setNic] = useState("");
+  const [household, setHousehold] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [division, setDivision] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [divisions, setDivisions] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch divisions
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
-        const response = await fetch('/api/auth/divisions')
+        const response = await fetch("/api/auth/divisions");
         if (response.ok) {
-          const data = await response.json()
-          setDivisions(data.map(d => d.name))
+          const data = await response.json();
+          setDivisions(data.map((d) => d.name));
         } else {
-          setDivisions(['Colombo 03', 'Colombo 07', 'Kandy Town', 'Galle Fort', 'Negombo South', 'Colombo, Borella'])
+          setDivisions([
+            "Colombo 03",
+            "Colombo 07",
+            "Kandy Town",
+            "Galle Fort",
+            "Negombo South",
+            "Colombo, Borella",
+          ]);
         }
       } catch (err) {
-        console.error('Error fetching divisions:', err)
-        setDivisions(['Colombo 03', 'Colombo 07', 'Kandy Town', 'Galle Fort', 'Negombo South', 'Colombo, Borella'])
+        console.error("Error fetching divisions:", err);
+        setDivisions([
+          "Colombo 03",
+          "Colombo 07",
+          "Kandy Town",
+          "Galle Fort",
+          "Negombo South",
+          "Colombo, Borella",
+        ]);
       }
-    }
-    fetchDivisions()
-  }, [])
+    };
+    fetchDivisions();
+  }, []);
 
   const handleRegisterSubmit = async (e) => {
-    e.preventDefault()
-    
-    if (!nic || !household || !firstName || !lastName || !email || !dob || !gender || !mobile || !division || !password || !confirmPassword) {
-      setErrorMessage(t.errorAllFields)
-      return
+    e.preventDefault();
+
+    // Validate all fields
+    if (
+      !nic ||
+      !household ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !dob ||
+      !gender ||
+      !mobile ||
+      !division ||
+      !password ||
+      !confirmPassword
+    ) {
+      setErrorMessage(t.errorAllFields);
+      return;
     }
-    
+
     if (password !== confirmPassword) {
-      setErrorMessage(t.errorPasswordMatch)
-      return
+      setErrorMessage(t.errorPasswordMatch);
+      return;
     }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
       const bodyPayload = {
@@ -175,32 +214,40 @@ function Register() {
         mobile,
         email,
         householdNumber: household,
-        division
-      }
+        division: division,
+      };
 
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload)
-      })
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyPayload),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
+
       if (!response.ok) {
-        setErrorMessage(data.error || t.errorRegistrationFailed)
-        return
+        setErrorMessage(data.error || t.errorRegistrationFailed);
+        setIsSubmitting(false);
+        return;
       }
 
-      setErrorMessage('')
-      navigate('/success', { 
-        state: { 
+      setErrorMessage("");
+      setIsSubmitting(false);
+
+      // Navigate to success page with user info
+      navigate("/success", {
+        state: {
           successUser: `${firstName} ${lastName} (NIC: ${nic})`,
-          isRegister: true
-        } 
-      })
+          isRegister: true,
+          householdCreated: data.householdCreated || false,
+        },
+      });
     } catch (err) {
-      setErrorMessage(t.errorNetwork)
+      console.error("Registration error:", err);
+      setErrorMessage(t.errorNetwork);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
@@ -211,124 +258,152 @@ function Register() {
 
       {/* Registration Card */}
       <div className="w-full max-w-[700px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
-        
         {/* Card name */}
         <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-8 tracking-tight">
           {t.title}
         </h2>
-        
+
         <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             {/* NIC Number */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="nic" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="nic"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.nicLabel}
               </label>
-              <input 
-                type="text" 
-                id="nic" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="text"
+                id="nic"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.nicPlaceholder}
                 value={nic}
                 onChange={(e) => setNic(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Household Number */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="household" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="household"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.householdLabel}
               </label>
-              <input 
-                type="text" 
-                id="household" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="text"
+                id="household"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.householdPlaceholder}
                 value={household}
                 onChange={(e) => setHousehold(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* First Name */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="firstName" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="firstName"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.firstNameLabel}
               </label>
-              <input 
-                type="text" 
-                id="firstName" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="text"
+                id="firstName"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.firstNamePlaceholder}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Last Name */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="lastName" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="lastName"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.lastNameLabel}
               </label>
-              <input 
-                type="text" 
-                id="lastName" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="text"
+                id="lastName"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.lastNamePlaceholder}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Email Address */}
             <div className="flex flex-col gap-2 md:col-span-2">
-              <label htmlFor="email" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="email"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.emailLabel}
               </label>
-              <input 
-                type="email" 
-                id="email" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="email"
+                id="email"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Date of Birth */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="dob" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="dob"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.dobLabel}
               </label>
-              <input 
-                type="date" 
-                id="dob" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="date"
+                id="dob"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Gender */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="gender" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="gender"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.genderLabel}
               </label>
               <div className="relative">
-                <select 
-                  id="gender" 
-                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer" 
+                <select
+                  id="gender"
+                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
+                  disabled={isSubmitting}
                   required
                 >
-                  <option value="" disabled hidden>{t.genderPlaceholder}</option>
+                  <option value="" disabled hidden>
+                    {t.genderPlaceholder}
+                  </option>
                   <option value="Male">{t.genderMale}</option>
                   <option value="Female">{t.genderFemale}</option>
                   <option value="Other">{t.genderOther}</option>
@@ -341,36 +416,48 @@ function Register() {
 
             {/* Mobile Number */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="mobile" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="mobile"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.mobileLabel}
               </label>
-              <input 
-                type="tel" 
-                id="mobile" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="tel"
+                id="mobile"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.mobilePlaceholder}
                 value={mobile}
                 onChange={(e) => setMobile(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Select GN Division */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="division" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="division"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.divisionLabel}
               </label>
               <div className="relative">
-                <select 
-                  id="division" 
-                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer" 
+                <select
+                  id="division"
+                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
                   value={division}
                   onChange={(e) => setDivision(e.target.value)}
+                  disabled={isSubmitting}
                   required
                 >
-                  <option value="" disabled hidden>{t.divisionPlaceholder}</option>
+                  <option value="" disabled hidden>
+                    {t.divisionPlaceholder}
+                  </option>
                   {divisions.map((divName, index) => (
-                    <option key={index} value={divName}>{divName}</option>
+                    <option key={index} value={divName}>
+                      {divName}
+                    </option>
                   ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
@@ -381,36 +468,43 @@ function Register() {
 
             {/* Password */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="password"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.passwordLabel}
               </label>
-              <input 
-                type="password" 
-                id="password" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="password"
+                id="password"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
 
             {/* Confirm Password */}
             <div className="flex flex-col gap-2">
-              <label htmlFor="confirmPassword" className="text-[14px] font-medium text-[#2D3748] text-left">
+              <label
+                htmlFor="confirmPassword"
+                className="text-[14px] font-medium text-[#2D3748] text-left"
+              >
                 {t.confirmPasswordLabel}
               </label>
-              <input 
-                type="password" 
-                id="confirmPassword" 
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200" 
+              <input
+                type="password"
+                id="confirmPassword"
+                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                 placeholder={t.confirmPasswordPlaceholder}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
-
           </div>
 
           {/* Error Message */}
@@ -421,20 +515,21 @@ function Register() {
           )}
 
           {/* Submit Button */}
-          <button 
-            type="submit" 
-            className="w-full py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-2"
+          <button
+            type="submit"
+            className={`w-full py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+            disabled={isSubmitting}
           >
-            {t.submitButton}
+            {isSubmitting ? "Creating Account..." : t.submitButton}
           </button>
         </form>
 
         {/* Already have an account link */}
         <div className="text-[14px] text-gray-500 text-center mt-6">
-          {t.alreadyAccount}{' '}
+          {t.alreadyAccount}{" "}
           <span
             className="text-[#D69E2E] hover:text-[#FFAA00] font-semibold cursor-pointer ml-1 transition-colors duration-200"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
           >
             {t.loginLink}
           </span>
@@ -443,25 +538,25 @@ function Register() {
         {/* Bottom Row: Back & Logo */}
         <div className="flex justify-between items-center mt-8 border-t border-[#2D37481F] pt-6">
           {/* Back Button */}
-          <button 
-            className="flex items-center gap-1.5 text-gray-500 hover:text-[#2D3748] text-[14px] font-medium transition-colors duration-200 cursor-pointer" 
-            onClick={() => navigate('/')}
+          <button
+            className="flex items-center gap-1.5 text-gray-500 hover:text-[#2D3748] text-[14px] font-medium transition-colors duration-200 cursor-pointer"
+            onClick={() => navigate("/")}
+            disabled={isSubmitting}
           >
             <span className="text-[18px]">←</span> {t.back}
           </button>
 
           {/* SmartGN Logo */}
-          <img 
-            src={logoImage} 
-            alt="SmartGN Logo" 
-            className="w-[120px] h-auto object-contain cursor-pointer" 
-            onClick={() => navigate('/')}
+          <img
+            src={logoImage}
+            alt="SmartGN Logo"
+            className="w-[120px] h-auto object-contain cursor-pointer"
+            onClick={() => navigate("/")}
           />
         </div>
-
       </div>
     </div>
-  )
+  );
 }
 
-export default Register
+export default Register;

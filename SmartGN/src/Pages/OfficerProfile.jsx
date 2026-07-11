@@ -153,13 +153,6 @@ function OfficerProfile({ onOpenHelp }) {
                   My profile
                 </h2>
 
-<<<<<<< HEAD
-              {/* Title Greeting */}
-              <div className="text-left mb-6">
-                <h2 className="m-0 text-left text-2xl font-bold text-[#1B365D]">
-                  My Profile
-                </h2>
-=======
                 <div className="flex justify-end -mt-[70px]">
                   {/* Alert Banner */}
                   {showAlert &&
@@ -193,7 +186,6 @@ function OfficerProfile({ onOpenHelp }) {
                       </div>
                     )}
                 </div>
->>>>>>> main
               </div>
 
               <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">

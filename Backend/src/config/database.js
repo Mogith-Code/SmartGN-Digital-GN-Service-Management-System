@@ -13,7 +13,19 @@ async function setupTables(dbPool) {
     )
   `);
 
-    // 2. Create residents table
+    // 2. Create household_details table
+    await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS household_details (
+      household_number VARCHAR(50) PRIMARY KEY,
+      address VARCHAR(255),
+      land_size VARCHAR(50) COMMENT 'Size of the land (e.g., 10 perches, 20 acres)',
+      land_owner VARCHAR(255),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `);
+
+    // 3. Create residents table
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS residents (
       nic VARCHAR(20) PRIMARY KEY,
@@ -28,11 +40,12 @@ async function setupTables(dbPool) {
       status VARCHAR(20) DEFAULT 'Active',
       occupation VARCHAR(100) DEFAULT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (division_id) REFERENCES divisions(id) ON DELETE CASCADE
+      FOREIGN KEY (division_id) REFERENCES divisions(id) ON DELETE CASCADE,
+      FOREIGN KEY (household_number) REFERENCES household_details(household_number) ON DELETE RESTRICT
     )
   `);
 
-    // 3. Create officers table
+    // 4. Create officers table
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS officers (
       id VARCHAR(20) PRIMARY KEY,
@@ -48,7 +61,7 @@ async function setupTables(dbPool) {
     )
   `);
 
-    // 4. Create admins table
+    // 5. Create admins table
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS admins (
       id VARCHAR(20) PRIMARY KEY,
@@ -60,7 +73,7 @@ async function setupTables(dbPool) {
     )
   `);
 
-    // 1. Seed Divisions
+    // 6. Seed Divisions
     const defaultDivisions = [
         'Maharagama',
         'Colombo 03',
@@ -75,21 +88,32 @@ async function setupTables(dbPool) {
         await dbPool.query('INSERT IGNORE INTO divisions (name) VALUES (?)', [divName]);
     }
 
-    // Get Maharagama and Colombo division IDs for seeding
+    // Get division IDs for seeding
     const [[maharagamaDiv]] = await dbPool.query('SELECT id FROM divisions WHERE name = "Maharagama"');
     const [[colomboDiv]] = await dbPool.query('SELECT id FROM divisions WHERE name = "Colombo 03"');
 
     const maharagamaId = maharagamaDiv ? maharagamaDiv.id : 1;
     const colomboId = colomboDiv ? colomboDiv.id : 2;
 
-    // 2. Seed Admin
+    // 7. Seed Household Details
+    await dbPool.query(`
+    INSERT IGNORE INTO household_details (household_number, address, land_size, land_owner)
+    VALUES (?, ?, ?, ?)
+  `, ['HH-908', '45/2, Temple Road, Maharagama', '15 perches', 'Kamala Silva']);
+
+    await dbPool.query(`
+    INSERT IGNORE INTO household_details (household_number, address, land_size, land_owner)
+    VALUES (?, ?, ?, ?)
+  `, ['HH-341', '12, School Lane, Colombo 03', '20 perches', 'Ranasinghe Banda']);
+
+    // 8. Seed Admin
     const adminPasswordHash = bcrypt.hashSync('admin', 10);
     await dbPool.query(`
     INSERT IGNORE INTO admins (id, username, name, email, password)
     VALUES (?, ?, ?, ?, ?)
   `, ['ADMIN-001', 'admin', 'System Admin', 'admin@smartgn.gov.lk', adminPasswordHash]);
 
-    // 3. Seed Officers
+    // 9. Seed Officers
     const officerPasswordHash = bcrypt.hashSync('officer', 10);
     await dbPool.query(`
     INSERT IGNORE INTO officers (id, username, name, email, mobile, division_id, password, status)
@@ -101,7 +125,7 @@ async function setupTables(dbPool) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `, ['GN-002', 'saman_officer', 'Saman Kumara', 'saman@smartgn.gov.lk', '0719876543', colomboId, officerPasswordHash, 'Active']);
 
-    // 4. Seed Residents
+    // 10. Seed Residents
     const residentPasswordHash = bcrypt.hashSync('resident', 10);
     await dbPool.query(`
     INSERT IGNORE INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status, occupation)
@@ -137,7 +161,7 @@ async function setupTables(dbPool) {
         'Farmer'
     ]);
 
-    console.log('Database tables verified and seeded successfully.');
+    console.log('✅ Database tables verified and seeded successfully.');
 }
 
 async function getPool() {
@@ -173,7 +197,7 @@ async function getPool() {
 
         return pool;
     } catch (error) {
-        console.error('Failed to connect to MySQL database:', error.message);
+        console.error('❌ Failed to connect to MySQL database:', error.message);
         throw error;
     }
 }

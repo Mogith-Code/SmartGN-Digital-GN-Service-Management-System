@@ -15,7 +15,7 @@ exports.getDivisions = async (req, res) => {
     }
 };
 
-// 2. POST /api/auth/register (Resident registration)
+// 2. POST /api/auth/register (Resident registration with household creation)
 exports.registerResident = async (req, res) => {
     const { nic, name, dob, password, gender, mobile, email, householdNumber, division } = req.body;
 
@@ -37,16 +37,44 @@ exports.registerResident = async (req, res) => {
             return res.status(400).json({ error: 'Resident account with this NIC or Email already exists.' });
         }
 
+        // Check if household exists
+        const [householdRows] = await db.query(
+            'SELECT household_number FROM household_details WHERE household_number = ?',
+            [householdNumber]
+        );
+
+        let householdCreated = false;
+
+        // If household doesn't exist, create it with null values
+        if (householdRows.length === 0) {
+            await db.query(
+                `INSERT INTO household_details (household_number, address, land_size, land_owner)
+                 VALUES (?, NULL, NULL, NULL)`,
+                [householdNumber]
+            );
+            householdCreated = true;
+            console.log(`✅ New household created: ${householdNumber}`);
+        }
+
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert resident
         await db.query(`
-      INSERT INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')
-    `, [nic, name, dob, hashedPassword, gender, mobile, email, householdNumber, divisionId]);
+            INSERT INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')
+        `, [nic, name, dob, hashedPassword, gender, mobile, email, householdNumber, divisionId]);
 
-        return res.status(201).json({ message: 'Registration successful. You can now login.' });
+        return res.status(201).json({
+            message: 'Registration successful. You can now login.',
+            householdCreated: householdCreated,
+            data: {
+                nic,
+                name,
+                email,
+                householdNumber
+            }
+        });
     } catch (error) {
         console.error('Error registering resident:', error);
         return res.status(500).json({ error: 'Server error during registration.' });
@@ -87,11 +115,11 @@ exports.login = async (req, res) => {
 
         // 2. Check in officers table (join divisions to get division name)
         const [officers] = await db.query(`
-      SELECT o.*, d.name AS division_name 
-      FROM officers o
-      JOIN divisions d ON o.division_id = d.id
-      WHERE o.username = ? OR o.email = ? OR o.id = ?
-    `, [queryVal, queryVal, queryVal]);
+            SELECT o.*, d.name AS division_name 
+            FROM officers o
+            JOIN divisions d ON o.division_id = d.id
+            WHERE o.username = ? OR o.email = ? OR o.id = ?
+        `, [queryVal, queryVal, queryVal]);
 
         if (officers.length > 0) {
             const officer = officers[0];
@@ -127,11 +155,11 @@ exports.login = async (req, res) => {
 
         // 3. Check in residents table (join divisions to get division name)
         const [residents] = await db.query(`
-      SELECT r.*, d.name AS division_name 
-      FROM residents r
-      JOIN divisions d ON r.division_id = d.id
-      WHERE r.nic = ? OR r.email = ?
-    `, [queryVal, queryVal]);
+            SELECT r.*, d.name AS division_name 
+            FROM residents r
+            JOIN divisions d ON r.division_id = d.id
+            WHERE r.nic = ? OR r.email = ?
+        `, [queryVal, queryVal]);
 
         if (residents.length > 0) {
             const resident = residents[0];
@@ -212,9 +240,9 @@ exports.registerOfficer = async (req, res) => {
 
         // Insert Officer
         await db.query(`
-      INSERT INTO officers (id, username, name, email, mobile, division_id, password, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')
-    `, [uniqueId, username, name, email, mobile, divisionId, hashedPassword]);
+            INSERT INTO officers (id, username, name, email, mobile, division_id, password, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')
+        `, [uniqueId, username, name, email, mobile, divisionId, hashedPassword]);
 
         return res.status(201).json({ message: 'GN Officer account registered successfully.' });
     } catch (error) {
@@ -227,11 +255,11 @@ exports.registerOfficer = async (req, res) => {
 exports.getOfficers = async (req, res) => {
     try {
         const [rows] = await db.query(`
-      SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status
-      FROM officers o
-      JOIN divisions d ON o.division_id = d.id
-      ORDER BY o.created_at DESC
-    `);
+            SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status
+            FROM officers o
+            JOIN divisions d ON o.division_id = d.id
+            ORDER BY o.created_at DESC
+        `);
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching officers list:', error);
@@ -243,11 +271,23 @@ exports.getOfficers = async (req, res) => {
 exports.getResidents = async (req, res) => {
     try {
         const [rows] = await db.query(`
-      SELECT r.nic AS r_nic, r.name, r.email, r.mobile AS mobile_no, d.name AS division_name, r.status, r.occupation, r.household_number
-      FROM residents r
-      JOIN divisions d ON r.division_id = d.id
-      ORDER BY r.created_at DESC
-    `);
+            SELECT 
+                r.nic AS r_nic, 
+                r.name, 
+                r.email, 
+                r.mobile AS mobile_no, 
+                d.name AS division_name, 
+                r.status, 
+                r.occupation, 
+                r.household_number,
+                h.address,
+                h.land_size,
+                h.land_owner
+            FROM residents r
+            JOIN divisions d ON r.division_id = d.id
+            LEFT JOIN household_details h ON r.household_number = h.household_number
+            ORDER BY r.created_at DESC
+        `);
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching residents list:', error);
@@ -255,7 +295,53 @@ exports.getResidents = async (req, res) => {
     }
 };
 
-// 7. PUT /api/auth/admin/officers/:id/status
+// 7. GET /api/auth/admin/households
+exports.getHouseholds = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                h.household_number,
+                h.address,
+                h.land_size,
+                h.land_owner,
+                h.created_at,
+                COUNT(r.nic) AS resident_count
+            FROM household_details h
+            LEFT JOIN residents r ON h.household_number = r.household_number
+            GROUP BY h.household_number
+            ORDER BY h.created_at DESC
+        `);
+        return res.json(rows);
+    } catch (error) {
+        console.error('Error fetching households:', error);
+        return res.status(500).json({ error: 'Server error fetching households.' });
+    }
+};
+
+// 8. PUT /api/auth/admin/households/:householdNumber
+exports.updateHousehold = async (req, res) => {
+    const { householdNumber } = req.params;
+    const { address, land_size, land_owner } = req.body;
+
+    try {
+        const [result] = await db.query(`
+            UPDATE household_details 
+            SET address = ?, land_size = ?, land_owner = ?
+            WHERE household_number = ?
+        `, [address, land_size, land_owner, householdNumber]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Household not found.' });
+        }
+
+        return res.json({ message: 'Household details updated successfully.' });
+    } catch (error) {
+        console.error('Error updating household:', error);
+        return res.status(500).json({ error: 'Server error updating household details.' });
+    }
+};
+
+// 9. PUT /api/auth/admin/officers/:id/status
 exports.updateOfficerStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -276,7 +362,7 @@ exports.updateOfficerStatus = async (req, res) => {
     }
 };
 
-// 8. PUT /api/auth/admin/residents/:nic/status
+// 10. PUT /api/auth/admin/residents/:nic/status
 exports.updateResidentStatus = async (req, res) => {
     const { nic } = req.params;
     const { status } = req.body;
@@ -297,7 +383,7 @@ exports.updateResidentStatus = async (req, res) => {
     }
 };
 
-// 9. DELETE /api/auth/admin/officers/:id
+// 11. DELETE /api/auth/admin/officers/:id
 exports.deleteOfficer = async (req, res) => {
     const { id } = req.params;
 
@@ -313,15 +399,34 @@ exports.deleteOfficer = async (req, res) => {
     }
 };
 
-// 10. DELETE /api/auth/admin/residents/:nic
+// 12. DELETE /api/auth/admin/residents/:nic
 exports.deleteResident = async (req, res) => {
     const { nic } = req.params;
 
     try {
-        const [result] = await db.query('DELETE FROM residents WHERE nic = ?', [nic]);
-        if (result.affectedRows === 0) {
+        // Check if resident exists and get household number
+        const [resident] = await db.query('SELECT household_number FROM residents WHERE nic = ?', [nic]);
+        if (resident.length === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
+
+        const householdNumber = resident[0].household_number;
+
+        // Delete resident
+        await db.query('DELETE FROM residents WHERE nic = ?', [nic]);
+
+        // Check if any other residents are in this household
+        const [remaining] = await db.query(
+            'SELECT nic FROM residents WHERE household_number = ?',
+            [householdNumber]
+        );
+
+        // If no residents remain, delete the household
+        if (remaining.length === 0) {
+            await db.query('DELETE FROM household_details WHERE household_number = ?', [householdNumber]);
+            console.log(`✅ Household ${householdNumber} deleted as it had no residents.`);
+        }
+
         return res.json({ message: 'Resident account deleted successfully.' });
     } catch (error) {
         console.error('Error deleting resident:', error);
@@ -329,7 +434,7 @@ exports.deleteResident = async (req, res) => {
     }
 };
 
-// 11. PUT /api/auth/admin/officers/:id
+// 13. PUT /api/auth/admin/officers/:id
 exports.updateOfficer = async (req, res) => {
     const { id } = req.params;
     const { username, name, email, mobile, division, status, password } = req.body;
@@ -356,16 +461,16 @@ exports.updateOfficer = async (req, res) => {
         if (password && password.trim() !== '') {
             const hashedPassword = await bcrypt.hash(password, 10);
             [result] = await db.query(`
-        UPDATE officers 
-        SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password = ?
-        WHERE id = ?
-      `, [username, name, email, mobile, divisionId, status, hashedPassword, id]);
+                UPDATE officers 
+                SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password = ?
+                WHERE id = ?
+            `, [username, name, email, mobile, divisionId, status, hashedPassword, id]);
         } else {
             [result] = await db.query(`
-        UPDATE officers 
-        SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?
-        WHERE id = ?
-      `, [username, name, email, mobile, divisionId, status, id]);
+                UPDATE officers 
+                SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?
+                WHERE id = ?
+            `, [username, name, email, mobile, divisionId, status, id]);
         }
 
         if (result.affectedRows === 0) {
@@ -379,10 +484,10 @@ exports.updateOfficer = async (req, res) => {
     }
 };
 
-// 12. PUT /api/auth/admin/residents/:nic
+// 14. PUT /api/auth/admin/residents/:nic
 exports.updateResident = async (req, res) => {
     const { nic } = req.params;
-    const { name, email, mobile_no, status, occupation, household_number } = req.body;
+    const { name, email, mobile_no, status, occupation, household_number, address, land_size, land_owner } = req.body;
 
     if (!name || !email || !mobile_no || !status || !household_number) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
@@ -395,19 +500,92 @@ exports.updateResident = async (req, res) => {
             return res.status(400).json({ error: 'Email is already taken by another resident.' });
         }
 
+        // Update resident
         const [result] = await db.query(`
-      UPDATE residents 
-      SET name = ?, email = ?, mobile = ?, status = ?, occupation = ?, household_number = ?
-      WHERE nic = ?
-    `, [name, email, mobile_no, status, occupation, household_number, nic]);
+            UPDATE residents 
+            SET name = ?, email = ?, mobile = ?, status = ?, occupation = ?, household_number = ?
+            WHERE nic = ?
+        `, [name, email, mobile_no, status, occupation, household_number, nic]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        // Update household details if provided
+        if (address || land_size || land_owner) {
+            await db.query(`
+                UPDATE household_details 
+                SET address = COALESCE(?, address),
+                    land_size = COALESCE(?, land_size),
+                    land_owner = COALESCE(?, land_owner)
+                WHERE household_number = ?
+            `, [address, land_size, land_owner, household_number]);
         }
 
         return res.json({ message: 'Resident account updated successfully.' });
     } catch (error) {
         console.error('Error updating resident:', error);
         return res.status(500).json({ error: 'Server error updating resident details.' });
+    }
+};
+
+// 15. GET /api/auth/admin/residents/:nic
+exports.getResidentByNic = async (req, res) => {
+    const { nic } = req.params;
+
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                r.nic AS r_nic,
+                r.name,
+                r.email,
+                r.mobile AS mobile_no,
+                r.dob,
+                r.gender,
+                r.occupation,
+                r.status,
+                r.household_number,
+                r.created_at,
+                d.name AS division_name,
+                h.address,
+                h.land_size,
+                h.land_owner
+            FROM residents r
+            JOIN divisions d ON r.division_id = d.id
+            LEFT JOIN household_details h ON r.household_number = h.household_number
+            WHERE r.nic = ?
+        `, [nic]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        return res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching resident:', error);
+        return res.status(500).json({ error: 'Server error fetching resident details.' });
+    }
+};
+
+// 16. GET /api/auth/admin/officers/:id
+exports.getOfficerById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const [rows] = await db.query(`
+            SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status, o.created_at
+            FROM officers o
+            JOIN divisions d ON o.division_id = d.id
+            WHERE o.id = ?
+        `, [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Officer not found.' });
+        }
+
+        return res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching officer:', error);
+        return res.status(500).json({ error: 'Server error fetching officer details.' });
     }
 };
