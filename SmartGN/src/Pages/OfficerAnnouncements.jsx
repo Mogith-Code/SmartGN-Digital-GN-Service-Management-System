@@ -169,6 +169,31 @@ function OfficerAnnouncements({ onOpenHelp }) {
       }
     }
   }
+
+  // Restore Archived Announcement
+  const handleRestore = async (id, titleText) => {
+    try {
+      const response = await fetch(`/api/announcements/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: titleText,
+          description: 'Restored Announcement content.',
+          type: 'Live'
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to restore announcement.')
+      }
+
+      alert(`"${titleText}" has been restored to Live status.`)
+      loadAnnouncements()
+    } catch (err) {
+      alert(err.message || 'Error restoring announcement.')
+    }
+  }
 }
 
 export default OfficerAnnouncements
