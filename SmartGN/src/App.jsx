@@ -34,6 +34,7 @@ import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
 import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
+import Success from "./Pages/Success.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -51,7 +52,6 @@ function App() {
           path="/dashboard/resident"
           element={<ResidentDashboard onOpenHelp={openChatbot} />}
         />
-
 
         <Route
           path="/ResidentDashboard/profile"
@@ -114,6 +114,7 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/success" element={<Success />} />
 
         <Route
           path="/OfficerDashboard"
@@ -123,7 +124,6 @@ function App() {
           path="/dashboard/officer"
           element={<OfficerDashboard onOpenHelp={openChatbot} />}
         />
-       
 
         <Route
           path="/OfficerDashboard/profile"
@@ -154,7 +154,7 @@ function App() {
           path="/dashboard/officer/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
         />
-        
+
         <Route
           path="/dashboard/admin"
           element={<AdminDashboard onOpenHelp={openChatbot} />}
@@ -196,7 +196,6 @@ function App() {
           path="/disaster-relief"
           element={<ResidentDisasterReport onOpenHelp={openChatbot} />}
         />
-
       </Routes>
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
     </Router>
