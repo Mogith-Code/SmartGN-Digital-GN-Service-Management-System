@@ -33,7 +33,7 @@ import ResidentAllowances from "./Pages/ResidentAllowances.jsx";
 import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
-import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
+// import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 import Success from "./Pages/Success.jsx";
 
 function App() {
@@ -150,10 +150,10 @@ function App() {
           path="/dashboard/officer/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
-        <Route
+        {/* <Route
           path="/dashboard/officer/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
-        />
+        /> */}
 
         <Route
           path="/dashboard/admin"
