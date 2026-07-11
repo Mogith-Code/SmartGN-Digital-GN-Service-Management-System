@@ -146,6 +146,230 @@ function OfficerAnnouncements({ onOpenHelp }) {
       alert(err.message || 'Error updating announcement.')
     }
   }
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this announcement permanently?')
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`/api/announcements/${editingId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to delete announcement.')
+        }
+
+        setViewMode('DASHBOARD')
+        loadAnnouncements()
+        alert('Announcement deleted successfully.')
+      } catch (err) {
+        alert(err.message || 'Error deleting announcement.')
+      }
+    }
+  }
+
+  // Restore Archived Announcement
+  const handleRestore = async (id, titleText) => {
+    try {
+      const response = await fetch(`/api/announcements/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          title: titleText,
+          description: 'Restored Announcement content.',
+          type: 'Live'
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to restore announcement.')
+      }
+
+      alert(`"${titleText}" has been restored to Live status.`)
+      loadAnnouncements()
+    } catch (err) {
+      alert(err.message || 'Error restoring announcement.')
+    }
+  }
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Officer Navbar */}
+      <OfficerNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Officer Sidebar */}
+        <div className="hidden md:block bg-white">
+          <OSidebar />
+        </div>
+
+        {/* Content Panel */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          
+          {/* Back button */}
+          {(viewMode === 'CREATE' || viewMode === 'EDIT') && (
+            <button 
+              className="flex items-center gap-2 text-sm text-[#64748b] hover:text-[#1B365D] font-semibold transition-all mb-6 self-start bg-transparent border-0 cursor-pointer"
+              onClick={() => setViewMode('DASHBOARD')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              Back to Dashboard
+            </button>
+          )}
+
+          {/* Sub-view: DASHBOARD (Dashboard Announcement Lists) */}
+          {viewMode === 'DASHBOARD' && (
+            <>
+              {/* Success alert published block */}
+              {showSuccessBanner && (
+                <div className="bg-emerald-600 border border-emerald-700 text-white rounded-xl p-4 mb-6 flex justify-between items-center text-left shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="flex-shrink-0">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <div>
+                      <span className="font-bold block">Announcement Published Successfully!</span>
+                      <span className="text-xs opacity-90">Your announcement is now live for all registered residents in the GN division.</span>
+                    </div>
+                  </div>
+                  <button 
+                    className="bg-transparent border-0 text-white hover:opacity-85 text-xl cursor-pointer" 
+                    onClick={() => setShowSuccessBanner(false)} 
+                    aria-label="Close Alert"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+
+              {/* Title & Publish Trigger Action Row */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 text-left">
+                <div>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] m-0">
+                    Announcements Dashboard
+                  </h2>
+                  <p className="text-sm text-[#64748b] mt-1 font-semibold">
+                    Manage and track all public notifications sent to the community.
+                  </p>
+                </div>
+                
+                <button 
+                  onClick={handleOpenCreate} 
+                  className="bg-[#1B365D] hover:bg-[#005BBD] text-white border-0 py-2.5 px-5 rounded-xl text-xs font-extrabold cursor-pointer transition-colors flex items-center gap-2 shadow-xs"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Create New Announcement
+                </button>
+              </div>
+
+              {/* Active Announcements List */}
+              <div className="flex flex-col gap-5 text-left">
+                {announcements.length === 0 ? (
+                  <div className="py-12 text-center bg-white border border-gray-200 rounded-2xl text-gray-500 font-medium">
+                    No active announcements currently live.
+                  </div>
+                ) : (
+                  announcements.map((item) => {
+                    const isUrgentType = item.status === 'Urgent'
+                    const isArchivedType = item.status === 'Archived'
+                    
+                    const borderLeftColor = isUrgentType 
+                      ? 'border-rose-500' 
+                      : isArchivedType 
+                        ? 'border-gray-400' 
+                        : 'border-emerald-500'
+
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`border-l-4 ${borderLeftColor} bg-white border border-gray-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-gray-300`}
+                      >
+                        <div className="flex-1">
+                          {/* Status Badge Bullet */}
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span className={`w-2.5 h-2.5 rounded-full 
+                              ${isUrgentType ? 'bg-rose-500' : isArchivedType ? 'bg-gray-400' : 'bg-emerald-500'}`}
+                            ></span>
+                            <span className={`text-[10px] font-extrabold uppercase tracking-wider
+                              ${isUrgentType ? 'text-rose-500' : isArchivedType ? 'text-gray-500' : 'text-emerald-500'}`}
+                            >
+                              {isUrgentType ? '! Urgent' : isArchivedType ? 'Archived' : 'Live'}
+                            </span>
+                          </div>
+
+                          {/* Title & Meta Info */}
+                          <h3 className="text-base font-bold text-gray-800 m-0 mb-1.5">{item.title}</h3>
+                          <p className="text-xs text-gray-500 font-semibold mb-3">
+                            <span className="text-amber-600 font-bold uppercase mr-1.5">[{item.category}]</span> 
+                            {item.date}
+                          </p>
+
+                          {/* Content text */}
+                          <p className="text-xs sm:text-sm text-gray-650 leading-relaxed font-normal m-0">{item.content}</p>
+                        </div>
+
+                        {/* Right Action Button */}
+                        {!isArchivedType ? (
+                          <button 
+                            onClick={() => handleOpenEdit(item)}
+                            className="bg-sky-50 hover:bg-sky-100 text-[#005BBD] border border-[#005BBD]/30 py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 self-start md:self-auto min-w-[90px]"
+                            title="Edit announcement"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M12 20h9"></path>
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            Edit
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => handleRestore(item.id, item.title)}
+                            className="bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 self-start md:self-auto min-w-[90px]"
+                            title="Restore announcement to Live feed"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <polyline points="23 4 23 10 17 10"></polyline>
+                              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            Restore
+                          </button>
+                        )}
+
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+
+              {/* Bottom Load */}
+              <div className="mt-8 text-center">
+                <button 
+                  onClick={() => setShowPreviousAnnouncements(!showPreviousAnnouncements)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold border-0 py-2.5 px-6 rounded-full text-xs sm:text-sm cursor-pointer transition-colors inline-flex items-center gap-2"
+                >
+                  Load Previous Announcements
+                  <span className={`transform transition-transform duration-250 ${showPreviousAnnouncements ? 'rotate-180' : 'none'}`}>▼</span>
+                </button>
+
+                {showPreviousAnnouncements && (
+                  <div className="mt-5 p-5 border-2 border-dashed border-gray-200 rounded-2xl bg-[#F8FAFC] text-gray-500 font-bold text-xs sm:text-sm">
+                    No older announcements archived in the history folder currently.
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 }
 
 export default OfficerAnnouncements
+
+
