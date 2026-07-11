@@ -146,6 +146,29 @@ function OfficerAnnouncements({ onOpenHelp }) {
       alert(err.message || 'Error updating announcement.')
     }
   }
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this announcement permanently?')
+    if (confirmDelete) {
+      try {
+        const response = await fetch(`/api/announcements/${editingId}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to delete announcement.')
+        }
+
+        setViewMode('DASHBOARD')
+        loadAnnouncements()
+        alert('Announcement deleted successfully.')
+      } catch (err) {
+        alert(err.message || 'Error deleting announcement.')
+      }
+    }
+  }
 }
 
 export default OfficerAnnouncements
