@@ -287,6 +287,35 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       : isArchivedType 
                         ? 'border-gray-400' 
                         : 'border-emerald-500'
+
+                    return (
+                      <div 
+                        key={item.id} 
+                        className={`border-l-4 ${borderLeftColor} bg-white border border-gray-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-gray-300`}
+                      >
+                        <div className="flex-1">
+                          {/* Status Badge Bullet */}
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span className={`w-2.5 h-2.5 rounded-full 
+                              ${isUrgentType ? 'bg-rose-500' : isArchivedType ? 'bg-gray-400' : 'bg-emerald-500'}`}
+                            ></span>
+                            <span className={`text-[10px] font-extrabold uppercase tracking-wider
+                              ${isUrgentType ? 'text-rose-500' : isArchivedType ? 'text-gray-500' : 'text-emerald-500'}`}
+                            >
+                              {isUrgentType ? '! Urgent' : isArchivedType ? 'Archived' : 'Live'}
+                            </span>
+                          </div>
+
+                          {/* Title & Meta Info */}
+                          <h3 className="text-base font-bold text-gray-800 m-0 mb-1.5">{item.title}</h3>
+                          <p className="text-xs text-gray-500 font-semibold mb-3">
+                            <span className="text-amber-600 font-bold uppercase mr-1.5">[{item.category}]</span> 
+                            {item.date}
+                          </p>
+
+                          {/* Content text */}
+                          <p className="text-xs sm:text-sm text-gray-650 leading-relaxed font-normal m-0">{item.content}</p>
+                        </div>
 }
 
 export default OfficerAnnouncements
