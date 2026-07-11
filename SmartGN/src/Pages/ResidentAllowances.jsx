@@ -333,4 +333,152 @@ function ResidentAllowances({ onOpenHelp }) {
         </div>
       </div>
 
+      {/* Dynamic Popup Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl flex flex-col my-8">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <h3 className="text-lg font-bold text-[#1B365D]">Apply for {selectedProgram}</h3>
+              <button 
+                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer" 
+                onClick={() => setIsModalOpen(false)} 
+                aria-label="Close form"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmApplication} className="mt-6 flex flex-col gap-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label htmlFor="modalApplicantName" className="text-xs font-bold text-[#475569]">Applicant Full Name</label>
+                  <input 
+                    type="text" 
+                    id="modalApplicantName" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    value={applicantName}
+                    onChange={(e) => setApplicantName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalNic" className="text-xs font-bold text-[#475569]">NIC Number</label>
+                  <input 
+                    type="text" 
+                    id="modalNic" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    value={applicantNicState}
+                    onChange={(e) => setApplicantNicState(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalPurpose" className="text-xs font-bold text-[#475569]">Application Purpose</label>
+                  <select 
+                    id="modalPurpose" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    required
+                  >
+                    <option value="For certify residence">For certify residence</option>
+                    <option value="For income verification">For income verification</option>
+                    <option value="For livelihood support">For livelihood support</option>
+                    <option value="For medical support">For medical support</option>
+                    <option value="For emergency disaster relief">For emergency disaster relief</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalIncome" className="text-xs font-bold text-[#475569]">Monthly Household Income (LKR)</label>
+                  <input 
+                    type="number" 
+                    id="modalIncome" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    placeholder="e.g. 45000"
+                    value={income}
+                    onChange={(e) => setIncome(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label htmlFor="modalRemarks" className="text-xs font-bold text-[#475569]">Remarks / Supportive details</label>
+                  <textarea 
+                    id="modalRemarks" 
+                    rows="2" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none" 
+                    placeholder="Briefly state the reason you qualify..."
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                  />
+                </div>
+
+                {/* Secure Account Details */}
+                <div className="sm:col-span-2 border-t border-gray-100 pt-4 mt-2">
+                  <h4 className="margin-0 text-sm font-bold text-[#1B365D] mb-3">
+                    Payment Account Details (For secured money transfers)
+                  </h4>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalBankName" className="text-xs font-bold text-[#475569]">Bank Name</label>
+                  <select 
+                    id="modalBankName" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    required
+                  >
+                    <option value="Bank of Ceylon">Bank of Ceylon</option>
+                    <option value="People's Bank">People's Bank</option>
+                    <option value="Commercial Bank">Commercial Bank</option>
+                    <option value="Sampath Bank">Sampath Bank</option>
+                    <option value="Hatton National Bank">Hatton National Bank</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalBankBranch" className="text-xs font-bold text-[#475569]">Branch</label>
+                  <input 
+                    type="text" 
+                    id="modalBankBranch" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    placeholder="e.g. Colombo 03"
+                    value={bankBranch}
+                    onChange={(e) => setBankBranch(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalBankAccount" className="text-xs font-bold text-[#475569]">Account Number</label>
+                  <input 
+                    type="text" 
+                    id="modalBankAccount" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    placeholder="e.g. 1023456789"
+                    value={bankAccount}
+                    onChange={(e) => setBankAccount(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalAccountHolder" className="text-xs font-bold text-[#475569]">Account Holder Name</label>
+                  <input 
+                    type="text" 
+                    id="modalAccountHolder" 
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all" 
+                    placeholder="e.g. Nimal Perera"
+                    value={accountHolder}
+                    onChange={(e) => setAccountHolder(e.target.value)}
+                    required
+                  />
+                </div>
+
 export default ResidentAllowances;
