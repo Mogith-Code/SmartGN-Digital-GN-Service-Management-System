@@ -72,4 +72,17 @@ function ResidentAllowances({ onOpenHelp }) {
     }
   }
 
+  // Load requests on mount
+  useEffect(() => {
+    // Attempt to load from profile for names/NIC pre-fill
+    const savedProfile = localStorage.getItem('smartgn_resident_profile')
+    if (savedProfile) {
+      const parsed = JSON.parse(savedProfile)
+      setApplicantName(parsed.fullName || `${parsed.firstName} ${parsed.lastName}`)
+      setApplicantNicState(parsed.nic || applicantNic)
+      setAccountHolder(parsed.fullName || `${parsed.firstName} ${parsed.lastName}`)
+    }
+    loadRequests()
+  }, [])
+
 export default ResidentAllowances;
