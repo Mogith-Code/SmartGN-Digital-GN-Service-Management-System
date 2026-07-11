@@ -259,7 +259,7 @@ function OfficerCertificates({ onOpenHelp }) {
           </div>
 
           {/* Search Box Row */}
-          <div className="mb-6">
+          <div className="m-[30px]">
             <div className="flex items-center gap-4 p-4 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm">
               <div className="relative flex-1">
                 <input
@@ -309,7 +309,7 @@ function OfficerCertificates({ onOpenHelp }) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-col gap-4 mx-[30px]">
             {filteredCerts.slice(0, visibleCount).map((item) => (
               <div
                 key={item.id}
