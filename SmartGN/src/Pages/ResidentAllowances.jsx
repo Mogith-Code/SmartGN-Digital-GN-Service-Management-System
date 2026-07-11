@@ -85,4 +85,20 @@ function ResidentAllowances({ onOpenHelp }) {
     loadRequests()
   }, [])
 
+  // Calculate dynamic stats
+  const pendingCount = requests.filter(item => item.status === 'Pending').length
+  const approvedCount = requests.filter(item => item.status === 'Approved').length
+  const rejectedCount = requests.filter(item => item.status === 'Rejected').length
+
+  // Trigger Modal Open with pre-selected program
+  const handleOpenApply = (programName) => {
+    setSelectedProgram(programName)
+    setErrorMessage('')
+    setIncome('')
+    setRemarks('')
+    setBankBranch('')
+    setBankAccount('')
+    setIsModalOpen(true)
+  }
+
 export default ResidentAllowances;
