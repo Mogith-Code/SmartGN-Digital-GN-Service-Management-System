@@ -194,6 +194,34 @@ function OfficerAnnouncements({ onOpenHelp }) {
       alert(err.message || 'Error restoring announcement.')
     }
   }
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Officer Navbar */}
+      <OfficerNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Officer Sidebar */}
+        <div className="hidden md:block bg-white">
+          <OSidebar />
+        </div>
+
+        {/* Content Panel */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          
+          {/* Back button */}
+          {(viewMode === 'CREATE' || viewMode === 'EDIT') && (
+            <button 
+              className="flex items-center gap-2 text-sm text-[#64748b] hover:text-[#1B365D] font-semibold transition-all mb-6 self-start bg-transparent border-0 cursor-pointer"
+              onClick={() => setViewMode('DASHBOARD')}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              Back to Dashboard
+            </button>
+          )}
 }
 
 export default OfficerAnnouncements
