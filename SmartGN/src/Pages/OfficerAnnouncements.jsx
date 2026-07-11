@@ -222,6 +222,31 @@ function OfficerAnnouncements({ onOpenHelp }) {
               Back to Dashboard
             </button>
           )}
+
+          {/* Sub-view: DASHBOARD (Dashboard Announcement Lists) */}
+          {viewMode === 'DASHBOARD' && (
+            <>
+              {/* Success alert published block */}
+              {showSuccessBanner && (
+                <div className="bg-emerald-600 border border-emerald-700 text-white rounded-xl p-4 mb-6 flex justify-between items-center text-left shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="flex-shrink-0">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <div>
+                      <span className="font-bold block">Announcement Published Successfully!</span>
+                      <span className="text-xs opacity-90">Your announcement is now live for all registered residents in the GN division.</span>
+                    </div>
+                  </div>
+                  <button 
+                    className="bg-transparent border-0 text-white hover:opacity-85 text-xl cursor-pointer" 
+                    onClick={() => setShowSuccessBanner(false)} 
+                    aria-label="Close Alert"
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
 }
 
 export default OfficerAnnouncements
