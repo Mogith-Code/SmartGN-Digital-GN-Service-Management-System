@@ -270,6 +270,23 @@ function OfficerAnnouncements({ onOpenHelp }) {
                   Create New Announcement
                 </button>
               </div>
+
+              {/* Active Announcements List */}
+              <div className="flex flex-col gap-5 text-left">
+                {announcements.length === 0 ? (
+                  <div className="py-12 text-center bg-white border border-gray-200 rounded-2xl text-gray-500 font-medium">
+                    No active announcements currently live.
+                  </div>
+                ) : (
+                  announcements.map((item) => {
+                    const isUrgentType = item.status === 'Urgent'
+                    const isArchivedType = item.status === 'Archived'
+                    
+                    const borderLeftColor = isUrgentType 
+                      ? 'border-rose-500' 
+                      : isArchivedType 
+                        ? 'border-gray-400' 
+                        : 'border-emerald-500'
 }
 
 export default OfficerAnnouncements
