@@ -50,6 +50,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   const [character, setCharacter] = useState('Good')
   const [remarks, setRemarks] = useState('')
   const [certificateNo, setCertificateNo] = useState('')
+  const [verifiedAnnualIncome, setVerifiedAnnualIncome] = useState('')
 
   // Local helper for Authorization Headers
   const getAuthHeaders = () => {
@@ -111,11 +112,36 @@ function OfficerCertificateDetails({ onOpenHelp }) {
           remarks: found.remarks || '',
           personalKnown: found.personalKnown || 'No',
           personalKnownSince: found.personalKnownSince || '',
-          certificateNo: found.certificateNo || ''
+          certificateNo: found.certificateNo || '',
+
+          // Income fields
+          incomeStream: found.incomeStream || '',
+          landOwnerName: found.landOwnerName || '',
+          landAmount: found.landAmount || '',
+          grantSheetNumber: found.grantSheetNumber || '',
+          ownerIdentity: found.ownerIdentity || '',
+          amountObtained: found.amountObtained || '',
+          expenses: found.expenses || '',
+          pricePerKg: found.pricePerKg || '',
+          totalIncome: found.totalIncome || '',
+          annualIncome: found.annualIncome || '',
+          businessName: found.businessName || '',
+          businessNature: found.businessNature || '',
+          businessFileName: found.businessFileName || '',
+          taxReceiptNumber: found.taxReceiptNumber || '',
+          dailyMonthlyIncome: found.dailyMonthlyIncome || '',
+          businessAnnualIncome: found.businessAnnualIncome || '',
+          netIncome: found.netIncome || '',
+          dailySalary: found.dailySalary || '',
+          hoursWorked: found.hoursWorked || '',
+          monthlyIncome: found.monthlyIncome || '',
+          laborerAnnualIncome: found.laborerAnnualIncome || '',
+          verifiedAnnualIncome: found.verifiedAnnualIncome || found.annualIncome || ''
         }
         setCertRequest(formatted)
         
         // Seed official state
+        const isIncome = formatted.type === 'Income Certificate' || formatted.certificate_type === 'INCOME';
         setPersonalKnown(formatted.personalKnown)
         setPersonalKnownSince(formatted.personalKnownSince)
         setNatureOfOtherEvidences(formatted.natureOfOtherEvidences || 'Utility Bill')
@@ -125,7 +151,8 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         setPublicActivitiesDetails(formatted.publicActivitiesDetails)
         setCharacter(formatted.character)
         setRemarks(formatted.remarks)
-        setCertificateNo(formatted.certificateNo || `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`)
+        setCertificateNo(formatted.certificateNo || (isIncome ? `IC/2026/${Math.floor(1000 + Math.random() * 9000)}` : `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`))
+        setVerifiedAnnualIncome(formatted.verifiedAnnualIncome || formatted.annualIncome || '')
 
         if (formatted.status === 'Approved') {
           setDocumentAuditCheck(true)
@@ -151,6 +178,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       if (found) {
         setCertRequest(found)
         
+        const isIncome = found.type === 'Income Certificate' || found.certificate_type === 'INCOME' || found.certificateType === 'INCOME';
         setPersonalKnown(found.personalKnown || 'No')
         setPersonalKnownSince(found.personalKnownSince || '')
         setNatureOfOtherEvidences(found.natureOfOtherEvidences || 'Utility Bill')
@@ -160,7 +188,8 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         setPublicActivitiesDetails(found.publicActivitiesDetails || '')
         setCharacter(found.character || 'Good')
         setRemarks(found.remarks || '')
-        setCertificateNo(found.certificateNo || `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`)
+        setCertificateNo(found.certificateNo || (isIncome ? `IC/2026/${Math.floor(1000 + Math.random() * 9000)}` : `CC/2026/${Math.floor(1000 + Math.random() * 9000)}`))
+        setVerifiedAnnualIncome(found.verifiedAnnualIncome || found.annualIncome || '')
 
         if (found.status === 'Approved' || found.status === 'APPROVED') {
           setDocumentAuditCheck(true)
@@ -205,6 +234,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       character,
       remarks,
       certificateNo,
+      verifiedAnnualIncome,
       approvedDate: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
       officerName: `${profile.firstName} ${profile.lastName}`
     }
@@ -373,14 +403,113 @@ function OfficerCertificateDetails({ onOpenHelp }) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Division</span>
-                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.division}</span>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Grama Niladhari Division</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.gnDivisionNumber || certRequest.division}</span>
                     </div>
                     <div>
                       <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Submission Date</span>
                       <span className="text-[14.5px] font-bold text-[#1e293b]">{certRequest.submittedDate}</span>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Income Stream / Category</span>
+                      <span className="text-[14.5px] font-bold text-[#1e293b] uppercase">
+                        {certRequest.incomeStream === 'Paddy' ? 'Paddy / Agriculture' : (certRequest.incomeStream === 'Business' ? 'Business / Commercial' : (certRequest.incomeStream === 'Laborer' ? 'Carpenter / Laborer / Services' : 'Other'))}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-1">Declared Annual Income</span>
+                      <span className="text-[14.5px] font-bold text-emerald-700">
+                        Rs. {certRequest.annualIncome || '0'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {certRequest.incomeStream === 'Paddy' && (
+                    <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                      <h4 className="text-[14px] font-bold text-[#1B365D] uppercase tracking-wider mb-3">Paddy / Agriculture Stream Details</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px]">
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Land Owner Name:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.landOwnerName || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Amount of Land:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.landAmount || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Applicant Ownership Identity:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.ownerIdentity || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Amount of Paddy Obtained:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.amountObtained || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Price per Kg:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.pricePerKg || '0'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Expenses:</span>
+                          <span className="text-slate-800 font-bold text-red-600">Rs. {certRequest.expenses || '0'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Total Crop Income:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.totalIncome || '0'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {certRequest.incomeStream === 'Business' && (
+                    <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                      <h4 className="text-[14px] font-bold text-[#1B365D] uppercase tracking-wider mb-3">Business / Commercial Stream Details</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px]">
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Business Name:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.businessName || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Nature of Business:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.businessNature || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Tax Receipt Number:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.taxReceiptNumber || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Daily/Monthly Income:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.dailyMonthlyIncome || '0'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Net Income:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.netIncome || '0'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {certRequest.incomeStream === 'Laborer' && (
+                    <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                      <h4 className="text-[14px] font-bold text-[#1B365D] uppercase tracking-wider mb-3">Carpenter / Masonry / Hired Laborer Stream Details</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[13.5px]">
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Daily Salary / Rate:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.dailySalary || '0'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Hours worked per week:</span>
+                          <span className="text-slate-800 font-bold">{certRequest.hoursWorked || '0'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 font-semibold block">Monthly Income:</span>
+                          <span className="text-slate-800 font-bold">Rs. {certRequest.monthlyIncome || '0'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <span className="block text-[12px] text-[#64748b] font-bold uppercase mb-2">Purpose of Request</span>
@@ -728,6 +857,95 @@ function OfficerCertificateDetails({ onOpenHelp }) {
                   <textarea 
                     rows="3" 
                     placeholder="Enter additional remarks"
+                    className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                  />
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Official Assessment Card (GN Form fields for income cert) */}
+          {!isCharacterCert && (certRequest.status === 'Pending' || certRequest.status === 'PENDING') && (
+            <div className="bg-white border border-[#fedc9b] rounded-2xl p-8 shadow-md text-left mb-8 animate-in fade-in slide-in-from-bottom duration-200">
+              <div className="flex items-center gap-2 border-b border-[#fedc9b]/40 pb-4 mb-6 font-sans">
+                <span className="text-xl">✍️</span>
+                <h3 className="text-[17px] font-bold text-[#854d0e] m-0">Grama Niladhari Official Income Verification Form</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[13.5px] font-sans">
+                
+                {/* 1. Verified Annual Income */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessVerifiedIncome" className="font-bold text-[#334155] mb-1.5">Verified Annual Income (Rs.) :</label>
+                  <input 
+                    type="number" 
+                    id="assessVerifiedIncome" 
+                    placeholder="Verify and enter the verified annual income"
+                    className="w-full py-2.5 px-3.5 border border-[#cbd5e1] rounded-lg font-bold text-emerald-800"
+                    value={verifiedAnnualIncome}
+                    onChange={(e) => setVerifiedAnnualIncome(e.target.value)}
+                  />
+                </div>
+
+                {/* 2. Certificate Serial Number */}
+                <div className="flex flex-col">
+                  <label htmlFor="assessSerial" className="font-bold text-[#334155] mb-1.5">Generated Certificate Serial Number :</label>
+                  <input 
+                    type="text" 
+                    className="w-full py-2.5 px-3.5 border border-[#cbd5e1] rounded-lg font-bold text-slate-800"
+                    value={certificateNo}
+                    onChange={(e) => setCertificateNo(e.target.value)}
+                  />
+                </div>
+
+                {/* 3. Document Audited checklist */}
+                <div className="flex flex-col md:col-span-2">
+                  <span className="font-bold text-[#334155] block mb-2">Supporting Documents Audited:</span>
+                  <div className="flex flex-wrap gap-5 bg-slate-50 p-4 border border-slate-200 rounded-xl">
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#475569]">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-emerald-600 rounded" 
+                        defaultChecked={certRequest.incomeStream === 'Paddy'}
+                      />
+                      <span>License/Permit/Grant sheet copy</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#475569]">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-emerald-600 rounded" 
+                        defaultChecked={certRequest.incomeStream === 'Business'}
+                      />
+                      <span>Business Registration Copy</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#475569]">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-emerald-600 rounded" 
+                        defaultChecked={certRequest.incomeStream === 'Business'}
+                      />
+                      <span>Pradeshiya Sabha Tax Receipt</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-[#475569]">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-emerald-600 rounded" 
+                        defaultChecked={certRequest.incomeStream === 'Laborer'}
+                      />
+                      <span>Salary Slip / Income Declaration</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 4. Remarks */}
+                <div className="flex flex-col md:col-span-2">
+                  <label htmlFor="assessRemarks" className="font-bold text-[#334155] mb-1.5">Grama Niladhari Remarks & Assessment Notes :</label>
+                  <textarea 
+                    rows="3" 
+                    placeholder="Enter assessment remarks for this income certificate (e.g. Verified with land records / trade registers)"
                     className="w-full py-2 px-3 border border-[#cbd5e1] rounded-lg"
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
