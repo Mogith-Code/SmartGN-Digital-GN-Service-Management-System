@@ -247,6 +247,31 @@ function OfficerAnnouncements({ onOpenHelp }) {
                   </button>
                 </div>
               )}
+
+              {/* Title & Publish Trigger Action Row */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 text-left">
+                <div>
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] m-0">
+                    Announcements Dashboard
+                  </h2>
+                  <p className="text-sm text-[#64748b] mt-1 font-semibold">
+                    Manage and track all public notifications sent to the community.
+                  </p>
+                </div>
+                
+                <button 
+                  onClick={handleOpenCreate} 
+                  className="bg-[#1B365D] hover:bg-[#005BBD] text-white border-0 py-2.5 px-5 rounded-xl text-xs font-extrabold cursor-pointer transition-colors flex items-center gap-2 shadow-xs"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Create New Announcement
+                </button>
+              </div>
 }
 
 export default OfficerAnnouncements
+
+
