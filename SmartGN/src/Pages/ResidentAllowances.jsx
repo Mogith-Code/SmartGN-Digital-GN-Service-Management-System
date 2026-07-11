@@ -101,4 +101,125 @@ function ResidentAllowances({ onOpenHelp }) {
     setIsModalOpen(true)
   }
 
+  // Handle Application Submit
+  const handleConfirmApplication = async (e) => {
+    e.preventDefault()
+
+    if (!income) {
+      setErrorMessage('Please enter your estimated monthly household income.')
+      return
+    }
+
+    if (!bankBranch || !bankAccount) {
+      setErrorMessage('Please enter your complete bank account details.')
+      return
+    }
+
+    setErrorMessage('')
+
+    try {
+      const response = await fetch('/api/allowances/apply', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          allowanceType: selectedProgram,
+          incomeDetails: `Household Monthly Income: LKR ${income}. Purpose: ${purpose}. Remarks: ${remarks}`,
+          bankDetails: {
+            bankName,
+            branch: bankBranch,
+            accountNumber: bankAccount,
+            accountHolderName: accountHolder
+          }
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to submit application.')
+      }
+
+      const resData = await response.json()
+      setIsModalOpen(false)
+      loadRequests()
+      alert(`Application for ${selectedProgram} submitted successfully! Your secure tracking ID is ${resData.allowanceId}.`)
+    } catch (err) {
+      setErrorMessage(err.message || 'Error submitting application.')
+    }
+  }
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Navbar */}
+      <AfterlogNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Sidebar */}
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+
+        {/* Content */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          {/* Back button */}
+          <button 
+            className="flex items-center gap-2 text-sm text-[#64748b] hover:text-[#1B365D] font-semibold transition-all mb-6 self-start bg-transparent border-0 cursor-pointer"
+            onClick={() => navigate('/dashboard/resident', { state: { successUser, division: userDivision } })}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Dashboard
+          </button>
+
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] mb-6 text-left">
+            Allowance Programs
+          </h2>
+
+          {/* Stats Widgets */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+            {/* Pending */}
+            <div className="bg-white border border-[#2D37482D] rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-[#64748b] uppercase tracking-wider">Pending Requests</span>
+                <span className="text-2xl font-bold text-[#1B365D]">{pendingCount}</span>
+              </div>
+            </div>
+
+            {/* Approved */}
+            <div className="bg-white border border-[#2D37482D] rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-[#64748b] uppercase tracking-wider">Approved Requests</span>
+                <span className="text-2xl font-bold text-[#1B365D]">{approvedCount}</span>
+              </div>
+            </div>
+
+            {/* Rejected */}
+            <div className="bg-white border border-[#2D37482D] rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-[#64748b] uppercase tracking-wider">Rejected Requests</span>
+                <span className="text-2xl font-bold text-[#1B365D]">{rejectedCount}</span>
+              </div>
+            </div>
+          </div>
+
 export default ResidentAllowances;
