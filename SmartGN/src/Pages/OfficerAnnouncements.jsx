@@ -349,6 +349,25 @@ function OfficerAnnouncements({ onOpenHelp }) {
                   })
                 )}
               </div>
+
+              {/* Bottom Load */}
+              <div className="mt-8 text-center">
+                <button 
+                  onClick={() => setShowPreviousAnnouncements(!showPreviousAnnouncements)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold border-0 py-2.5 px-6 rounded-full text-xs sm:text-sm cursor-pointer transition-colors inline-flex items-center gap-2"
+                >
+                  Load Previous Announcements
+                  <span className={`transform transition-transform duration-250 ${showPreviousAnnouncements ? 'rotate-180' : 'none'}`}>▼</span>
+                </button>
+
+                {showPreviousAnnouncements && (
+                  <div className="mt-5 p-5 border-2 border-dashed border-gray-200 rounded-2xl bg-[#F8FAFC] text-gray-500 font-bold text-xs sm:text-sm">
+                    No older announcements archived in the history folder currently.
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 }
 
 export default OfficerAnnouncements
