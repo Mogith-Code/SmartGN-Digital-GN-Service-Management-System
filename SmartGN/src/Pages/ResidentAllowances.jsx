@@ -222,4 +222,115 @@ function ResidentAllowances({ onOpenHelp }) {
             </div>
           </div>
 
+          {/* Program Request list */}
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-8 text-left">
+            <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
+              Available Allowance Programs
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { name: 'Aswesuma', desc: 'Social safety net program aiming to help low-income families.', icon: '🇱🇰' },
+                { name: 'Samurdhi', desc: 'National welfare initiative designed to alleviate poverty.', icon: '🌾' },
+                { name: 'Elderly Support', desc: 'Financial assistance for senior citizens above the age of 70.', icon: '👵' },
+                { name: 'Disability Allowance', desc: 'Financial relief support to assist differently-abled citizens.', icon: '♿' },
+                { name: 'Kidney Disease Support', desc: 'Welfare fund targeting medical support for kidney patients.', icon: '🩺' }
+              ].map((prog) => (
+                <div key={prog.name} className="flex flex-col justify-between p-5 bg-[#F8FAFC] border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-2xl">{prog.icon}</span>
+                      <span className="bg-[#1B365D]/10 text-[#1B365D] text-xs px-2.5 py-1 rounded-full font-bold">LKR Cleared</span>
+                    </div>
+                    <h4 className="text-base font-bold text-[#1B365D] mb-2">{prog.name}</h4>
+                    <p className="text-xs text-[#64748b] leading-relaxed mb-4">{prog.desc}</p>
+                  </div>
+                  <button 
+                    className="w-full mt-auto bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center gap-2 border-0 cursor-pointer transition-colors text-sm" 
+                    onClick={() => handleOpenApply(prog.name)}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M12 20h9"></path>
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    Apply Now
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* History tracking status */}
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left">
+            <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
+              Application & Payment History
+            </h3>
+
+            {requests.length === 0 ? (
+              <div className="py-8 text-center text-gray-500 font-medium text-sm">
+                No allowance applications submitted yet.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6">
+                {requests.map((item) => (
+                  <div key={item.id} className="border-b border-gray-100 last:border-b-0 pb-6 last:pb-0 flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-[#005BBD] text-lg mt-0.5">★</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-bold text-[#1a2e56] text-base">{item.program}</span>
+                          <span className="text-xs text-[#64748b] mt-1">Purpose: {item.purpose}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1 border
+                          ${item.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                            item.status === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 
+                            'bg-amber-50 text-amber-700 border-amber-200'}`}
+                        >
+                          {item.status === 'Approved' && (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          )}
+                          {item.status === 'Rejected' && (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                              <line x1="18" y1="6" x2="6" y2="18"></line>
+                              <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                          )}
+                          {item.status === 'Pending' && (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <polyline points="12 6 12 12 14 12"></polyline>
+                            </svg>
+                          )}
+                          {item.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {item.status === 'Approved' && item.paymentStatus === 'Paid' && (
+                      <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 flex items-start gap-4 text-left transition-all">
+                        <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                          </svg>
+                        </div>
+                        <div className="text-xs sm:text-sm text-[#065f46] leading-relaxed">
+                          <strong className="block text-emerald-800 font-bold mb-1">Secure Allowance Funds Disbursed</strong>
+                          Your Grama Niladhari office has securely transferred <strong className="font-bold">Rs. {item.paymentAmount ? parseFloat(item.paymentAmount).toLocaleString() : '5,000'}.00</strong> to your verified <strong className="font-bold">{item.bankDetails?.bankName} ({item.bankDetails?.accountNumber})</strong> account on <span className="font-medium">{item.paymentTransferredAt}</span>. Transaction Reference: <code className="bg-emerald-100/80 px-1.5 py-0.5 rounded font-mono font-bold text-xs">{item.paymentTransactionRef}</code>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
 export default ResidentAllowances;
