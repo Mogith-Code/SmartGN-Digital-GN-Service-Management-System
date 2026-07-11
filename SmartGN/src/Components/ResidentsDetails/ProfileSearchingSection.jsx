@@ -15,8 +15,8 @@ function ProfileSearchingSection() {
           Search residents using NIC number
         </span>
       </div>
-      <div className="flex flex-col gap-[20px] w-full p-[10px] border border-[#2D37484D] rounded-xl">
-        <div className="flex justify-between">
+      <div className="flex flex-col gap-[20px] w-full py-[10px] px-[20px] border border-[#2D37484D] rounded-xl">
+        <div className="flex justify-between ">
           <div className="flex w-full items-center justify-between ">
             <div className="flex items-center justify-between">
               <img

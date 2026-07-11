@@ -26,7 +26,7 @@ function ResidentsDetailsLayout() {
         <ResidentsDetailsCardLAyout />
       </div>
 
-      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:mx-[75px]">
+      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         <ProfileSearchingSection />
       </div>
     </>
