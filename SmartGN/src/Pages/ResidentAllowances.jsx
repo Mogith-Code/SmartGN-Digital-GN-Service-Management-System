@@ -481,4 +481,68 @@ function ResidentAllowances({ onOpenHelp }) {
                   />
                 </div>
 
-export default ResidentAllowances;
+                {/* Upload File */}
+                <div className="flex flex-col gap-1.5 sm:col-span-2 text-left">
+                  <label className="text-xs font-bold text-[#475569]">Attach Supporting Documents (Income cert/NIC copy)</label>
+                  <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span className="text-xs text-gray-500 font-medium">Upload supportive document (.pdf, .jpg)</span>
+                    <input type="file" className="hidden" id="supportDocFile" />
+                    <label htmlFor="supportDocFile" className="bg-[#1B365D]/10 hover:bg-[#1B365D]/20 text-[#1B365D] text-xs font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer">
+                      Choose file
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+              {errorMessage && (
+                <p className="text-rose-500 text-xs font-semibold m-0 text-left">
+                  {errorMessage}
+                </p>
+              )}
+
+              <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
+                <button 
+                  type="button" 
+                  className="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm" 
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm"
+                >
+                  Confirm Application
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Help Trigger */}
+      <button 
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+        aria-label="Help Trigger" 
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  )
+}
+
+export default ResidentAllowances
+
+
+
