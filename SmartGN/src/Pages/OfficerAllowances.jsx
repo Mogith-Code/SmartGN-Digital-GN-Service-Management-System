@@ -161,4 +161,80 @@ function OfficerAllowances({ onOpenHelp }) {
               })
             })
 
+             if (!response.ok) {
+              const data = await response.json()
+              throw new Error(data.error || 'Failed to disburse funds.')
+            }
+
+            const resData = await response.json()
+            await loadRequests()
+            setTransferringId(null)
+            setTransferStep(0)
+            alert('RTGS Secure Funds Disbursed successfully.')
+
+            const completedItem = {
+              id: id,
+              program: item.program,
+              status: 'Approved',
+              paymentStatus: 'Paid',
+              paymentAmount: resData.transaction.amount,
+              paymentTransferredAt: new Date(resData.transaction.timestamp).toLocaleString(),
+              paymentTransactionRef: resData.transaction.txnRef,
+              applicantName: item.applicantName,
+              bankDetails: item.bankDetails
+            }
+            setReceiptRequest(completedItem)
+            setShowReceiptId(id)
+          } catch (err) {
+            alert(err.message || 'Error disbursing allowance funds.')
+            setTransferringId(null)
+            setTransferStep(0)
+          }
+        }, 800)
+      }, 1000)
+    }, 800)
+  }
+
+  // View existing receipt
+  const viewReceipt = (item, e) => {
+    e.stopPropagation()
+    setReceiptRequest(item)
+    setShowReceiptId(item.id)
+  }
+
+  // Filter & Search logic
+  const filteredRequests = requests.filter(r => {
+    const applicant = r.applicantName || r.bankDetails?.accountHolderName || 'Resident'
+    const matchesSearch = applicant.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          r.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          String(r.id).includes(searchQuery)
+    
+    if (filterStatus === 'All') return matchesSearch
+    return matchesSearch && r.status === filterStatus
+  })
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Officer Navbar */}
+      <OfficerNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Officer Sidebar */}
+        <div className="hidden md:block bg-white">
+          <OSidebar />
+        </div>
+
+        {/* Content Panel */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div className="text-left">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] m-0">
+                Allowance Programs Queue
+              </h2>
+              <p className="text-sm text-[#64748b] mt-1">
+                Analyze, verify and securely disburse funds to registered allowance applications.
+              </p>
+            </div>
+
 export default OfficerAllowances;
