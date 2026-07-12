@@ -47,4 +47,29 @@ function OfficerAllowances({ onOpenHelp }) {
         } catch (e) {
           bankDetailsObj = item.bank_details;
         }
+
+        return {
+          id: item.allowance_id,
+          program: item.allowance_type,
+          purpose: item.income_details ? item.income_details.substring(0, 100) : '',
+          status: item.status === 'PENDING' ? 'Pending' : item.status === 'APPROVED' ? 'Approved' : 'Rejected',
+          bankDetails: bankDetailsObj,
+          paymentStatus: item.payment_status === 'PAID' ? 'Paid' : 'Unpaid',
+          paymentAmount: item.cleared_amount,
+          paymentTransferredAt: item.cleared_time ? new Date(item.cleared_time).toLocaleString() : '',
+          paymentTransactionRef: item.txn_reference,
+          applicantName: item.resident_name || 'Resident',
+          nic: item.resident_nic,
+          income: item.income_details || '',
+          submittedDate: item.application_date ? new Date(item.application_date).toISOString().split('T')[0] : '2026-05-15'
+        }
+      })
+      setRequests(formatted)
+    } catch (err) {
+      console.error(err)
+      const saved = localStorage.getItem('smartgn_allowance_requests')
+      if (saved) setRequests(JSON.parse(saved))
+    }
+  }
+
 export default OfficerAllowances;
