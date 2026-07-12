@@ -186,7 +186,7 @@ function App() {
           element={<ApprovedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/allowances"
+          path="/ResidentDashboard/allowances"
           element={<ResidentAllowances onOpenHelp={openChatbot} />}
         />
         <Route

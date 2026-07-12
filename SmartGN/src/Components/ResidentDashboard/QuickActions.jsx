@@ -10,7 +10,7 @@ function QuickActions() {
       title: "Request Certificates",
       icon: certificateIcon,
       alt: "certificate icon",
-      route: "/certificates",
+      route: "/ResidentDashboard/certificates",
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ function QuickActions() {
       title: "Apply for Allowances",
       icon: certificateIcon,
       alt: "allowance icon",
-      route: "/dashboard/resident/allowances",
+      route: "/ResidentDashboard/allowances",
     },
     {
       id: 4,
