@@ -98,4 +98,40 @@ function OfficerAllowances({ onOpenHelp }) {
     }
   }
 
+  // Reject action
+  const handleReject = async (id, e) => {
+    e.stopPropagation()
+    const confirmReject = window.confirm("Are you sure you want to reject this allowance request?")
+    if (confirmReject) {
+      try {
+        const response = await fetch(`/api/allowances/${id}/status`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ status: 'REJECTED' })
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to reject allowance request.')
+        }
+
+        alert(`Allowance request ${id} has been Rejected.`)
+        loadRequests()
+      } catch (err) {
+        alert(err.message || 'Error rejecting allowance request.')
+      }
+    }
+  }
+
+  // Mock Bank Account Verification
+  const handleVerifyBank = (id, applicantName, e) => {
+    e.stopPropagation()
+    setVerifyingBankId(id)
+    setTimeout(() => {
+      setBankVerifiedMap(prev => ({ ...prev, [id]: true }))
+      setVerifyingBankId(null)
+      alert(`Bank Account Registry matched and verified successfully for ${applicantName}!`)
+    }, 1000)
+  }
+
 export default OfficerAllowances;
