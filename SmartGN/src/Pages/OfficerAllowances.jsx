@@ -86,4 +86,16 @@ function OfficerAllowances({ onOpenHelp }) {
         body: JSON.stringify({ status: 'APPROVED' })
       })
 
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to approve allowance request.')
+      }
+
+      alert(`Allowance request ${id} has been Approved.`)
+      loadRequests()
+    } catch (err) {
+      alert(err.message || 'Error approving allowance request.')
+    }
+  }
+
 export default OfficerAllowances;
