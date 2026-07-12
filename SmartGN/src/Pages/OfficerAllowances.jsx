@@ -134,4 +134,31 @@ function OfficerAllowances({ onOpenHelp }) {
     }, 1000)
   }
 
+  // Secure cleared transfer simulation
+  const handleSecureTransfer = (id, item, e) => {
+    e.stopPropagation()
+    if (!bankVerifiedMap[id]) {
+      alert("Please verify the bank account registry with the Central Bank registry first.")
+      return
+    }
+
+    setTransferringId(id)
+    setTransferStep(1) // Connecting
+
+    setTimeout(() => {
+      setTransferStep(2) // clearing
+
+      setTimeout(() => {
+        setTransferStep(3) // Completed
+
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`/api/allowances/${id}/disburse`, {
+              method: 'POST',
+              headers: getAuthHeaders(),
+              body: JSON.stringify({
+                disburseAmount: parseFloat(transferAmount)
+              })
+            })
+
 export default OfficerAllowances;
