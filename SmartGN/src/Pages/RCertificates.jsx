@@ -126,7 +126,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "adultIcon",
       title: "Approved certificate requests",
       count: 3,
-      navpath: "/dashboard/resident/certificates/approved",
+      navpath: "/ResidentDashboard/certificates/approved",
     },
     {
       id: 3,
@@ -134,7 +134,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "Children",
       title: "Rejected certificate requests",
       count: 2,
-      navpath: "/dashboard/resident/certificates/rejected",
+      navpath: "/ResidentDashboard/certificates/rejected",
     },
   ];
 

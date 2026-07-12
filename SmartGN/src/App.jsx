@@ -174,7 +174,7 @@ function App() {
           element={<ApplyIncomeCertificate onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/rejected"
+          path="/ResidentDashboard/certificates/rejected"
           element={<RejectedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
@@ -182,7 +182,7 @@ function App() {
           element={<PendingCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/approved"
+          path="/ResidentDashboard/certificates/approved"
           element={<ApprovedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
