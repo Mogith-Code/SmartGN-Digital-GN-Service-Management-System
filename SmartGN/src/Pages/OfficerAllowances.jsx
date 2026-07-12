@@ -237,4 +237,90 @@ function OfficerAllowances({ onOpenHelp }) {
               </p>
             </div>
 
+            {/* Filter Buttons */}
+            <div className="flex gap-1 bg-[#F1F5F9] p-1 rounded-xl border border-gray-200 self-start md:self-auto">
+              {['All', 'Pending', 'Approved', 'Rejected'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`px-4 py-1.5 text-xs font-bold rounded-lg border-0 cursor-pointer transition-all duration-150
+                    ${filterStatus === status ? 'bg-white text-[#1B365D] shadow-xs' : 'bg-transparent text-gray-500 hover:text-gray-900'}`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative mb-6 text-left">
+            <input
+              type="text"
+              placeholder="Search by resident name, program (e.g. Aswesuma) or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+            />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" className="absolute left-4 top-3.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          {/* List of Applications */}
+          <div className="flex flex-col gap-4 text-left">
+            {filteredRequests.map((item) => {
+              const applicant = item.applicantName || item.bankDetails?.accountHolderName || 'Resident'
+              const isExpanded = expandedId === item.id
+
+              return (
+                <div
+                  key={item.id}
+                  className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200
+                    ${isExpanded ? 'border-[#d97706]/40 shadow-md' : 'border-gray-200 shadow-xs hover:border-gray-300'}`}
+                >
+                  {/* Collapsed Row Header */}
+                  <div
+                    onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                    className="p-5 sm:p-6 flex justify-between items-center cursor-pointer text-left select-none"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-[#005BBD] text-xl">★</span>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <h4 className="margin-0 text-base font-bold text-[#1B365D]">
+                            {item.program}
+                          </h4>
+                          
+                          {/* Status Badge */}
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
+                            ${item.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                              item.status === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 
+                              'bg-amber-50 text-amber-700 border-amber-200'}`}
+                          >
+                            {item.status}
+                          </span>
+                          
+                          {item.status === 'Approved' && (
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
+                              ${item.paymentStatus === 'Paid' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-amber-500 text-white border-amber-500'}`}
+                            >
+                              {item.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid'}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                          <span>Applicant: <strong className="text-gray-700">{applicant}</strong></span>
+                          <span>NIC: <strong className="text-gray-700">{item.nic || '200324511540'}</strong></span>
+                          <span>Submitted: <strong className="text-gray-700">{item.submittedDate}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span className="text-lg text-gray-400 font-bold transition-transform duration-200">
+                      {isExpanded ? '▲' : '▼'}
+                    </span>
+                  </div>
+
 export default OfficerAllowances;
