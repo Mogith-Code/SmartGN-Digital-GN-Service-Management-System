@@ -254,7 +254,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
             <button
               className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
               onClick={() =>
-                navigate("/dashboard/resident/certificates", {
+                navigate("/ResidentDashboard/certificates", {
                   state: { successUser, division: userDivision },
                 })
               }

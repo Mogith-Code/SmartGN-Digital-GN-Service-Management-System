@@ -166,11 +166,11 @@ function App() {
         />
 
         <Route
-          path="/dashboard/resident/certificates/apply-character"
+          path="/ResidentDashboard/certificates/apply-character"
           element={<ApplyCharacterCertificate onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/apply-income"
+          path="/ResidentDashboard/certificates/apply-income"
           element={<ApplyIncomeCertificate onOpenHelp={openChatbot} />}
         />
         <Route

@@ -229,7 +229,7 @@ function ResidentCertificates({ onOpenHelp }) {
                   className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
                   onClick={() =>
                     navigate(
-                      "/dashboard/resident/certificates/apply-character",
+                      "/ResidentDashboard/certificates/apply-character",
                       { state: { successUser, division: userDivision } },
                     )
                   }
@@ -258,7 +258,7 @@ function ResidentCertificates({ onOpenHelp }) {
                 <span
                   className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
                   onClick={() =>
-                    navigate("/dashboard/resident/certificates/apply-income", {
+                    navigate("/ResidentDashboard/certificates/apply-income", {
                       state: { successUser, division: userDivision },
                     })
                   }
