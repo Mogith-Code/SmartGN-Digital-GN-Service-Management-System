@@ -161,13 +161,10 @@ function App() {
         />
 
         <Route
-          path="/certificates"
+          path="/ResidentDashboard/certificates"
           element={<ResidentCertificates onOpenHelp={openChatbot} />}
         />
-        <Route
-          path="/dashboard/resident/certificates"
-          element={<ResidentCertificates onOpenHelp={openChatbot} />}
-        />
+
         <Route
           path="/dashboard/resident/certificates/apply-character"
           element={<ApplyCharacterCertificate onOpenHelp={openChatbot} />}
@@ -181,7 +178,7 @@ function App() {
           element={<RejectedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/pending"
+          path="/ResidentDashboard/certificates/pending"
           element={<PendingCertificates onOpenHelp={openChatbot} />}
         />
         <Route

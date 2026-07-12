@@ -118,7 +118,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "adultIcon",
       title: " Pending certificate requests",
       count: 5,
-      navpath: "/dashboard/resident/certificates/pending",
+      navpath: "/ResidentDashboard/certificates/pending",
     },
     {
       id: 2,

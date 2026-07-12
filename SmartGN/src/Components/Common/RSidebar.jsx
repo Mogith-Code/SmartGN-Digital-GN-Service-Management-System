@@ -102,7 +102,7 @@ function RSidebar() {
     {
       id: "certificates",
       name: t.certificates,
-      path: "/certificates",
+      path: "/ResidentDashboard/certificates",
       icon: certificateIcon,
       iconActive: certificateIconHovered,
     },
