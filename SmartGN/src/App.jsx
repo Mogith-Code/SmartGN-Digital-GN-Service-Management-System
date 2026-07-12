@@ -44,14 +44,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
-        <Route
-          path="/ResidentDashboard"
-          element={<ResidentDashboard onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/resident"
-          element={<ResidentDashboard onOpenHelp={openChatbot} />}
-        />
 
         <Route
           path="/ResidentDashboard/profile"
@@ -116,6 +108,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/success" element={<Success />} />
 
+        <Route
+          path="/ResidentDashboard"
+          element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
         <Route
           path="/OfficerDashboard"
           element={<OfficerDashboard onOpenHelp={openChatbot} />}
