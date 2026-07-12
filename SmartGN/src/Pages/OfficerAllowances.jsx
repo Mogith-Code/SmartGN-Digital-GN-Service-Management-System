@@ -72,4 +72,18 @@ function OfficerAllowances({ onOpenHelp }) {
     }
   }
 
+  useEffect(() => {
+    loadRequests()
+  }, [])
+
+  // Approve action
+  const handleApprove = async (id, e) => {
+    e.stopPropagation()
+    try {
+      const response = await fetch(`/api/allowances/${id}/status`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status: 'APPROVED' })
+      })
+
 export default OfficerAllowances;
