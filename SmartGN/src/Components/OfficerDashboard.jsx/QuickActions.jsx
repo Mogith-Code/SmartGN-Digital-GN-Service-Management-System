@@ -10,14 +10,14 @@ function QuickActions() {
       title: "Approved Certificates",
       icon: certificateIcon,
       alt: "certificate icon",
-      route: "/certificates",
+      route: "/OfficerDashboard/Certificates",
     },
     {
       id: 2,
       title: "Check Appointments",
       icon: certificateIcon,
       alt: "appointment icon",
-      route: "/ResidentDashboard/RAppointment/BookingForm",
+      route: "/OfficerDashboard/OfficerAppointment",
     },
     {
       id: 3,
