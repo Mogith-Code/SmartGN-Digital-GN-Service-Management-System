@@ -140,7 +140,7 @@ function Login() {
       // Store JWT token
       localStorage.setItem("smartgn_token", data.token);
       localStorage.setItem("smartgn_user_role", data.role);
-      localStorage.setItem("smartgn_user_name", data.user.name);
+      localStorage.setItem("smartgn_user_id", data.user.nic);
 
       if (data.role === "RESIDENT") {
         localStorage.setItem("smartgn_user_id", data.user.nic);

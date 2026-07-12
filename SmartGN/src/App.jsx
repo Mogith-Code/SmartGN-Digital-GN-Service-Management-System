@@ -44,14 +44,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
-        <Route
-          path="/ResidentDashboard"
-          element={<ResidentDashboard onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/resident"
-          element={<ResidentDashboard onOpenHelp={openChatbot} />}
-        />
 
         <Route
           path="/ResidentDashboard/profile"
@@ -117,6 +109,10 @@ function App() {
         <Route path="/success" element={<Success />} />
 
         <Route
+          path="/ResidentDashboard"
+          element={<ResidentDashboard onOpenHelp={openChatbot} />}
+        />
+        <Route
           path="/OfficerDashboard"
           element={<OfficerDashboard onOpenHelp={openChatbot} />}
         />
@@ -161,35 +157,32 @@ function App() {
         />
 
         <Route
-          path="/certificates"
+          path="/ResidentDashboard/certificates"
           element={<ResidentCertificates onOpenHelp={openChatbot} />}
         />
+
         <Route
-          path="/dashboard/resident/certificates"
-          element={<ResidentCertificates onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/resident/certificates/apply-character"
+          path="/ResidentDashboard/certificates/apply-character"
           element={<ApplyCharacterCertificate onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/apply-income"
+          path="/ResidentDashboard/certificates/apply-income"
           element={<ApplyIncomeCertificate onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/rejected"
+          path="/ResidentDashboard/certificates/rejected"
           element={<RejectedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/pending"
+          path="/ResidentDashboard/certificates/pending"
           element={<PendingCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/certificates/approved"
+          path="/ResidentDashboard/certificates/approved"
           element={<ApprovedCertificates onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/resident/allowances"
+          path="/ResidentDashboard/allowances"
           element={<ResidentAllowances onOpenHelp={openChatbot} />}
         />
         <Route

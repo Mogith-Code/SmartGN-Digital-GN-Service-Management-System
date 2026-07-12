@@ -118,7 +118,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "adultIcon",
       title: " Pending certificate requests",
       count: 5,
-      navpath: "/dashboard/resident/certificates/pending",
+      navpath: "/ResidentDashboard/certificates/pending",
     },
     {
       id: 2,
@@ -126,7 +126,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "adultIcon",
       title: "Approved certificate requests",
       count: 3,
-      navpath: "/dashboard/resident/certificates/approved",
+      navpath: "/ResidentDashboard/certificates/approved",
     },
     {
       id: 3,
@@ -134,7 +134,7 @@ function ResidentCertificates({ onOpenHelp }) {
       alt: "Children",
       title: "Rejected certificate requests",
       count: 2,
-      navpath: "/dashboard/resident/certificates/rejected",
+      navpath: "/ResidentDashboard/certificates/rejected",
     },
   ];
 
@@ -229,7 +229,7 @@ function ResidentCertificates({ onOpenHelp }) {
                   className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
                   onClick={() =>
                     navigate(
-                      "/dashboard/resident/certificates/apply-character",
+                      "/ResidentDashboard/certificates/apply-character",
                       { state: { successUser, division: userDivision } },
                     )
                   }
@@ -258,7 +258,7 @@ function ResidentCertificates({ onOpenHelp }) {
                 <span
                   className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
                   onClick={() =>
-                    navigate("/dashboard/resident/certificates/apply-income", {
+                    navigate("/ResidentDashboard/certificates/apply-income", {
                       state: { successUser, division: userDivision },
                     })
                   }

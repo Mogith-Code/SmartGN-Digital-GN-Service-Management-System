@@ -102,7 +102,7 @@ function RSidebar() {
     {
       id: "certificates",
       name: t.certificates,
-      path: "/certificates",
+      path: "/ResidentDashboard/certificates",
       icon: certificateIcon,
       iconActive: certificateIconHovered,
     },
@@ -116,7 +116,7 @@ function RSidebar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/resident/allowances",
+      path: "/ResidentDashboard/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },
