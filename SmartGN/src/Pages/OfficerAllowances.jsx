@@ -488,4 +488,66 @@ function OfficerAllowances({ onOpenHelp }) {
                             </div>
                           )}
 
+                          {item.status !== 'Approved' && (
+                            <span className="text-xs text-gray-400">Approved requests can clearing secure money transfers instantly.</span>
+                          )}
+
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )
+            })}
+
+            {filteredRequests.length === 0 && (
+              <div className="py-12 text-center bg-white border border-gray-200 rounded-2xl text-gray-500 font-medium">
+                No allowance applications match the selected filters.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Portal Secure Transfer Receipt Modal */}
+      {showReceiptId && receiptRequest && (
+        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-emerald-500 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl flex flex-col relative text-center">
+            
+            {/* Seal */}
+            <div className="w-14 h-14 rounded-full border-2 border-amber-600 bg-amber-50/50 flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
+              🇱🇰
+            </div>
+            
+            <h3 className="text-sm sm:text-base font-extrabold text-[#1a2e56] uppercase tracking-wider m-0">
+              Central Bank of Sri Lanka
+            </h3>
+            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider block mt-1">
+              RTGS SECURED CLEARING SYSTEM • SYSTEM RECEIPT
+            </span>
+
+            {/* Receipt Details */}
+            <div className="border-t-2 border-b-2 border-dashed border-gray-300 py-4 my-4 flex flex-col gap-2.5 text-xs text-left">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 font-semibold">Transaction Status:</span>
+                <span className="text-emerald-700 font-bold flex items-center gap-1">Clearing Settled</span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Transaction Ref:</span>
+                <strong className="font-mono text-gray-800 text-[12px]">{receiptRequest.paymentTransactionRef}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Disbursed Date:</span>
+                <strong className="text-gray-800">{receiptRequest.paymentTransferredAt}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Allowance Program:</span>
+                <strong className="text-gray-800">{receiptRequest.program}</strong>
+              </div>
+
 export default OfficerAllowances;
