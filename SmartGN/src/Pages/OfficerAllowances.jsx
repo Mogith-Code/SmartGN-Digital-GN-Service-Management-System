@@ -577,4 +577,56 @@ function OfficerAllowances({ onOpenHelp }) {
                 </strong>
               </div>
             </div>
-export default OfficerAllowances;
+
+             {/* Divisional clearances sign */}
+            <div className="flex justify-between items-center mb-6 text-left opacity-90">
+              <div className="text-[9px] text-gray-400 leading-normal">
+                <span className="block font-bold text-gray-600 uppercase">DIVISIONAL CLEARANCE GATEWAY</span>
+                Colombo Divisional Secretariat, Sri Lanka
+              </div>
+              <div className="border border-emerald-500 rounded text-emerald-600 text-[9px] font-extrabold px-2 py-0.5 uppercase rotate-[-3deg] tracking-wider flex-shrink-0">
+                SmartGN Approved
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => alert("Downloading secured CBSL digitally signed receipt...")}
+                className="flex-1 bg-white hover:bg-gray-50 text-[#1a2e56] border border-[#1a2e56] py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+              >
+                Download PDF
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowReceiptId(null)
+                  setReceiptRequest(null)
+                }}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white border-0 py-2 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-xs transition-colors"
+              >
+                Close Receipt
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Floating Help Trigger */}
+      <button 
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+        aria-label="Help Trigger" 
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  )
+}
+
+export default OfficerAllowances
+
