@@ -4,6 +4,7 @@ import RSidebar from "../Common/RSidebar";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useLanguage } from "../../utils/translate";
 import { useNavigate } from "react-router-dom";
+import Footer from "../Common/Footer";
 
 function ProfileDetails() {
   const navigate = useNavigate();
@@ -56,6 +57,8 @@ function ProfileDetails() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
