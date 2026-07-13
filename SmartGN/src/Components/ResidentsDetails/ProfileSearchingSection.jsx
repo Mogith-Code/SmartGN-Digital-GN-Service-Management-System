@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import { useNavigate } from "react-router-dom";
 
 function ProfileSearchingSection() {
+  const navigate = useNavigate();
   const [residents, setResidents] = useState([
     {
       name: "Dissanayake Mudiyanselage Nimal Perera",
@@ -56,7 +58,12 @@ function ProfileSearchingSection() {
                   Household Number : {resident.householdNumber}
                 </span>
 
-                <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline">
+                <span
+                  className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline"
+                  onClick={() => {
+                    navigate("/OfficerDashboard/ResidentsDetails/profile");
+                  }}
+                >
                   View Profile
                 </span>
               </div>

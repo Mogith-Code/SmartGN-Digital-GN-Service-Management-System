@@ -128,7 +128,7 @@ function App() {
         />
 
         <Route
-          path="/OfficerDashboard/ResidentsDetails"
+          path="/OfficerDashboard/ResidentsDetails/profile"
           element={<Profile onOpenHelp={openChatbot} />}
         />
 
