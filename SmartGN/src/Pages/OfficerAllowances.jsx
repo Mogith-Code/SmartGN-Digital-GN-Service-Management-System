@@ -323,4 +323,45 @@ function OfficerAllowances({ onOpenHelp }) {
                     </span>
                   </div>
 
+                  {/* Expanded Detail Panel */}
+                  {isExpanded && (
+                    <div className="px-5 pb-6 sm:px-8 sm:pb-8 border-t border-gray-100 bg-[#F8FAFC]">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
+                        
+                        {/* Left Column details */}
+                        <div className="flex flex-col gap-4">
+                          <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
+                            Application Information
+                          </h4>
+                          
+                          <div className="flex flex-col gap-2.5 text-xs sm:text-sm text-gray-700">
+                            <div>
+                              <span className="font-semibold text-gray-400">Purpose:</span> {item.purpose}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-400">Monthly Household Income:</span> LKR {parseFloat(item.income || '20000').toLocaleString()}.00
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-400">Remarks:</span> {item.remarks || 'No remarks provided.'}
+                            </div>
+                            
+                            {/* PDF Document Viewer Card */}
+                            <div className="mt-3">
+                              <span className="block text-xs font-bold text-gray-400 mb-2">Supporting PDF Document:</span>
+                              <div 
+                                onClick={() => alert(`Simulating secure document viewer for SmartGN-AL-${item.id}... Verified CBSL Signature.`)}
+                                className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-3.5 cursor-pointer hover:border-[#1B365D] transition-colors"
+                              >
+                                <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0">
+                                  PDF
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <span className="block font-bold text-gray-800 text-xs sm:text-sm truncate">Proof_of_Income_Cert.pdf</span>
+                                  <span className="text-[11px] text-gray-400">1.4 MB • Certified Statement</span>
+                                </div>
+                                <span className="text-[#005BBD] font-bold text-xs flex-shrink-0">View PDF ➔</span>
+                              </div>
+                            </div>
+                          </div>
+
 export default OfficerAllowances;
