@@ -368,6 +368,111 @@ function OfficerAnnouncements({ onOpenHelp }) {
               </div>
             </>
           )}
+
+          {/* Sub-view: CREATE (Create Announcement View Form) */}
+          {viewMode === 'CREATE' && (
+            <>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] mb-6 text-left">
+                Create Announcement
+              </h2>
+
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-xs max-w-3xl text-left">
+                <form onSubmit={handlePublish} className="flex flex-col gap-5">
+                  
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="apptTitle" className="text-xs font-bold text-[#475569]">Title *</label>
+                    <input 
+                      type="text" 
+                      id="apptTitle"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white" 
+                      placeholder="Announcement title..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="apptCategory" className="text-xs font-bold text-[#475569]">Category *</label>
+                    <input 
+                      type="text" 
+                      id="apptCategory"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white" 
+                      placeholder="e.g. Health, Utilities, Education"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="apptContent" className="text-xs font-bold text-[#475569]">Content *</label>
+                    <textarea 
+                      id="apptContent"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white resize-none" 
+                      rows="5"
+                      placeholder="Write your announcement content..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      style={{ height: '140px' }}
+                      required
+                    />
+                  </div>
+
+                  {/* Checkbox Urgent Toggle */}
+                  <div className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      id="urgentCheck" 
+                      className="w-4 h-4 cursor-pointer"
+                      checked={isUrgent}
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                    />
+                    <label htmlFor="urgentCheck" className="text-xs sm:text-sm font-bold text-[#475569] cursor-pointer">
+                      Mark as urgent announcement
+                    </label>
+                  </div>
+
+                  {/* Form Action Publish Buttons */}
+                  <div className="flex items-center justify-start border-t border-gray-155 pt-4 mt-2">
+                    <button 
+                      type="submit" 
+                      className="bg-[#1B365D] hover:bg-[#005BBD] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      Publish Announcement
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
+
+           {/* Sub-view: EDIT (Edit/Delete Announcement Form View) */}
+          {viewMode === 'EDIT' && (
+            <>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] mb-6 text-left">
+                Edit Announcement
+              </h2>
+
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-xs max-w-3xl text-left">
+                <form onSubmit={handleSaveChanges} className="flex flex-col gap-5">
+                  
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="editTitle" className="text-xs font-bold text-[#475569]">Title *</label>
+                    <input 
+                      type="text" 
+                      id="editTitle"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white" 
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                  </div>
 }
 
 export default OfficerAnnouncements
