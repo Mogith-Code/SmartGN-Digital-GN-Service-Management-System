@@ -140,26 +140,27 @@ function ProfileSearchingSection() {
                   </span>
                 </div>
               </div>
+              <div className="flex w-[40%] items-center justify-between">
+                {/* Middle Section: Household Number */}
+                <div className="ml-[55px] sm:ml-[70px] md:ml-0">
+                  <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                    Household No: {resident.householdNumber}
+                  </span>
+                </div>
 
-              {/* Middle Section: Household Number */}
-              <div className="ml-[55px] sm:ml-[70px] md:ml-0">
-                <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                  Household #: {resident.householdNumber}
-                </span>
-              </div>
-
-              {/* Right Section: View Profile Button */}
-              <div className="ml-[55px] sm:ml-[70px] md:ml-0">
-                <span
-                  className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
-                  onClick={() => {
-                    navigate(
-                      `/OfficerDashboard/ResidentsDetails/profile/${resident.nic}`,
-                    );
-                  }}
-                >
-                  View Profile →
-                </span>
+                {/* Right Section: View Profile Button */}
+                <div className="ml-[55px] sm:ml-[70px] md:ml-0">
+                  <span
+                    className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
+                    onClick={() => {
+                      navigate(
+                        `/OfficerDashboard/ResidentsDetails/profile/${resident.nic}`,
+                      );
+                    }}
+                  >
+                    View Profile
+                  </span>
+                </div>
               </div>
             </div>
           </div>
