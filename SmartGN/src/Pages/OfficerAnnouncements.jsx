@@ -432,6 +432,25 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       Mark as urgent announcement
                     </label>
                   </div>
+
+                  {/* Form Action Publish Buttons */}
+                  <div className="flex items-center justify-start border-t border-gray-155 pt-4 mt-2">
+                    <button 
+                      type="submit" 
+                      className="bg-[#1B365D] hover:bg-[#005BBD] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      Publish Announcement
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
 }
 
 export default OfficerAnnouncements
