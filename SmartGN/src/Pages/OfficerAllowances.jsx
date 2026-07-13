@@ -323,4 +323,310 @@ function OfficerAllowances({ onOpenHelp }) {
                     </span>
                   </div>
 
-export default OfficerAllowances;
+                  {/* Expanded Detail Panel */}
+                  {isExpanded && (
+                    <div className="px-5 pb-6 sm:px-8 sm:pb-8 border-t border-gray-100 bg-[#F8FAFC]">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
+                        
+                        {/* Left Column details */}
+                        <div className="flex flex-col gap-4">
+                          <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
+                            Application Information
+                          </h4>
+                          
+                          <div className="flex flex-col gap-2.5 text-xs sm:text-sm text-gray-700">
+                            <div>
+                              <span className="font-semibold text-gray-400">Purpose:</span> {item.purpose}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-400">Monthly Household Income:</span> LKR {parseFloat(item.income || '20000').toLocaleString()}.00
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-400">Remarks:</span> {item.remarks || 'No remarks provided.'}
+                            </div>
+                            
+                            {/* PDF Document Viewer Card */}
+                            <div className="mt-3">
+                              <span className="block text-xs font-bold text-gray-400 mb-2">Supporting PDF Document:</span>
+                              <div 
+                                onClick={() => alert(`Simulating secure document viewer for SmartGN-AL-${item.id}... Verified CBSL Signature.`)}
+                                className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-3.5 cursor-pointer hover:border-[#1B365D] transition-colors"
+                              >
+                                <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0">
+                                  PDF
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <span className="block font-bold text-gray-800 text-xs sm:text-sm truncate">Proof_of_Income_Cert.pdf</span>
+                                  <span className="text-[11px] text-gray-400">1.4 MB • Certified Statement</span>
+                                </div>
+                                <span className="text-[#005BBD] font-bold text-xs flex-shrink-0">View PDF ➔</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Action Controls */}
+                          {item.status === 'Pending' && (
+                            <div className="flex gap-3 mt-4">
+                              <button
+                                onClick={(e) => handleReject(item.id, e)}
+                                className="bg-transparent hover:bg-rose-50 text-rose-600 border border-rose-600 py-2 px-5 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+                              >
+                                Reject Application
+                              </button>
+                              <button
+                                onClick={(e) => handleApprove(item.id, e)}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 py-2 px-6 rounded-xl text-xs font-bold cursor-pointer shadow-xs transition-colors"
+                              >
+                                Approve Application
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right Column bank details & payment clearance */}
+                        <div className="lg:border-l lg:border-gray-200 lg:pl-8 flex flex-col gap-4">
+                          <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
+                            Payment & Transfer Console
+                          </h4>
+                          
+                          {item.bankDetails ? (
+                            /* Premium Bank Card */
+                            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 flex flex-col gap-3 shadow-xs">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider">Verified Payment Account</span>
+                                <span className="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded">CBSL Registered</span>
+                              </div>
+                              <div className="text-xs sm:text-sm text-gray-700 flex flex-col gap-1.5">
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Bank Name:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.bankName}</strong></div>
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Branch:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.branch}</strong></div>
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">A/C Number:</span> <strong className="font-mono text-gray-800">{item.bankDetails.accountNumber}</strong></div>
+                                <div className="flex justify-between border-t border-emerald-100 pt-2 mt-1"><span className="text-gray-400 font-medium">Account Holder:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.accountHolderName}</strong></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-4 text-xs sm:text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
+                              Resident has not provided bank account details yet. Money cannot be transferred.
+                            </div>
+                          )}
+
+                          {/* Bank Actions */}
+                          {item.status === 'Approved' && item.bankDetails && (
+                            <div className="flex flex-col gap-3">
+                              {item.paymentStatus === 'Unpaid' ? (
+                                <>
+                                  {!bankVerifiedMap[item.id] ? (
+                                    <button
+                                      onClick={(e) => handleVerifyBank(item.id, applicant, e)}
+                                      disabled={verifyingBankId === item.id}
+                                      className="w-full bg-[#1B365D] hover:bg-[#005BBD] disabled:bg-gray-400 text-white border-0 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition-colors shadow-xs"
+                                    >
+                                      {verifyingBankId === item.id ? 'Connecting Central Registry...' : '🔍 Verify Bank Account Registry'}
+                                    </button>
+                                  ) : (
+                                    <div className="flex flex-col gap-3 text-left">
+                                      <div className="text-xs sm:text-sm text-emerald-700 font-bold flex items-center gap-1.5">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                          <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Bank Account Registry Verified
+                                      </div>
+
+                                      {/* Amount select input */}
+                                      <div className="flex flex-col gap-1.5">
+                                        <label htmlFor={`amount-${item.id}`} className="text-xs font-bold text-gray-500">Transfer Amount (LKR)</label>
+                                        <input
+                                          type="number"
+                                          id={`amount-${item.id}`}
+                                          value={transferAmount}
+                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white"
+                                        />
+                                      </div>
+
+                                      {/* Secure Disburse button */}
+                                      <button
+                                        onClick={(e) => handleSecureTransfer(item.id, item, e)}
+                                        disabled={transferringId === item.id}
+                                        className="w-full bg-emerald-600 hover:bg-emerald-750 disabled:bg-gray-400 text-white border-0 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer shadow-md transition-colors"
+                                      >
+                                        {transferringId === item.id ? (
+                                          <span>
+                                            {transferStep === 1 && 'RTGS: Handshaking clearing gateway...'}
+                                            {transferStep === 2 && 'RTGS: Disbursing secure cleared funds...'}
+                                            {transferStep === 3 && 'RTGS: Finalizing transaction records...'}
+                                          </span>
+                                        ) : (
+                                          '🔒 Securely Transfer Funds via RTGS'
+                                        )}
+                                      </button>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                /* Paid state logs & view receipt trigger */
+                                <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex flex-col gap-3">
+                                  <div className="text-xs sm:text-sm text-emerald-800 font-bold flex items-center gap-1.5">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                      <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Funds successfully Disbursed
+                                  </div>
+                                  <div className="text-xs text-gray-600 flex flex-col gap-1 text-left">
+                                    <div>Transferred: <strong className="text-gray-800">LKR {parseFloat(item.paymentAmount || '5000').toLocaleString()}.00</strong></div>
+                                    <div>Cleared Date: <strong className="text-gray-800">{item.paymentTransferredAt}</strong></div>
+                                    <div>Secure Ref: <code className="bg-emerald-100 text-emerald-900 px-1 rounded font-mono font-bold">{item.paymentTransactionRef}</code></div>
+                                  </div>
+                                  
+                                  <button
+                                    onClick={(e) => viewReceipt(item, e)}
+                                    className="bg-transparent border-0 text-[#005BBD] hover:text-[#1B365D] font-bold text-xs cursor-pointer p-0 self-start flex items-center gap-1"
+                                  >
+                                    🧾 View Payment Receipt
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {item.status !== 'Approved' && (
+                            <span className="text-xs text-gray-400">Approved requests can clearing secure money transfers instantly.</span>
+                          )}
+
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              )
+            })}
+
+            {filteredRequests.length === 0 && (
+              <div className="py-12 text-center bg-white border border-gray-200 rounded-2xl text-gray-500 font-medium">
+                No allowance applications match the selected filters.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Payment Portal Secure Transfer Receipt Modal */}
+      {showReceiptId && receiptRequest && (
+        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-emerald-500 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl flex flex-col relative text-center">
+            
+            {/* Seal */}
+            <div className="w-14 h-14 rounded-full border-2 border-amber-600 bg-amber-50/50 flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
+              🇱🇰
+            </div>
+            
+            <h3 className="text-sm sm:text-base font-extrabold text-[#1a2e56] uppercase tracking-wider m-0">
+              Central Bank of Sri Lanka
+            </h3>
+            <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider block mt-1">
+              RTGS SECURED CLEARING SYSTEM • SYSTEM RECEIPT
+            </span>
+
+            {/* Receipt Details */}
+            <div className="border-t-2 border-b-2 border-dashed border-gray-300 py-4 my-4 flex flex-col gap-2.5 text-xs text-left">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 font-semibold">Transaction Status:</span>
+                <span className="text-emerald-700 font-bold flex items-center gap-1">Clearing Settled</span>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Transaction Ref:</span>
+                <strong className="font-mono text-gray-800 text-[12px]">{receiptRequest.paymentTransactionRef}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Disbursed Date:</span>
+                <strong className="text-gray-800">{receiptRequest.paymentTransferredAt}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Allowance Program:</span>
+                <strong className="text-gray-800">{receiptRequest.program}</strong>
+              </div>
+              
+               <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Applicant Name:</span>
+                <strong className="text-gray-800">{receiptRequest.applicantName}</strong>
+              </div>
+
+              <div className="flex justify-between border-t border-gray-100 pt-2.5 mt-0.5">
+                <span className="text-gray-400 font-semibold">Destination Bank:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.bankName}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Branch Office:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.branch}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Credit Account:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.accountNumber}</strong>
+              </div>
+
+              <div className="flex justify-between border-t border-gray-200 pt-3 mt-1.5">
+                <span className="text-sm font-bold text-[#1B365D]">Settled Amount:</span>
+                <strong className="text-[#10b981] text-base font-extrabold">
+                  LKR {parseFloat(receiptRequest.paymentAmount || '5000').toLocaleString()}.00
+                </strong>
+              </div>
+            </div>
+
+             {/* Divisional clearances sign */}
+            <div className="flex justify-between items-center mb-6 text-left opacity-90">
+              <div className="text-[9px] text-gray-400 leading-normal">
+                <span className="block font-bold text-gray-600 uppercase">DIVISIONAL CLEARANCE GATEWAY</span>
+                Colombo Divisional Secretariat, Sri Lanka
+              </div>
+              <div className="border border-emerald-500 rounded text-emerald-600 text-[9px] font-extrabold px-2 py-0.5 uppercase rotate-[-3deg] tracking-wider flex-shrink-0">
+                SmartGN Approved
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => alert("Downloading secured CBSL digitally signed receipt...")}
+                className="flex-1 bg-white hover:bg-gray-50 text-[#1a2e56] border border-[#1a2e56] py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+              >
+                Download PDF
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowReceiptId(null)
+                  setReceiptRequest(null)
+                }}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white border-0 py-2 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-xs transition-colors"
+              >
+                Close Receipt
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Floating Help Trigger */}
+      <button 
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+        aria-label="Help Trigger" 
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  )
+}
+
+export default OfficerAllowances
+
