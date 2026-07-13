@@ -2,6 +2,7 @@ import React from "react";
 import certificateIcon from "../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import appointmentIcon from "../../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import arrowIcon from "../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import allowancesIcon from "../../assets/edit_document_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
 function QuickActions() {
@@ -23,7 +24,7 @@ function QuickActions() {
     {
       id: 3,
       title: "Review Allowances",
-      icon: certificateIcon,
+      icon: allowancesIcon,
       alt: "allowance icon",
       route: "/OfficerDashboard/Allowances",
     },
