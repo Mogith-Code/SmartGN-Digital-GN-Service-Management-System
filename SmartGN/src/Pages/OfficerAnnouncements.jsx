@@ -368,6 +368,29 @@ function OfficerAnnouncements({ onOpenHelp }) {
               </div>
             </>
           )}
+
+          {/* Sub-view: CREATE (Create Announcement View Form) */}
+          {viewMode === 'CREATE' && (
+            <>
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] mb-6 text-left">
+                Create Announcement
+              </h2>
+
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 shadow-xs max-w-3xl text-left">
+                <form onSubmit={handlePublish} className="flex flex-col gap-5">
+                  
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="apptTitle" className="text-xs font-bold text-[#475569]">Title *</label>
+                    <input 
+                      type="text" 
+                      id="apptTitle"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white" 
+                      placeholder="Announcement title..."
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      required
+                    />
+                  </div>
 }
 
 export default OfficerAnnouncements
