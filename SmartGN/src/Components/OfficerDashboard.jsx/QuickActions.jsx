@@ -1,5 +1,6 @@
 import React from "react";
 import certificateIcon from "../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import appointmentIcon from "../../assets/calendar_today_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import arrowIcon from "../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
@@ -15,7 +16,7 @@ function QuickActions() {
     {
       id: 2,
       title: "Check Appointments",
-      icon: certificateIcon,
+      icon: appointmentIcon,
       alt: "appointment icon",
       route: "/OfficerDashboard/OfficerAppointment",
     },
@@ -24,14 +25,14 @@ function QuickActions() {
       title: "Review Allowances",
       icon: certificateIcon,
       alt: "allowance icon",
-      route: "/dashboard/resident/allowances",
+      route: "/OfficerDashboard/Allowances",
     },
     {
       id: 4,
       title: "Review Disaster",
       icon: certificateIcon,
       alt: "disaster icon",
-      route: "/dashboard/resident/allowances",
+      route: "/OfficerDashboard/Disasters",
     },
   ];
   const navigate = useNavigate();
