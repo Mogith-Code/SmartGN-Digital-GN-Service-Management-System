@@ -549,5 +549,32 @@ function OfficerAllowances({ onOpenHelp }) {
                 <span className="text-gray-400 font-semibold">Allowance Program:</span>
                 <strong className="text-gray-800">{receiptRequest.program}</strong>
               </div>
+              
+               <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Applicant Name:</span>
+                <strong className="text-gray-800">{receiptRequest.applicantName}</strong>
+              </div>
 
+              <div className="flex justify-between border-t border-gray-100 pt-2.5 mt-0.5">
+                <span className="text-gray-400 font-semibold">Destination Bank:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.bankName}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Branch Office:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.branch}</strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">Credit Account:</span>
+                <strong className="text-gray-800">{receiptRequest.bankDetails?.accountNumber}</strong>
+              </div>
+
+              <div className="flex justify-between border-t border-gray-200 pt-3 mt-1.5">
+                <span className="text-sm font-bold text-[#1B365D]">Settled Amount:</span>
+                <strong className="text-[#10b981] text-base font-extrabold">
+                  LKR {parseFloat(receiptRequest.paymentAmount || '5000').toLocaleString()}.00
+                </strong>
+              </div>
+            </div>
 export default OfficerAllowances;
