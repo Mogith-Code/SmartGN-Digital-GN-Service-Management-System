@@ -443,4 +443,49 @@ function OfficerAllowances({ onOpenHelp }) {
                                         />
                                       </div>
 
+                                      {/* Secure Disburse button */}
+                                      <button
+                                        onClick={(e) => handleSecureTransfer(item.id, item, e)}
+                                        disabled={transferringId === item.id}
+                                        className="w-full bg-emerald-600 hover:bg-emerald-750 disabled:bg-gray-400 text-white border-0 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer shadow-md transition-colors"
+                                      >
+                                        {transferringId === item.id ? (
+                                          <span>
+                                            {transferStep === 1 && 'RTGS: Handshaking clearing gateway...'}
+                                            {transferStep === 2 && 'RTGS: Disbursing secure cleared funds...'}
+                                            {transferStep === 3 && 'RTGS: Finalizing transaction records...'}
+                                          </span>
+                                        ) : (
+                                          '🔒 Securely Transfer Funds via RTGS'
+                                        )}
+                                      </button>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                /* Paid state logs & view receipt trigger */
+                                <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex flex-col gap-3">
+                                  <div className="text-xs sm:text-sm text-emerald-800 font-bold flex items-center gap-1.5">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                      <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Funds successfully Disbursed
+                                  </div>
+                                  <div className="text-xs text-gray-600 flex flex-col gap-1 text-left">
+                                    <div>Transferred: <strong className="text-gray-800">LKR {parseFloat(item.paymentAmount || '5000').toLocaleString()}.00</strong></div>
+                                    <div>Cleared Date: <strong className="text-gray-800">{item.paymentTransferredAt}</strong></div>
+                                    <div>Secure Ref: <code className="bg-emerald-100 text-emerald-900 px-1 rounded font-mono font-bold">{item.paymentTransactionRef}</code></div>
+                                  </div>
+                                  
+                                  <button
+                                    onClick={(e) => viewReceipt(item, e)}
+                                    className="bg-transparent border-0 text-[#005BBD] hover:text-[#1B365D] font-bold text-xs cursor-pointer p-0 self-start flex items-center gap-1"
+                                  >
+                                    🧾 View Payment Receipt
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
 export default OfficerAllowances;
