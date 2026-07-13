@@ -35,7 +35,7 @@ import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
 // import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 import Success from "./Pages/Success.jsx";
-import Profile from "./Components/ResidentsDetails/profile.jsx";
+import ProfileDetails from "./Components/ResidentsDetails/ProfileDetails.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -129,7 +129,7 @@ function App() {
 
         <Route
           path="/OfficerDashboard/ResidentsDetails/profile"
-          element={<Profile onOpenHelp={openChatbot} />}
+          element={<ProfileDetails onOpenHelp={openChatbot} />}
         />
 
         <Route
