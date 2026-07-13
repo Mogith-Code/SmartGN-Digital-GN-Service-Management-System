@@ -29,19 +29,6 @@ function CardLayout({ pendingCount, approvedCount }) {
     },
   };
 
-  // Navigation Handlers
-  const handleCard1Click = () => {
-    navigate("/ResidentDashboard/RAppointment/PendingAppointmentRequests");
-  };
-
-  const handleCard2Click = () => {
-    navigate("/ResidentDashboard/RAppointment/ApprovedAppointmentRequests");
-  };
-
-  const handleCard3Click = () => {
-    navigate("/ResidentDashboard/RAppointment/BookingForm");
-  };
-
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
 
@@ -54,21 +41,21 @@ function CardLayout({ pendingCount, approvedCount }) {
       icon: pendingIcon,
       title: t.Card1Title,
       count: pendingCount,
-      onClick: handleCard1Click,
+      path: "/ResidentDashboard/RAppointment/PendingAppointmentRequests",
     },
     {
       id: 2,
       icon: approvedIcon,
       title: t.Card2Title,
       count: approvedCount,
-      onClick: handleCard2Click,
+      path: "/ResidentDashboard/RAppointment/ApprovedAppointmentRequests",
     },
     {
       id: 3,
       icon: addIcon,
       title: t.Card3Title,
       count: null,
-      onClick: handleCard3Click,
+      path: "/ResidentDashboard/RAppointment/BookingForm",
     },
   ];
 
@@ -78,7 +65,7 @@ function CardLayout({ pendingCount, approvedCount }) {
         <div
           key={card.id}
           className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={card.onClick}
+          onClick={() => navigate(card.path)}
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 
