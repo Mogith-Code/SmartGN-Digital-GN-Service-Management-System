@@ -364,4 +364,83 @@ function OfficerAllowances({ onOpenHelp }) {
                             </div>
                           </div>
 
+                          {/* Quick Action Controls */}
+                          {item.status === 'Pending' && (
+                            <div className="flex gap-3 mt-4">
+                              <button
+                                onClick={(e) => handleReject(item.id, e)}
+                                className="bg-transparent hover:bg-rose-50 text-rose-600 border border-rose-600 py-2 px-5 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+                              >
+                                Reject Application
+                              </button>
+                              <button
+                                onClick={(e) => handleApprove(item.id, e)}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 py-2 px-6 rounded-xl text-xs font-bold cursor-pointer shadow-xs transition-colors"
+                              >
+                                Approve Application
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right Column bank details & payment clearance */}
+                        <div className="lg:border-l lg:border-gray-200 lg:pl-8 flex flex-col gap-4">
+                          <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
+                            Payment & Transfer Console
+                          </h4>
+                          
+                          {item.bankDetails ? (
+                            /* Premium Bank Card */
+                            <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 flex flex-col gap-3 shadow-xs">
+                              <div className="flex justify-between items-center">
+                                <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider">Verified Payment Account</span>
+                                <span className="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded">CBSL Registered</span>
+                              </div>
+                              <div className="text-xs sm:text-sm text-gray-700 flex flex-col gap-1.5">
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Bank Name:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.bankName}</strong></div>
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Branch:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.branch}</strong></div>
+                                <div className="flex justify-between"><span className="text-gray-400 font-medium">A/C Number:</span> <strong className="font-mono text-gray-800">{item.bankDetails.accountNumber}</strong></div>
+                                <div className="flex justify-between border-t border-emerald-100 pt-2 mt-1"><span className="text-gray-400 font-medium">Account Holder:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.accountHolderName}</strong></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-4 text-xs sm:text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
+                              Resident has not provided bank account details yet. Money cannot be transferred.
+                            </div>
+                          )}
+
+                          {/* Bank Actions */}
+                          {item.status === 'Approved' && item.bankDetails && (
+                            <div className="flex flex-col gap-3">
+                              {item.paymentStatus === 'Unpaid' ? (
+                                <>
+                                  {!bankVerifiedMap[item.id] ? (
+                                    <button
+                                      onClick={(e) => handleVerifyBank(item.id, applicant, e)}
+                                      disabled={verifyingBankId === item.id}
+                                      className="w-full bg-[#1B365D] hover:bg-[#005BBD] disabled:bg-gray-400 text-white border-0 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition-colors shadow-xs"
+                                    >
+                                      {verifyingBankId === item.id ? 'Connecting Central Registry...' : '🔍 Verify Bank Account Registry'}
+                                    </button>
+                                  ) : (
+                                    <div className="flex flex-col gap-3 text-left">
+                                      <div className="text-xs sm:text-sm text-emerald-700 font-bold flex items-center gap-1.5">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                          <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Bank Account Registry Verified
+                                      </div>
+
+                                      {/* Amount select input */}
+                                      <div className="flex flex-col gap-1.5">
+                                        <label htmlFor={`amount-${item.id}`} className="text-xs font-bold text-gray-500">Transfer Amount (LKR)</label>
+                                        <input
+                                          type="number"
+                                          id={`amount-${item.id}`}
+                                          value={transferAmount}
+                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white"
+                                        />
+                                      </div>
+
 export default OfficerAllowances;
