@@ -18,10 +18,22 @@ function ProfileSearchingSection() {
       householdNumber: "1652345",
       profilePhoto: null,
     },
+    {
+      name: "Warapitiyage Lakshan Janith Chamodya Warapitiya",
+      nic: "200315611265",
+      householdNumber: "1652345",
+      profilePhoto: null,
+    },
+    {
+      name: "Dissanayake Mudiyanselage Nimal Perera",
+      nic: "2005686114655",
+      householdNumber: "12345",
+      profilePhoto: null,
+    },
   ]);
 
   return (
-    <div className="flex flex-col gap-[20px] w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[20px] border-[1.5px] border-[#2D37484D] rounded-xl">
+    <div className="flex flex-col gap-[20px] w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[20px] border-[1.5px] border-[#2D37484D] rounded-xl mb-[30px]">
       <div className="flex w-[50%] bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] items-center gap-[10px]">
         <img
           src={searchIcon}
