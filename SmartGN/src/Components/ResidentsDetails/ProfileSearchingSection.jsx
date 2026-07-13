@@ -61,7 +61,9 @@ function ProfileSearchingSection() {
                 <span
                   className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline"
                   onClick={() => {
-                    navigate("/OfficerDashboard/ResidentsDetails/profile");
+                    navigate(
+                      `/OfficerDashboard/ResidentsDetails/profile/${resident.nic}`,
+                    );
                   }}
                 >
                   View Profile

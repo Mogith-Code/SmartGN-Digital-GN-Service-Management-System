@@ -128,7 +128,7 @@ function App() {
         />
 
         <Route
-          path="/OfficerDashboard/ResidentsDetails/profile"
+          path="/OfficerDashboard/ResidentsDetails/profile/:nic"
           element={<ProfileDetails onOpenHelp={openChatbot} />}
         />
 
