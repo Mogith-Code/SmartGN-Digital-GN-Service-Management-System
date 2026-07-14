@@ -127,7 +127,7 @@ function Services() {
 
   // Navigation handler functions
   const handleRequestCertificates = () => {
-    navigate("/certificates");
+    navigate("/ResidentDashboard/certificates");
     // navigate("/services/request-certificates");
   };
 
