@@ -512,8 +512,26 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       Mark as urgent announcement
                     </label>
                   </div>
+
+                  {/* Form Action buttons */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-t border-gray-155 pt-4 mt-2">
+                    <button 
+                      type="button" 
+                      onClick={handleDelete} 
+                      className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      Delete Announcement
+                    </button>
 }
 
 export default OfficerAnnouncements
+
+
+
+
 
 
