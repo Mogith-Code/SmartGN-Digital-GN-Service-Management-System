@@ -526,6 +526,34 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       </svg>
                       Delete Announcement
                     </button>
+
+                    <div className="flex items-center gap-3">
+                      <button 
+                        type="button" 
+                        onClick={() => setViewMode('DASHBOARD')}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs flex items-center justify-center gap-2"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
+
+        </div>
+      </div>
 }
 
 export default OfficerAnnouncements
