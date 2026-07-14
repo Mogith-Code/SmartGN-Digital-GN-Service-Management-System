@@ -485,6 +485,19 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       required
                     />
                   </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="editContent" className="text-xs font-bold text-[#475569]">Content *</label>
+                    <textarea 
+                      id="editContent"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white resize-none" 
+                      rows="5"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      style={{ height: '140px' }}
+                      required
+                    />
+                  </div>
 }
 
 export default OfficerAnnouncements
