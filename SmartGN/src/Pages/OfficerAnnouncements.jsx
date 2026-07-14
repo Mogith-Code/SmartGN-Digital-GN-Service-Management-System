@@ -473,8 +473,101 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       required
                     />
                   </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="editCategory" className="text-xs font-bold text-[#475569]">Category *</label>
+                    <input 
+                      type="text" 
+                      id="editCategory"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white" 
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="editContent" className="text-xs font-bold text-[#475569]">Content *</label>
+                    <textarea 
+                      id="editContent"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white resize-none" 
+                      rows="5"
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      style={{ height: '140px' }}
+                      required
+                    />
+                  </div>
+
+                  {/* Checkbox Urgent Toggle */}
+                  <div className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      id="editUrgentCheck" 
+                      className="w-4 h-4 cursor-pointer"
+                      checked={isUrgent}
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                    />
+                    <label htmlFor="editUrgentCheck" className="text-xs sm:text-sm font-bold text-[#475569] cursor-pointer">
+                      Mark as urgent announcement
+                    </label>
+                  </div>
+
+                  {/* Form Action buttons */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 border-t border-gray-155 pt-4 mt-2">
+                    <button 
+                      type="button" 
+                      onClick={handleDelete} 
+                      className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                      Delete Announcement
+                    </button>
+
+                    <div className="flex items-center gap-3">
+                      <button 
+                        type="button" 
+                        onClick={() => setViewMode('DASHBOARD')}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs flex items-center justify-center gap-2"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </>
+          )}
+
+        </div>
+      </div>
+
+      {/* Floating Help Trigger */}
+      <button 
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+        aria-label="Help Trigger" 
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  )
 }
 
 export default OfficerAnnouncements
-
-
