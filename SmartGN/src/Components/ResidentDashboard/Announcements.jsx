@@ -9,23 +9,14 @@ function Announcements() {
     EN: {
       title: "Announcements",
       view: "View all",
-      Card2Title: "Book Appointments",
-      Card3Title: "Apply for Allowances",
-      Card4Title: "Disaster Relief",
     },
     SI: {
       title: "ඇනවුන්ස්මන්ට්",
       view: "සියල්ල දැක්වීම",
-      Card2Title: "හමුවීම් වෙන්කරන්න",
-      Card3Title: "සහන සඳහා අයදුම් කරන්න",
-      Card4Title: "අනතුරු සහන",
     },
     TA: {
       title: "அறிவிப்புகள்",
       view: "அனைத்தையும் பார்வையிடு",
-      Card2Title: "அங்கீகாரம் பெற்ற சந்திப்பு கோரிக்கைகள்",
-      Card3Title: "சந்திப்பை பதிவு செய்யவும்",
-      Card4Title: "விபத்து நிவாரணம்",
     },
   };
 
