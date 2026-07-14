@@ -11,7 +11,6 @@ import Footer from "../Components/Common/Footer";
 function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { lang } = useLanguage();
 
   // Retrieve username and division from navigation state if available (defaults to Nimal Perera)
   const successUser =

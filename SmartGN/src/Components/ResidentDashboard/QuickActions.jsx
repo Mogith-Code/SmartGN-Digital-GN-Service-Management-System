@@ -2,8 +2,29 @@ import React from "react";
 import certificateIcon from "../../assets/license_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import arrowIcon from "../../assets/arrow_forward_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../utils/translate";
 
 function QuickActions() {
+  const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  const ActionTranslations = {
+    EN: {
+      Card1Title: "Total Pending requests",
+      Card2Title: "Total Approved requests",
+      Card3Title: "Upcoming appointments",
+    },
+    SI: {
+      Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
+      Card2Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්",
+      Card3Title: "හමුවක් වෙන්කරන්න",
+    },
+    TA: {
+      Card1Title: "நிலுவையில் உள்ள சந்திப்பு கோரிக்கைகள்",
+      Card2Title: "அங்கீகாரம் பெற்ற சந்திப்பு கோரிக்கைகள்",
+      Card3Title: "சந்திப்பை பதிவு செய்யவும்",
+    },
+  };
   const cards = [
     {
       id: 1,
@@ -34,7 +55,8 @@ function QuickActions() {
       route: "/dashboard/resident/allowances",
     },
   ];
-  const navigate = useNavigate();
+  const t = ActionTranslations[lang] || ActionTranslations.EN;
+
   return (
     <div className="flex flex-col gap-[20px] items-center justify-center">
       <span className="text-[#1B365D] text-[20px] font-medium">
