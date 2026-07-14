@@ -33,7 +33,7 @@ import ResidentAllowances from "./Pages/ResidentAllowances.jsx";
 // import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
-// import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
+import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 import Success from "./Pages/Success.jsx";
 import ProfileDetails from "./Components/ResidentsDetails/ProfileDetails.jsx";
 
@@ -148,10 +148,10 @@ function App() {
           path="/OfficerDashboard/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
-        {/* <Route
+         <Route
           path="/dashboard/officer/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
-        /> */}
+        /> 
 
         <Route
           path="/dashboard/admin"
