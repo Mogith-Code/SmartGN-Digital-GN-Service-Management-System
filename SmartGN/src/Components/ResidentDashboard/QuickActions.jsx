@@ -10,58 +10,64 @@ function QuickActions() {
 
   const ActionTranslations = {
     EN: {
-      Card1Title: "Total Pending requests",
-      Card2Title: "Total Approved requests",
-      Card3Title: "Upcoming appointments",
+      title: "Quick Actions",
+      card1Title: "Request Certificates",
+      Card2Title: "Book Appointments",
+      Card3Title: "Apply for Allowances",
+      Card4Title: "Disaster Relief",
     },
     SI: {
-      Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
-      Card2Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්",
-      Card3Title: "හමුවක් වෙන්කරන්න",
+      title: "ඉක්මන් ක්‍රියාමාර්ග",
+      card1Title: "සහතික පත්‍ර ඉල්ලීම්",
+      Card2Title: "හමුවීම් වෙන්කරන්න",
+      Card3Title: "සහන සඳහා අයදුම් කරන්න",
+      Card4Title: "අනතුරු සහන",
     },
     TA: {
-      Card1Title: "நிலுவையில் உள்ள சந்திப்பு கோரிக்கைகள்",
+      title: "விருந்து செயல்கள்",
+      card1Title: "சான்றிதழ்களை கோருங்கள்",
       Card2Title: "அங்கீகாரம் பெற்ற சந்திப்பு கோரிக்கைகள்",
       Card3Title: "சந்திப்பை பதிவு செய்யவும்",
+      Card4Title: "விபத்து நிவாரணம்",
     },
   };
+
+  const t = ActionTranslations[lang] || ActionTranslations.EN;
+
   const cards = [
     {
       id: 1,
-      title: "Request Certificates",
+      title: t.card1Title,
       icon: certificateIcon,
       alt: "certificate icon",
       route: "/ResidentDashboard/certificates",
     },
     {
       id: 2,
-      title: "Book Appointments",
+      title: t.Card2Title,
       icon: certificateIcon,
       alt: "appointment icon",
       route: "/ResidentDashboard/RAppointment/BookingForm",
     },
     {
       id: 3,
-      title: "Apply for Allowances",
+      title: t.Card3Title,
       icon: certificateIcon,
       alt: "allowance icon",
       route: "/ResidentDashboard/allowances",
     },
     {
       id: 4,
-      title: "Disaster Relief",
+      title: t.Card4Title,
       icon: certificateIcon,
       alt: "disaster icon",
       route: "/dashboard/resident/allowances",
     },
   ];
-  const t = ActionTranslations[lang] || ActionTranslations.EN;
 
   return (
     <div className="flex flex-col gap-[20px] items-center justify-center">
-      <span className="text-[#1B365D] text-[20px] font-medium">
-        Quick Actions
-      </span>
+      <span className="text-[#1B365D] text-[20px] font-medium">{t.title}</span>
       <div className="grid grid-cols-2 gap-[20px]">
         {cards.map((card) => (
           <button
