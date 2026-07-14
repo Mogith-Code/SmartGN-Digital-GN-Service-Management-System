@@ -498,6 +498,20 @@ function OfficerAnnouncements({ onOpenHelp }) {
                       required
                     />
                   </div>
+
+                  {/* Checkbox Urgent Toggle */}
+                  <div className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      id="editUrgentCheck" 
+                      className="w-4 h-4 cursor-pointer"
+                      checked={isUrgent}
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                    />
+                    <label htmlFor="editUrgentCheck" className="text-xs sm:text-sm font-bold text-[#475569] cursor-pointer">
+                      Mark as urgent announcement
+                    </label>
+                  </div>
 }
 
 export default OfficerAnnouncements
