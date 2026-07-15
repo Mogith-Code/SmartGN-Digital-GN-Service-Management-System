@@ -240,7 +240,7 @@ function ResidentAllowances({ onOpenHelp }) {
           {/* Back button */}
           <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
             <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
-              Allowances
+              Allowance Programs
             </h2>
 
             <div className="flex justify-end -mt-[70px]">
@@ -374,7 +374,7 @@ function ResidentAllowances({ onOpenHelp }) {
           </div>
 
           {/* History tracking status */}
-          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left m-[30px]">
             <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
               Application & Payment History
             </h3>
