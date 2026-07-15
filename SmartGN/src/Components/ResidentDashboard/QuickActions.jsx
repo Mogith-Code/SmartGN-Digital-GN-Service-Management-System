@@ -62,7 +62,7 @@ function QuickActions() {
     {
       id: 4,
       title: t.Card4Title,
-      icon: certificateIcon,
+      icon: disasterIcon,
       alt: "disaster icon",
       route: "/dashboard/resident/allowances",
     },
