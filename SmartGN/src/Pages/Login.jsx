@@ -305,6 +305,28 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: verificationEmail, purpose: "LOGIN" }),
       });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.error || "Failed to resend code.");
+        setIsResending(false);
+        return;
+      }
+
+      setResendSuccessMessage(t.otpResendSuccess);
+      setTimerCount(60);
+      setOtpDigits(["", "", "", "", "", ""]);
+      if (data.otpForTesting) {
+        setDevOtpTip(data.otpForTesting);
+      }
+      setIsResending(false);
+      if (inputRefs[0].current) inputRefs[0].current.focus();
+    } catch (err) {
+      console.error("Resend error:", err);
+      setErrorMessage(t.otpErrorInvalid);
+      setIsResending(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
