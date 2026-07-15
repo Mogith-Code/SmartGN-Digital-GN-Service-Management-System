@@ -10,7 +10,6 @@ import certificateIcon from "../../assets/license_24dp_2D3748_FILL0_wght400_GRAD
 import appointmentIcon from "../../assets/calendar_today_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import allowanceIcon from "../../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import disasterIcon from "../../assets/flood_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import announcementIcon from "../../assets/brand_awareness_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import homeIconHovered from "../../assets/home_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import dashBoardIconHovered from "../../assets/team_dashboard_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIconHovered from "../../assets/person_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
@@ -19,8 +18,6 @@ import certificateIconHovered from "../../assets/license_24dp_F7FAFC_FILL0_wght4
 import appointmentIconHovered from "../../assets/calendar_today_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import allowanceIconHovered from "../../assets/edit_document_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import disasterIconHovered from "../../assets/flood_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-
 function RSidebar() {
   const { lang } = useLanguage();
   const RSidebarTranslations = {
@@ -31,7 +28,6 @@ function RSidebar() {
       allowances: "Allowance Programs",
       appointments: "Appointments",
       disaster: "Disaster Report",
-      announcements: "Announcements",
       profile: "Profile & Settings",
       family: "Family & Household",
       logout: "Log Out",
@@ -44,7 +40,6 @@ function RSidebar() {
       allowances: "දීමනා වැඩසටහන්",
       appointments: "හමුවීම්",
       disaster: "ආපදා වාර්තා",
-      announcements: "නිවේදන",
       profile: "පැතිකඩ සහ සැකසුම්",
       family: "පවුලේ සහ ගෘහ විස්තර",
       logout: "පිටවීම",
@@ -57,7 +52,6 @@ function RSidebar() {
       allowances: "கொடுப்பனவு திட்டங்கள்",
       appointments: "சந்திப்புகள்",
       disaster: "பேரழிவு அறிக்கை",
-      announcements: "அறிவிப்புகள்",
       profile: "சுயவிவரம் & அமைப்புகள்",
       family: "குடும்பம் மற்றும் வீட்டு விவரங்கள்",
       logout: "வெளியேறு",
@@ -126,13 +120,6 @@ function RSidebar() {
       path: "/disaster-relief",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
-    },
-    {
-      id: "announcements",
-      name: t.announcements,
-      path: "/announcements",
-      icon: announcementIcon,
-      iconActive: announcementIconHovered,
     },
   ];
 
