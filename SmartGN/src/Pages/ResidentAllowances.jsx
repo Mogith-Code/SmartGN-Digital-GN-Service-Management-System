@@ -237,7 +237,6 @@ function ResidentAllowances({ onOpenHelp }) {
 
         {/* Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          {/* Back button */}
           <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
             <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
               Allowance Programs
