@@ -116,4 +116,48 @@ function ResidentDisasterReport({ onOpenHelp }) {
     }
   }
 
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Navbar */}
+      <AfterlogNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Sidebar */}
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+
+        {/* Main Content */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          {/* Back button */}
+          <button 
+            className="flex items-center gap-2 text-sm text-[#64748b] hover:text-[#1B365D] font-semibold transition-all mb-6 self-start bg-transparent border-0 cursor-pointer"
+            onClick={() => navigate('/dashboard/resident', { state: { successUser, division: userDivision } })}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Dashboard
+          </button>
+
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] mb-6 text-left">
+            Disaster Damage Report & Relief Application
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left">
+            {/* Left Column: Form Card */}
+            <div className="lg:col-span-7 bg-white border border-[#2D37482D] rounded-2xl p-6 sm:p-8 shadow-sm">
+              <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4">
+                Report Disaster Damage
+              </h3>
+
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm rounded-xl p-4 mb-6">
+                Use this form to report damage caused by natural disasters to your property, crops, or livelihood and apply for official Grama Niladhari relief evaluation.
+              </div>
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        
+
 export default ResidentDisasterReport;
