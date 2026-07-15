@@ -5,6 +5,9 @@ import { getAuthHeaders } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import totalPendingIcon from "../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import totalapprovedIcon from "../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import upcomingIcon from "../assets/event_upcoming_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
 function ResidentAllowances({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -200,6 +203,27 @@ function ResidentAllowances({ onOpenHelp }) {
     }
   };
 
+  const cards = [
+    {
+      id: 1,
+      icon: totalPendingIcon,
+      title: "Pending Requests",
+      count: 5,
+    },
+    {
+      id: 2,
+      icon: totalapprovedIcon,
+      title: "f",
+      count: 10,
+    },
+    {
+      id: 3,
+      icon: upcomingIcon,
+      title: "f",
+      count: 15,
+    },
+  ];
+
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       {/* Navbar */}
@@ -254,7 +278,25 @@ function ResidentAllowances({ onOpenHelp }) {
           </div>
 
           {/* Stats Widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left m-[30px]">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
+              >
+                <img src={card.icon} alt="card icon" className="w-[50px]" />
+
+                <div className="flex flex-col items-center">
+                  <span className="text-[16px] font-regular text-[#2D3748] text-center">
+                    {card.title}
+                  </span>
+
+                  <span className="text-[20px] font-medium text-[#2D3748]">
+                    {card.count}
+                  </span>
+                </div>
+              </div>
+            ))}
             {/* Pending */}
             <div className="bg-white border border-[#2D37482D] rounded-2xl p-5 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-600">
