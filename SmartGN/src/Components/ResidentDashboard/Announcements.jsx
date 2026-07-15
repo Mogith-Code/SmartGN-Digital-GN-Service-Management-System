@@ -1,7 +1,26 @@
 import React from "react";
 import announcementIcon from "../../assets/brand_awareness_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { useLanguage } from "../../utils/translate";
 
 function Announcements() {
+  const { lang } = useLanguage();
+
+  const AnnTranslations = {
+    EN: {
+      title: "Announcements",
+      view: "View all",
+    },
+    SI: {
+      title: "ඇනවුන්ස්මන්ට්",
+      view: "සියල්ල දැක්වීම",
+    },
+    TA: {
+      title: "அறிவிப்புகள்",
+      view: "அனைத்தையும் பார்வையிடு",
+    },
+  };
+
+  const t = AnnTranslations[lang] || AnnTranslations.EN;
   const Announcements = [
     {
       id: 1,
@@ -33,7 +52,7 @@ function Announcements() {
       <div className="flex flex-col w-full gap-[20px]">
         <div className="flex w-full justify-center items-center">
           <div className="flex text-[#1B365D] font-medium text-[20px]">
-            Announcements
+            {t.title}
           </div>
         </div>
 
