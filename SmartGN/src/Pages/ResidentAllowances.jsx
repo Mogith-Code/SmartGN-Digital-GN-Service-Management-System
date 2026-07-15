@@ -7,7 +7,7 @@ import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
 import totalPendingIcon from "../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import totalapprovedIcon from "../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
-import upcomingIcon from "../assets/event_upcoming_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
 function ResidentAllowances({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -218,7 +218,7 @@ function ResidentAllowances({ onOpenHelp }) {
     },
     {
       id: 3,
-      icon: upcomingIcon,
+      icon: rejectedIcon,
       title: "Rejected Requests",
       count: rejectedCount,
     },
