@@ -219,7 +219,7 @@ function ResidentAllowances({ onOpenHelp }) {
     {
       id: 3,
       icon: upcomingIcon,
-      title: "f",
+      title: "Rejected Requests",
       count: 15,
     },
   ];
