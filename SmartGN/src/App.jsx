@@ -89,6 +89,10 @@ function App() {
           path="/OfficerDashboard/OfficerAppointment"
           element={<OfficerAppointment onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/OfficerAppointment"
+          element={<OfficerAppointment onOpenHelp={openChatbot} />}
+        />
 
         <Route
           path="/OfficerDashboard/OfficerAppointment/OfficerPendingAppointment"
@@ -117,13 +121,25 @@ function App() {
           path="/OfficerDashboard"
           element={<OfficerDashboard onOpenHelp={openChatbot} />}
         />
+        <Route
+          path="/dashboard/officer"
+          element={<OfficerDashboard onOpenHelp={openChatbot} />}
+        />
 
         <Route
           path="/OfficerDashboard/profile"
           element={<OfficerProfile onOpenHelp={openChatbot} />}
         />
         <Route
+          path="/dashboard/officer/profile"
+          element={<OfficerProfile onOpenHelp={openChatbot} />}
+        />
+        <Route
           path="/OfficerDashboard/ResidentsDetails"
+          element={<ResidentsDetails onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/ResidentsDetails"
           element={<ResidentsDetails onOpenHelp={openChatbot} />}
         />
 
@@ -137,7 +153,15 @@ function App() {
           element={<OfficerCertificates onOpenHelp={openChatbot} />}
         />
         <Route
+          path="/dashboard/officer/certificates"
+          element={<OfficerCertificates onOpenHelp={openChatbot} />}
+        />
+        <Route
           path="/OfficerDashboard/certificates/:id"
+          element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/certificates/:id"
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
         />
         {/* <Route
@@ -146,6 +170,10 @@ function App() {
         /> */}
         <Route
           path="/OfficerDashboard/disasters"
+          element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/dashboard/officer/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
          <Route
