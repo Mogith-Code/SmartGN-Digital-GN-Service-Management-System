@@ -300,7 +300,7 @@ function ResidentAllowances({ onOpenHelp }) {
           </div>
 
           {/* Program Request list */}
-          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-8 text-left">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left mx-[30px]">
             <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
               Available Allowance Programs
             </h3>
