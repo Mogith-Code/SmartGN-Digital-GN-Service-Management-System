@@ -292,7 +292,19 @@ function Login() {
     }
   };
 
-  //Handle should be added
+  const handleResendOtp = async () => {
+    if (timerCount > 0 || isResending) return;
+
+    setIsResending(true);
+    setErrorMessage("");
+    setResendSuccessMessage("");
+
+    try {
+      const response = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: verificationEmail, purpose: "LOGIN" }),
+      });
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
