@@ -213,7 +213,7 @@ function ResidentAllowances({ onOpenHelp }) {
     {
       id: 2,
       icon: totalapprovedIcon,
-      title: "f",
+      title: "Approved Requests",
       count: 10,
     },
     {
