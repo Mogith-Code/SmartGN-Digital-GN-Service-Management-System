@@ -30,7 +30,7 @@ import RequestsForTommorow from "./Components/AppointmentsPage/RequestsForTommor
 import ResidentDashboard from "./Pages/ResidentDashboard.jsx";
 import OfficerDashboard from "./Pages/OfficerDashboard.jsx";
 import ResidentAllowances from "./Pages/ResidentAllowances.jsx";
-// import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
+import OfficerAllowances from "./Pages/OfficerAllowances.jsx";
 import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
 import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
@@ -164,10 +164,10 @@ function App() {
           path="/dashboard/officer/certificates/:id"
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
         />
-        {/* <Route
+        <Route
           path="/dashboard/officer/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
-        /> */}
+        />
         <Route
           path="/OfficerDashboard/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
@@ -176,10 +176,10 @@ function App() {
           path="/dashboard/officer/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
-         <Route
+        <Route
           path="/dashboard/officer/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
-        /> 
+        />
 
         <Route
           path="/dashboard/admin"

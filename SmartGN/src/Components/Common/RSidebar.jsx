@@ -117,7 +117,7 @@ function RSidebar() {
     {
       id: "disaster",
       name: t.disaster,
-      path: "/disaster-relief",
+      path: "/ResidentDashboard/disaster-relief",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
     },
