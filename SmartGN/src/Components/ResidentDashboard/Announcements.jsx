@@ -50,15 +50,9 @@ function Announcements() {
   return (
     <>
       <div className="flex flex-col w-full gap-[20px]">
-        <div className="flex w-full justify-between items-center">
-          <div className="flex text-[white] text-[16px]">
-            <span>View all</span>
-          </div>
+        <div className="flex w-full justify-center items-center">
           <div className="flex text-[#1B365D] font-medium text-[20px]">
             {t.title}
-          </div>
-          <div className="flex text-[#D69E2E] text-[16px] bover: cursor-pointer hover:underline hover:font-medium">
-            <span>{t.view}</span>
           </div>
         </div>
 

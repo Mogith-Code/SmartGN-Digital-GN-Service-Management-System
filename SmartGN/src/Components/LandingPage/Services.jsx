@@ -152,8 +152,14 @@ function Services() {
   };
 
   const handleAnnouncements = () => {
-    console.log("Navigating to Announcements page");
-    // navigate("/services/announcements");
+    const token = localStorage.getItem("smartgn_token");
+    const role = localStorage.getItem("smartgn_user_role");
+    if (token && role === "RESIDENT") {
+      navigate("/ResidentDashboard");
+    } else {
+      alert("Please log in to view announcements.");
+      navigate("/login");
+    }
   };
 
   const servicesCard = [
