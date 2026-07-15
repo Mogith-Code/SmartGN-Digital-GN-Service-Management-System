@@ -165,19 +165,16 @@ function App() {
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/officer/allowances"
+          path="/OfficerDashboard/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
         />
         <Route
           path="/OfficerDashboard/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
+
         <Route
-          path="/dashboard/officer/disasters"
-          element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/officer/announcements"
+          path="/OfficerDashboard/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
         />
 
