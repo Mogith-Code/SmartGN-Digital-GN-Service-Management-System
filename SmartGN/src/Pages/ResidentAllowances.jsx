@@ -208,19 +208,19 @@ function ResidentAllowances({ onOpenHelp }) {
       id: 1,
       icon: totalPendingIcon,
       title: "Pending Requests",
-      count: 5,
+      count: pendingCount,
     },
     {
       id: 2,
       icon: totalapprovedIcon,
       title: "Approved Requests",
-      count: 10,
+      count: approvedCount,
     },
     {
       id: 3,
       icon: upcomingIcon,
       title: "Rejected Requests",
-      count: 15,
+      count: rejectedCount,
     },
   ];
 
