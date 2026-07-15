@@ -117,7 +117,7 @@ function OSidebar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/officer/allowances",
+      path: "/OfficerDashboard/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },

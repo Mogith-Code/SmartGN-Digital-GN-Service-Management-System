@@ -165,7 +165,7 @@ function App() {
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/dashboard/officer/allowances"
+          path="/OfficerDashboard/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
         />
         <Route
