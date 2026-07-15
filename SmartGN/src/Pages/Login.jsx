@@ -70,6 +70,15 @@ function Login() {
       backHome: "ආපසු",
       forgotPassword: "මුරපදය අමතකද ?",
       contactSupport: "සහාය අමතන්න",
+      otpTitle: "ද්වි-සාධක තහවුරු කිරීම",
+      otpDescription: "අපි ඉලක්කම් 6ක තහවුරු කිරීමේ කේතයක් මෙහි යවා ඇත:",
+      otpLabel: "තහවුරු කිරීමේ කේතය ඇතුළත් කරන්න",
+      otpVerifyButton: "තහවුරු කර ඇතුල් වන්න",
+      otpResendCode: "කේතය නැවත එවන්න",
+      otpResending: "නැවත යවමින්...",
+      otpBackToLogin: "ඇතුල්වීමට ආපසු යන්න",
+      otpErrorInvalid: "කරුණාකර වලංගු ඉලක්කම් 6ක කේතයක් ඇතුළත් කරන්න.",
+      otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!"
       
     },
     TA: {
