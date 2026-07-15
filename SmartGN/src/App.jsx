@@ -172,12 +172,9 @@ function App() {
           path="/OfficerDashboard/disasters"
           element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
         />
+
         <Route
-          path="/dashboard/officer/disasters"
-          element={<OfficerDisasterReports onOpenHelp={openChatbot} />}
-        />
-        <Route
-          path="/dashboard/officer/announcements"
+          path="/OfficerDashboard/announcements"
           element={<OfficerAnnouncements onOpenHelp={openChatbot} />}
         />
 

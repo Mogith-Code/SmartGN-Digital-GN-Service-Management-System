@@ -124,14 +124,14 @@ function OSidebar() {
     {
       id: "disaster",
       name: t.disaster,
-      path: "/dashboard/officer/disasters",
+      path: "/OfficerDashboard/disasters",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
     },
     {
       id: "announcements",
       name: t.announcements,
-      path: "/dashboard/officer/announcements",
+      path: "/OfficerDashboard/announcements",
       icon: announcementIcon,
       iconActive: announcementIconHovered,
     },
