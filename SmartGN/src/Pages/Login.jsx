@@ -46,6 +46,15 @@ function Login() {
       backHome: "Back",
       forgotPassword: "Forgot Password ?",
       contactSupport: "Contact Support",
+      otpTitle: "Two-Factor Verification",
+      otpDescription: "A 6-digit verification code has been sent to",
+      otpLabel: "Enter Verification Code",
+      otpVerifyButton: "Verify & Login",
+      otpResendCode: "Resend Code",
+      otpResending: "Resending...",
+      otpBackToLogin: "Back to Login",
+      otpErrorInvalid: "Please enter a valid 6-digit code.",
+      otpResendSuccess: "Verification code resent successfully!"
 
     },
     SI: {
