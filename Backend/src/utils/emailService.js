@@ -29,3 +29,18 @@ Please enter this code on the SmartGN portal to proceed.
 Do not share this code with anyone.
 =============================================================
 `;
+
+// 1. Log to server console
+  console.log(message);
+
+  // 2. Append to logs file
+  try {
+    const dir = path.dirname(logFilePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.appendFileSync(logFilePath, message + '\n');
+    console.log(`✉️ Email log successfully written to: ${logFilePath}`);
+  } catch (err) {
+    console.error('Error writing to email log file:', err);
+  }
