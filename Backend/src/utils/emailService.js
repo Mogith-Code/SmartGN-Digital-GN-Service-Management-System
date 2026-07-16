@@ -44,3 +44,31 @@ Do not share this code with anyone.
   } catch (err) {
     console.error('Error writing to email log file:', err);
   }
+
+  // 3. Optional real nodemailer SMTP sending if configured
+  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS
+        }
+      });
+      await transporter.sendMail({
+        from: `"SmartGN Portal" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: subject,
+        text: `Your SmartGN 6-digit OTP code is: ${otp}. Valid for 5 minutes.`
+      });
+      console.log(`✉️ Real email successfully sent to ${email} via SMTP.`);
+    } catch (nodemailerError) {
+      console.error('Nodemailer failed, fell back to console/file logging:', nodemailerError.message);
+    }
+  }
+
+  return true;
+};
