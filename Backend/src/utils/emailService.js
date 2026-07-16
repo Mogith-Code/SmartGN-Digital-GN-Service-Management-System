@@ -12,3 +12,20 @@ const logFilePath = path.join(__dirname, '../../../sent_emails.log');
  * @returns {Promise<boolean>}
  */
 
+exports.sendOTP = async (email, otp, purpose) => {
+  const subject = `SmartGN - Two-Factor Authentication OTP (${purpose})`;
+  const message = `
+=============================================================
+To: ${email}
+Subject: ${subject}
+Date: ${new Date().toLocaleString()}
+-------------------------------------------------------------
+Your 6-digit OTP verification code is:
+
+                     [ ${otp} ]
+
+This code is valid for 5 minutes.
+Please enter this code on the SmartGN portal to proceed.
+Do not share this code with anyone.
+=============================================================
+`;
