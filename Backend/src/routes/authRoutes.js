@@ -7,6 +7,9 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 router.get('/divisions', authController.getDivisions);
 router.post('/register', authController.registerResident);
 router.post('/login', authController.login);
+router.post('/verify-2fa', authController.verify2FA);
+router.post('/verify-registration', authController.verifyRegistration);
+router.post('/resend-otp', authController.resendOTP);
 
 // Admin-only protected routes
 router.post('/register/officer', authenticateToken, requireAdmin, authController.registerOfficer);
