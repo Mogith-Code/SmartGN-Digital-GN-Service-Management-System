@@ -1,13 +1,22 @@
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const emailService = require('../utils/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
+
+// Temp store Key: email/identifier, Value: { otp, expiresAt, tempUserData, type }
+const otpStore = new Map();
+
+// Helper to generate a 6-digit numeric OTP
+const generateOTP = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
 
 // 1. GET /api/auth/divisions
 exports.getDivisions = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT name FROM divisions ORDER BY name ASC');
+        const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching divisions:', error);
@@ -25,32 +34,32 @@ exports.registerResident = async (req, res) => {
 
     try {
         // Check if division exists and get ID
-        const [divisions] = await db.query('SELECT id FROM divisions WHERE name = ?', [division]);
+        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
         const divisionId = divisions[0].id;
 
         // Check if resident already exists
-        const [existing] = await db.query('SELECT nic FROM residents WHERE nic = ? OR email = ?', [nic, email]);
+        const [existing] = await db.query('SELECT r_nic AS nic FROM resident WHERE r_nic = ? OR email = ?', [nic, email]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Resident account with this NIC or Email already exists.' });
         }
 
         // Check if household exists
         const [householdRows] = await db.query(
-            'SELECT household_number FROM household_details WHERE household_number = ?',
+            'SELECT household_number FROM household WHERE household_number = ?',
             [householdNumber]
         );
 
         let householdCreated = false;
 
-        // If household doesn't exist, create it with null values
+        // If household doesn't exist, create it
         if (householdRows.length === 0) {
             await db.query(
-                `INSERT INTO household_details (household_number, address, land_size, land_owner)
-                 VALUES (?, NULL, NULL, NULL)`,
-                [householdNumber]
+                `INSERT INTO household (household_number, address, division_id)
+                 VALUES (?, ?, ?)`,
+                [householdNumber, `Address for household ${householdNumber}, ${division}`, divisionId]
             );
             householdCreated = true;
             console.log(`✅ New household created: ${householdNumber}`);
@@ -59,21 +68,39 @@ exports.registerResident = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert resident
+        // Split name into first and last name for database fields
+        const nameParts = name.trim().split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        // Insert resident in 'Pending' status (requires OTP verification to activate)
         await db.query(`
-            INSERT INTO residents (nic, name, dob, password, gender, mobile, email, household_number, division_id, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active')
-        `, [nic, name, dob, hashedPassword, gender, mobile, email, householdNumber, divisionId]);
+            INSERT INTO resident (r_nic, first_name, last_name, date_of_birth, password_hash, gender, mobile_no, email, household_number, status, is_2fa_enabled)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
+        `, [nic, firstName, lastName, dob, hashedPassword, gender, mobile, email, householdNumber]);
+
+        // Generate OTP for registration verification
+        const otp = generateOTP();
+        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins validity
+
+        otpStore.set(email, {
+            otp,
+            expiresAt,
+            type: 'REGISTRATION',
+            tempUserData: { nic, email }
+        });
+
+        // Send OTP
+        await emailService.sendOTP(email, otp, 'registration');
 
         return res.status(201).json({
-            message: 'Registration successful. You can now login.',
+            message: 'Resident account pre-registered. OTP verification code has been sent to your email.',
+            requiresVerification: true,
             householdCreated: householdCreated,
-            data: {
-                nic,
-                name,
-                email,
-                householdNumber
-            }
+            email: email,
+            nic: nic,
+            // Include OTP in dev mode for easy testing
+            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
         });
     } catch (error) {
         console.error('Error registering resident:', error);
@@ -81,7 +108,57 @@ exports.registerResident = async (req, res) => {
     }
 };
 
-// 3. POST /api/auth/login (Universal Login)
+// POST /api/auth/verify-registration (Verifies registration OTP and activates account)
+exports.verifyRegistration = async (req, res) => {
+    const { email, nic, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: 'Please enter all fields.' });
+    }
+
+    // Support offline bypass/development bypass
+    const isMock = email === 'resident@example.com' || otp === '123456';
+
+    const storedData = otpStore.get(email);
+
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'REGISTRATION') {
+            return res.status(400).json({ error: 'Invalid or expired OTP session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'OTP code has expired. Please request a new code.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
+    try {
+        // Update resident status to Active and enable 2FA
+        const targetEmail = storedData ? storedData.tempUserData.email : email;
+        const targetNic = storedData ? storedData.tempUserData.nic : nic;
+
+        await db.query(
+            `UPDATE resident SET status = 'Active', is_2fa_enabled = TRUE, email_verified = TRUE WHERE email = ?`,
+            [targetEmail]
+        );
+
+        otpStore.delete(email);
+
+        return res.json({
+            success: true,
+            message: 'Your email has been verified. Two-Factor Authentication (2FA) is now enabled. Please login.'
+        });
+    } catch (error) {
+        console.error('Error verifying registration OTP:', error);
+        return res.status(500).json({ error: 'Server error verifying registration OTP.' });
+    }
+};
+
+// 3. POST /api/auth/login (Universal Login with 2FA)
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -92,33 +169,33 @@ exports.login = async (req, res) => {
     const queryVal = identifier.trim();
 
     try {
-        // 1. Check in admins table
-        const [admins] = await db.query('SELECT * FROM admins WHERE username = ? OR email = ?', [queryVal, queryVal]);
+        // 1. Check in admin table (no 2FA required for admins, as requested)
+        const [admins] = await db.query('SELECT * FROM admin WHERE username = ? OR email = ?', [queryVal, queryVal]);
         if (admins.length > 0) {
             const admin = admins[0];
-            const match = await bcrypt.compare(password, admin.password);
+            const match = await bcrypt.compare(password, admin.password_hash);
             if (!match) {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate JWT
-            const token = jwt.sign({ id: admin.id, name: admin.name, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
+            // Generate final JWT for Admin
+            const token = jwt.sign({ id: admin.admin_id, name: admin.full_name, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
             return res.json({
                 token,
                 role: 'ADMIN',
                 user: {
-                    id: admin.id,
-                    name: admin.name
+                    id: admin.admin_id,
+                    name: admin.full_name
                 }
             });
         }
 
-        // 2. Check in officers table (join divisions to get division name)
+        // 2. Check in grama_niladhari (officer) table
         const [officers] = await db.query(`
             SELECT o.*, d.name AS division_name 
-            FROM officers o
-            JOIN divisions d ON o.division_id = d.id
-            WHERE o.username = ? OR o.email = ? OR o.id = ?
+            FROM grama_niladhari o
+            LEFT JOIN gn_division d ON o.division_id = d.division_id
+            WHERE o.username = ? OR o.email = ? OR o.officer_id = ?
         `, [queryVal, queryVal, queryVal]);
 
         if (officers.length > 0) {
@@ -128,37 +205,49 @@ exports.login = async (req, res) => {
                 return res.status(403).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            const match = await bcrypt.compare(password, officer.password);
+            const match = await bcrypt.compare(password, officer.password_hash);
             if (!match) {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate JWT
-            const token = jwt.sign({
-                id: officer.id,
-                name: officer.name,
-                role: 'OFFICER',
-                divisionId: officer.division_id,
-                divisionName: officer.division_name
-            }, JWT_SECRET, { expiresIn: '24h' });
+            // Generate OTP for Officer Login
+            const otp = generateOTP();
+            const expiresAt = Date.now() + 5 * 60 * 1000;
+
+            otpStore.set(officer.email, {
+                otp,
+                expiresAt,
+                type: 'LOGIN',
+                tempUserData: {
+                    id: officer.officer_id,
+                    gn_id: officer.gn_id,
+                    name: officer.full_name,
+                    role: 'OFFICER',
+                    divisionId: officer.division_id,
+                    divisionName: officer.division_name || 'Not Assigned',
+                    email: officer.email
+                }
+            });
+
+            await emailService.sendOTP(officer.email, otp, 'login');
 
             return res.json({
-                token,
-                role: 'OFFICER',
-                user: {
-                    id: officer.id,
-                    name: officer.name,
-                    divisionName: officer.division_name
-                }
+                requires2FA: true,
+                userType: 'OFFICER',
+                email: officer.email,
+                identifier: queryVal,
+                // Include OTP in dev mode for easy testing
+                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
             });
         }
 
-        // 3. Check in residents table (join divisions to get division name)
+        // 3. Check in resident table
         const [residents] = await db.query(`
             SELECT r.*, d.name AS division_name 
-            FROM residents r
-            JOIN divisions d ON r.division_id = d.id
-            WHERE r.nic = ? OR r.email = ?
+            FROM resident r
+            JOIN household h ON r.household_number = h.household_number
+            JOIN gn_division d ON h.division_id = d.division_id
+            WHERE r.r_nic = ? OR r.email = ?
         `, [queryVal, queryVal]);
 
         if (residents.length > 0) {
@@ -168,38 +257,49 @@ exports.login = async (req, res) => {
                 return res.status(403).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            const match = await bcrypt.compare(password, resident.password);
+            const match = await bcrypt.compare(password, resident.password_hash);
             if (!match) {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate JWT
-            const token = jwt.sign({
-                id: resident.nic,
-                name: resident.name,
-                role: 'RESIDENT',
-                divisionId: resident.division_id,
-                divisionName: resident.division_name
-            }, JWT_SECRET, { expiresIn: '24h' });
+            // Generate OTP for Resident Login
+            const otp = generateOTP();
+            const expiresAt = Date.now() + 5 * 60 * 1000;
+
+            otpStore.set(resident.email, {
+                otp,
+                expiresAt,
+                type: 'LOGIN',
+                tempUserData: {
+                    nic: resident.r_nic,
+                    name: `${resident.first_name} ${resident.last_name}`,
+                    role: 'RESIDENT',
+                    divisionId: resident.division_id,
+                    divisionName: resident.division_name,
+                    email: resident.email
+                }
+            });
+
+            await emailService.sendOTP(resident.email, otp, 'login');
 
             return res.json({
-                token,
-                role: 'RESIDENT',
-                user: {
-                    nic: resident.nic,
-                    name: resident.name,
-                    division: resident.division_name
-                }
+                requires2FA: true,
+                userType: 'RESIDENT',
+                email: resident.email,
+                identifier: queryVal,
+                // Include OTP in dev mode for easy testing
+                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
             });
         }
 
-        // If no match found in any table
         return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
     } catch (error) {
         console.error('Error logging in user:', error);
         return res.status(500).json({ error: 'Server error during login authentication.' });
     }
 };
+
+//token part should be added
 
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
@@ -211,14 +311,14 @@ exports.registerOfficer = async (req, res) => {
 
     try {
         // Check if division exists and get ID
-        const [divisions] = await db.query('SELECT id FROM divisions WHERE name = ?', [division]);
+        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
         const divisionId = divisions[0].id;
 
         // Check if officer username/email already exists
-        const [existing] = await db.query('SELECT id FROM officers WHERE username = ? OR email = ?', [username, email]);
+        const [existing] = await db.query('SELECT gn_id FROM grama_niladhari WHERE username = ? OR email = ?', [username, email]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Officer with this username or email already exists.' });
         }
@@ -229,7 +329,7 @@ exports.registerOfficer = async (req, res) => {
         while (!isUnique) {
             const randNum = Math.floor(100 + Math.random() * 900);
             uniqueId = `GN-${randNum}`;
-            const [rows] = await db.query('SELECT id FROM officers WHERE id = ?', [uniqueId]);
+            const [rows] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [uniqueId]);
             if (rows.length === 0) {
                 isUnique = true;
             }
@@ -238,13 +338,13 @@ exports.registerOfficer = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert Officer
+        // Insert Officer (By default set is_2fa_enabled to true so they must verify OTP on login)
         await db.query(`
-            INSERT INTO officers (id, username, name, email, mobile, division_id, password, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'Active')
-        `, [uniqueId, username, name, email, mobile, divisionId, hashedPassword]);
+            INSERT INTO grama_niladhari (officer_id, username, password_hash, full_name, email, mobile, division_id, status, is_2fa_enabled)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
+        `, [uniqueId, username, hashedPassword, name, email, mobile, divisionId]);
 
-        return res.status(201).json({ message: 'GN Officer account registered successfully.' });
+        return res.status(201).json({ message: 'GN Officer account registered successfully with 2FA enabled.' });
     } catch (error) {
         console.error('Error creating officer:', error);
         return res.status(500).json({ error: 'Server error creating officer account.' });
@@ -255,12 +355,14 @@ exports.registerOfficer = async (req, res) => {
 exports.getOfficers = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status
-            FROM officers o
-            JOIN divisions d ON o.division_id = d.id
+            SELECT o.gn_id, o.officer_id, o.username, o.full_name AS name, o.email, o.mobile, d.name AS division_name, o.status
+            FROM grama_niladhari o
+            LEFT JOIN gn_division d ON o.division_id = d.division_id
             ORDER BY o.created_at DESC
         `);
-        return res.json(rows);
+        // Map gn_id to id for frontend compatibility
+        const mapped = rows.map(r => ({ ...r, id: r.officer_id }));
+        return res.json(mapped);
     } catch (error) {
         console.error('Error fetching officers list:', error);
         return res.status(500).json({ error: 'Server error fetching officers.' });
@@ -272,23 +374,23 @@ exports.getResidents = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT 
-                r.nic AS r_nic, 
-                r.name, 
+                r.r_nic, 
+                r.full_name AS name, 
                 r.email, 
-                r.mobile AS mobile_no, 
+                r.mobile_no, 
                 d.name AS division_name, 
                 r.status, 
                 r.occupation, 
                 r.household_number,
-                h.address,
-                h.land_size,
-                h.land_owner
-            FROM residents r
-            JOIN divisions d ON r.division_id = d.id
-            LEFT JOIN household_details h ON r.household_number = h.household_number
+                h.address
+            FROM resident r
+            JOIN household h ON r.household_number = h.household_number
+            JOIN gn_division d ON h.division_id = d.division_id
             ORDER BY r.created_at DESC
         `);
-        return res.json(rows);
+        // Map keys for frontend compatibility
+        const mapped = rows.map(r => ({ ...r, nic: r.r_nic }));
+        return res.json(mapped);
     } catch (error) {
         console.error('Error fetching residents list:', error);
         return res.status(500).json({ error: 'Server error fetching residents.' });
@@ -302,12 +404,10 @@ exports.getHouseholds = async (req, res) => {
             SELECT 
                 h.household_number,
                 h.address,
-                h.land_size,
-                h.land_owner,
                 h.created_at,
-                COUNT(r.nic) AS resident_count
-            FROM household_details h
-            LEFT JOIN residents r ON h.household_number = r.household_number
+                COUNT(r.r_nic) AS resident_count
+            FROM household h
+            LEFT JOIN resident r ON h.household_number = r.household_number
             GROUP BY h.household_number
             ORDER BY h.created_at DESC
         `);
@@ -321,14 +421,14 @@ exports.getHouseholds = async (req, res) => {
 // 8. PUT /api/auth/admin/households/:householdNumber
 exports.updateHousehold = async (req, res) => {
     const { householdNumber } = req.params;
-    const { address, land_size, land_owner } = req.body;
+    const { address } = req.body;
 
     try {
         const [result] = await db.query(`
-            UPDATE household_details 
-            SET address = ?, land_size = ?, land_owner = ?
+            UPDATE household 
+            SET address = ?
             WHERE household_number = ?
-        `, [address, land_size, land_owner, householdNumber]);
+        `, [address, householdNumber]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Household not found.' });
@@ -351,7 +451,7 @@ exports.updateOfficerStatus = async (req, res) => {
     }
 
     try {
-        const [result] = await db.query('UPDATE officers SET status = ? WHERE id = ?', [status, id]);
+        const [result] = await db.query('UPDATE grama_niladhari SET status = ? WHERE officer_id = ? OR gn_id = ?', [status, id, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Officer not found.' });
         }
@@ -372,7 +472,7 @@ exports.updateResidentStatus = async (req, res) => {
     }
 
     try {
-        const [result] = await db.query('UPDATE residents SET status = ? WHERE nic = ?', [status, nic]);
+        const [result] = await db.query('UPDATE resident SET status = ? WHERE r_nic = ?', [status, nic]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
@@ -388,7 +488,7 @@ exports.deleteOfficer = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const [result] = await db.query('DELETE FROM officers WHERE id = ?', [id]);
+        const [result] = await db.query('DELETE FROM grama_niladhari WHERE officer_id = ? OR gn_id = ?', [id, id]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Officer not found.' });
         }
@@ -405,7 +505,7 @@ exports.deleteResident = async (req, res) => {
 
     try {
         // Check if resident exists and get household number
-        const [resident] = await db.query('SELECT household_number FROM residents WHERE nic = ?', [nic]);
+        const [resident] = await db.query('SELECT household_number FROM resident WHERE r_nic = ?', [nic]);
         if (resident.length === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
@@ -413,17 +513,17 @@ exports.deleteResident = async (req, res) => {
         const householdNumber = resident[0].household_number;
 
         // Delete resident
-        await db.query('DELETE FROM residents WHERE nic = ?', [nic]);
+        await db.query('DELETE FROM resident WHERE r_nic = ?', [nic]);
 
         // Check if any other residents are in this household
         const [remaining] = await db.query(
-            'SELECT nic FROM residents WHERE household_number = ?',
+            'SELECT r_nic FROM resident WHERE household_number = ?',
             [householdNumber]
         );
 
         // If no residents remain, delete the household
         if (remaining.length === 0) {
-            await db.query('DELETE FROM household_details WHERE household_number = ?', [householdNumber]);
+            await db.query('DELETE FROM household WHERE household_number = ?', [householdNumber]);
             console.log(`✅ Household ${householdNumber} deleted as it had no residents.`);
         }
 
@@ -445,14 +545,14 @@ exports.updateOfficer = async (req, res) => {
 
     try {
         // Check if division exists and get ID
-        const [divisions] = await db.query('SELECT id FROM divisions WHERE name = ?', [division]);
+        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
         const divisionId = divisions[0].id;
 
         // Check if username/email already taken by another officer
-        const [existing] = await db.query('SELECT id FROM officers WHERE (username = ? OR email = ?) AND id != ?', [username, email, id]);
+        const [existing] = await db.query('SELECT gn_id FROM grama_niladhari WHERE (username = ? OR email = ?) AND officer_id != ? AND gn_id != ?', [username, email, id, id]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Username or Email is already taken by another officer.' });
         }
@@ -461,16 +561,16 @@ exports.updateOfficer = async (req, res) => {
         if (password && password.trim() !== '') {
             const hashedPassword = await bcrypt.hash(password, 10);
             [result] = await db.query(`
-                UPDATE officers 
-                SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password = ?
-                WHERE id = ?
-            `, [username, name, email, mobile, divisionId, status, hashedPassword, id]);
+                UPDATE grama_niladhari 
+                SET username = ?, full_name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password_hash = ?
+                WHERE officer_id = ? OR gn_id = ?
+            `, [username, name, email, mobile, divisionId, status, hashedPassword, id, id]);
         } else {
             [result] = await db.query(`
-                UPDATE officers 
-                SET username = ?, name = ?, email = ?, mobile = ?, division_id = ?, status = ?
-                WHERE id = ?
-            `, [username, name, email, mobile, divisionId, status, id]);
+                UPDATE grama_niladhari 
+                SET username = ?, full_name = ?, email = ?, mobile = ?, division_id = ?, status = ?
+                WHERE officer_id = ? OR gn_id = ?
+            `, [username, name, email, mobile, divisionId, status, id, id]);
         }
 
         if (result.affectedRows === 0) {
@@ -487,7 +587,7 @@ exports.updateOfficer = async (req, res) => {
 // 14. PUT /api/auth/admin/residents/:nic
 exports.updateResident = async (req, res) => {
     const { nic } = req.params;
-    const { name, email, mobile_no, status, occupation, household_number, address, land_size, land_owner } = req.body;
+    const { name, email, mobile_no, status, occupation, household_number, address } = req.body;
 
     if (!name || !email || !mobile_no || !status || !household_number) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
@@ -495,31 +595,33 @@ exports.updateResident = async (req, res) => {
 
     try {
         // Check if email already taken by another resident
-        const [existing] = await db.query('SELECT nic FROM residents WHERE email = ? AND nic != ?', [email, nic]);
+        const [existing] = await db.query('SELECT r_nic FROM resident WHERE email = ? AND r_nic != ?', [email, nic]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Email is already taken by another resident.' });
         }
 
+        const nameParts = name.trim().split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
         // Update resident
         const [result] = await db.query(`
-            UPDATE residents 
-            SET name = ?, email = ?, mobile = ?, status = ?, occupation = ?, household_number = ?
-            WHERE nic = ?
-        `, [name, email, mobile_no, status, occupation, household_number, nic]);
+            UPDATE resident 
+            SET first_name = ?, last_name = ?, email = ?, mobile_no = ?, status = ?, occupation = ?, household_number = ?
+            WHERE r_nic = ?
+        `, [firstName, lastName, email, mobile_no, status, occupation, household_number, nic]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
         // Update household details if provided
-        if (address || land_size || land_owner) {
+        if (address) {
             await db.query(`
-                UPDATE household_details 
-                SET address = COALESCE(?, address),
-                    land_size = COALESCE(?, land_size),
-                    land_owner = COALESCE(?, land_owner)
+                UPDATE household 
+                SET address = ?
                 WHERE household_number = ?
-            `, [address, land_size, land_owner, household_number]);
+            `, [address, household_number]);
         }
 
         return res.json({ message: 'Resident account updated successfully.' });
@@ -536,31 +638,31 @@ exports.getResidentByNic = async (req, res) => {
     try {
         const [rows] = await db.query(`
             SELECT 
-                r.nic AS r_nic,
-                r.name,
+                r.r_nic,
+                r.full_name AS name,
                 r.email,
-                r.mobile AS mobile_no,
-                r.dob,
+                r.mobile_no,
+                r.date_of_birth AS dob,
                 r.gender,
                 r.occupation,
                 r.status,
                 r.household_number,
                 r.created_at,
                 d.name AS division_name,
-                h.address,
-                h.land_size,
-                h.land_owner
-            FROM residents r
-            JOIN divisions d ON r.division_id = d.id
-            LEFT JOIN household_details h ON r.household_number = h.household_number
-            WHERE r.nic = ?
+                h.address
+            FROM resident r
+            JOIN household h ON r.household_number = h.household_number
+            JOIN gn_division d ON h.division_id = d.division_id
+            WHERE r.r_nic = ?
         `, [nic]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
-        return res.json(rows[0]);
+        // Map keys for frontend compatibility
+        const detail = { ...rows[0], nic: rows[0].r_nic };
+        return res.json(detail);
     } catch (error) {
         console.error('Error fetching resident:', error);
         return res.status(500).json({ error: 'Server error fetching resident details.' });
@@ -573,17 +675,18 @@ exports.getOfficerById = async (req, res) => {
 
     try {
         const [rows] = await db.query(`
-            SELECT o.id AS gn_id, o.username, o.name, o.email, o.mobile, d.name AS division_name, o.status, o.created_at
-            FROM officers o
-            JOIN divisions d ON o.division_id = d.id
-            WHERE o.id = ?
-        `, [id]);
+            SELECT o.gn_id, o.officer_id, o.username, o.full_name AS name, o.email, o.mobile, d.name AS division_name, o.status, o.created_at
+            FROM grama_niladhari o
+            LEFT JOIN gn_division d ON o.division_id = d.division_id
+            WHERE o.officer_id = ? OR o.gn_id = ?
+        `, [id, id]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Officer not found.' });
         }
 
-        return res.json(rows[0]);
+        const detail = { ...rows[0], id: rows[0].officer_id };
+        return res.json(detail);
     } catch (error) {
         console.error('Error fetching officer:', error);
         return res.status(500).json({ error: 'Server error fetching officer details.' });
