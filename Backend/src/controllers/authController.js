@@ -411,6 +411,25 @@ exports.resendOTP = async (req, res) => {
         return res.status(400).json({ error: 'No active session found for this email. Please restart the process.' });
     }
 
+    try {
+        const otp = generateOTP();
+        storedData.otp = otp;
+        storedData.expiresAt = Date.now() + 5 * 60 * 1000;
+        otpStore.set(email, storedData);
+
+        await emailService.sendOTP(email, otp, purpose.toLowerCase());
+
+        return res.json({
+            success: true,
+            message: 'A new 6-digit OTP code has been sent to your email.',
+            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+        });
+    } catch (error) {
+        console.error('Error resending OTP:', error);
+        return res.status(500).json({ error: 'Server error while resending code.' });
+    }
+};
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
