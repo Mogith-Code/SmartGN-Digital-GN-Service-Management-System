@@ -398,6 +398,19 @@ exports.verify2FA = async (req, res) => {
     }
 };
 
+// POST /api/auth/resend-otp (Resends OTP for active session)
+exports.resendOTP = async (req, res) => {
+    const { email, purpose } = req.body;
+
+    if (!email || !purpose) {
+        return res.status(400).json({ error: 'Please enter your email.' });
+    }
+
+    const storedData = otpStore.get(email);
+    if (!storedData) {
+        return res.status(400).json({ error: 'No active session found for this email. Please restart the process.' });
+    }
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
