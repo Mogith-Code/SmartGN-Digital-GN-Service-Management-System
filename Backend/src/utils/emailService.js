@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-// We'll write to a local log file so developers/users can easily view sent emails
+// users can easily view sent emails
 const logFilePath = path.join(__dirname, '../../../sent_emails.log');
 
 /**
@@ -45,7 +45,7 @@ Do not share this code with anyone.
     console.error('Error writing to email log file:', err);
   }
 
-  // 3. Optional real nodemailer SMTP sending if configured
+  // Optional configuration 
   if (process.env.SMTP_HOST && process.env.SMTP_USER) {
     try {
       const nodemailer = require('nodemailer');
