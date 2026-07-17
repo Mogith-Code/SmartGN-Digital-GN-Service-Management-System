@@ -97,3 +97,14 @@ import Footer from '../Components/Common/Footer'
       alert(err.message || 'Error updating report.')
     }
   }
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Officer Navbar */}
+      <OfficerNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Officer Sidebar */}
+        <div className="hidden md:block bg-white">
+          <OSidebar />
+        </div>
