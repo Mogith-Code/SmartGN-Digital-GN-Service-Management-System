@@ -327,6 +327,35 @@ exports.verify2FA = async (req, res) => {
         }
     }
 
+    try {
+        let payload, userDetails;
+
+        if (isMock) {
+            // Simulated login token details
+            const isOfficer = email.includes('officer');
+            payload = isOfficer ? {
+                id: 'GN-001',
+                name: 'Kamal Perera',
+                role: 'OFFICER',
+                divisionId: 'Maharagama-Id',
+                divisionName: 'Maharagama'
+            } : {
+                id: '197812345678V',
+                name: 'Kamala Silva',
+                role: 'RESIDENT',
+                divisionId: 'Maharagama-Id',
+                divisionName: 'Maharagama'
+            };
+            userDetails = isOfficer ? {
+                id: 'GN-001',
+                name: 'Kamal Perera',
+                divisionName: 'Maharagama'
+            } : {
+                nic: '197812345678V',
+                name: 'Kamala Silva',
+                division: 'Maharagama'
+            };
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
