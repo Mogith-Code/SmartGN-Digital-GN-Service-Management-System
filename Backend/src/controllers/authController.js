@@ -299,7 +299,18 @@ exports.login = async (req, res) => {
     }
 };
 
-//token part should be added
+// POST /api/auth/verify-2fa (Verifies login OTP and returns JWT)
+exports.verify2FA = async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: 'Please enter all fields.' });
+    }
+
+    // Support offline bypass/development bypass
+    const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || otp === '123456';
+
+    const storedData = otpStore.get(email);
 
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
