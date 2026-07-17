@@ -356,6 +356,33 @@ exports.verify2FA = async (req, res) => {
                 division: 'Maharagama'
             };
 
+        } else {
+            const temp = storedData.tempUserData;
+            payload = temp.role === 'OFFICER' ? {
+                id: temp.id,
+                name: temp.name,
+                role: 'OFFICER',
+                divisionId: temp.divisionId,
+                divisionName: temp.divisionName
+            } : {
+                id: temp.nic,
+                name: temp.name,
+                role: 'RESIDENT',
+                divisionId: temp.divisionId,
+                divisionName: temp.divisionName
+            };
+
+            userDetails = temp.role === 'OFFICER' ? {
+                id: temp.id,
+                name: temp.name,
+                divisionName: temp.divisionName
+            } : {
+                nic: temp.nic,
+                name: temp.name,
+                division: temp.divisionName
+            };
+        }
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
