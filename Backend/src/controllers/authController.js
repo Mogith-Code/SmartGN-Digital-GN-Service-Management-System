@@ -383,6 +383,21 @@ exports.verify2FA = async (req, res) => {
             };
         }
 
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
+
+        otpStore.delete(email);
+
+        return res.json({
+            token,
+            role: payload.role,
+            user: userDetails
+        });
+    } catch (error) {
+        console.error('Error during 2FA verification:', error);
+        return res.status(500).json({ error: 'Server error during verification.' });
+    }
+};
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
