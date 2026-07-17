@@ -108,3 +108,15 @@ import Footer from '../Components/Common/Footer'
         <div className="hidden md:block bg-white">
           <OSidebar />
         </div>
+
+        {/* Content */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
+          
+          <div className="text-left mb-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] m-0">
+              Disaster Management Queue
+            </h2>
+            <p className="text-sm text-[#64748b] mt-1">
+              Monitor disaster reports, evaluate damage severity, and dispatch emergency relief aid.
+            </p>
+          </div>
