@@ -312,6 +312,21 @@ exports.verify2FA = async (req, res) => {
 
     const storedData = otpStore.get(email);
 
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'LOGIN') {
+            return res.status(400).json({ error: 'Invalid or expired login session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'Verification code has expired. Please login again.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
 // 4. POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
     const { username, name, email, mobile, division, password } = req.body;
