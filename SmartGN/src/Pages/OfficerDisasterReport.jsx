@@ -6,7 +6,7 @@ import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
 
- OfficerDisasterReports({ onOpenHelp }) {
+function OfficerDisasterReports({ onOpenHelp }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { lang } = useLanguage()
