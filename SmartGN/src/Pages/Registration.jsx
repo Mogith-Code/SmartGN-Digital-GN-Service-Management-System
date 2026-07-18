@@ -223,6 +223,15 @@ function Register() {
   }, []);
 
   // Timer countdown hook
+  useEffect(() => {
+    let interval;
+    if (timerCount > 0) {
+      interval = setInterval(() => {
+        setTimerCount((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerCount]);
   
 
   const handleRegisterSubmit = async (e) => {
