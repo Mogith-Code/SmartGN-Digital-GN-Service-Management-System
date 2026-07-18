@@ -327,7 +327,44 @@ function Register() {
     }
   };
 
-  //Index value
+const handleOtpDigitChange = (value, index) => {
+    if (!/^\d*$/.test(value)) return; // numbers only
+    const newDigits = [...otpDigits];
+    newDigits[index] = value.substring(value.length - 1);
+    setOtpDigits(newDigits);
+
+    // Shift focus right
+    if (value && index < 5) {
+      inputRefs[index + 1].current.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otpDigits[index] && index > 0) {
+      inputRefs[index - 1].current.focus();
+      const newDigits = [...otpDigits];
+      newDigits[index - 1] = "";
+      setOtpDigits(newDigits);
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pasteData = e.clipboardData.getData("text").trim();
+    if (!/^\d{6}$/.test(pasteData)) return; // must be exactly 6 digits
+
+    const chars = pasteData.split("");
+    setOtpDigits(chars);
+    inputRefs[5].current.focus();
+  };
+
+  const handleOtpVerifySubmit = async (e) => {
+    e.preventDefault();
+    const otpValue = otpDigits.join("");
+    if (otpValue.length !== 6) {
+      setErrorMessage(t.otpErrorInvalid);
+      return;
+    } 
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
