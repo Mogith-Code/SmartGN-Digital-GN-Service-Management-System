@@ -277,5 +277,22 @@ import Footer from '../Components/Common/Footer'
                   <span className="font-semibold text-gray-850 capitalize text-amber-600">{selectedDisaster.severity}</span>
                 </div>
 
+                 <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <span className="text-xs font-bold text-gray-400">Damage Description</span>
+                  <span className="bg-[#F8FAFC] border border-gray-200 rounded-xl p-3.5 text-xs text-gray-700 leading-relaxed font-normal">
+                    {selectedDisaster.description}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <span className="text-xs font-bold text-gray-400">Relief Assistance Requested</span>
+                  <span className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 text-xs font-normal leading-relaxed">
+                    {selectedDisaster.aidRequested || 'No specific relief packs requested. Assessment needed.'}
+                  </span>
+                </div>
+
+              </div>
+
+
 
 
