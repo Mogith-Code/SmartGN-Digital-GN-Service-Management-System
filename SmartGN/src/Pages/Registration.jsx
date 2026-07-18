@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
@@ -41,6 +41,7 @@ const registrationTranslations = {
     errorNetwork:
       "Network connection error. Please make sure the MySQL backend server is active.",
     householdCreated: "New household created successfully!",
+    
   },
   SI: {
     title: "නේවාසික ගිණුමක් සාදන්න",
@@ -79,6 +80,7 @@ const registrationTranslations = {
     errorNetwork:
       "ජාල සම්බන්ධතා දෝෂයකි. MySQL පසුබිම් සේවාදායකය සක්‍රීය දැයි පරීක්ෂා කරන්න.",
     householdCreated: "නව ගෘහය සාර්ථකව සාදන ලදී!",
+    
   },
   TA: {
     title: "குடியுரிமை கணக்கை உருவாக்கவும்",
@@ -117,6 +119,7 @@ const registrationTranslations = {
     errorNetwork:
       "பிணைய இணைப்பு பிழை. MySQL பின்தள சேவையகம் செயலில் உள்ளதா என சரிபார்க்கவும்.",
     householdCreated: "புதிய வீடு வெற்றிகரமாக உருவாக்கப்பட்டது!",
+    
   },
 };
 
@@ -125,7 +128,7 @@ function Register() {
   const { lang } = useLanguage();
   const t = registrationTranslations[lang] || registrationTranslations.EN;
 
-  // Registration stats
+  // Registration states
   const [nic, setNic] = useState("");
   const [household, setHousehold] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -140,7 +143,30 @@ function Register() {
 
   const [divisions, setDivisions] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [resendSuccessMessage, setResendSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  // 2FA States
+  const [showOtpVerify, setShowOtpVerify] = useState(false);
+  const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationNic, setVerificationNic] = useState("");
+  const [householdCreatedState, setHouseholdCreatedState] = useState(false);
+  const [devOtpTip, setDevOtpTip] = useState("");
+
+  // Timer state for OTP Resend
+  const [timerCount, setTimerCount] = useState(0);
+
+  // Refs for OTP Input focuses
+  const inputRefs = [
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null)
+  ];
 
   // Fetch divisions
   useEffect(() => {
@@ -152,28 +178,25 @@ function Register() {
           setDivisions(data.map((d) => d.name));
         } else {
           setDivisions([
-            "Colombo 03",
-            "Colombo 07",
-            "Kandy Town",
-            "Galle Fort",
-            "Negombo South",
-            "Colombo, Borella",
+            "Colombo Borella",
+            "Colombo Fort",
+            "Kandy Central",
           ]);
         }
       } catch (err) {
         console.error("Error fetching divisions:", err);
         setDivisions([
-          "Colombo 03",
-          "Colombo 07",
-          "Kandy Town",
-          "Galle Fort",
-          "Negombo South",
-          "Colombo, Borella",
+          "Colombo Borella",
+          "Colombo Fort",
+          "Kandy Central",
         ]);
       }
     };
     fetchDivisions();
   }, []);
+
+  // Timer countdown hook
+  
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -232,22 +255,36 @@ function Register() {
       }
 
       setErrorMessage("");
-      setIsSubmitting(false);
+      setResendSuccessMessage("");
+      setVerificationEmail(email);
+      setVerificationNic(nic);
+      setHouseholdCreatedState(data.householdCreated || false);
 
-      // Navigate to success page with user info
-      navigate("/success", {
-        state: {
-          successUser: `${firstName} ${lastName} (NIC: ${nic})`,
-          isRegister: true,
-          householdCreated: data.householdCreated || false,
-        },
-      });
+      if (data.requiresVerification) {
+        setShowOtpVerify(true);
+        setTimerCount(60); // 60s cooldown
+        if (data.otpForTesting) {
+          setDevOtpTip(data.otpForTesting);
+        }
+      } else {
+        // Fallback if 2FA disabled backend-side
+        navigate("/success", {
+          state: {
+            successUser: `${firstName} ${lastName} (NIC: ${nic})`,
+            isRegister: true,
+            householdCreated: data.householdCreated || false,
+          },
+        });
+      }
+      setIsSubmitting(false);
     } catch (err) {
       console.error("Registration error:", err);
       setErrorMessage(t.errorNetwork);
       setIsSubmitting(false);
     }
   };
+
+  //Index value
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
@@ -256,304 +293,364 @@ function Register() {
         <LanguageSelector />
       </div>
 
-      {/* Registration Card */}
+      {/* Registration / OTP Card */}
       <div className="w-full max-w-[700px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
-        {/* Card name */}
-        <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-8 tracking-tight">
-          {t.title}
-        </h2>
-
-        <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* NIC Number */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="nic"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.nicLabel}
-              </label>
-              <input
-                type="text"
-                id="nic"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.nicPlaceholder}
-                value={nic}
-                onChange={(e) => setNic(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Household Number */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="household"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.householdLabel}
-              </label>
-              <input
-                type="text"
-                id="household"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.householdPlaceholder}
-                value={household}
-                onChange={(e) => setHousehold(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* First Name */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="firstName"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.firstNameLabel}
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.firstNamePlaceholder}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Last Name */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="lastName"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.lastNameLabel}
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.lastNamePlaceholder}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Email Address */}
-            <div className="flex flex-col gap-2 md:col-span-2">
-              <label
-                htmlFor="email"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.emailLabel}
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.emailPlaceholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Date of Birth */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="dob"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.dobLabel}
-              </label>
-              <input
-                type="date"
-                id="dob"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Gender */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="gender"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.genderLabel}
-              </label>
-              <div className="relative">
-                <select
-                  id="gender"
-                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                >
-                  <option value="" disabled hidden>
-                    {t.genderPlaceholder}
-                  </option>
-                  <option value="Male">{t.genderMale}</option>
-                  <option value="Female">{t.genderFemale}</option>
-                  <option value="Other">{t.genderOther}</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <span className="text-[10px]">▼</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Number */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="mobile"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.mobileLabel}
-              </label>
-              <input
-                type="tel"
-                id="mobile"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.mobilePlaceholder}
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Select GN Division */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="division"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.divisionLabel}
-              </label>
-              <div className="relative">
-                <select
-                  id="division"
-                  className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
-                  value={division}
-                  onChange={(e) => setDivision(e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                >
-                  <option value="" disabled hidden>
-                    {t.divisionPlaceholder}
-                  </option>
-                  {divisions.map((divName, index) => (
-                    <option key={index} value={divName}>
-                      {divName}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                  <span className="text-[10px]">▼</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="password"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.passwordLabel}
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.passwordPlaceholder}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="confirmPassword"
-                className="text-[14px] font-medium text-[#2D3748] text-left"
-              >
-                {t.confirmPasswordLabel}
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-                placeholder={t.confirmPasswordPlaceholder}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {errorMessage && (
-            <p className="text-[#ef4444] text-[13px] text-left mt-1">
-              {errorMessage}
+        
+        {/* VIEW 1: OTP VERIFICATION SCREEN */}
+        {showOtpVerify ? (
+          <>
+            <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-4 tracking-tight">
+              {t.otpTitle}
+            </h2>
+            <p className="text-[14px] text-gray-500 text-center mb-8">
+              {t.otpDescription} <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
-          )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className={`w-full py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Creating Account..." : t.submitButton}
-          </button>
-        </form>
+            <form onSubmit={handleOtpVerifySubmit} className="flex flex-col gap-6 items-center">
+              <label className="text-[14px] font-medium text-[#2D3748] text-center w-full">
+                {t.otpLabel}
+              </label>
 
-        {/* Already have an account link */}
-        <div className="text-[14px] text-gray-500 text-center mt-6">
-          {t.alreadyAccount}{" "}
-          <span
-            className="text-[#D69E2E] hover:text-[#FFAA00] font-semibold cursor-pointer ml-1 transition-colors duration-200"
-            onClick={() => navigate("/login")}
-          >
-            {t.loginLink}
-          </span>
-        </div>
+              {/* 6 Digit Inputs */}
+              <div className="flex gap-2 md:gap-4 my-2 justify-center" onPaste={handleOtpPaste}>
+                {otpDigits.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={inputRefs[idx]}
+                    type="text"
+                    maxLength="1"
+                    id={`otp-input-${idx}`}
+                    className="w-12 h-14 md:w-14 md:h-16 text-center text-[22px] font-bold bg-[#EBF1F6] border border-[#2D37482D] rounded-[12px] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 text-[#1B365D]"
+                    value={digit}
+                    onChange={(e) => handleOtpDigitChange(e.target.value, idx)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                    disabled={isSubmitting}
+                  />
+                ))}
+              </div>
 
-        {/* Bottom Row: Back & Logo */}
-        <div className="flex justify-between items-center mt-8 border-t border-[#2D37481F] pt-6">
-          {/* Back Button */}
-          <button
-            className="flex items-center gap-1.5 text-gray-500 hover:text-[#2D3748] text-[14px] font-medium transition-colors duration-200 cursor-pointer"
-            onClick={() => navigate("/")}
-            disabled={isSubmitting}
-          >
-            <span className="text-[18px]">←</span> {t.back}
-          </button>
+              {/* Dev Mode Assistance */}
+              {devOtpTip && (
+                <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#FFF9E6] border border-[#F5D17E] rounded-[8px] text-[13px] text-[#A76F00] text-center font-medium my-1 animate-pulse">
+                  🔧 Development Notice: Verification code is <strong>{devOtpTip}</strong>
+                </div>
+              )}
 
-          {/* SmartGN Logo */}
-          <img
-            src={logoImage}
-            alt="SmartGN Logo"
-            className="w-[120px] h-auto object-contain cursor-pointer"
-            onClick={() => navigate("/")}
-          />
-        </div>
+              {/* Messages */}
+              {errorMessage && (
+                <p className="text-[#ef4444] text-[13.5px] text-center mt-1">
+                  {errorMessage}
+                </p>
+              )}
+              {resendSuccessMessage && (
+                <p className="text-[#10b981] text-[13.5px] text-center mt-1 font-medium">
+                  {resendSuccessMessage}
+                </p>
+              )}
+
+              {/* Action Buttons */}
+              <button
+                type="submit"
+                className={`w-full max-w-[400px] py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-4 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Verifying..." : t.otpVerifyButton}
+              </button>
+            </form>
+
+            {/* Resend & Back actions */}
+            <div className="flex flex-col items-center gap-4 mt-8 border-t border-[#2D37481F] pt-6 w-full">
+              <button
+                onClick={handleResendOtp}
+                className={`text-[14px] font-semibold transition-all duration-200 ${
+                  timerCount > 0 || isResending
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-[#D69E2E] hover:text-[#FFAA00] cursor-pointer"
+                }`}
+                disabled={timerCount > 0 || isResending}
+              >
+                {isResending ? t.otpResending : timerCount > 0 ? `${t.otpResendCode} (${timerCount}s)` : t.otpResendCode}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowOtpVerify(false);
+                  setOtpDigits(["", "", "", "", "", ""]);
+                  setErrorMessage("");
+                  setResendSuccessMessage("");
+                }}
+                className="text-[13.5px] text-gray-500 hover:text-[#1B365D] font-medium transition-colors cursor-pointer"
+                disabled={isSubmitting}
+              >
+                ← {t.otpBackToRegister}
+              </button>
+            </div>
+          </>
+        ) : (
+          /* VIEW 2: NORMAL SIGNUP FORM */
+          <>
+            <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-8 tracking-tight">
+              {t.title}
+            </h2>
+
+            <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* NIC Number */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="nic" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.nicLabel}
+                  </label>
+                  <input
+                    type="text"
+                    id="nic"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.nicPlaceholder}
+                    value={nic}
+                    onChange={(e) => setNic(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Household Number */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="household" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.householdLabel}
+                  </label>
+                  <input
+                    type="text"
+                    id="household"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.householdPlaceholder}
+                    value={household}
+                    onChange={(e) => setHousehold(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* First Name */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="firstName" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.firstNameLabel}
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.firstNamePlaceholder}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Last Name */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="lastName" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.lastNameLabel}
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.lastNamePlaceholder}
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Email Address */}
+                <div className="flex flex-col gap-2 md:col-span-2">
+                  <label htmlFor="email" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.emailLabel}
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.emailPlaceholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Date of Birth */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="dob" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.dobLabel}
+                  </label>
+                  <input
+                    type="date"
+                    id="dob"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Gender */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="gender" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.genderLabel}
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="gender"
+                      className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      disabled={isSubmitting}
+                      required
+                    >
+                      <option value="" disabled hidden>
+                        {t.genderPlaceholder}
+                      </option>
+                      <option value="Male">{t.genderMale}</option>
+                      <option value="Female">{t.genderFemale}</option>
+                      <option value="Other">{t.genderOther}</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                      <span className="text-[10px]">▼</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Number */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="mobile" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.mobileLabel}
+                  </label>
+                  <input
+                    type="tel"
+                    id="mobile"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.mobilePlaceholder}
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Select GN Division */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="division" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.divisionLabel}
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="division"
+                      className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
+                      value={division}
+                      onChange={(e) => setDivision(e.target.value)}
+                      disabled={isSubmitting}
+                      required
+                    >
+                      <option value="" disabled hidden>
+                        {t.divisionPlaceholder}
+                      </option>
+                      {divisions.map((divName, index) => (
+                        <option key={index} value={divName}>
+                          {divName}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                      <span className="text-[10px]">▼</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="password" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.passwordLabel}
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.passwordPlaceholder}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+
+                {/* Confirm Password */}
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="confirmPassword" className="text-[14px] font-medium text-[#2D3748] text-left">
+                    {t.confirmPasswordLabel}
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                    placeholder={t.confirmPasswordPlaceholder}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Error Message */}
+              {errorMessage && (
+                <p className="text-[#ef4444] text-[13px] text-left mt-1">
+                  {errorMessage}
+                </p>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className={`w-full py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating Account..." : t.submitButton}
+              </button>
+            </form>
+
+            {/* Already have an account link */}
+            <div className="text-[14px] text-gray-500 text-center mt-6">
+              {t.alreadyAccount}{" "}
+              <span
+                className="text-[#D69E2E] hover:text-[#FFAA00] font-semibold cursor-pointer ml-1 transition-colors duration-200"
+                onClick={() => navigate("/login")}
+              >
+                {t.loginLink}
+              </span>
+            </div>
+
+            {/* Bottom Row: Back & Logo */}
+            <div className="flex justify-between items-center mt-8 border-t border-[#2D37481F] pt-6">
+              <button
+                className="flex items-center gap-1.5 text-gray-500 hover:text-[#2D3748] text-[14px] font-medium transition-colors duration-200 cursor-pointer"
+                onClick={() => navigate("/")}
+                disabled={isSubmitting}
+              >
+                <span className="text-[18px]">←</span> {t.back}
+              </button>
+
+              <img
+                src={logoImage}
+                alt="SmartGN Logo"
+                className="w-[120px] h-auto object-contain cursor-pointer"
+                onClick={() => navigate("/")}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
