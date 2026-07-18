@@ -232,6 +232,13 @@ function Register() {
     }
     return () => clearInterval(interval);
   }, [timerCount]);
+
+  // Focus helper on entering OTP state
+  useEffect(() => {
+    if (showOtpVerify && inputRefs[0].current) {
+      setTimeout(() => inputRefs[0].current.focus(), 100);
+    }
+  }, [showOtpVerify]);
   
 
   const handleRegisterSubmit = async (e) => {
