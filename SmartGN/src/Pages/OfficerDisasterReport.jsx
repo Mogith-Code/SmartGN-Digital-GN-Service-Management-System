@@ -195,3 +195,15 @@ import Footer from '../Components/Common/Footer'
                           </svg>
                           <span>{disaster.date}</span>
                         </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border
+                            ${disaster.status === 'Resolved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
+                              disaster.status === 'Pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                              'bg-sky-50 text-sky-700 border-sky-200'}`}
+                          >
+                            {disaster.status || 'Pending'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
