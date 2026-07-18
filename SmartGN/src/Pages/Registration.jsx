@@ -364,7 +364,21 @@ const handleOtpDigitChange = (value, index) => {
     if (otpValue.length !== 6) {
       setErrorMessage(t.otpErrorInvalid);
       return;
-    } 
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch("/api/auth/verify-registration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: verificationEmail,
+          nic: verificationNic,
+          otp: otpValue
+        }),
+      });    
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
