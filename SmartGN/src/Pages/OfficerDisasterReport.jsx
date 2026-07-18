@@ -162,3 +162,8 @@ import Footer from '../Components/Common/Footer'
                           </div>
                           <h3 className="text-base font-bold text-[#1B365D] m-0">{disaster.type}</h3>
                         </div>
+
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase ${severityBadgeClass}`}>
+                          {disaster.severity}
+                        </span>
+                      </div>
