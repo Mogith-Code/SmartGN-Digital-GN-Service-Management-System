@@ -293,6 +293,100 @@ import Footer from '../Components/Common/Footer'
 
               </div>
 
+              {/* GN Officer Action Panel */}
+              <div className="border-t border-gray-100 pt-4 mt-2">
+                <h4 className="text-sm font-bold text-[#1B365D] mb-4">
+                  GN Officer Action Panel
+                </h4>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalSeveritySelect" className="text-xs font-bold text-[#475569]">Update Severity Level</label>
+                  <select 
+                    id="modalSeveritySelect"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    value={modalSeverity}
+                    onChange={(e) => setModalSeverity(e.target.value)}
+                    required
+                  >
+                    <option value="low severity">Low Severity</option>
+                    <option value="medium severity">Medium Severity</option>
+                    <option value="high severity">High Severity</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="modalStatusSelect" className="text-xs font-bold text-[#475569]">Relief / Action Status</label>
+                  <select 
+                    id="modalStatusSelect"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    value={modalStatus}
+                    onChange={(e) => setModalStatus(e.target.value)}
+                    required
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Relief Approved">Relief Approved</option>
+                    <option value="Aid Dispatched">Aid Dispatched</option>
+                    <option value="Resolved">Resolved</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <label htmlFor="modalRemarksInput" className="text-xs font-bold text-[#475569]">Officer Remarks & Actions Taken</label>
+                  <textarea 
+                    id="modalRemarksInput"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
+                    rows="3"
+                    placeholder="Enter official remarks, dispatch instructions, or relief status details..."
+                    value={modalRemarks}
+                    onChange={(e) => setModalRemarks(e.target.value)}
+                  ></textarea>
+                </div>
+
+              </div>
+
+              <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
+                <button 
+                  type="button" 
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors" 
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs"
+                >
+                  Save Action & Update
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* Floating Help Trigger */}
+      <button 
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
+        aria-label="Help Trigger" 
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  )
+}
+
+export default OfficerDisasterReports
+
+
 
 
 
