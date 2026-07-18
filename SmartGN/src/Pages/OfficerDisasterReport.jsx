@@ -177,3 +177,5 @@ import Footer from '../Components/Common/Footer'
                           </svg>
                           <span className="truncate">{disaster.location}</span>
                         </div>
+
+                        </div>
