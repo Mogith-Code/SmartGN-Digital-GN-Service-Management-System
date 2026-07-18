@@ -207,3 +207,75 @@ import Footer from '../Components/Common/Footer'
                         </div>
                       </div>
                     </div>
+
+                    <button 
+                      onClick={() => handleOpenActionModal(disaster)}
+                      className="w-full bg-[#005BBD] hover:bg-[#1B365D] text-white border-0 py-2.5 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      View Details & Action
+                    </button>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Take Action Modal */}
+      {isModalOpen && selectedDisaster && (
+        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl flex flex-col my-8 relative text-left">
+            
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <h3 className="text-lg font-bold text-[#1B365D]">Disaster Damage Report Details</h3>
+              <button 
+                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer" 
+                onClick={() => setIsModalOpen(false)} 
+                aria-label="Close Modal"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAction} className="mt-6 flex flex-col gap-5 text-left">
+              
+              {/* Report Information Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-gray-400">Disaster Type</span>
+                  <span className="font-semibold text-gray-800">{selectedDisaster.type}</span>
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-gray-400">Report Date</span>
+                  <span className="font-semibold text-gray-800">{selectedDisaster.date}</span>
+                </div>
+
+                <div className="flex flex-col gap-1 col-span-1 sm:col-span-2">
+                  <span className="text-xs font-bold text-gray-400">Location / Area</span>
+                  <span className="font-semibold text-gray-800">{selectedDisaster.location}</span>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-gray-400">Reporter Name</span>
+                  <span className="font-semibold text-gray-800">{selectedDisaster.reporter}</span>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-gray-400">Contact Number</span>
+                  <span className="font-semibold text-gray-800">{selectedDisaster.contact}</span>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-bold text-gray-400">Initial Severity</span>
+                  <span className="font-semibold text-gray-850 capitalize text-amber-600">{selectedDisaster.severity}</span>
+                </div>
+
+
+
