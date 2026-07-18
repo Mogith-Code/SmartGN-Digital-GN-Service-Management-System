@@ -89,6 +89,15 @@ const registrationTranslations = {
     errorNetwork:
       "ජාල සම්බන්ධතා දෝෂයකි. MySQL පසුබිම් සේවාදායකය සක්‍රීය දැයි පරීක්ෂා කරන්න.",
     householdCreated: "නව ගෘහය සාර්ථකව සාදන ලදී!",
+    otpTitle: "විද්‍යුත් තැපැල් ලිපිනය තහවුරු කරන්න",
+    otpDescription: "අපි ඉලක්කම් 6ක තහවුරු කිරීමේ කේතයක් මෙහි යවා ඇත:",
+    otpLabel: "ඉලක්කම් 6ක OTP කේතය ඇතුළත් කරන්න",
+    otpVerifyButton: "තහවුරු කර සක්‍රීය කරන්න",
+    otpResendCode: "කේතය නැවත එවන්න",
+    otpResending: "නැවත යවමින්...",
+    otpBackToRegister: "ලියාපදිංචියට ආපසු යන්න",
+    otpErrorInvalid: "කරුණාකර වලංගු ඉලක්කම් 6ක කේතයක් ඇතුළත් කරන්න.",
+    otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!"
     
   },
   TA: {
