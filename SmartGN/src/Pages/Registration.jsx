@@ -41,6 +41,15 @@ const registrationTranslations = {
     errorNetwork:
       "Network connection error. Please make sure the MySQL backend server is active.",
     householdCreated: "New household created successfully!",
+    otpTitle: "Verify Email Address",
+    otpDescription: "We've sent a 6-digit verification code to",
+    otpLabel: "Enter 6-Digit OTP Code",
+    otpVerifyButton: "Verify & Activate",
+    otpResendCode: "Resend Code",
+    otpResending: "Resending...",
+    otpBackToRegister: "Back to Register",
+    otpErrorInvalid: "Please enter a valid 6-digit code.",
+    otpResendSuccess: "Verification code resent successfully!"
     
   },
   SI: {
