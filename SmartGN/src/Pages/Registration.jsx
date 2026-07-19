@@ -407,7 +407,14 @@ const handleOtpDigitChange = (value, index) => {
     }
   };
 
-  try {
+  const handleResendOtp = async () => {
+    if (timerCount > 0 || isResending) return;
+
+    setIsResending(true);
+    setErrorMessage("");
+    setResendSuccessMessage("");
+
+    try {
       const response = await fetch("/api/auth/resend-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -439,13 +446,6 @@ const handleOtpDigitChange = (value, index) => {
       setIsResending(false);
     }
   };
-
-  const handleResendOtp = async () => {
-    if (timerCount > 0 || isResending) return;
-
-    setIsResending(true);
-    setErrorMessage("");
-    setResendSuccessMessage("");
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">

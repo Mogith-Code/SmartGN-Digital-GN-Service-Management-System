@@ -5,7 +5,7 @@ import RAppointment from "./Pages/RAppointment.jsx";
 import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
 import Login from "./Pages/Login.jsx";
 import RHousehold from "./Pages/RHousehold.jsx";
-// import Register from "./Pages/Registration.jsx";
+import Register from "./Pages/Registration.jsx";
 import ResidentProfile from "./Pages/ResidentProfile.jsx";
 import OfficerProfile from "./Pages/OfficerProfile.jsx";
 import OfficerCertificates from "./Pages/OfficerCertificates.jsx";
@@ -110,7 +110,7 @@ function App() {
         />
 
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/register" element={<Register />} />
         <Route path="/success" element={<Success />} />
 
         <Route
