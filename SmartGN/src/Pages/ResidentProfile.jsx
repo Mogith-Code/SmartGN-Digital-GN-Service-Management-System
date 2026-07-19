@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
+import { getAuthHeaders } from "../utils/api";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
 import profileIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -61,38 +62,52 @@ function ResidentProfile({ onOpenHelp }) {
 
   const [familyCount, setFamilyCount] = useState(5); // default count
 
-  // Load from localStorage on mount
+  // Load profile from API first, then fall back to localStorage
   useEffect(() => {
-    const savedProfile = localStorage.getItem("smartgn_resident_profile");
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
-    } else {
-      // Seed default profile data
-      const defaultProfile = {
-        firstName: "Nimal",
-        lastName: "Perera",
-        fullName: "Dissanayake Mudiyanselage Nimal Perera",
-        nic: "200324511540",
-        occupation: "Farmer",
-        email: "Nimal.Perera@example.com",
-        mobile: "0703564478",
-        address: "123 Main Street, Colombo",
-        division: "Colombo, Borella",
-        dob: "28/05/2000",
-        gender: "Male",
-        householdNumber: "123456",
-        profilePhoto: null,
-        nicFront: null,
-        nicBack: null,
-      };
-      localStorage.setItem(
-        "smartgn_resident_profile",
-        JSON.stringify(defaultProfile),
-      );
-      setProfile(defaultProfile);
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/residents/profile", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = {
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            fullName: data.full_name || `${data.first_name} ${data.last_name}`,
+            nic: data.r_nic || "",
+            occupation: data.occupation || "",
+            email: data.email || "",
+            mobile: data.mobile_no || "",
+            address: data.current_address || data.permanent_address || "",
+            division: data.division_name || "",
+            dob: data.date_of_birth || "",
+            gender: data.gender || "",
+            householdNumber: data.household_number || "",
+            profilePhoto: data.profile_photo_path || null,
+            nicFront: data.nic_front_path || null,
+            nicBack: data.nic_back_path || null,
+          };
+          setProfile(mapped);
+          localStorage.setItem(
+            "smartgn_resident_profile",
+            JSON.stringify(mapped),
+          );
+        } else {
+          throw new Error("API error");
+        }
+      } catch {
+        // Fall back to localStorage
+        const savedProfile = localStorage.getItem("smartgn_resident_profile");
+        if (savedProfile) {
+          setProfile(JSON.parse(savedProfile));
+        }
+      }
+    };
 
-    // Load family members to show dynamic count
+    fetchProfile();
+
+    // Load family members for dynamic count
     const savedFamily = localStorage.getItem("smartgn_family_members");
     if (savedFamily) {
       const familyList = JSON.parse(savedFamily);
@@ -136,7 +151,7 @@ function ResidentProfile({ onOpenHelp }) {
   };
 
   // Save changes
-  const handleSaveProfile = (e) => {
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
 
     const updatedProfile = {
@@ -156,11 +171,31 @@ function ResidentProfile({ onOpenHelp }) {
       nicBack: editNicBack,
     };
 
+    // Save to localStorage immediately
     localStorage.setItem(
       "smartgn_resident_profile",
       JSON.stringify(updatedProfile),
     );
     setProfile(updatedProfile);
+
+    // Also save to API
+    try {
+      await fetch("/api/residents/profile", {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          firstName: editFirstName,
+          lastName: editLastName,
+          mobile: editMobile,
+          occupation: editOccupation,
+          permanentAddress: editAddress,
+          currentAddress: editAddress,
+        }),
+      });
+    } catch (err) {
+      console.warn("Could not sync profile update to API:", err);
+    }
+
     setViewMode("VIEW");
     alert("Profile updated successfully.");
   };
