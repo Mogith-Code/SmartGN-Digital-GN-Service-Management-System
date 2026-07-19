@@ -949,7 +949,7 @@ async function setupTables(dbPool) {
       `);
     }
 
-    console.log('Database tables verified and seeded successfully.');
+    console.log('✅ Database tables verified and seeded successfully.');
 }
 
 async function getPool() {
@@ -985,7 +985,7 @@ async function getPool() {
 
         return pool;
     } catch (error) {
-        console.error('Failed to connect to MySQL database:', error.message);
+        console.error('❌ Failed to connect to MySQL database:', error.message);
         throw error;
     }
 }
