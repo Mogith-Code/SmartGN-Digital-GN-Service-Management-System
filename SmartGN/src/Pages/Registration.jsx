@@ -378,7 +378,74 @@ const handleOtpDigitChange = (value, index) => {
           nic: verificationNic,
           otp: otpValue
         }),
-      });    
+      });
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.error || t.otpErrorInvalid);
+        setIsSubmitting(false);
+        return;
+      }
+
+      setErrorMessage("");
+      setIsSubmitting(false);
+      
+      // Navigate to success
+      navigate("/success", {
+        state: {
+          successUser: `${firstName} ${lastName} (NIC: ${nic})`,
+          isRegister: true,
+          householdCreated: householdCreatedState,
+          message: "Account created and verified. Two-Factor Authentication (2FA) is now active."
+        },
+      });
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      setErrorMessage(t.errorNetwork);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (timerCount > 0 || isResending) return;
+
+    setIsResending(true);
+    setErrorMessage("");
+    setResendSuccessMessage("");
+
+    try {
+      const response = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: verificationEmail,
+          purpose: "REGISTRATION"
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.error || "Failed to resend code.");
+        setIsResending(false);
+        return;
+      }
+
+      setResendSuccessMessage(t.otpResendSuccess);
+      setTimerCount(60); // reset cooldown
+      setOtpDigits(["", "", "", "", "", ""]);
+      if (data.otpForTesting) {
+        setDevOtpTip(data.otpForTesting);
+      }
+      setIsResending(false);
+      if (inputRefs[0].current) inputRefs[0].current.focus();
+    } catch (err) {
+      console.error("Resend error:", err);
+      setErrorMessage(t.errorNetwork);
+      setIsResending(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
