@@ -417,6 +417,14 @@ const handleOtpDigitChange = (value, index) => {
         }),
       });
 
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.error || "Failed to resend code.");
+        setIsResending(false);
+        return;
+      }
+
   const handleResendOtp = async () => {
     if (timerCount > 0 || isResending) return;
 
