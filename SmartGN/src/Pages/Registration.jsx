@@ -425,6 +425,21 @@ const handleOtpDigitChange = (value, index) => {
         return;
       }
 
+      setResendSuccessMessage(t.otpResendSuccess);
+      setTimerCount(60); // reset cooldown
+      setOtpDigits(["", "", "", "", "", ""]);
+      if (data.otpForTesting) {
+        setDevOtpTip(data.otpForTesting);
+      }
+      setIsResending(false);
+      if (inputRefs[0].current) inputRefs[0].current.focus();
+    } catch (err) {
+      console.error("Resend error:", err);
+      setErrorMessage(t.errorNetwork);
+      setIsResending(false);
+    }
+  };
+
   const handleResendOtp = async () => {
     if (timerCount > 0 || isResending) return;
 
