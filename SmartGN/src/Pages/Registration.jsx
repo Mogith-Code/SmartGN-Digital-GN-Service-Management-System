@@ -389,7 +389,23 @@ const handleOtpDigitChange = (value, index) => {
       }
 
       setErrorMessage("");
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
+      
+      // Navigate to success
+      navigate("/success", {
+        state: {
+          successUser: `${firstName} ${lastName} (NIC: ${nic})`,
+          isRegister: true,
+          householdCreated: householdCreatedState,
+          message: "Account created and verified. Two-Factor Authentication (2FA) is now active."
+        },
+      });
+    } catch (err) {
+      console.error("OTP verification error:", err);
+      setErrorMessage(t.errorNetwork);
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
