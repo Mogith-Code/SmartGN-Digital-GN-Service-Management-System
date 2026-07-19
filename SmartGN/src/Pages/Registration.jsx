@@ -378,7 +378,15 @@ const handleOtpDigitChange = (value, index) => {
           nic: verificationNic,
           otp: otpValue
         }),
-      });    
+      });
+      
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.error || t.otpErrorInvalid);
+        setIsSubmitting(false);
+        return;
+      }
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
