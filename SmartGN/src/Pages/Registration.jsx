@@ -407,6 +407,16 @@ const handleOtpDigitChange = (value, index) => {
     }
   };
 
+  try {
+      const response = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: verificationEmail,
+          purpose: "REGISTRATION"
+        }),
+      });
+
   const handleResendOtp = async () => {
     if (timerCount > 0 || isResending) return;
 
