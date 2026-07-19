@@ -1,18 +1,18 @@
 export const getAuthHeaders = () => {
-  const token = localStorage.getItem('smartgn_token')
+  const token = localStorage.getItem("smartgn_token");
   return {
-    'Authorization': token ? `Bearer ${token}` : '',
-    'Content-Type': 'application/json'
-  }
-}
+    Authorization: token ? `Bearer ${token}` : "",
+    "Content-Type": "application/json",
+  };
+};
 
 export const authenticatedFetch = (url, options = {}) => {
   const headers = {
     ...getAuthHeaders(),
-    ...options.headers
-  }
+    ...options.headers,
+  };
   return fetch(url, {
     ...options,
-    headers
-  })
-}
+    headers,
+  });
+};

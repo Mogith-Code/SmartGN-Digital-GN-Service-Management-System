@@ -24,7 +24,7 @@ exports.getDivisions = async (req, res) => {
     }
 };
 
-// POST /api/auth/register
+// 2. POST /api/auth/register (Resident registration with household creation)
 exports.registerResident = async (req, res) => {
     const { nic, name, dob, password, gender, mobile, email, householdNumber, division } = req.body;
 
@@ -68,23 +68,20 @@ exports.registerResident = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Split name into first and last name
+        // Split name into first and last name for database fields
         const nameParts = name.trim().split(/\s+/);
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        // ✅ INSERT: full_name is NULL by default
+        // Insert resident in 'Pending' status (requires OTP verification to activate)
         await db.query(`
-            INSERT INTO resident (
-                r_nic, first_name, last_name, full_name, date_of_birth, 
-                password_hash, gender, mobile_no, email, household_number, 
-                status, is_2fa_enabled
-            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
+            INSERT INTO resident (r_nic, first_name, last_name, date_of_birth, password_hash, gender, mobile_no, email, household_number, status, is_2fa_enabled)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
         `, [nic, firstName, lastName, dob, hashedPassword, gender, mobile, email, householdNumber]);
 
         // Generate OTP for registration verification
         const otp = generateOTP();
-        const expiresAt = Date.now() + 5 * 60 * 1000;
+        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins validity
 
         otpStore.set(email, {
             otp,
@@ -93,6 +90,7 @@ exports.registerResident = async (req, res) => {
             tempUserData: { nic, email }
         });
 
+        // Send OTP
         await emailService.sendOTP(email, otp, 'registration');
 
         return res.status(201).json({
@@ -101,6 +99,7 @@ exports.registerResident = async (req, res) => {
             householdCreated: householdCreated,
             email: email,
             nic: nic,
+            // Include OTP in dev mode for easy testing
             otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
         });
     } catch (error) {
