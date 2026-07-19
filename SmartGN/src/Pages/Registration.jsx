@@ -407,6 +407,13 @@ const handleOtpDigitChange = (value, index) => {
     }
   };
 
+  const handleResendOtp = async () => {
+    if (timerCount > 0 || isResending) return;
+
+    setIsResending(true);
+    setErrorMessage("");
+    setResendSuccessMessage("");
+
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
       {/* Language Selector */}
