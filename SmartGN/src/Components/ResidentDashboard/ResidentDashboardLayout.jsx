@@ -321,7 +321,12 @@ function ResidentDashboardLayout() {
           {showAlert && profile.nic && (
             <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
               <div className="flex items-center gap-2">
-                <span>
+                <span
+                  className="hover:underline hover:cursor-pointer"
+                  onClick={() => {
+                    navigate("/ResidentDashboard/profile");
+                  }}
+                >
                   Please upload a high-quality image of your National Identity
                   Card
                 </span>
