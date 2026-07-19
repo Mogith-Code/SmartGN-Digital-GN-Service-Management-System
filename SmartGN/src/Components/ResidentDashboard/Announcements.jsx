@@ -66,7 +66,7 @@ function Announcements() {
               Loading announcements...
             </div>
           ) : announcements.length === 0 ? (
-            <div className="text-sm text-[#2D374880] py-4 text-center">
+            <div className="flex w-full flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
               No announcements from your GN division yet.
             </div>
           ) : (
