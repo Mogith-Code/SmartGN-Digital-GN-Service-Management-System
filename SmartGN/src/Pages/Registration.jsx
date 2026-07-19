@@ -388,6 +388,9 @@ const handleOtpDigitChange = (value, index) => {
         return;
       }
 
+      setErrorMessage("");
+      setIsSubmitting(false); 
+
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
       {/* Language Selector */}
