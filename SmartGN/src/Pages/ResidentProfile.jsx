@@ -19,14 +19,17 @@ function ResidentProfile({ onOpenHelp }) {
     EN: {
       alert:
         "Please upload a high-quality image of your National Identity Card",
+      title: "My profile",
     },
     SI: {
       alert:
         "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් කාඩ්පතේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
+      title: "මගේ පැතිකඩ",
     },
     TA: {
       alert:
         "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
+      title: "என் சுயவிவரம்",
     },
   };
 
@@ -233,7 +236,7 @@ function ResidentProfile({ onOpenHelp }) {
             <>
               <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
                 <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
-                  My profile
+                  {t.title}
                 </h2>
 
                 <div className="flex justify-end -mt-[70px]">
