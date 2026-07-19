@@ -261,12 +261,18 @@ function ResidentDashboardLayout() {
   const DashboardLayoutTranslations = {
     EN: {
       greeting: `Have a Nice Day, ${profile.firstName || "Resident"}!`,
+      alert:
+        "Please upload a high-quality image of your National Identity Card",
     },
     SI: {
       greeting: `සුභ දවසක්, ${profile.firstName || "නේවාසික"}!`,
+      alert:
+        "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් කාඩ්පතේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
     },
     TA: {
       greeting: `இனிய நாள், ${profile.firstName || "குடியுரிமை"}!`,
+      alert:
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
     },
   };
 
@@ -327,8 +333,7 @@ function ResidentDashboardLayout() {
                     navigate("/ResidentDashboard/profile");
                   }}
                 >
-                  Please upload a high-quality image of your National Identity
-                  Card
+                  {t.alert}
                 </span>
               </div>
               <button

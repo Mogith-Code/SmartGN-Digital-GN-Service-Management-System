@@ -14,7 +14,23 @@ function ResidentProfile({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const t = translations[lang];
+
+  const RprofileTranslations = {
+    EN: {
+      alert:
+        "Please upload a high-quality image of your National Identity Card",
+    },
+    SI: {
+      alert:
+        "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් කාඩ්පතේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
+    },
+    TA: {
+      alert:
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
+    },
+  };
+
+  const t = RprofileTranslations[lang] || RprofileTranslations.EN;
 
   // Retrieve default username and division from navigation state if available
   const successUser = location.state?.successUser || "Nimal Perera";
@@ -231,8 +247,7 @@ function ResidentProfile({ onOpenHelp }) {
                             navigate("/ResidentDashboard/profile");
                           }}
                         >
-                          Please upload a high-quality image of your National
-                          Identity Card
+                          {t.alert}
                         </span>
                       </div>
                       <button
