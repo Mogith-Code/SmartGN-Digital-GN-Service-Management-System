@@ -820,3 +820,31 @@ exports.getOfficerById = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching officer details.' });
     }
 };
+
+// GN DIVISION MANAGEMENT CONTROLLERS
+
+// 17. GET /api/auth/admin/divisions
+exports.getAllDivisionsDetails = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                division_id,
+                division_code,
+                name,
+                district,
+                province,
+                divisional_secretariat,
+                population,
+                household_count,
+                is_active,
+                created_at,
+                updated_at
+            FROM gn_division
+            ORDER BY created_at DESC
+        `);
+        return res.json(rows);
+    } catch (error) {
+        console.error('Error fetching detailed GN divisions:', error);
+        return res.status(500).json({ error: 'Server error fetching division details.' });
+    }
+};
