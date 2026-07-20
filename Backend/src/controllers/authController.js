@@ -886,3 +886,12 @@ exports.createDivision = async (req, res) => {
         return res.status(500).json({ error: 'Server error creating GN Division.' });
     }
 };
+
+// 19. PUT /api/auth/admin/divisions/:id
+exports.updateDivision = async (req, res) => {
+    const { id } = req.params;
+    const { division_code, name, district, province, divisional_secretariat, population, household_count, is_active } = req.body;
+
+    if (!division_code || !name || !district || !province || !divisional_secretariat) {
+        return res.status(400).json({ error: 'Please provide all required fields.' });
+    }
