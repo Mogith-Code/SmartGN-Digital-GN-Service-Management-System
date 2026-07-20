@@ -94,12 +94,12 @@ function ResidentProfile({ onOpenHelp }) {
           const mapped = {
             firstName: data.first_name || "",
             lastName: data.last_name || "",
-            fullName: data.full_name || "Add Your full name",
+            fullName: data.full_name || "Add your full name",
             nic: data.r_nic || "",
-            occupation: data.occupation || "",
+            occupation: data.occupation || "Add your occupation",
             email: data.email || "",
             mobile: data.mobile_no || "",
-            homeAddress: data.home_address || "",
+            homeAddress: data.home_address || "Add your home address",
             division: data.division_name || "",
             dob: data.date_of_birth || "",
             gender: data.gender || "",
@@ -417,7 +417,7 @@ function ResidentProfile({ onOpenHelp }) {
                         Home Address:
                       </span>
                       <span className="text-[15px] font-semibold text-[#1e293b]">
-                        {profile.address}
+                        {profile.homeAddress}
                       </span>
                     </div>
                     <div className="flex flex-col">
