@@ -923,3 +923,14 @@ exports.updateDivision = async (req, res) => {
             id,
             id
         ]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
+
+        return res.json({ message: 'GN Division updated successfully.' });
+    } catch (error) {
+        console.error('Error updating division:', error);
+        return res.status(500).json({ error: 'Server error updating GN Division.' });
+    }
+};
