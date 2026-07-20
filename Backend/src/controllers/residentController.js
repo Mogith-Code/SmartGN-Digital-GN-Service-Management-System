@@ -240,7 +240,7 @@ exports.getFamilyMembers = async (req, res) => {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
-    try {
+    try { 
         const [rows] = await db.query(`
             SELECT 
                 member_id,

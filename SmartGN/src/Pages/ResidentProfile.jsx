@@ -79,9 +79,10 @@ function ResidentProfile({ onOpenHelp }) {
   const [editNicFront, setEditNicFront] = useState(null);
   const [editNicBack, setEditNicBack] = useState(null);
 
-  const [familyCount, setFamilyCount] = useState(0); // default count
+  // ✅ Family count - Fetch from API instead of localStorage
+  const [familyCount, setFamilyCount] = useState(0);
 
-  // Load profile from API first, then fall back to localStorage
+  // Load profile from API
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -126,12 +127,35 @@ function ResidentProfile({ onOpenHelp }) {
 
     fetchProfile();
 
-    // Load family members for dynamic count
-    const savedFamily = localStorage.getItem("smartgn_family_members");
-    if (savedFamily) {
-      const familyList = JSON.parse(savedFamily);
-      setFamilyCount(familyList.length);
-    }
+    // ✅ Fetch family members count from API
+    const fetchFamilyCount = async () => {
+      try {
+        const res = await fetch("/api/residents/family", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const familyMembers = await res.json();
+          setFamilyCount(familyMembers.length);
+        } else {
+          // If API fails, try localStorage as fallback
+          const savedFamily = localStorage.getItem("smartgn_family_members");
+          if (savedFamily) {
+            const familyList = JSON.parse(savedFamily);
+            setFamilyCount(familyList.length);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch family count:", err);
+        // Fallback to localStorage
+        const savedFamily = localStorage.getItem("smartgn_family_members");
+        if (savedFamily) {
+          const familyList = JSON.parse(savedFamily);
+          setFamilyCount(familyList.length);
+        }
+      }
+    };
+
+    fetchFamilyCount();
   }, []);
 
   // Populate form fields when entering Edit Mode
@@ -347,7 +371,8 @@ function ResidentProfile({ onOpenHelp }) {
                         Number of Family Members:
                       </span>
                       <span className="text-[15px] font-semibold text-[#1e293b]">
-                        {familyCount} &nbsp; &nbsp;
+                        {familyCount}
+                        &nbsp; &nbsp;
                         <span
                           onClick={() =>
                             navigate("/ResidentDashboard/RHousehold", {
