@@ -934,3 +934,17 @@ exports.updateDivision = async (req, res) => {
         return res.status(500).json({ error: 'Server error updating GN Division.' });
     }
 };
+
+// 20. PUT /api/auth/admin/divisions/:id/status
+exports.toggleDivisionStatus = async (req, res) => {
+    const { id } = req.params;
+    const { is_active, status } = req.body;
+
+    let activeBool;
+    if (status !== undefined) {
+        activeBool = status === 'Active';
+    } else if (is_active !== undefined) {
+        activeBool = Boolean(is_active);
+    } else {
+        return res.status(400).json({ error: 'Active status is required.' });
+    }
