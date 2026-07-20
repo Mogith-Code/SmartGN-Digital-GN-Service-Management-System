@@ -79,7 +79,7 @@ function ResidentProfile({ onOpenHelp }) {
   const [editNicFront, setEditNicFront] = useState(null);
   const [editNicBack, setEditNicBack] = useState(null);
 
-  const [familyCount, setFamilyCount] = useState(5); // default count
+  const [familyCount, setFamilyCount] = useState(0); // default count
 
   // Load profile from API first, then fall back to localStorage
   useEffect(() => {
@@ -93,7 +93,7 @@ function ResidentProfile({ onOpenHelp }) {
           const mapped = {
             firstName: data.first_name || "",
             lastName: data.last_name || "",
-            fullName: data.full_name || `${data.first_name} ${data.last_name}`,
+            fullName: data.full_name || "Add Your full name",
             nic: data.r_nic || "",
             occupation: data.occupation || "",
             email: data.email || "",
@@ -347,7 +347,7 @@ function ResidentProfile({ onOpenHelp }) {
                         Number of Family Members:
                       </span>
                       <span className="text-[15px] font-semibold text-[#1e293b]">
-                        {familyCount} &nbsp;
+                        {familyCount} &nbsp; &nbsp;
                         <span
                           onClick={() =>
                             navigate("/ResidentDashboard/RHousehold", {

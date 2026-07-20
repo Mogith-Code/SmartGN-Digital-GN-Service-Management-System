@@ -59,7 +59,7 @@ async function setupTables(dbPool) {
         r_nic VARCHAR(12) PRIMARY KEY,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL,
-        full_name VARCHAR(101) GENERATED ALWAYS AS (CONCAT(first_name, ' ', last_name)) STORED,
+        full_name VARCHAR(101) NULL,
         date_of_birth DATE NOT NULL,
         gender ENUM('Male', 'Female', 'Other') NOT NULL,
         mobile_no VARCHAR(15) NOT NULL,
