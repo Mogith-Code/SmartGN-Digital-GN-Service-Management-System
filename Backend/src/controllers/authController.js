@@ -948,3 +948,20 @@ exports.toggleDivisionStatus = async (req, res) => {
     } else {
         return res.status(400).json({ error: 'Active status is required.' });
     }
+
+    try {
+        const [result] = await db.query(
+            'UPDATE gn_division SET is_active = ? WHERE division_id = ? OR division_code = ?',
+            [activeBool, id, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
+
+        return res.json({ message: 'GN Division status updated successfully.' });
+    } catch (error) {
+        console.error('Error updating division status:', error);
+        return res.status(500).json({ error: 'Server error updating status.' });
+    }
+};
