@@ -866,3 +866,23 @@ exports.createDivision = async (req, res) => {
         if (existing.length > 0) {
             return res.status(400).json({ error: 'A GN Division with this Code or Name already exists.' });
         }
+
+        await db.query(`
+            INSERT INTO gn_division (division_code, name, district, province, divisional_secretariat, population, household_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            division_code,
+            name,
+            district,
+            province,
+            divisional_secretariat,
+            parseInt(population, 10) || 0,
+            parseInt(household_count, 10) || 0
+        ]);
+
+        return res.status(201).json({ message: 'GN Division created successfully.' });
+    } catch (error) {
+        console.error('Error creating division:', error);
+        return res.status(500).json({ error: 'Server error creating GN Division.' });
+    }
+};
