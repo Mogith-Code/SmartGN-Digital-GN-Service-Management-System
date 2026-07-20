@@ -895,3 +895,31 @@ exports.updateDivision = async (req, res) => {
     if (!division_code || !name || !district || !province || !divisional_secretariat) {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
+
+    try {
+        const [existing] = await db.query(
+            'SELECT division_id FROM gn_division WHERE (division_code = ? OR name = ?) AND division_id != ?',
+            [division_code, name, id]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Division Code or Name is already used by another division.' });
+        }
+
+        const activeBool = is_active !== undefined ? (is_active === true || is_active === 'Active' || is_active === 1) : true;
+
+        const [result] = await db.query(`
+            UPDATE gn_division
+            SET division_code = ?, name = ?, district = ?, province = ?, divisional_secretariat = ?, population = ?, household_count = ?, is_active = ?
+            WHERE division_id = ? OR division_code = ?
+        `, [
+            division_code,
+            name,
+            district,
+            province,
+            divisional_secretariat,
+            parseInt(population, 10) || 0,
+            parseInt(household_count, 10) || 0,
+            activeBool,
+            id,
+            id
+        ]);
