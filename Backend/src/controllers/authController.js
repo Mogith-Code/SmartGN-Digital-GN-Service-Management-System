@@ -848,3 +848,21 @@ exports.getAllDivisionsDetails = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching division details.' });
     }
 };
+
+// 18. POST /api/auth/admin/divisions
+exports.createDivision = async (req, res) => {
+    const { division_code, name, district, province, divisional_secretariat, population, household_count } = req.body;
+
+    if (!division_code || !name || !district || !province || !divisional_secretariat) {
+        return res.status(400).json({ error: 'Please provide all required fields for GN Division.' });
+    }
+
+    try {
+        // Check if code or name exists
+        const [existing] = await db.query(
+            'SELECT division_id FROM gn_division WHERE division_code = ? OR name = ?',
+            [division_code, name]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'A GN Division with this Code or Name already exists.' });
+        }
