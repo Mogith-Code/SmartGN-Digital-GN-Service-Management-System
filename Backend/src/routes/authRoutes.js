@@ -38,4 +38,11 @@ router.put('/admin/households/:number', authenticateToken, requireAdmin, authCon
 router.get('/admin/residents/:nic', authenticateToken, requireAdmin, authController.getResidentByNic);
 router.get('/admin/officers/:id', authenticateToken, requireAdmin, authController.getOfficerById);
 
+// GN Division management (Admin dashboard)
+router.get('/admin/divisions', authenticateToken, requireAdmin, authController.getAllDivisionsDetails);
+router.post('/admin/divisions', authenticateToken, requireAdmin, authController.createDivision);
+router.put('/admin/divisions/:id/status', authenticateToken, requireAdmin, authController.toggleDivisionStatus);
+router.put('/admin/divisions/:id', authenticateToken, requireAdmin, authController.updateDivision);
+router.delete('/admin/divisions/:id', authenticateToken, requireAdmin, authController.deleteDivision);
+
 module.exports = router;
