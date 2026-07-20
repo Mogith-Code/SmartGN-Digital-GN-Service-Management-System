@@ -24,9 +24,9 @@ exports.getDivisions = async (req, res) => {
     }
 };
 
-// 2. POST /api/auth/register (Resident registration with household creation)
+// POST /api/auth/register
 exports.registerResident = async (req, res) => {
-    const { nic, name, dob, password, gender, mobile, email, householdNumber, division } = req.body;
+    const { nic, name, dob, password, gender, mobile, email, householdNumber, division, homeAddress } = req.body;
 
     if (!nic || !name || !dob || !password || !gender || !mobile || !email || !householdNumber || !division) {
         return res.status(400).json({ error: 'Please provide all required fields.' });
@@ -59,7 +59,7 @@ exports.registerResident = async (req, res) => {
             await db.query(
                 `INSERT INTO household (household_number, address, division_id)
                  VALUES (?, ?, ?)`,
-                [householdNumber, `Address for household ${householdNumber}, ${division}`, divisionId]
+                [householdNumber, homeAddress || `Address for household ${householdNumber}, ${division}`, divisionId]
             );
             householdCreated = true;
             console.log(`✅ New household created: ${householdNumber}`);
@@ -68,20 +68,23 @@ exports.registerResident = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Split name into first and last name for database fields
+        // Split name into first and last name
         const nameParts = name.trim().split(/\s+/);
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        // Insert resident in 'Pending' status (requires OTP verification to activate)
+        // Insert resident with home_address
         await db.query(`
-            INSERT INTO resident (r_nic, first_name, last_name, date_of_birth, password_hash, gender, mobile_no, email, household_number, status, is_2fa_enabled)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
-        `, [nic, firstName, lastName, dob, hashedPassword, gender, mobile, email, householdNumber]);
+            INSERT INTO resident (
+                r_nic, first_name, last_name, full_name, date_of_birth, 
+                password_hash, gender, mobile_no, email, household_number, 
+                home_address, status, is_2fa_enabled
+            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
+        `, [nic, firstName, lastName, dob, hashedPassword, gender, mobile, email, householdNumber, homeAddress || null]);
 
-        // Generate OTP for registration verification
+        // Generate OTP
         const otp = generateOTP();
-        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins validity
+        const expiresAt = Date.now() + 5 * 60 * 1000;
 
         otpStore.set(email, {
             otp,
@@ -90,7 +93,6 @@ exports.registerResident = async (req, res) => {
             tempUserData: { nic, email }
         });
 
-        // Send OTP
         await emailService.sendOTP(email, otp, 'registration');
 
         return res.status(201).json({
@@ -99,7 +101,6 @@ exports.registerResident = async (req, res) => {
             householdCreated: householdCreated,
             email: email,
             nic: nic,
-            // Include OTP in dev mode for easy testing
             otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
         });
     } catch (error) {
@@ -498,7 +499,7 @@ exports.getOfficers = async (req, res) => {
     }
 };
 
-// 6. GET /api/auth/admin/residents
+// GET /api/auth/admin/residents
 exports.getResidents = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -511,13 +512,13 @@ exports.getResidents = async (req, res) => {
                 r.status, 
                 r.occupation, 
                 r.household_number,
-                h.address
+                r.home_address,
+                h.address AS household_address
             FROM resident r
             JOIN household h ON r.household_number = h.household_number
             JOIN gn_division d ON h.division_id = d.division_id
             ORDER BY r.created_at DESC
         `);
-        // Map keys for frontend compatibility
         const mapped = rows.map(r => ({ ...r, nic: r.r_nic }));
         return res.json(mapped);
     } catch (error) {
@@ -713,17 +714,16 @@ exports.updateOfficer = async (req, res) => {
     }
 };
 
-// 14. PUT /api/auth/admin/residents/:nic
+// PUT /api/auth/admin/residents/:nic
 exports.updateResident = async (req, res) => {
     const { nic } = req.params;
-    const { name, email, mobile_no, status, occupation, household_number, address } = req.body;
+    const { name, email, mobile_no, status, occupation, household_number, home_address, address } = req.body;
 
     if (!name || !email || !mobile_no || !status || !household_number) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
     }
 
     try {
-        // Check if email already taken by another resident
         const [existing] = await db.query('SELECT r_nic FROM resident WHERE email = ? AND r_nic != ?', [email, nic]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Email is already taken by another resident.' });
@@ -733,18 +733,17 @@ exports.updateResident = async (req, res) => {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        // Update resident
         const [result] = await db.query(`
             UPDATE resident 
-            SET first_name = ?, last_name = ?, email = ?, mobile_no = ?, status = ?, occupation = ?, household_number = ?
+            SET first_name = ?, last_name = ?, email = ?, mobile_no = ?, status = ?, 
+                occupation = ?, household_number = ?, home_address = ?
             WHERE r_nic = ?
-        `, [firstName, lastName, email, mobile_no, status, occupation, household_number, nic]);
+        `, [firstName, lastName, email, mobile_no, status, occupation, household_number, home_address || null, nic]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
-        // Update household details if provided
         if (address) {
             await db.query(`
                 UPDATE household 
@@ -760,7 +759,7 @@ exports.updateResident = async (req, res) => {
     }
 };
 
-// 15. GET /api/auth/admin/residents/:nic
+// GET /api/auth/admin/residents/:nic
 exports.getResidentByNic = async (req, res) => {
     const { nic } = req.params;
 
@@ -776,9 +775,10 @@ exports.getResidentByNic = async (req, res) => {
                 r.occupation,
                 r.status,
                 r.household_number,
+                r.home_address,
                 r.created_at,
                 d.name AS division_name,
-                h.address
+                h.address AS household_address
             FROM resident r
             JOIN household h ON r.household_number = h.household_number
             JOIN gn_division d ON h.division_id = d.division_id
@@ -789,7 +789,6 @@ exports.getResidentByNic = async (req, res) => {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
-        // Map keys for frontend compatibility
         const detail = { ...rows[0], nic: rows[0].r_nic };
         return res.json(detail);
     } catch (error) {

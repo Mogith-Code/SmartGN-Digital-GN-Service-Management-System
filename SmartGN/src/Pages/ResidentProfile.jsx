@@ -48,18 +48,18 @@ function ResidentProfile({ onOpenHelp }) {
 
   // Profile data state
   const [profile, setProfile] = useState({
-    firstName: "Nimal",
-    lastName: "Perera",
-    fullName: "Dissanayake Mudiyanselage Nimal Perera",
-    nic: "200324511540",
-    occupation: "Farmer",
-    email: "Nimal.Perera@example.com",
-    mobile: "0703564478",
-    address: "123 Main Street, Colombo",
-    division: "Colombo, Borella",
-    dob: "28/05/2000",
-    gender: "Male",
-    householdNumber: "123456",
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    nic: "",
+    occupation: "",
+    email: "",
+    mobile: "",
+    homeAddress: "",
+    division: "",
+    dob: "",
+    gender: "",
+    householdNumber: "",
     profilePhoto: null,
     nicFront: null,
     nicBack: null,
@@ -79,9 +79,10 @@ function ResidentProfile({ onOpenHelp }) {
   const [editNicFront, setEditNicFront] = useState(null);
   const [editNicBack, setEditNicBack] = useState(null);
 
-  const [familyCount, setFamilyCount] = useState(5); // default count
+  // ✅ Family count - Fetch from API instead of localStorage
+  const [familyCount, setFamilyCount] = useState(0);
 
-  // Load profile from API first, then fall back to localStorage
+  // Load profile from API
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -93,12 +94,12 @@ function ResidentProfile({ onOpenHelp }) {
           const mapped = {
             firstName: data.first_name || "",
             lastName: data.last_name || "",
-            fullName: data.full_name || `${data.first_name} ${data.last_name}`,
+            fullName: data.full_name || "Add your full name",
             nic: data.r_nic || "",
-            occupation: data.occupation || "",
+            occupation: data.occupation || "Add your occupation",
             email: data.email || "",
             mobile: data.mobile_no || "",
-            address: data.current_address || data.permanent_address || "",
+            homeAddress: data.home_address || "Add your home address",
             division: data.division_name || "",
             dob: data.date_of_birth || "",
             gender: data.gender || "",
@@ -126,12 +127,35 @@ function ResidentProfile({ onOpenHelp }) {
 
     fetchProfile();
 
-    // Load family members for dynamic count
-    const savedFamily = localStorage.getItem("smartgn_family_members");
-    if (savedFamily) {
-      const familyList = JSON.parse(savedFamily);
-      setFamilyCount(familyList.length);
-    }
+    // ✅ Fetch family members count from API
+    const fetchFamilyCount = async () => {
+      try {
+        const res = await fetch("/api/residents/family", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const familyMembers = await res.json();
+          setFamilyCount(familyMembers.length);
+        } else {
+          // If API fails, try localStorage as fallback
+          const savedFamily = localStorage.getItem("smartgn_family_members");
+          if (savedFamily) {
+            const familyList = JSON.parse(savedFamily);
+            setFamilyCount(familyList.length);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch family count:", err);
+        // Fallback to localStorage
+        const savedFamily = localStorage.getItem("smartgn_family_members");
+        if (savedFamily) {
+          const familyList = JSON.parse(savedFamily);
+          setFamilyCount(familyList.length);
+        }
+      }
+    };
+
+    fetchFamilyCount();
   }, []);
 
   // Populate form fields when entering Edit Mode
@@ -205,10 +229,10 @@ function ResidentProfile({ onOpenHelp }) {
         body: JSON.stringify({
           firstName: editFirstName,
           lastName: editLastName,
+          fullName: editFullName,
           mobile: editMobile,
           occupation: editOccupation,
-          permanentAddress: editAddress,
-          currentAddress: editAddress,
+          homeAddress: editHomeAddress,
         }),
       });
     } catch (err) {
@@ -347,7 +371,8 @@ function ResidentProfile({ onOpenHelp }) {
                         Number of Family Members:
                       </span>
                       <span className="text-[15px] font-semibold text-[#1e293b]">
-                        {familyCount} &nbsp;
+                        {familyCount}
+                        &nbsp; &nbsp;
                         <span
                           onClick={() =>
                             navigate("/ResidentDashboard/RHousehold", {
@@ -392,7 +417,7 @@ function ResidentProfile({ onOpenHelp }) {
                         Home Address:
                       </span>
                       <span className="text-[15px] font-semibold text-[#1e293b]">
-                        {profile.address}
+                        {profile.homeAddress}
                       </span>
                     </div>
                     <div className="flex flex-col">

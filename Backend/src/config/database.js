@@ -52,14 +52,14 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-    // 3. RESIDENT TABLE
+    // 3. RESIDENT TABLE (UPDATED: home_address instead of permanent/current)
     // ============================================================
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS resident (
         r_nic VARCHAR(12) PRIMARY KEY,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL,
-        full_name VARCHAR(101) GENERATED ALWAYS AS (CONCAT(first_name, ' ', last_name)) STORED,
+        full_name VARCHAR(101) NULL,
         date_of_birth DATE NOT NULL,
         gender ENUM('Male', 'Female', 'Other') NOT NULL,
         mobile_no VARCHAR(15) NOT NULL,
@@ -68,9 +68,8 @@ async function setupTables(dbPool) {
         occupation VARCHAR(100),
         household_number VARCHAR(50) NOT NULL,
         
-        -- Address fields
-        permanent_address TEXT,
-        current_address TEXT,
+        -- Address field
+        home_address TEXT,
         
         -- Images
         profile_photo_path VARCHAR(255),
@@ -846,8 +845,9 @@ async function setupTables(dbPool) {
         await dbPool.query(`
         INSERT INTO resident (
             r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, status, email_verified, mobile_verified
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            password_hash, occupation, household_number, status, email_verified, mobile_verified,
+            home_address
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
             '789456123V',
             'Nimal',
@@ -861,14 +861,16 @@ async function setupTables(dbPool) {
             'H-90823',
             'Active',
             true,
-            true
+            true,
+            '45/2, Temple Road, Borella'
         ]);
 
         await dbPool.query(`
         INSERT INTO resident (
             r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, status, email_verified, mobile_verified
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            password_hash, occupation, household_number, status, email_verified, mobile_verified,
+            home_address
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
             '897654321V',
             'Kamala',
@@ -882,7 +884,8 @@ async function setupTables(dbPool) {
             'H-90824',
             'Active',
             true,
-            true
+            true,
+            '12, School Lane, Borella'
         ]);
     }
 

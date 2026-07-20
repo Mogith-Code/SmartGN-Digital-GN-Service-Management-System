@@ -11,104 +11,6 @@ const getUserFromToken = (req) => {
     try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
 };
 
-// ============================================================
-// DASHBOARD STATS
-// ============================================================
-
-// GET /api/residents/dashboard-stats
-exports.getDashboardStats = async (req, res) => {
-    const user = getUserFromToken(req);
-    if (!user || user.role !== 'RESIDENT') {
-        return res.status(403).json({ error: 'Access denied. Residents only.' });
-    }
-
-    const nic = user.id;
-
-    try {
-        // Get pending certificates
-        const [pendingCerts] = await db.query(
-            'SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get approved certificates
-        const [approvedCerts] = await db.query(
-            'SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get pending appointments
-        const [pendingAppts] = await db.query(
-            'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get approved appointments
-        const [approvedAppts] = await db.query(
-            'SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get pending allowances
-        const [pendingAllow] = await db.query(
-            'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get approved allowances
-        const [approvedAllow] = await db.query(
-            'SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get pending disasters
-        const [pendingDisaster] = await db.query(
-            'SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?',
-            [nic]
-        );
-
-        // Get family members count
-        const [familyCount] = await db.query(
-            'SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE',
-            [nic]
-        );
-
-        // Upcoming appointments (approved and future)
-        const [upcomingAppts] = await db.query(
-            `SELECT COUNT(*) AS count FROM appointment_approved 
-             WHERE resident_nic = ? AND date >= CURDATE()`,
-            [nic]
-        );
-
-        return res.json({
-            certificates: {
-                pending: parseInt(pendingCerts[0].count) || 0,
-                approved: parseInt(approvedCerts[0].count) || 0
-            },
-            appointments: {
-                pending: parseInt(pendingAppts[0].count) || 0,
-                approved: parseInt(approvedAppts[0].count) || 0,
-                upcoming: parseInt(upcomingAppts[0].count) || 0
-            },
-            allowances: {
-                pending: parseInt(pendingAllow[0].count) || 0,
-                approved: parseInt(approvedAllow[0].count) || 0
-            },
-            disasters: {
-                pending: parseInt(pendingDisaster[0].count) || 0
-            },
-            familyMembers: parseInt(familyCount[0].count) || 0
-        });
-    } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-        return res.status(500).json({ error: 'Server error fetching dashboard stats.' });
-    }
-};
-
-// ============================================================
-// RESIDENT PROFILE
-// ============================================================
-
 // GET /api/residents/profile
 exports.getProfile = async (req, res) => {
     const user = getUserFromToken(req);
@@ -129,8 +31,7 @@ exports.getProfile = async (req, res) => {
                 r.email,
                 r.occupation,
                 r.household_number,
-                r.permanent_address,
-                r.current_address,
+                r.home_address,
                 r.profile_photo_path,
                 r.nic_front_path,
                 r.nic_back_path,
@@ -170,10 +71,9 @@ exports.updateProfile = async (req, res) => {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
-    const { firstName, lastName, fullName, mobile, occupation, permanentAddress, currentAddress } = req.body;
+    const { firstName, lastName, fullName, mobile, occupation, homeAddress } = req.body;
 
     try {
-        // Build dynamic update query
         const updates = [];
         const values = [];
 
@@ -197,13 +97,9 @@ exports.updateProfile = async (req, res) => {
             updates.push('occupation = ?');
             values.push(occupation || null);
         }
-        if (permanentAddress !== undefined) {
-            updates.push('permanent_address = ?');
-            values.push(permanentAddress || null);
-        }
-        if (currentAddress !== undefined) {
-            updates.push('current_address = ?');
-            values.push(currentAddress || null);
+        if (homeAddress !== undefined) {
+            updates.push('home_address = ?');
+            values.push(homeAddress || null);
         }
 
         if (updates.length === 0) {
@@ -229,9 +125,56 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// ============================================================
-// FAMILY MEMBERS
-// ============================================================
+// GET /api/residents/dashboard-stats
+exports.getDashboardStats = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    const nic = user.id;
+
+    try {
+        const [[pendingCerts]] = await db.query(
+            'SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?', [nic]);
+        const [[approvedCerts]] = await db.query(
+            'SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?', [nic]);
+        const [[pendingAppts]] = await db.query(
+            'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?', [nic]);
+        const [[approvedAppts]] = await db.query(
+            'SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?', [nic]);
+        const [[pendingAllowances]] = await db.query(
+            'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?', [nic]);
+        const [[approvedAllowances]] = await db.query(
+            'SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?', [nic]);
+        const [[pendingDisasters]] = await db.query(
+            'SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?', [nic]);
+        const [[familyCount]] = await db.query(
+            'SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE', [nic]);
+
+        return res.json({
+            certificates: {
+                pending: pendingCerts.count,
+                approved: approvedCerts.count
+            },
+            appointments: {
+                pending: pendingAppts.count,
+                approved: approvedAppts.count
+            },
+            allowances: {
+                pending: pendingAllowances.count,
+                approved: approvedAllowances.count
+            },
+            disasters: {
+                pending: pendingDisasters.count
+            },
+            familyMembers: familyCount.count
+        });
+    } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        return res.status(500).json({ error: 'Server error.' });
+    }
+};
 
 // GET /api/residents/family
 exports.getFamilyMembers = async (req, res) => {
@@ -354,10 +297,6 @@ exports.deleteFamilyMember = async (req, res) => {
     }
 };
 
-// ============================================================
-// HOUSEHOLD
-// ============================================================
-
 // GET /api/residents/household
 exports.getHousehold = async (req, res) => {
     const user = getUserFromToken(req);
@@ -440,10 +379,6 @@ exports.updateHousehold = async (req, res) => {
         return res.status(500).json({ error: 'Server error updating household.' });
     }
 };
-
-// ============================================================
-// ANNOUNCEMENTS
-// ============================================================
 
 // GET /api/residents/announcements
 exports.getAnnouncements = async (req, res) => {
