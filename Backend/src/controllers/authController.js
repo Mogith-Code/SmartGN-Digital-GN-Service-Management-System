@@ -965,3 +965,17 @@ exports.toggleDivisionStatus = async (req, res) => {
         return res.status(500).json({ error: 'Server error updating status.' });
     }
 };
+
+// 21. DELETE /api/auth/admin/divisions/:id
+exports.deleteDivision = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const [result] = await db.query(
+            'DELETE FROM gn_division WHERE division_id = ? OR division_code = ?',
+            [id, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
