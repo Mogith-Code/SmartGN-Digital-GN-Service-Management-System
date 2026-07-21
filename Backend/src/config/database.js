@@ -907,27 +907,36 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         console.log('✅ Residents seeded');
     }
 
-    // 5. Check if GN Officers exist before seeding
-    const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
-    if (officerCount[0].count === 0 && borellaId) {
-        const officerPasswordHash = bcrypt.hashSync('password123', 10);
-        
-        await dbPool.query(`
-        INSERT INTO grama_niladhari (
-            officer_id, username, password_hash, full_name, email, mobile, division_id, grade
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-            'GN-001',
-            'kamal_gn',
-            officerPasswordHash,
-            'Kamal Perera',
-            'kamal.gn@example.com',
-            '0703564478',
-            borellaId,
-            'Grade I'
-        ]);
-        console.log('✅ GN Officers seeded');
-    }
+   const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
+if (officerCount[0].count === 0 && borellaId) {
+    const officerPasswordHash = bcrypt.hashSync('password123', 10);
+    
+    await dbPool.query(`
+    INSERT INTO grama_niladhari (
+        gn_id, username, password_hash, first_name, last_name, full_name,
+        email, mobile, division_id, status, is_2fa_enabled,
+        profile_photo_path, profile_photo_filename,
+        gn_front_path, gn_front_filename, gn_back_path, gn_back_filename
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE, ?, ?, ?, ?, ?, ?)
+  `, [
+        'GN-001',
+        'kamal_gn',
+        officerPasswordHash,
+        'Kamal',
+        'Perera',
+        'Kamal Perera',
+        'kamal.gn@example.com',
+        '0703564478',
+        borellaId,
+        null, // profile_photo_path
+        null, // profile_photo_filename
+        null, // gn_front_path
+        null, // gn_front_filename
+        null, // gn_back_path
+        null  // gn_back_filename
+    ]);
+    console.log('✅ GN Officers seeded');
+}
 
     // 6. Check if Admin exists before seeding
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');
