@@ -4,6 +4,7 @@ import { useLanguage } from "../../utils/translate";
 import ResidentCardLayout from "./ResidentCardLayout";
 import QuickActions from "./QuickActions";
 import Announcements from "./Announcements";
+import { useNavigate } from "react-router-dom";
 
 function ResidentDashboardLayout({
   profile = {},
@@ -16,6 +17,7 @@ function ResidentDashboardLayout({
   recentActivities = [],
 }) {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
 
   const DashboardLayoutTranslations = {
     EN: {
@@ -61,7 +63,14 @@ function ResidentDashboardLayout({
           {showAlert && profile.nic && (
             <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
               <div className="flex items-center gap-2">
-                <span>{t.alert}</span>
+                <span
+                  className="hover:underline hover:cursor-pointer"
+                  onClick={() => {
+                    navigate("/ResidentDashboard/profile");
+                  }}
+                >
+                  {t.alert}
+                </span>
               </div>
               <button
                 className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
