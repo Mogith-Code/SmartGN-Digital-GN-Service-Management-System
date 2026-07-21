@@ -231,10 +231,10 @@ function AfterlogNavbar() {
           {/* User Profile Info */}
           <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
             <div className="flex flex-col text-right">
-              <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-regular text-[#2D3748]">
+              <span className="text-[10px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-regular text-[#2D3748]">
                 Colombo
               </span>
-              <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-regular text-[#2D3748]">
+              <span className="text-[10px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-regular text-[#2D3748]">
                 Borella
               </span>
             </div>

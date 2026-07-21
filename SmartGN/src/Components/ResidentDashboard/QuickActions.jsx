@@ -64,7 +64,7 @@ function QuickActions() {
       title: t.Card4Title,
       icon: disasterIcon,
       alt: "disaster icon",
-      route: "/dashboard/resident/allowances",
+      route: "/ResidentDashboard/disaster-relief",
     },
   ];
 
