@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import Footer from "../Components/Common/Footer";
 import OSidebar from "../Components/Common/OSidebar";
 import OfficerDashboardLayout from "../Components/OfficerDashboard.jsx/OfficerDashboardLayout";
 
 function OfficerDashboard({ onOpenHelp }) {
+  // STATE DECLARATIONS
+  // ============================================================
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+
+  // Profile data from database
+  const [gnProfile, setgnProfile] = useState({
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    division: "",
+    gnId: "",
+    serviceTime: "",
+    email: "",
+    mobile: "",
+    gnFront: null,
+    gnBack: null,
+  });
   return (
     <>
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
