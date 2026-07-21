@@ -114,8 +114,7 @@ function FamilyHouseholdLayout() {
                     navigate("/ResidentDashboard/profile");
                   }}
                 >
-                  Please upload a high-quality image of your National Identity
-                  Card
+                  {t.alert}
                 </span>
               </div>
               <button
