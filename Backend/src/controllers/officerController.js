@@ -21,8 +21,7 @@ const generateAnnouncementNumber = () => {
 // ============================================================
 // OFFICER PROFILE
 // ============================================================
-
-// GET /api/users/officer/profile
+// GET /api/officer/profile
 exports.getOfficerProfile = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || user.role !== 'OFFICER') {
@@ -31,21 +30,52 @@ exports.getOfficerProfile = async (req, res) => {
 
     try {
         const [rows] = await db.query(`
-            SELECT g.gn_id, g.officer_id, g.username, g.full_name, g.email, g.mobile,
-                   g.nic_number, g.grade, g.status, g.appointment_date, g.is_2fa_enabled,
-                   g.created_at, g.last_login_at,
-                   d.name AS division_name, d.district, d.province, d.divisional_secretariat,
-                   d.division_code
+            SELECT 
+                g.gn_id,
+                g.username,
+                g.first_name,
+                g.last_name,
+                g.full_name,
+                g.email,
+                g.mobile,
+                g.status,
+                g.is_2fa_enabled,
+                g.profile_photo_path,
+                g.profile_photo_filename,
+                g.gn_front_path,
+                g.gn_front_filename,
+                g.gn_back_path,
+                g.gn_back_filename,
+                g.created_at,
+                g.last_login_at,
+                g.updated_at,
+                d.division_id,
+                d.name AS division_name,
+                d.district,
+                d.province,
+                d.divisional_secretariat,
+                d.division_code
             FROM grama_niladhari g
             LEFT JOIN gn_division d ON g.division_id = d.division_id
-            WHERE g.officer_id = ?
+            WHERE g.gn_id = ?
         `, [user.id]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Officer profile not found.' });
         }
 
-        return res.json(rows[0]);
+        // Map the response for frontend compatibility
+        const officerProfile = {
+            ...rows[0],
+            id: rows[0].gn_id,
+            name: rows[0].full_name || `${rows[0].first_name} ${rows[0].last_name}`,
+            division: rows[0].division_name || 'Not Assigned',
+            profilePhoto: rows[0].profile_photo_path || null,
+            gnFront: rows[0].gn_front_path || null,
+            gnBack: rows[0].gn_back_path || null,
+        };
+
+        return res.json(officerProfile);
     } catch (error) {
         console.error('Error fetching officer profile:', error);
         return res.status(500).json({ error: 'Server error fetching officer profile.' });

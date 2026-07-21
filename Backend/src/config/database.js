@@ -139,45 +139,53 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-    // 5. GRAMA NILADHARI (GN Officer) TABLE
-    // ============================================================
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS grama_niladhari (
-        gn_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-        officer_id VARCHAR(20) UNIQUE NOT NULL COMMENT 'e.g., GN-001',
-        username VARCHAR(50) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        full_name VARCHAR(100) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE,
-        mobile VARCHAR(15) NOT NULL,
-        nic_number VARCHAR(12) UNIQUE,
-        division_id VARCHAR(36) UNIQUE COMMENT 'Assigned division',
-        appointment_date DATE,
-        grade ENUM('Grade I', 'Grade II', 'Grade III') DEFAULT 'Grade III',
-        status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
-        
-        -- Security
-        failed_login_attempts INT DEFAULT 0,
-        account_locked_until DATETIME DEFAULT NULL,
-        last_login_at DATETIME DEFAULT NULL,
-        last_login_ip VARCHAR(45),
-        password_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        -- 2FA
-        two_factor_secret VARCHAR(255),
-        is_2fa_enabled BOOLEAN DEFAULT FALSE,
-        
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE SET NULL,
-        INDEX idx_username (username),
-        INDEX idx_email (email),
-        INDEX idx_officer_id (officer_id),
-        INDEX idx_division (division_id),
-        INDEX idx_status (status)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+   // 5. GRAMA NILADHARI (GN Officer) TABLE (UPDATED)
+// ============================================================
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS grama_niladhari (
+    gn_id VARCHAR(20) PRIMARY KEY COMMENT 'e.g., GN-001',
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    full_name VARCHAR(101) NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    mobile VARCHAR(15) NOT NULL,
+    division_id VARCHAR(36) NOT NULL COMMENT 'Assigned division',
+    status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
+    
+    -- Profile image
+    profile_photo_path VARCHAR(255),
+    profile_photo_filename VARCHAR(255),
+    
+    -- GN ID Card images
+    gn_front_path VARCHAR(255),
+    gn_front_filename VARCHAR(255),
+    gn_back_path VARCHAR(255),
+    gn_back_filename VARCHAR(255),
+    
+    -- Security
+    failed_login_attempts INT DEFAULT 0,
+    account_locked_until DATETIME DEFAULT NULL,
+    last_login_at DATETIME DEFAULT NULL,
+    last_login_ip VARCHAR(45),
+    password_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- 2FA
+    two_factor_secret VARCHAR(255),
+    is_2fa_enabled BOOLEAN DEFAULT FALSE,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE RESTRICT,
+    INDEX idx_username (username),
+    INDEX idx_email (email),
+    INDEX idx_division (division_id),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
+
 
     // ============================================================
     // 6. ADMIN TABLE
@@ -899,27 +907,36 @@ async function setupTables(dbPool) {
         console.log('✅ Residents seeded');
     }
 
-    // 5. Check if GN Officers exist before seeding
-    const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
-    if (officerCount[0].count === 0 && borellaId) {
-        const officerPasswordHash = bcrypt.hashSync('password123', 10);
-        
-        await dbPool.query(`
-        INSERT INTO grama_niladhari (
-            officer_id, username, password_hash, full_name, email, mobile, division_id, grade
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [
-            'GN-001',
-            'kamal_gn',
-            officerPasswordHash,
-            'Kamal Perera',
-            'kamal.gn@example.com',
-            '0703564478',
-            borellaId,
-            'Grade I'
-        ]);
-        console.log('✅ GN Officers seeded');
-    }
+   const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
+if (officerCount[0].count === 0 && borellaId) {
+    const officerPasswordHash = bcrypt.hashSync('password123', 10);
+    
+    await dbPool.query(`
+    INSERT INTO grama_niladhari (
+        gn_id, username, password_hash, first_name, last_name, full_name,
+        email, mobile, division_id, status, is_2fa_enabled,
+        profile_photo_path, profile_photo_filename,
+        gn_front_path, gn_front_filename, gn_back_path, gn_back_filename
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE, ?, ?, ?, ?, ?, ?)
+  `, [
+        'GN-001',
+        'kamal_gn',
+        officerPasswordHash,
+        'Kamal',
+        'Perera',
+        'Kamal Perera',
+        'kamal.gn@example.com',
+        '0703564478',
+        borellaId,
+        null, // profile_photo_path
+        null, // profile_photo_filename
+        null, // gn_front_path
+        null, // gn_front_filename
+        null, // gn_back_path
+        null  // gn_back_filename
+    ]);
+    console.log('✅ GN Officers seeded');
+}
 
     // 6. Check if Admin exists before seeding
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');

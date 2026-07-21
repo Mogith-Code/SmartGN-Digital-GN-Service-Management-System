@@ -1,6 +1,6 @@
 // src/pages/ResidentDashboard.jsx
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getAuthHeaders } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
@@ -9,7 +9,6 @@ import Footer from "../Components/Common/Footer";
 
 function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
-  const location = useLocation();
 
   // ============================================================
   // STATE DECLARATIONS

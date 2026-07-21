@@ -190,7 +190,7 @@ exports.login = async (req, res) => {
     const queryVal = identifier.trim();
 
     try {
-        // 1. Check in admin table (no 2FA required for admins, as requested)
+        // 1. Check in admin table (no 2FA required for admins)
         const [admins] = await db.query('SELECT * FROM admin WHERE username = ? OR email = ?', [queryVal, queryVal]);
         if (admins.length > 0) {
             const admin = admins[0];
@@ -199,7 +199,6 @@ exports.login = async (req, res) => {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate final JWT for Admin
             const token = jwt.sign({ id: admin.admin_id, name: admin.full_name, role: 'ADMIN' }, JWT_SECRET, { expiresIn: '24h' });
             return res.json({
                 token,
@@ -211,12 +210,12 @@ exports.login = async (req, res) => {
             });
         }
 
-        // 2. Check in grama_niladhari (officer) table
+        // ✅ 2. Check in grama_niladhari (officer) table - FIXED
         const [officers] = await db.query(`
             SELECT o.*, d.name AS division_name 
             FROM grama_niladhari o
             LEFT JOIN gn_division d ON o.division_id = d.division_id
-            WHERE o.username = ? OR o.email = ? OR o.officer_id = ?
+            WHERE o.username = ? OR o.email = ? OR o.gn_id = ?
         `, [queryVal, queryVal, queryVal]);
 
         if (officers.length > 0) {
@@ -240,9 +239,8 @@ exports.login = async (req, res) => {
                 expiresAt,
                 type: 'LOGIN',
                 tempUserData: {
-                    id: officer.officer_id,
-                    gn_id: officer.gn_id,
-                    name: officer.full_name,
+                    id: officer.gn_id,
+                    name: officer.full_name || `${officer.first_name} ${officer.last_name}`,
                     role: 'OFFICER',
                     divisionId: officer.division_id,
                     divisionName: officer.division_name || 'Not Assigned',
@@ -257,7 +255,6 @@ exports.login = async (req, res) => {
                 userType: 'OFFICER',
                 email: officer.email,
                 identifier: queryVal,
-                // Include OTP in dev mode for easy testing
                 otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
             });
         }
@@ -308,7 +305,6 @@ exports.login = async (req, res) => {
                 userType: 'RESIDENT',
                 email: resident.email,
                 identifier: queryVal,
-                // Include OTP in dev mode for easy testing
                 otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
             });
         }
@@ -451,11 +447,11 @@ exports.resendOTP = async (req, res) => {
     }
 };
 
-// 4. POST /api/auth/register/officer (Admin creates GN Officer)
+// POST /api/auth/register/officer (Admin creates GN Officer)
 exports.registerOfficer = async (req, res) => {
-    const { username, name, email, mobile, division, password } = req.body;
+    const { username, firstName, lastName, email, mobile, division, password } = req.body;
 
-    if (!username || !name || !email || !mobile || !division || !password) {
+    if (!username || !firstName || !lastName || !email || !mobile || !division || !password) {
         return res.status(400).json({ error: 'Please enter all fields.' });
     }
 
@@ -468,18 +464,24 @@ exports.registerOfficer = async (req, res) => {
         const divisionId = divisions[0].id;
 
         // Check if officer username/email already exists
-        const [existing] = await db.query('SELECT gn_id FROM grama_niladhari WHERE username = ? OR email = ?', [username, email]);
+        const [existing] = await db.query(
+            'SELECT gn_id FROM grama_niladhari WHERE username = ? OR email = ?',
+            [username, email]
+        );
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Officer with this username or email already exists.' });
         }
 
-        // Generate unique ID like GN-123
-        let uniqueId;
+        // Generate unique GN ID like GN-123
+        let gnId;
         let isUnique = false;
         while (!isUnique) {
             const randNum = Math.floor(100 + Math.random() * 900);
-            uniqueId = `GN-${randNum}`;
-            const [rows] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [uniqueId]);
+            gnId = `GN-${randNum}`;
+            const [rows] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
+                [gnId]
+            );
             if (rows.length === 0) {
                 isUnique = true;
             }
@@ -488,37 +490,57 @@ exports.registerOfficer = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert Officer (By default set is_2fa_enabled to true so they must verify OTP on login)
-        await db.query(`
-            INSERT INTO grama_niladhari (officer_id, username, password_hash, full_name, email, mobile, division_id, status, is_2fa_enabled)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
-        `, [uniqueId, username, hashedPassword, name, email, mobile, divisionId]);
+        // Full name can be generated or left NULL
+        const fullName = null; // User can update later
 
-        return res.status(201).json({ message: 'GN Officer account registered successfully with 2FA enabled.' });
+        // Insert Officer with all fields
+        await db.query(`
+            INSERT INTO grama_niladhari (
+                gn_id, username, password_hash, first_name, last_name, full_name,
+                email, mobile, division_id, status, is_2fa_enabled
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
+        `, [gnId, username, hashedPassword, firstName, lastName, fullName, email, mobile, divisionId]);
+
+        return res.status(201).json({ 
+            message: 'GN Officer account registered successfully with 2FA enabled.',
+            data: { gn_id: gnId }
+        });
     } catch (error) {
         console.error('Error creating officer:', error);
         return res.status(500).json({ error: 'Server error creating officer account.' });
     }
 };
 
-// 5. GET /api/auth/admin/officers
+// GET /api/auth/admin/officers
 exports.getOfficers = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT o.gn_id, o.officer_id, o.username, o.full_name AS name, o.email, o.mobile, d.name AS division_name, o.status
+            SELECT 
+                o.gn_id AS id,
+                o.gn_id,
+                o.username, 
+                o.first_name,
+                o.last_name,
+                o.full_name,
+                o.email, 
+                o.mobile, 
+                o.profile_photo_path,
+                o.gn_front_path,
+                o.gn_back_path,
+                o.status,
+                o.created_at,
+                d.name AS division_name,
+                d.division_id
             FROM grama_niladhari o
-            LEFT JOIN gn_division d ON o.division_id = d.division_id
+            JOIN gn_division d ON o.division_id = d.division_id
             ORDER BY o.created_at DESC
         `);
-        // Map gn_id to id for frontend compatibility
-        const mapped = rows.map(r => ({ ...r, id: r.officer_id }));
-        return res.json(mapped);
+        return res.json(rows);
     } catch (error) {
         console.error('Error fetching officers list:', error);
         return res.status(500).json({ error: 'Server error fetching officers.' });
     }
 };
-
 // GET /api/auth/admin/residents
 exports.getResidents = async (req, res) => {
     try {
@@ -685,12 +707,15 @@ exports.deleteResident = async (req, res) => {
     }
 };
 
-// 13. PUT /api/auth/admin/officers/:id
+// PUT /api/auth/admin/officers/:id
 exports.updateOfficer = async (req, res) => {
     const { id } = req.params;
-    const { username, name, email, mobile, division, status, password } = req.body;
+    const { 
+        username, firstName, lastName, fullName, email, mobile, 
+        division, status, password 
+    } = req.body;
 
-    if (!username || !name || !email || !mobile || !division || !status) {
+    if (!username || !firstName || !lastName || !email || !mobile || !division || !status) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
     }
 
@@ -703,7 +728,10 @@ exports.updateOfficer = async (req, res) => {
         const divisionId = divisions[0].id;
 
         // Check if username/email already taken by another officer
-        const [existing] = await db.query('SELECT gn_id FROM grama_niladhari WHERE (username = ? OR email = ?) AND officer_id != ? AND gn_id != ?', [username, email, id, id]);
+        const [existing] = await db.query(
+            'SELECT gn_id FROM grama_niladhari WHERE (username = ? OR email = ?) AND gn_id != ?',
+            [username, email, id]
+        );
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Username or Email is already taken by another officer.' });
         }
@@ -713,15 +741,17 @@ exports.updateOfficer = async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             [result] = await db.query(`
                 UPDATE grama_niladhari 
-                SET username = ?, full_name = ?, email = ?, mobile = ?, division_id = ?, status = ?, password_hash = ?
-                WHERE officer_id = ? OR gn_id = ?
-            `, [username, name, email, mobile, divisionId, status, hashedPassword, id, id]);
+                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
+                    email = ?, mobile = ?, division_id = ?, status = ?, password_hash = ?
+                WHERE gn_id = ?
+            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, hashedPassword, id]);
         } else {
             [result] = await db.query(`
                 UPDATE grama_niladhari 
-                SET username = ?, full_name = ?, email = ?, mobile = ?, division_id = ?, status = ?
-                WHERE officer_id = ? OR gn_id = ?
-            `, [username, name, email, mobile, divisionId, status, id, id]);
+                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
+                    email = ?, mobile = ?, division_id = ?, status = ?
+                WHERE gn_id = ?
+            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, id]);
         }
 
         if (result.affectedRows === 0) {
@@ -835,24 +865,38 @@ exports.getResidentByNic = async (req, res) => {
     }
 };
 
-// 16. GET /api/auth/admin/officers/:id
+// GET /api/auth/admin/officers/:id
 exports.getOfficerById = async (req, res) => {
     const { id } = req.params;
 
     try {
         const [rows] = await db.query(`
-            SELECT o.gn_id, o.officer_id, o.username, o.full_name AS name, o.email, o.mobile, d.name AS division_name, o.status, o.created_at
+            SELECT 
+                o.gn_id AS id,
+                o.gn_id,
+                o.username, 
+                o.first_name,
+                o.last_name,
+                o.full_name,
+                o.email, 
+                o.mobile, 
+                o.profile_photo_path,
+                o.gn_front_path,
+                o.gn_back_path,
+                o.status, 
+                o.created_at,
+                d.name AS division_name,
+                d.division_id
             FROM grama_niladhari o
-            LEFT JOIN gn_division d ON o.division_id = d.division_id
-            WHERE o.officer_id = ? OR o.gn_id = ?
-        `, [id, id]);
+            JOIN gn_division d ON o.division_id = d.division_id
+            WHERE o.gn_id = ?
+        `, [id]);
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Officer not found.' });
         }
 
-        const detail = { ...rows[0], id: rows[0].officer_id };
-        return res.json(detail);
+        return res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching officer:', error);
         return res.status(500).json({ error: 'Server error fetching officer details.' });
