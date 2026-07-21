@@ -31,6 +31,7 @@ exports.getProfile = async (req, res) => {
                 r.email,
                 r.occupation,
                 r.household_number,
+                r.division_id,
                 r.home_address,
                 r.profile_photo_path,
                 r.nic_front_path,
@@ -46,10 +47,11 @@ exports.getProfile = async (req, res) => {
                 d.name AS division_name,
                 d.district,
                 d.province,
-                d.divisional_secretariat
+                d.divisional_secretariat,
+                d.division_code
             FROM resident r
             JOIN household h ON r.household_number = h.household_number
-            JOIN gn_division d ON h.division_id = d.division_id
+            JOIN gn_division d ON r.division_id = d.division_id
             WHERE r.r_nic = ?
         `, [user.id]);
 
@@ -154,21 +156,21 @@ exports.getDashboardStats = async (req, res) => {
 
         return res.json({
             certificates: {
-                pending: pendingCerts.count,
-                approved: approvedCerts.count
+                pending: pendingCerts.count || 0,
+                approved: approvedCerts.count || 0
             },
             appointments: {
-                pending: pendingAppts.count,
-                approved: approvedAppts.count
+                pending: pendingAppts.count || 0,
+                approved: approvedAppts.count || 0
             },
             allowances: {
-                pending: pendingAllowances.count,
-                approved: approvedAllowances.count
+                pending: pendingAllowances.count || 0,
+                approved: approvedAllowances.count || 0
             },
             disasters: {
-                pending: pendingDisasters.count
+                pending: pendingDisasters.count || 0
             },
-            familyMembers: familyCount.count
+            familyMembers: familyCount.count || 0
         });
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);

@@ -89,6 +89,7 @@ function ResidentDashboard({ onOpenHelp }) {
           mobile: data.mobile_no || "",
           homeAddress: data.home_address || data.household_address || "",
           division: data.division_name || "",
+          divisionId: data.division_id || "",
           dob: data.date_of_birth
             ? new Date(data.date_of_birth).toLocaleDateString()
             : "",

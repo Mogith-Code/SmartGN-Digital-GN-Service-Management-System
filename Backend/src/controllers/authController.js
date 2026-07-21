@@ -26,9 +26,21 @@ exports.getDivisions = async (req, res) => {
 
 // POST /api/auth/register
 exports.registerResident = async (req, res) => {
-    const { nic, name, dob, password, gender, mobile, email, householdNumber, division, homeAddress } = req.body;
+    const { 
+        nic, 
+        firstName,      // ← Already separate
+        lastName,       // ← Already separate
+        dob, 
+        password, 
+        gender, 
+        mobile, 
+        email, 
+        householdNumber, 
+        division, 
+        homeAddress 
+    } = req.body;
 
-    if (!nic || !name || !dob || !password || !gender || !mobile || !email || !householdNumber || !division) {
+    if (!nic || !firstName || !lastName || !dob || !password || !gender || !mobile || !email || !householdNumber || !division) {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
@@ -68,19 +80,26 @@ exports.registerResident = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Split name into first and last name
-        const nameParts = name.trim().split(/\s+/);
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-
-        // Insert resident with home_address
+        // ✅ No splitting needed! Use firstName and lastName directly
         await db.query(`
             INSERT INTO resident (
                 r_nic, first_name, last_name, full_name, date_of_birth, 
-                password_hash, gender, mobile_no, email, household_number, 
-                home_address, status, is_2fa_enabled
-            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
-        `, [nic, firstName, lastName, dob, hashedPassword, gender, mobile, email, householdNumber, homeAddress || null]);
+                password_hash, gender, mobile_no, email, household_number,
+                division_id, home_address, status, is_2fa_enabled
+            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
+        `, [
+            nic, 
+            firstName,   // ← Directly from frontend
+            lastName,    // ← Directly from frontend
+            dob, 
+            hashedPassword, 
+            gender, 
+            mobile, 
+            email, 
+            householdNumber,
+            divisionId,
+            homeAddress || null
+        ]);
 
         // Generate OTP
         const otp = generateOTP();
@@ -101,6 +120,7 @@ exports.registerResident = async (req, res) => {
             householdCreated: householdCreated,
             email: email,
             nic: nic,
+            divisionId: divisionId,
             otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
         });
     } catch (error) {
@@ -508,6 +528,7 @@ exports.getResidents = async (req, res) => {
                 r.full_name AS name, 
                 r.email, 
                 r.mobile_no, 
+                r.division_id,
                 d.name AS division_name, 
                 r.status, 
                 r.occupation, 
@@ -516,7 +537,7 @@ exports.getResidents = async (req, res) => {
                 h.address AS household_address
             FROM resident r
             JOIN household h ON r.household_number = h.household_number
-            JOIN gn_division d ON h.division_id = d.division_id
+            JOIN gn_division d ON r.division_id = d.division_id
             ORDER BY r.created_at DESC
         `);
         const mapped = rows.map(r => ({ ...r, nic: r.r_nic }));
@@ -717,7 +738,7 @@ exports.updateOfficer = async (req, res) => {
 // PUT /api/auth/admin/residents/:nic
 exports.updateResident = async (req, res) => {
     const { nic } = req.params;
-    const { name, email, mobile_no, status, occupation, household_number, home_address, address } = req.body;
+    const { name, email, mobile_no, status, occupation, household_number, home_address, address, division_id } = req.body;
 
     if (!name || !email || !mobile_no || !status || !household_number) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
@@ -733,12 +754,28 @@ exports.updateResident = async (req, res) => {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        const [result] = await db.query(`
-            UPDATE resident 
-            SET first_name = ?, last_name = ?, email = ?, mobile_no = ?, status = ?, 
-                occupation = ?, household_number = ?, home_address = ?
-            WHERE r_nic = ?
-        `, [firstName, lastName, email, mobile_no, status, occupation, household_number, home_address || null, nic]);
+        const updates = [];
+        const values = [];
+
+        updates.push('first_name = ?'); values.push(firstName);
+        updates.push('last_name = ?'); values.push(lastName);
+        updates.push('email = ?'); values.push(email);
+        updates.push('mobile_no = ?'); values.push(mobile_no);
+        updates.push('status = ?'); values.push(status);
+        updates.push('occupation = ?'); values.push(occupation || null);
+        updates.push('household_number = ?'); values.push(household_number);
+        updates.push('home_address = ?'); values.push(home_address || null);
+
+        // Only update division_id if provided
+        if (division_id) {
+            updates.push('division_id = ?');
+            values.push(division_id);
+        }
+
+        values.push(nic);
+        const query = `UPDATE resident SET ${updates.join(', ')} WHERE r_nic = ?`;
+        
+        const [result] = await db.query(query, values);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
@@ -775,13 +812,14 @@ exports.getResidentByNic = async (req, res) => {
                 r.occupation,
                 r.status,
                 r.household_number,
+                r.division_id,
                 r.home_address,
                 r.created_at,
                 d.name AS division_name,
                 h.address AS household_address
             FROM resident r
             JOIN household h ON r.household_number = h.household_number
-            JOIN gn_division d ON h.division_id = d.division_id
+            JOIN gn_division d ON r.division_id = d.division_id
             WHERE r.r_nic = ?
         `, [nic]);
 

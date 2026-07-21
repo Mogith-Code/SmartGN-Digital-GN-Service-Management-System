@@ -46,7 +46,6 @@ function ResidentProfile({ onOpenHelp }) {
   // View modes: 'VIEW' | 'EDIT'
   const [viewMode, setViewMode] = useState("VIEW");
 
-  // Profile data state
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -55,8 +54,9 @@ function ResidentProfile({ onOpenHelp }) {
     occupation: "",
     email: "",
     mobile: "",
-    homeAddress: "",
+    homeAddress: "", // ← Changed from 'address' to 'homeAddress'
     division: "",
+    divisionId: "", // ← Added divisionId
     dob: "",
     gender: "",
     householdNumber: "",
@@ -64,6 +64,7 @@ function ResidentProfile({ onOpenHelp }) {
     nicFront: null,
     nicBack: null,
   });
+
   // Form Field States (Edit Mode)
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
@@ -101,6 +102,7 @@ function ResidentProfile({ onOpenHelp }) {
             mobile: data.mobile_no || "",
             homeAddress: data.home_address || "Add your home address",
             division: data.division_name || "",
+            divisionId: data.division_id || "",
             dob: data.date_of_birth || "",
             gender: data.gender || "",
             householdNumber: data.household_number || "",
