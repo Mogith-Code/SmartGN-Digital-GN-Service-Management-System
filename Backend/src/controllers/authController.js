@@ -965,3 +965,55 @@ exports.toggleDivisionStatus = async (req, res) => {
         return res.status(500).json({ error: 'Server error updating status.' });
     }
 };
+
+// 21. DELETE /api/auth/admin/divisions/:id
+exports.deleteDivision = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Check if division exists
+        const [existing] = await db.query(
+            'SELECT division_id FROM gn_division WHERE division_id = ? OR division_code = ?',
+            [id, id]
+        );
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
+
+        // Check if division is being used by any household
+        const [used] = await db.query(
+            'SELECT household_id FROM household WHERE division_id = ? LIMIT 1',
+            [existing[0].division_id]
+        );
+        if (used.length > 0) {
+            return res.status(400).json({ 
+                error: 'Cannot delete this division. It is currently assigned to one or more households.' 
+            });
+        }
+
+        // Check if division is being used by any officer
+        const [officerUsed] = await db.query(
+            'SELECT gn_id FROM grama_niladhari WHERE division_id = ? LIMIT 1',
+            [existing[0].division_id]
+        );
+        if (officerUsed.length > 0) {
+            return res.status(400).json({ 
+                error: 'Cannot delete this division. It is currently assigned to a GN Officer.' 
+            });
+        }
+
+        // Delete the division
+        await db.query(
+            'DELETE FROM gn_division WHERE division_id = ? OR division_code = ?',
+            [id, id]
+        );
+
+        return res.json({ 
+            success: true,
+            message: 'GN Division deleted successfully.' 
+        });
+    } catch (error) {
+        console.error('Error deleting division:', error);
+        return res.status(500).json({ error: 'Server error deleting GN Division.' });
+    }
+};
