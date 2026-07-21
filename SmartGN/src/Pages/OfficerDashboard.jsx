@@ -108,7 +108,7 @@ function OfficerDashboard({ onOpenHelp }) {
             <OSidebar />
           </div>
           <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-            <OfficerDashboardLayout />
+            <OfficerDashboardLayout gnprofile={gnProfile} />
           </div>
         </div>
 

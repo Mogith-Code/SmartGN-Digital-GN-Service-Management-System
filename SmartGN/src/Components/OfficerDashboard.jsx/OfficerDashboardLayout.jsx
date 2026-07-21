@@ -5,19 +5,19 @@ import OfficerCardLayout from "./OfficerCardLayout";
 import QuickActions from "./QuickActions";
 import Announcement from "./Announcement";
 
-function OfficerDashboardLayout() {
+function OfficerDashboardLayout({ gnprofile = {} }) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
   const DashboardLayoutTranslations = {
     EN: {
-      greeting: "Have a Nice Day Kamal!",
+      greeting: `Have a Nice Day, ${gnprofile.firstName}!`,
     },
     SI: {
-      greeting: "සුභ දවසක් Kamal!",
+      greeting: `සුභ දවසක්, ${gnprofile.firstName}!`,
     },
     TA: {
-      greeting: "இனிய நாள் Kamal!",
+      greeting: `இனிய நாள், ${gnprofile.firstName}!`,
     },
   };
 
