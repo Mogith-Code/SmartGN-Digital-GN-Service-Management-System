@@ -67,6 +67,7 @@ async function setupTables(dbPool) {
         password_hash VARCHAR(255) NOT NULL COMMENT 'bcrypt hashed',
         occupation VARCHAR(100),
         household_number VARCHAR(50) NOT NULL,
+        division_id VARCHAR(36) NOT NULL,
         
         -- Address field
         home_address TEXT,
@@ -101,6 +102,7 @@ async function setupTables(dbPool) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
         FOREIGN KEY (household_number) REFERENCES household(household_number) ON DELETE RESTRICT,
+        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE RESTRICT,
         INDEX idx_nic (r_nic),
         INDEX idx_email (email),
         INDEX idx_mobile (mobile_no),
