@@ -31,6 +31,7 @@ function AdminDashboard({ onOpenHelp }) {
       consoleTitle: "Divisional System Admin Console",
       overview: "Dashboard Overview",
       officers: "GN Officer Accounts",
+      divisions: "GN Divisions",
       residents: "Resident Profiles",
       troubleshoot: "Troubleshoot Node",
       logout: "Log Out Admin",
@@ -44,6 +45,9 @@ function AdminDashboard({ onOpenHelp }) {
       recentLogs: "Recent System Auditing Logs",
       officerRegistry: "GN Officer Profile Registry",
       officerSub: "Temporarily deactivate or suspend divisional officers if they cause policy troubles.",
+      divisionRegistry: "GN Division Management Registry",
+      divisionSub: "Add, edit, or configure divisional boundaries and population metrics across the district.",
+      addDivision: "Register GN Division",
       residentRegistry: "Resident Account Registry",
       residentSub: "Block or suspend residential profiles if they make troubles in household applications.",
       thName: "Officer Name",
@@ -51,6 +55,13 @@ function AdminDashboard({ onOpenHelp }) {
       thOffice: "Divisional Office",
       thStatus: "Registry Status",
       thAction: "Actions Control",
+      thDivCode: "Division Code",
+      thDivName: "Division Name",
+      thDistrict: "District",
+      thProvince: "Province",
+      thDS: "DS Division",
+      thPopulation: "Population",
+      thHouseholds: "Households",
       thResName: "Resident Name",
       thNIC: "NIC Number",
       thResOffice: "Household Division",
@@ -66,6 +77,7 @@ function AdminDashboard({ onOpenHelp }) {
       consoleTitle: "කොට්ඨාස පද්ධති පරිපාලන කොන්සෝලය",
       overview: "පාලන පුවරුව",
       officers: "ග්‍රාම නිලධාරී ගිණුම්",
+      divisions: "ග්‍රාම නිලධාරී කොට්ඨාස",
       residents: "ගම්වැසි ගිණුම්",
       troubleshoot: "නෝඩය දෝෂාවේක්ෂණය",
       logout: "පරිපාලක පිටවීම",
@@ -79,6 +91,9 @@ function AdminDashboard({ onOpenHelp }) {
       recentLogs: "මෑත කාලීන පද්ධති විගණන ලඝු-සටහන්",
       officerRegistry: "ග්‍රාම නිලධාරී පැතිකඩ ලේඛනය",
       officerSub: "ප්‍රතිපත්තිමය ගැටළු ඇති කරන්නේ නම් කොට්ඨාස නිලධාරීන් තාවකාලිකව අත්හිටුවන්න.",
+      divisionRegistry: "ග්‍රාම නිලධාරී කොට්ඨාස කළමනාකරණ ලේඛනය",
+      divisionSub: "කොට්ඨාස සීමාවන් සහ ජනගහන දත්ත එකතු කිරීම, සංස්කරණය කිරීම හෝ වින්‍යාස කිරීම.",
+      addDivision: "ග්‍රාම නිලධාරී කොට්ඨාසයක් ලියාපදිංචි කරන්න",
       residentRegistry: "ගම්වැසි ගිණුම් ලේඛනය",
       residentSub: "නිවාස අයදුම්පත් වලදී ගැටළු ඇති කරන්නේ නම් ගම්වැසියන් තාවකාලිකව අත්හිටුවන්න.",
       thName: "නිලධාරී නම",
@@ -86,6 +101,13 @@ function AdminDashboard({ onOpenHelp }) {
       thOffice: "කොට්ඨාස කාර්යාලය",
       thStatus: "ලේඛන තත්ත්වය",
       thAction: "ක්‍රියාමාර්ග පාලනය",
+      thDivCode: "කොට්ඨාස කේතය",
+      thDivName: "කොට්ඨාසයේ නම",
+      thDistrict: "දිස්ත්‍රික්කය",
+      thProvince: "පළාත",
+      thDS: "ප්‍රාදේශීය ලේකම් කොට්ඨාසය",
+      thPopulation: "ජනගහනය",
+      thHouseholds: "පවුල් ගණන",
       thResName: "ගම්වැසියාගේ නම",
       thNIC: "ජාතික හැඳුනුම්පත් අංකය",
       thResOffice: "නිවාස කොට්ඨාසය",
@@ -101,6 +123,7 @@ function AdminDashboard({ onOpenHelp }) {
       consoleTitle: "பிரிவு கணினி நிர்வாக கன்சோல்",
       overview: "டாஷ்போர்டு மேலோட்டம்",
       officers: "கிராம நிலதாரி கணக்குகள்",
+      divisions: "கிராம நிலதாரி பிரிவுகள்",
       residents: "குடியிருப்பாளர் சுயவிவரங்கள்",
       troubleshoot: "முனையைச் சரிசெய்யவும்",
       logout: "நிர்வாகி வெளியேறு",
@@ -114,6 +137,9 @@ function AdminDashboard({ onOpenHelp }) {
       recentLogs: "சமீபத்திய கணினி தணிக்கை பதிவுகள்",
       officerRegistry: "கிராம நிலதாரி சுயவிவர பதிவேடு",
       officerSub: "கொள்கை சிக்கல்களை ஏற்படுத்தினால் தற்காலிகமாக அதிகாரிகளை இடைநிறுத்துங்கள்.",
+      divisionRegistry: "கிராம நிலதாரி பிரிவு மேலாண்மை பதிவேடு",
+      divisionSub: "பிரிவு எல்லைகள் மற்றும் மக்கள் தொகை அளவீடுகளைச் சேர்க்கவும், திருத்தவும்.",
+      addDivision: "கிராம நிலதாரி பிரிவை பதிவு செய்க",
       residentRegistry: "குடியிருப்பாளர் கணக்கு பதிவேடு",
       residentSub: "வீட்டு விண்ணப்பங்களில் சிக்கல்களை ஏற்படுத்தினால் குடியிருப்பாளர்களை இடைநிறுத்துங்கள்.",
       thName: "அதிகாரி பெயர்",
@@ -121,6 +147,13 @@ function AdminDashboard({ onOpenHelp }) {
       thOffice: "பிரிவு அலுவலகம்",
       thStatus: "பதிவேடு நிலை",
       thAction: "நடவடிக்கை கட்டுப்பாடு",
+      thDivCode: "பிரிவு குறியீடு",
+      thDivName: "பிரிவு பெயர்",
+      thDistrict: "மாவட்டம்",
+      thProvince: "மாகாணம்",
+      thDS: "பிரதேச செயலக பிரிவு",
+      thPopulation: "மக்கள் தொகை",
+      thHouseholds: "வீடுகள்",
       thResName: "குடியிருப்பாளர் பெயர்",
       thNIC: "NIC எண்",
       thResOffice: "வீட்டுப் பிரிவு",
@@ -142,8 +175,34 @@ function AdminDashboard({ onOpenHelp }) {
   // DB list states
   const [officers, setOfficers] = useState([])
   const [residents, setResidents] = useState([])
+  const [divisions, setDivisions] = useState([])
 
   // Default mock seeds
+  const defaultMockDivisions = [
+    {
+      division_id: "DIV-001",
+      division_code: "GN-001A",
+      name: "Maharagama",
+      district: "Colombo",
+      province: "Western",
+      divisional_secretariat: "Maharagama DS",
+      population: 15400,
+      household_count: 3850,
+      is_active: true
+    },
+    {
+      division_id: "DIV-002",
+      division_code: "GN-002B",
+      name: "Colombo Central",
+      district: "Colombo",
+      province: "Western",
+      divisional_secretariat: "Colombo DS",
+      population: 22100,
+      household_count: 5120,
+      is_active: true
+    }
+  ];
+
   const defaultMockOfficers = [
     {
       gn_id: "GN-001",
@@ -160,7 +219,7 @@ function AdminDashboard({ onOpenHelp }) {
       name: "Saman Kumara",
       email: "saman@smartgn.gov.lk",
       mobile: "0719876543",
-      division_name: "Colombo",
+      division_name: "Colombo Central",
       status: "Active"
     }
   ];
@@ -181,7 +240,7 @@ function AdminDashboard({ onOpenHelp }) {
       name: "Ranasinghe Banda",
       email: "ranasinghe@gmail.com",
       mobile_no: "0765432109",
-      division_name: "Colombo",
+      division_name: "Colombo Central",
       status: "Active",
       occupation: "Farmer",
       household_number: "HH-341"
@@ -189,6 +248,15 @@ function AdminDashboard({ onOpenHelp }) {
   ];
 
   // Helper functions to get/set from localStorage
+  const getStoredDivisions = () => {
+    const data = localStorage.getItem('smartgn_mock_divisions');
+    if (!data) {
+      localStorage.setItem('smartgn_mock_divisions', JSON.stringify(defaultMockDivisions));
+      return defaultMockDivisions;
+    }
+    return JSON.parse(data);
+  };
+
   const getStoredOfficers = () => {
     const data = localStorage.getItem('smartgn_mock_officers');
     if (!data) {
@@ -207,6 +275,10 @@ function AdminDashboard({ onOpenHelp }) {
     return JSON.parse(data);
   };
 
+  const saveStoredDivisions = (list) => {
+    localStorage.setItem('smartgn_mock_divisions', JSON.stringify(list));
+  };
+
   const saveStoredOfficers = (list) => {
     localStorage.setItem('smartgn_mock_officers', JSON.stringify(list));
   };
@@ -220,6 +292,9 @@ function AdminDashboard({ onOpenHelp }) {
   const [showEditOfficerModal, setShowEditOfficerModal] = useState(false)
   const [showEditResidentModal, setShowEditResidentModal] = useState(false)
 
+  const [showAddDivisionModal, setShowAddDivisionModal] = useState(false)
+  const [showEditDivisionModal, setShowEditDivisionModal] = useState(false)
+
   // Form states
   const [newOfficer, setNewOfficer] = useState({
     username: '', name: '', email: '', mobile: '', division: '', password: ''
@@ -231,10 +306,33 @@ function AdminDashboard({ onOpenHelp }) {
     nic: '', name: '', email: '', mobile_no: '', status: 'Active', occupation: '', household_number: ''
   })
 
+  const [newDivision, setNewDivision] = useState({
+    division_code: '', name: '', district: 'Colombo', province: 'Western', divisional_secretariat: '', population: '', household_count: ''
+  })
+  const [editDivision, setEditDivision] = useState({
+    division_id: '', division_code: '', name: '', district: '', province: '', divisional_secretariat: '', population: '', household_count: '', is_active: true
+  })
+
   // Diagnostic states
   const [runningDiagnostic, setRunningDiagnostic] = useState(false)
   const [diagnosticProgress, setDiagnosticProgress] = useState(0)
   const [diagnosticLogs, setDiagnosticLogs] = useState([])
+
+  const loadDivisions = async () => {
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/divisions')
+      if (res.ok) {
+        const data = await res.json()
+        setDivisions(data)
+        saveStoredDivisions(data)
+      } else {
+        setDivisions(getStoredDivisions())
+      }
+    } catch (err) {
+      console.warn('Backend offline. Loading local mock divisions.', err)
+      setDivisions(getStoredDivisions())
+    }
+  }
 
   const loadOfficers = async () => {
     try {
@@ -269,9 +367,123 @@ function AdminDashboard({ onOpenHelp }) {
   }
 
   useEffect(() => {
+    loadDivisions()
     loadOfficers()
     loadResidents()
   }, [])
+
+  // GN Division Handlers
+  const handleCreateDivision = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch('/api/auth/admin/divisions', {
+        method: 'POST',
+        body: JSON.stringify(newDivision)
+      })
+      if (res.ok) {
+        alert('GN Division created successfully.')
+        setShowAddDivisionModal(false)
+        setNewDivision({ division_code: '', name: '', district: 'Colombo', province: 'Western', divisional_secretariat: '', population: '', household_count: '' })
+        loadDivisions()
+        return
+      }
+    } catch (error) {
+      console.warn('Backend error. Simulating division creation locally.')
+    }
+    // Local fallback
+    const list = getStoredDivisions()
+    const added = {
+      division_id: `DIV-${Math.floor(100 + Math.random() * 900)}`,
+      division_code: newDivision.division_code,
+      name: newDivision.name,
+      district: newDivision.district,
+      province: newDivision.province,
+      divisional_secretariat: newDivision.divisional_secretariat,
+      population: parseInt(newDivision.population, 10) || 0,
+      household_count: parseInt(newDivision.household_count, 10) || 0,
+      is_active: true
+    }
+    const updated = [added, ...list]
+    saveStoredDivisions(updated)
+    setDivisions(updated)
+    setShowAddDivisionModal(false)
+    setNewDivision({ division_code: '', name: '', district: 'Colombo', province: 'Western', divisional_secretariat: '', population: '', household_count: '' })
+    alert('GN Division registered successfully (Local Simulator).')
+  }
+
+  const handleUpdateDivision = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/divisions/${editDivision.division_id}`, {
+        method: 'PUT',
+        body: JSON.stringify(editDivision)
+      })
+      if (res.ok) {
+        alert('GN Division updated successfully.')
+        setShowEditDivisionModal(false)
+        loadDivisions()
+        return
+      }
+    } catch (error) {
+      console.warn('Backend error. Simulating division update locally.')
+    }
+    // Local fallback
+    const list = getStoredDivisions()
+    const updated = list.map(d => d.division_id === editDivision.division_id ? { ...editDivision } : d)
+    saveStoredDivisions(updated)
+    setDivisions(updated)
+    setShowEditDivisionModal(false)
+    alert('GN Division updated successfully (Local Simulator).')
+  }
+
+  const toggleDivisionStatus = async (id, currentActive) => {
+    const nextActive = !currentActive
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/divisions/${id}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ is_active: nextActive })
+      })
+      if (res.ok) {
+        alert(`GN Division status updated to ${nextActive ? 'Active' : 'Inactive'}.`)
+        loadDivisions()
+        return
+      }
+    } catch (error) {
+      console.warn('Backend error. Simulating toggle status locally.')
+    }
+    const list = getStoredDivisions()
+    const updated = list.map(d => d.division_id === id ? { ...d, is_active: nextActive } : d)
+    saveStoredDivisions(updated)
+    setDivisions(updated)
+    alert(`GN Division status updated to ${nextActive ? 'Active' : 'Inactive'} (Local Simulator).`)
+  }
+
+  const handleDeleteDivision = async (id) => {
+    if (!window.confirm('Are you sure you want to permanently delete this GN Division? This action cannot be undone.')) return
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/divisions/${id}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('GN Division deleted successfully.')
+        loadDivisions()
+        return
+      } else {
+        const errData = await res.json()
+        if (errData.error) {
+          alert(`Error: ${errData.error}`)
+          return
+        }
+      }
+    } catch (error) {
+      console.warn('Backend error. Simulating division deletion locally.')
+    }
+    const list = getStoredDivisions()
+    const updated = list.filter(d => d.division_id !== id)
+    saveStoredDivisions(updated)
+    setDivisions(updated)
+    alert('GN Division deleted successfully (Local Simulator).')
+  }
 
   // Toggle Officer status
   const toggleOfficerStatus = async (id, currentStatus) => {
@@ -597,6 +809,18 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.officers}</span>
             </button>
 
+            {/* Tab: GN Divisions */}
+            <button
+              onClick={() => setActiveTab('divisions')}
+              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === 'divisions'
+                  ? 'bg-[#005BBD] text-[#F7FAFC] shadow-md'
+                  : 'bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <span className="w-4 sm:w-4.5 md:w-5 lg:w-[18px] xl:w-[20px] text-center flex-shrink-0 font-bold">🏛️</span>
+              <span className="truncate">{dA.divisions}</span>
+            </button>
+
             {/* Tab: Resident Profiles */}
             <button
               onClick={() => setActiveTab('residents')}
@@ -786,6 +1010,118 @@ function AdminDashboard({ onOpenHelp }) {
                         <tr>
                           <td colSpan="5" className="p-8 text-center text-gray-500">
                             No Grama Niladhari Officers found in the system.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: GN DIVISIONS */}
+          {activeTab === 'divisions' && (
+            <div className="animate-zoom-in">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="text-left">
+                  <h2 className="text-[24px] font-bold text-[#1B365D] m-0">{dA.divisionRegistry}</h2>
+                  <span className="text-sm text-gray-500 mt-1 block">{dA.divisionSub}</span>
+                </div>
+                <button
+                  onClick={() => setShowAddDivisionModal(true)}
+                  className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <span>➕</span> {dA.addDivision}
+                </button>
+              </div>
+
+              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                        <th className="p-4 sm:p-5">{dA.thDivCode}</th>
+                        <th className="p-4 sm:p-5">{dA.thDivName}</th>
+                        <th className="p-4 sm:p-5">{dA.thDistrict}</th>
+                        <th className="p-4 sm:p-5">{dA.thProvince}</th>
+                        <th className="p-4 sm:p-5">{dA.thDS}</th>
+                        <th className="p-4 sm:p-5">{dA.thPopulation}</th>
+                        <th className="p-4 sm:p-5">{dA.thStatus}</th>
+                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#cbd5e1]">
+                      {divisions.length > 0 ? (
+                        divisions.map((div, idx) => {
+                          const isActive = div.is_active === true || div.is_active === 1 || div.is_active === '1' || div.status === 'Active';
+                          return (
+                            <tr key={div.division_id || div.division_code || idx} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-4 sm:p-5 font-mono font-bold text-[#005BBD]">
+                                {div.division_code}
+                              </td>
+                              <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                                {div.name}
+                              </td>
+                              <td className="p-4 sm:p-5 text-gray-700">{div.district}</td>
+                              <td className="p-4 sm:p-5 text-gray-700">{div.province}</td>
+                              <td className="p-4 sm:p-5 text-gray-700">{div.divisional_secretariat}</td>
+                              <td className="p-4 sm:p-5 text-gray-700 font-medium">
+                                {Number(div.population || 0).toLocaleString()} <span className="text-xs text-gray-400">({Number(div.household_count || 0).toLocaleString()} HH)</span>
+                              </td>
+                              <td className="p-4 sm:p-5">
+                                <span className={`text-xs font-bold px-3 py-1 rounded-full text-center ${isActive
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
+                                  }`}>
+                                  {isActive ? (lang === 'EN' ? 'Active' : lang === 'SI' ? 'ක්‍රියාකාරී' : 'செயலில் உள்ளது') : (lang === 'EN' ? 'Inactive' : lang === 'SI' ? 'අක්‍රියයි' : 'செயலற்றது')}
+                                </span>
+                              </td>
+                              <td className="p-4 sm:p-5 text-right">
+                                <div className="flex justify-end gap-2 items-center flex-wrap">
+                                  <button
+                                    onClick={() => toggleDivisionStatus(div.division_id || div.division_code, isActive)}
+                                    className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${isActive
+                                        ? 'border-red-500 text-red-500 hover:bg-red-50'
+                                        : 'border-green-600 text-green-600 hover:bg-green-50'
+                                      }`}
+                                  >
+                                    {isActive ? 'Deactivate' : 'Activate'}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setEditDivision({
+                                        division_id: div.division_id,
+                                        division_code: div.division_code,
+                                        name: div.name,
+                                        district: div.district,
+                                        province: div.province,
+                                        divisional_secretariat: div.divisional_secretariat,
+                                        population: div.population || '',
+                                        household_count: div.household_count || '',
+                                        is_active: isActive
+                                      })
+                                      setShowEditDivisionModal(true)
+                                    }}
+                                    className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteDivision(div.division_id || div.division_code)}
+                                    className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan="8" className="p-8 text-center text-gray-500">
+                            No GN Divisions configured in the system.
                           </td>
                         </tr>
                       )}
@@ -999,14 +1335,30 @@ function AdminDashboard({ onOpenHelp }) {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold text-gray-500">GN Division</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    placeholder="e.g. Colombo, Borella"
-                    value={newOfficer.division}
-                    onChange={(e) => setNewOfficer({ ...newOfficer, division: e.target.value })}
-                  />
+                  {divisions.length > 0 ? (
+                    <select
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                      value={newOfficer.division}
+                      onChange={(e) => setNewOfficer({ ...newOfficer, division: e.target.value })}
+                    >
+                      <option value="">Select GN Division...</option>
+                      {divisions.map(d => (
+                        <option key={d.division_id || d.division_code} value={d.name}>
+                          {d.name} ({d.division_code || d.name})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      placeholder="e.g. Maharagama, Colombo Central"
+                      value={newOfficer.division}
+                      onChange={(e) => setNewOfficer({ ...newOfficer, division: e.target.value })}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold text-gray-500">Password</label>
@@ -1087,13 +1439,29 @@ function AdminDashboard({ onOpenHelp }) {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold text-gray-500">GN Division</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editOfficer.division}
-                    onChange={(e) => setEditOfficer({ ...editOfficer, division: e.target.value })}
-                  />
+                  {divisions.length > 0 ? (
+                    <select
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                      value={editOfficer.division}
+                      onChange={(e) => setEditOfficer({ ...editOfficer, division: e.target.value })}
+                    >
+                      <option value="">Select GN Division...</option>
+                      {divisions.map(d => (
+                        <option key={d.division_id || d.division_code} value={d.name}>
+                          {d.name} ({d.division_code || d.name})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editOfficer.division}
+                      onChange={(e) => setEditOfficer({ ...editOfficer, division: e.target.value })}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-semibold text-gray-500">Status</label>
@@ -1111,6 +1479,226 @@ function AdminDashboard({ onOpenHelp }) {
                 <button
                   type="button"
                   onClick={() => setShowEditOfficerModal(false)}
+                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* REGISTER GN DIVISION MODAL */}
+      {showAddDivisionModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Register GN Division</h3>
+            <form onSubmit={handleCreateDivision}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Division Code</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. GN-003C"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.division_code}
+                      onChange={(e) => setNewDivision({ ...newDivision, division_code: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Division Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Dehiwala North"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.name}
+                      onChange={(e) => setNewDivision({ ...newDivision, name: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">District</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.district}
+                      onChange={(e) => setNewDivision({ ...newDivision, district: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Province</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.province}
+                      onChange={(e) => setNewDivision({ ...newDivision, province: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Divisional Secretariat (DS Division)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dehiwala DS Office"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={newDivision.divisional_secretariat}
+                    onChange={(e) => setNewDivision({ ...newDivision, divisional_secretariat: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Est. Population</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 12500"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.population}
+                      onChange={(e) => setNewDivision({ ...newDivision, population: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Household Count</label>
+                    <input
+                      type="number"
+                      placeholder="e.g. 3100"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={newDivision.household_count}
+                      onChange={(e) => setNewDivision({ ...newDivision, household_count: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowAddDivisionModal(false)}
+                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT GN DIVISION MODAL */}
+      {showEditDivisionModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">Edit GN Division</h3>
+            <form onSubmit={handleUpdateDivision}>
+              <div className="flex flex-col gap-4 text-left">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Division Code</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.division_code}
+                      onChange={(e) => setEditDivision({ ...editDivision, division_code: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Division Name</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.name}
+                      onChange={(e) => setEditDivision({ ...editDivision, name: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">District</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.district}
+                      onChange={(e) => setEditDivision({ ...editDivision, district: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Province</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.province}
+                      onChange={(e) => setEditDivision({ ...editDivision, province: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Divisional Secretariat (DS Division)</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                    value={editDivision.divisional_secretariat}
+                    onChange={(e) => setEditDivision({ ...editDivision, divisional_secretariat: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Est. Population</label>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.population}
+                      onChange={(e) => setEditDivision({ ...editDivision, population: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold text-gray-500">Household Count</label>
+                    <input
+                      type="number"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                      value={editDivision.household_count}
+                      onChange={(e) => setEditDivision({ ...editDivision, household_count: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-semibold text-gray-500">Status</label>
+                  <select
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                    value={editDivision.is_active ? "Active" : "Inactive"}
+                    onChange={(e) => setEditDivision({ ...editDivision, is_active: e.target.value === "Active" })}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowEditDivisionModal(false)}
                   className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
                 >
                   Cancel
