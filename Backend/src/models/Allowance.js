@@ -25,3 +25,8 @@ const authUser = (req, res, next) => {
     return res.status(401).json({ error: 'Invalid or expired authorization token.' });
   }
 };
+
+// 1. Submit Allowance Application (Resident)
+router.post('/apply', authUser, async (req, res) => {
+  const { allowanceType, incomeDetails, bankDetails } = req.body;
+  const residentNic = req.user.id;
