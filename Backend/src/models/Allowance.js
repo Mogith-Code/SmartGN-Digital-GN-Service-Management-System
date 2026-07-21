@@ -30,3 +30,11 @@ const authUser = (req, res, next) => {
 router.post('/apply', authUser, async (req, res) => {
   const { allowanceType, incomeDetails, bankDetails } = req.body;
   const residentNic = req.user.id;
+
+  try {
+    if (!allowanceType || !incomeDetails || !bankDetails) {
+      return res.status(400).json({ error: 'Allowance type, income details, and bank account metadata are required.' });
+    }
+
+    const allowanceId = `AL-${uuidv4().substring(0, 8).toUpperCase()}`;
+
