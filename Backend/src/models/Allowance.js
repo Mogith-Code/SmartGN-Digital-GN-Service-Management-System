@@ -38,3 +38,14 @@ router.post('/apply', authUser, async (req, res) => {
 
     const allowanceId = `AL-${uuidv4().substring(0, 8).toUpperCase()}`;
 
+    // Get assigned GN officer
+    const [gnRows] = await pool.query(
+      `SELECT gn.gn_id FROM grama_niladhari gn
+       JOIN resident r ON r.r_nic = ?
+       JOIN household h ON h.household_number = r.household_number
+       WHERE gn.division_id = h.division_id`,
+      [residentNic]
+    );
+    const gnId = gnRows.length > 0 ? gnRows[0].gn_id : null;
+
+
