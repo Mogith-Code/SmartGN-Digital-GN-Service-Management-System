@@ -48,4 +48,17 @@ router.post('/apply', authUser, async (req, res) => {
     );
     const gnId = gnRows.length > 0 ? gnRows[0].gn_id : null;
 
+    // Insert Allowance Application
+    await pool.query(
+      `INSERT INTO allowance_application (allowance_id, allowance_type, application_date, income_details, status, resident_nic, gn_id, bank_details) 
+       VALUES (?, ?, CURDATE(), ?, 'PENDING', ?, ?, ?)`,
+      [allowanceId, allowanceType, incomeDetails, residentNic, gnId, JSON.stringify(bankDetails)]
+    );
+
+    res.status(201).json({ success: true, message: 'Allowance application submitted.', allowanceId });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
