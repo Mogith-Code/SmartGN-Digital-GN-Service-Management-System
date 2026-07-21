@@ -295,7 +295,7 @@ function ResidentDashboard({ onOpenHelp }) {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch("/api/announcements");
+        const response = await fetch("/api/residents/announcements");
         if (response.ok) {
           const data = await response.json();
           setAnnouncements(data.slice(0, 5));
