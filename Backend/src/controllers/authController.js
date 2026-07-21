@@ -820,3 +820,148 @@ exports.getOfficerById = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching officer details.' });
     }
 };
+
+// GN DIVISION MANAGEMENT CONTROLLERS
+
+// 17. GET /api/auth/admin/divisions
+exports.getAllDivisionsDetails = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                division_id,
+                division_code,
+                name,
+                district,
+                province,
+                divisional_secretariat,
+                population,
+                household_count,
+                is_active,
+                created_at,
+                updated_at
+            FROM gn_division
+            ORDER BY created_at DESC
+        `);
+        return res.json(rows);
+    } catch (error) {
+        console.error('Error fetching detailed GN divisions:', error);
+        return res.status(500).json({ error: 'Server error fetching division details.' });
+    }
+};
+
+// 18. POST /api/auth/admin/divisions
+exports.createDivision = async (req, res) => {
+    const { division_code, name, district, province, divisional_secretariat, population, household_count } = req.body;
+
+    if (!division_code || !name || !district || !province || !divisional_secretariat) {
+        return res.status(400).json({ error: 'Please provide all required fields for GN Division.' });
+    }
+
+    try {
+        // Check if code or name exists
+        const [existing] = await db.query(
+            'SELECT division_id FROM gn_division WHERE division_code = ? OR name = ?',
+            [division_code, name]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'A GN Division with this Code or Name already exists.' });
+        }
+
+        await db.query(`
+            INSERT INTO gn_division (division_code, name, district, province, divisional_secretariat, population, household_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [
+            division_code,
+            name,
+            district,
+            province,
+            divisional_secretariat,
+            parseInt(population, 10) || 0,
+            parseInt(household_count, 10) || 0
+        ]);
+
+        return res.status(201).json({ message: 'GN Division created successfully.' });
+    } catch (error) {
+        console.error('Error creating division:', error);
+        return res.status(500).json({ error: 'Server error creating GN Division.' });
+    }
+};
+
+// 19. PUT /api/auth/admin/divisions/:id
+exports.updateDivision = async (req, res) => {
+    const { id } = req.params;
+    const { division_code, name, district, province, divisional_secretariat, population, household_count, is_active } = req.body;
+
+    if (!division_code || !name || !district || !province || !divisional_secretariat) {
+        return res.status(400).json({ error: 'Please provide all required fields.' });
+    }
+
+    try {
+        const [existing] = await db.query(
+            'SELECT division_id FROM gn_division WHERE (division_code = ? OR name = ?) AND division_id != ?',
+            [division_code, name, id]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Division Code or Name is already used by another division.' });
+        }
+
+        const activeBool = is_active !== undefined ? (is_active === true || is_active === 'Active' || is_active === 1) : true;
+
+        const [result] = await db.query(`
+            UPDATE gn_division
+            SET division_code = ?, name = ?, district = ?, province = ?, divisional_secretariat = ?, population = ?, household_count = ?, is_active = ?
+            WHERE division_id = ? OR division_code = ?
+        `, [
+            division_code,
+            name,
+            district,
+            province,
+            divisional_secretariat,
+            parseInt(population, 10) || 0,
+            parseInt(household_count, 10) || 0,
+            activeBool,
+            id,
+            id
+        ]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
+
+        return res.json({ message: 'GN Division updated successfully.' });
+    } catch (error) {
+        console.error('Error updating division:', error);
+        return res.status(500).json({ error: 'Server error updating GN Division.' });
+    }
+};
+
+// 20. PUT /api/auth/admin/divisions/:id/status
+exports.toggleDivisionStatus = async (req, res) => {
+    const { id } = req.params;
+    const { is_active, status } = req.body;
+
+    let activeBool;
+    if (status !== undefined) {
+        activeBool = status === 'Active';
+    } else if (is_active !== undefined) {
+        activeBool = Boolean(is_active);
+    } else {
+        return res.status(400).json({ error: 'Active status is required.' });
+    }
+
+    try {
+        const [result] = await db.query(
+            'UPDATE gn_division SET is_active = ? WHERE division_id = ? OR division_code = ?',
+            [activeBool, id, id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'GN Division not found.' });
+        }
+
+        return res.json({ message: 'GN Division status updated successfully.' });
+    } catch (error) {
+        console.error('Error updating division status:', error);
+        return res.status(500).json({ error: 'Server error updating status.' });
+    }
+};
