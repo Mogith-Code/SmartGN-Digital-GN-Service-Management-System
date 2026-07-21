@@ -1,8 +1,7 @@
+// src/pages/ResidentDashboard.jsx
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
-import LanguageSelector from "../Components/Common/LanguageSelector";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import ResidentDashboardLayout from "../Components/ResidentDashboard/ResidentDashboardLayout";
@@ -12,115 +11,385 @@ function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Retrieve username and division from navigation state if available (defaults to Nimal Perera)
-  const successUser =
-    location.state?.successUser ||
-    localStorage.getItem("smartgn_user_name") ||
-    "Nimal Perera";
+  // ============================================================
+  // STATE DECLARATIONS
+  // ============================================================
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
-  // Extract first name for the personal greeting
-  const firstName = successUser.split(" ")[0];
-  const userDivision =
-    location.state?.division ||
-    localStorage.getItem("smartgn_user_division") ||
-    "Colombo";
+  // Profile data from database
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    nic: "",
+    occupation: "",
+    email: "",
+    mobile: "",
+    homeAddress: "",
+    division: "",
+    dob: "",
+    gender: "",
+    householdNumber: "",
+    profilePhoto: null,
+    nicFront: null,
+    nicBack: null,
+  });
 
-  // State to manage dismissing the alert banner
-  const [showAlert, setShowAlert] = useState(true);
-
-  // States for dynamic database counts
-  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
-  const [approvedRequestsCount, setApprovedRequestsCount] = useState(0);
+  // Dashboard stats from database
+  const [totalPendingCount, setTotalPendingCount] = useState(0);
+  const [totalApprovedCount, setTotalApprovedCount] = useState(0);
   const [upcomingAppointmentsCount, setUpcomingAppointmentsCount] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
 
+  // Get resident NIC and token from localStorage
+  const residentNic = localStorage.getItem("smartgn_user_id");
+  const token = localStorage.getItem("smartgn_token");
+
+  // ============================================================
+  // FETCH PROFILE DATA
+  // ============================================================
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchResidentProfile = async () => {
+      if (!token || !residentNic) {
+        navigate("/login");
+        return;
+      }
+
       try {
-        const headers = getAuthHeaders();
+        const response = await fetch(`/api/residents/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-        // 1. Fetch certificates
-        const certRes = await fetch("/api/certificates/resident", { headers });
-        const certs = certRes.ok ? await certRes.json() : [];
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("smartgn_token");
+            localStorage.removeItem("smartgn_user_id");
+            localStorage.removeItem("smartgn_user_role");
+            navigate("/login");
+            return;
+          }
+          throw new Error("Failed to fetch profile");
+        }
 
-        // 2. Fetch allowances
-        const allowRes = await fetch("/api/allowances/resident", { headers });
-        const allowances = allowRes.ok ? await allowRes.json() : [];
+        const data = await response.json();
 
-        // 3. Fetch appointments
-        const apptRes = await fetch("/api/appointments/resident", { headers });
-        const appts = apptRes.ok ? await apptRes.json() : [];
+        const profileData = {
+          firstName: data.first_name || "",
+          lastName: data.last_name || "",
+          fullName: data.full_name || "",
+          nic: data.r_nic || "",
+          occupation: data.occupation || "",
+          email: data.email || "",
+          mobile: data.mobile_no || "",
+          homeAddress: data.home_address || data.household_address || "",
+          division: data.division_name || "",
+          divisionId: data.division_id || "",
+          dob: data.date_of_birth
+            ? new Date(data.date_of_birth).toLocaleDateString()
+            : "",
+          gender: data.gender || "",
+          householdNumber: data.household_number || "",
+          profilePhoto: data.profile_photo_path || null,
+          nicFront: data.nic_front_path || null,
+          nicBack: data.nic_back_path || null,
+        };
 
-        // Calculate pending and approved counts
-        const pendingCerts = certs.filter((c) => c.status === "PENDING").length;
-        const pendingAllows = allowances.filter(
-          (a) => a.status === "PENDING",
-        ).length;
-        const pendingAppts = appts.filter((a) => a.status === "PENDING").length;
-        setPendingRequestsCount(pendingCerts + pendingAllows + pendingAppts);
+        setProfile(profileData);
 
-        const approvedCerts = certs.filter(
-          (c) => c.status === "APPROVED",
-        ).length;
-        const approvedAllows = allowances.filter(
-          (a) => a.status === "APPROVED",
-        ).length;
-        setApprovedRequestsCount(approvedCerts + approvedAllows);
+        // Show alert if NIC images are missing
+        if (!data.nic_front_path || !data.nic_back_path) {
+          setShowAlert(true);
+        } else {
+          setShowAlert(false);
+        }
 
-        const confirmedAppts = appts.filter(
-          (a) => a.status === "CONFIRMED",
-        ).length;
-        setUpcomingAppointmentsCount(confirmedAppts);
+        // Store in localStorage for other components
+        localStorage.setItem("smartgn_user_name", data.full_name || "Resident");
+        localStorage.setItem("smartgn_user_division", data.division_name || "");
+        localStorage.setItem("smartgn_user_nic", data.r_nic || "");
+
+        setError("");
       } catch (err) {
-        console.error("Error loading resident dashboard stats:", err);
+        console.error("Error fetching profile:", err);
+        setError("Failed to load profile data");
       }
     };
 
+    fetchResidentProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [residentNic, token]); // Removed navigate from dependencies to avoid issues
+
+  // ============================================================
+  // FETCH DASHBOARD STATS
+  // ============================================================
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      if (!token) return;
+
+      try {
+        const headers = getAuthHeaders();
+
+        // Primary: Fetch stats from dedicated endpoint
+        const statsRes = await fetch("/api/residents/dashboard-stats", {
+          headers,
+        });
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+
+          const pending =
+            (stats.certificates?.pending || 0) +
+            (stats.appointments?.pending || 0) +
+            (stats.allowances?.pending || 0) +
+            (stats.disasters?.pending || 0);
+
+          const approved =
+            (stats.certificates?.approved || 0) +
+            (stats.allowances?.approved || 0);
+
+          setTotalPendingCount(pending);
+          setTotalApprovedCount(approved);
+          setUpcomingAppointmentsCount(
+            stats.appointments?.upcoming || stats.appointments?.approved || 0,
+          );
+
+          // Build recent activity from stats if available
+          const activities = [];
+
+          if (stats.certificates?.recent) {
+            activities.push(
+              ...stats.certificates.recent.map((c) => ({
+                id: c.request_id || c.id,
+                label: `${c.certificate_type || "Certificate"} Certificate`,
+                status: c.status || "Pending",
+                date:
+                  c.request_date ||
+                  c.created_at ||
+                  new Date().toISOString().split("T")[0],
+                type: "Certificate",
+              })),
+            );
+          }
+
+          if (stats.appointments?.recent) {
+            activities.push(
+              ...stats.appointments.recent.map((a) => ({
+                id: a.appointment_id || a.id,
+                label: `Appointment — ${a.purpose || "Meeting"}`,
+                status: a.status || "Pending",
+                date:
+                  a.date ||
+                  a.created_at ||
+                  new Date().toISOString().split("T")[0],
+                type: "Appointment",
+              })),
+            );
+          }
+
+          if (stats.allowances?.recent) {
+            activities.push(
+              ...stats.allowances.recent.map((al) => ({
+                id: al.allowance_id || al.id,
+                label: `${al.allowance_type || "Allowance"} Allowance`,
+                status: al.status || "Pending",
+                date:
+                  al.application_date ||
+                  al.created_at ||
+                  new Date().toISOString().split("T")[0],
+                type: "Allowance",
+              })),
+            );
+          }
+
+          setRecentActivities(
+            activities
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .slice(0, 5),
+          );
+        } else {
+          // Fallback: Fetch individual endpoints
+          const [certRes, allowRes, apptRes] = await Promise.all([
+            fetch("/api/certificates/resident", { headers }),
+            fetch("/api/allowances/resident", { headers }),
+            fetch("/api/appointments/resident", { headers }),
+          ]);
+
+          const certs = certRes.ok ? await certRes.json() : [];
+          const allows = allowRes.ok ? await allowRes.json() : [];
+          const appts = apptRes.ok ? await apptRes.json() : [];
+
+          const pending =
+            certs.filter((c) => c.status === "Pending").length +
+            allows.filter((a) => a.status === "PENDING").length +
+            appts.filter((a) => a.status === "Pending").length;
+
+          const approved =
+            certs.filter((c) => c.status === "Approved").length +
+            allows.filter((a) => a.status === "APPROVED").length;
+
+          const upcoming = appts.filter((a) => a.status === "Approved").length;
+
+          setTotalPendingCount(pending);
+          setTotalApprovedCount(approved);
+          setUpcomingAppointmentsCount(upcoming);
+
+          // Build recent activity list
+          const activities = [
+            ...certs.slice(0, 3).map((c) => ({
+              id: c.request_id || c.id,
+              label: `${c.certificate_type || "Certificate"} Certificate`,
+              status: c.status || "Pending",
+              date:
+                c.request_date ||
+                c.created_at ||
+                new Date().toISOString().split("T")[0],
+              type: "Certificate",
+            })),
+            ...appts.slice(0, 3).map((a) => ({
+              id: a.appointment_id || a.id,
+              label: `Appointment — ${a.purpose || "Meeting"}`,
+              status: a.status || "Pending",
+              date:
+                a.date ||
+                a.created_at ||
+                new Date().toISOString().split("T")[0],
+              type: "Appointment",
+            })),
+            ...allows.slice(0, 2).map((al) => ({
+              id: al.allowance_id || al.id,
+              label: `${al.allowance_type || "Allowance"} Allowance`,
+              status: al.status || "PENDING",
+              date:
+                al.application_date ||
+                al.created_at ||
+                new Date().toISOString().split("T")[0],
+              type: "Allowance",
+            })),
+          ];
+
+          setRecentActivities(
+            activities
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .slice(0, 5),
+          );
+        }
+      } catch (err) {
+        console.error("Error loading dashboard stats:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  // ============================================================
+  // FETCH ANNOUNCEMENTS
+  // ============================================================
+  useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch("/api/announcements/feed");
+        const response = await fetch("/api/announcements");
         if (response.ok) {
           const data = await response.json();
           setAnnouncements(data.slice(0, 5));
         }
       } catch (err) {
-        console.error("Error fetching announcements feed:", err);
+        console.error("Error fetching announcements:", err);
       }
     };
 
-    fetchDashboardData();
     fetchAnnouncements();
   }, []);
 
-  return (
-    <>
+  // ============================================================
+  // LOADING STATE
+  // ============================================================
+  if (loading) {
+    return (
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
-        {/* Navbar */}
         <AfterlogNavbar />
-
-        <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
-          {/* Sidebar - Hidden on mobile, visible on md and up */}
-          <div className="hidden md:block bg-white">
-            <RSidebar />
-          </div>
-          <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-            <ResidentDashboardLayout />
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B365D] mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your dashboard...</p>
           </div>
         </div>
-
-        {/* Floating Help Trigger */}
-        <button
-          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-          aria-label="Help Trigger"
-          onClick={onOpenHelp}
-        >
-          ?
-        </button>
-
-        {/* Footer */}
         <Footer />
       </div>
-    </>
+    );
+  }
+
+  // ============================================================
+  // ERROR STATE
+  // ============================================================
+  if (error) {
+    return (
+      <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+        <AfterlogNavbar />
+        <div className="flex flex-col justify-center items-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 text-lg font-semibold">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-[#1B365D] text-white rounded-lg hover:bg-[#005BBD] transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Navbar */}
+      <AfterlogNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Sidebar - Hidden on mobile, visible on md and up */}
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+
+        {/* Main Content - Pass all data as props to ResidentDashboardLayout */}
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          <ResidentDashboardLayout
+            profile={profile}
+            showAlert={showAlert}
+            setShowAlert={setShowAlert}
+            totalPendingCount={totalPendingCount}
+            totalApprovedCount={totalApprovedCount}
+            upcomingAppointmentsCount={upcomingAppointmentsCount}
+            announcements={announcements}
+            recentActivities={recentActivities}
+          />
+        </div>
+      </div>
+
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
 

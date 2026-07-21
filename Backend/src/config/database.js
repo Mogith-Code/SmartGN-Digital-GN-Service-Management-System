@@ -52,7 +52,7 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-    // 3. RESIDENT TABLE (UPDATED: home_address instead of permanent/current)
+    // 3. RESIDENT TABLE (With division_id)
     // ============================================================
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS resident (
@@ -67,6 +67,7 @@ async function setupTables(dbPool) {
         password_hash VARCHAR(255) NOT NULL COMMENT 'bcrypt hashed',
         occupation VARCHAR(100),
         household_number VARCHAR(50) NOT NULL,
+        division_id VARCHAR(36) NOT NULL,
         
         -- Address field
         home_address TEXT,
@@ -101,6 +102,7 @@ async function setupTables(dbPool) {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
         FOREIGN KEY (household_number) REFERENCES household(household_number) ON DELETE RESTRICT,
+        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE RESTRICT,
         INDEX idx_nic (r_nic),
         INDEX idx_email (email),
         INDEX idx_mobile (mobile_no),
@@ -226,7 +228,7 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
-    // 7b. APPROVED APPOINTMENTS (FIXED)
+    // 7b. APPROVED APPOINTMENTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS appointment_approved (
         appointment_id VARCHAR(36) PRIMARY KEY,
@@ -805,10 +807,10 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-    // SEEDING INITIAL DATA
+    // SEEDING INITIAL DATA (FIXED - WITH division_id)
     // ============================================================
 
-    // Check if divisions exist before seeding
+    // 1. Check if divisions exist before seeding
     const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
     if (divisionCount[0].count === 0) {
         await dbPool.query(`
@@ -817,13 +819,17 @@ async function setupTables(dbPool) {
         (UUID(), 'GN-001B', 'Colombo Fort', 'Colombo', 'Western', 'Colombo Divisional Secretariat'),
         (UUID(), 'GN-002A', 'Kandy Central', 'Kandy', 'Central', 'Kandy Divisional Secretariat')
       `);
+        console.log('✅ Divisions seeded');
     }
 
-    // Get division IDs for seeding
+    // 2. Get division IDs for seeding (with proper error handling)
     const [borellaRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001A"');
+    const [colomboRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001B"');
+    
     const borellaId = borellaRow.length > 0 ? borellaRow[0].division_id : null;
+    const colomboId = colomboRow.length > 0 ? colomboRow[0].division_id : borellaId;
 
-    // Check if households exist before seeding
+    // 3. Check if households exist before seeding
     const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
     if (householdCount[0].count === 0 && borellaId) {
         await dbPool.query(`
@@ -835,19 +841,21 @@ async function setupTables(dbPool) {
         INSERT INTO household (household_number, address, division_id) 
         VALUES ('H-90824', '12, School Lane, Borella', ?)
       `, [borellaId]);
+        console.log('✅ Households seeded');
     }
 
-    // Check if residents exist before seeding
+    // 4. Check if residents exist before seeding (FIXED - WITH division_id)
     const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
-    if (residentCount[0].count === 0) {
+    if (residentCount[0].count === 0 && borellaId && colomboId) {
         const residentPasswordHash = bcrypt.hashSync('password123', 10);
         
+        // Resident 1 - Borella Division
         await dbPool.query(`
         INSERT INTO resident (
             r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, status, email_verified, mobile_verified,
+            password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
             home_address
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
       `, [
             '789456123V',
             'Nimal',
@@ -859,18 +867,19 @@ async function setupTables(dbPool) {
             residentPasswordHash,
             'Engineer',
             'H-90823',
-            'Active',
+            borellaId,  // ✅ division_id from gn_division
             true,
             true,
             '45/2, Temple Road, Borella'
         ]);
 
+        // Resident 2 - Colombo Division
         await dbPool.query(`
         INSERT INTO resident (
             r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, status, email_verified, mobile_verified,
+            password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
             home_address
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
       `, [
             '897654321V',
             'Kamala',
@@ -882,14 +891,15 @@ async function setupTables(dbPool) {
             residentPasswordHash,
             'Teacher',
             'H-90824',
-            'Active',
+            colomboId,  // ✅ division_id from gn_division
             true,
             true,
             '12, School Lane, Borella'
         ]);
+        console.log('✅ Residents seeded');
     }
 
-    // Check if GN Officers exist before seeding
+    // 5. Check if GN Officers exist before seeding
     const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
     if (officerCount[0].count === 0 && borellaId) {
         const officerPasswordHash = bcrypt.hashSync('password123', 10);
@@ -908,9 +918,10 @@ async function setupTables(dbPool) {
             borellaId,
             'Grade I'
         ]);
+        console.log('✅ GN Officers seeded');
     }
 
-    // Check if Admin exists before seeding
+    // 6. Check if Admin exists before seeding
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');
     if (adminCount[0].count === 0) {
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
@@ -925,9 +936,10 @@ async function setupTables(dbPool) {
             'admin@smartgn.gov.lk',
             'SuperAdmin'
         ]);
+        console.log('✅ Admin seeded');
     }
 
-    // Check if system settings exist before seeding
+    // 7. Check if system settings exist before seeding
     const [settingsCount] = await dbPool.query('SELECT COUNT(*) as count FROM system_settings');
     if (settingsCount[0].count === 0) {
         await dbPool.query(`
@@ -939,9 +951,10 @@ async function setupTables(dbPool) {
         ('session_timeout_minutes', '60', 'Session timeout in minutes', 'security'),
         ('certificate_validity_days', '365', 'Default certificate validity period', 'certificate')
       `);
+        console.log('✅ System settings seeded');
     }
 
-    // Check if knowledge base exists before seeding
+    // 8. Check if knowledge base exists before seeding
     const [kbCount] = await dbPool.query('SELECT COUNT(*) as count FROM knowledge_base');
     if (kbCount[0].count === 0) {
         await dbPool.query(`
@@ -950,6 +963,7 @@ async function setupTables(dbPool) {
         ('What is the Aswesuma allowance?', 'Aswesuma is a social welfare benefit program that provides financial assistance to low-income families in Sri Lanka.', 'Allowances'),
         ('How to report a disaster?', 'You can report a disaster through the SmartGN portal by creating a disaster request. Provide details about the disaster type, location, and your contact information.', 'Disaster')
       `);
+        console.log('✅ Knowledge base seeded');
     }
 
     console.log('✅ Database tables verified and seeded successfully.');
