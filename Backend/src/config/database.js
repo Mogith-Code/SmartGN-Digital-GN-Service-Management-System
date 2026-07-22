@@ -324,6 +324,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         request_date DATE NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(36),
+        details JSON COMMENT 'Full certificate application form data',
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
@@ -347,6 +348,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         gn_id VARCHAR(36),
         approved_by VARCHAR(36) NOT NULL,
         gn_remarks TEXT,
+        details JSON COMMENT 'Full certificate application form data',
         approved_at DATETIME DEFAULT NULL,
         issued_date DATE,
         expiry_date DATE,
@@ -375,6 +377,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         rejected_by VARCHAR(36) NOT NULL,
         rejection_reason TEXT,
         gn_remarks TEXT,
+        details JSON COMMENT 'Full certificate application form data',
         rejected_at DATETIME DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
@@ -386,6 +389,11 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_rejected_at (rejected_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+
+    // Safe ALTER TABLE migrations for existing schemas
+    try { await dbPool.query("ALTER TABLE certificate_pending ADD COLUMN details JSON"); } catch (e) {}
+    try { await dbPool.query("ALTER TABLE certificate_approved ADD COLUMN details JSON"); } catch (e) {}
+    try { await dbPool.query("ALTER TABLE certificate_rejected ADD COLUMN details JSON"); } catch (e) {}
 
     // ============================================================
     // 9. ALLOWANCE TABLES (Separated)
