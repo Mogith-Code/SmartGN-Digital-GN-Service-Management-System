@@ -78,5 +78,26 @@ router.get('/resident', authUser, async (req, res) => {
   }
 });
 
+// 3. Fetch Allowances (GN Audit panel)
+router.get('/officer', authUser, async (req, res) => {
+  const officerId = req.user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT aa.*, r.name AS resident_name, r.email AS resident_email, h.address AS resident_address
+       FROM allowance_application aa
+       JOIN resident r ON r.r_nic = aa.resident_nic
+       JOIN household h ON h.household_number = r.household_number
+       WHERE aa.gn_id = ?
+       ORDER BY aa.application_date DESC`,
+      [officerId]
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 
