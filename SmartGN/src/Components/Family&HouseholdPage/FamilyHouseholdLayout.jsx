@@ -40,6 +40,8 @@ function FamilyHouseholdLayout() {
       editFDetails: "Edit family details",
       householdDetails: "Household Details",
       editHDetails: "Edit household details",
+      alert:
+        "Please upload a high-quality image of your National Identity Card",
     },
     SI: {
       Title: "පවුල සහ ගෘහ විස්තර",
@@ -47,13 +49,17 @@ function FamilyHouseholdLayout() {
       editFDetails: "පවුලේ විස්තර සංස්කරණය කරන්න",
       householdDetails: "ගෘහ විස්තර",
       editHDetails: "ගෘහ විස්තර සංස්කරණය කරන්න",
+      alert:
+        "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් කාඩ්පතේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
     },
     TA: {
       Title: "குடும்ப மற்றும் வீட்டு விவரங்கள்",
-      familyMembers: "පවුලේ සාමාජිකයින්",
-      editFDetails: "පවුලේ විස්තර සංස්කරණය කරන්න",
-      householdDetails: "ගෘහ විස්තර",
-      editHDetails: "ගෘහ විස්තර සංස්කරණය කරන්න",
+      familyMembers: "குடும்ப உறுப்பினர்கள்",
+      editFDetails: "குடும்ப விவரங்களைத் திருத்தவும்",
+      householdDetails: "வீட்டு விவரங்கள்",
+      editHDetails: "வீட்டு விவரங்களைத் திருத்தவும்",
+      alert:
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
     },
   };
 
@@ -102,9 +108,13 @@ function FamilyHouseholdLayout() {
           {showAlert && !profile.nicFront && !profile.nicBack && (
             <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 ">
               <div className="flex items-center gap-2">
-                <span>
-                  Please upload a high-quality image of your National Identity
-                  Card
+                <span
+                  className="hover:underline hover:cursor-pointer"
+                  onClick={() => {
+                    navigate("/ResidentDashboard/profile");
+                  }}
+                >
+                  {t.alert}
                 </span>
               </div>
               <button

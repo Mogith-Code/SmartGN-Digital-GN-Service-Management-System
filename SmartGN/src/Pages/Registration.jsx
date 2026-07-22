@@ -49,8 +49,7 @@ const registrationTranslations = {
     otpResending: "Resending...",
     otpBackToRegister: "Back to Register",
     otpErrorInvalid: "Please enter a valid 6-digit code.",
-    otpResendSuccess: "Verification code resent successfully!"
-    
+    otpResendSuccess: "Verification code resent successfully!",
   },
   SI: {
     title: "නේවාසික ගිණුමක් සාදන්න",
@@ -97,8 +96,7 @@ const registrationTranslations = {
     otpResending: "නැවත යවමින්...",
     otpBackToRegister: "ලියාපදිංචියට ආපසු යන්න",
     otpErrorInvalid: "කරුණාකර වලංගු ඉලක්කම් 6ක කේතයක් ඇතුළත් කරන්න.",
-    otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!"
-    
+    otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!",
   },
   TA: {
     title: "குடியுரிமை கணக்கை உருவாக்கவும்",
@@ -145,8 +143,8 @@ const registrationTranslations = {
     otpResending: "மீண்டும் அனுப்புகிறது...",
     otpBackToRegister: "பதிவுக்குத் திரும்புக",
     otpErrorInvalid: "தயவுசெய்து சரியான 6 இலக்க குறியீட்டை உள்ளிடவும்.",
-    otpResendSuccess: "சரிபார்ப்புக் குறியீடு வெற்றிகரமாக மீண்டும் அனுப்பப்பட்டது!"
-    
+    otpResendSuccess:
+      "சரிபார்ப்புக் குறியீடு வெற்றிகரமாக மீண்டும் அனுப்பப்பட்டது!",
   },
 };
 
@@ -192,7 +190,7 @@ function Register() {
     useRef(null),
     useRef(null),
     useRef(null),
-    useRef(null)
+    useRef(null),
   ];
 
   // Fetch divisions
@@ -204,19 +202,11 @@ function Register() {
           const data = await response.json();
           setDivisions(data.map((d) => d.name));
         } else {
-          setDivisions([
-            "Colombo Borella",
-            "Colombo Fort",
-            "Kandy Central",
-          ]);
+          setDivisions(["Colombo Borella", "Colombo Fort", "Kandy Central"]);
         }
       } catch (err) {
         console.error("Error fetching divisions:", err);
-        setDivisions([
-          "Colombo Borella",
-          "Colombo Fort",
-          "Kandy Central",
-        ]);
+        setDivisions(["Colombo Borella", "Colombo Fort", "Kandy Central"]);
       }
     };
     fetchDivisions();
@@ -239,7 +229,6 @@ function Register() {
       setTimeout(() => inputRefs[0].current.focus(), 100);
     }
   }, [showOtpVerify]);
-  
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -273,7 +262,8 @@ function Register() {
     try {
       const bodyPayload = {
         nic,
-        name: `${firstName} ${lastName}`,
+        firstName: firstName,
+        lastName: lastName,
         dob,
         password,
         gender,
@@ -327,7 +317,7 @@ function Register() {
     }
   };
 
-const handleOtpDigitChange = (value, index) => {
+  const handleOtpDigitChange = (value, index) => {
     if (!/^\d*$/.test(value)) return; // numbers only
     const newDigits = [...otpDigits];
     newDigits[index] = value.substring(value.length - 1);
@@ -376,10 +366,10 @@ const handleOtpDigitChange = (value, index) => {
         body: JSON.stringify({
           email: verificationEmail,
           nic: verificationNic,
-          otp: otpValue
+          otp: otpValue,
         }),
       });
-      
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -390,14 +380,15 @@ const handleOtpDigitChange = (value, index) => {
 
       setErrorMessage("");
       setIsSubmitting(false);
-      
+
       // Navigate to success
       navigate("/success", {
         state: {
           successUser: `${firstName} ${lastName} (NIC: ${nic})`,
           isRegister: true,
           householdCreated: householdCreatedState,
-          message: "Account created and verified. Two-Factor Authentication (2FA) is now active."
+          message:
+            "Account created and verified. Two-Factor Authentication (2FA) is now active.",
         },
       });
     } catch (err) {
@@ -420,7 +411,7 @@ const handleOtpDigitChange = (value, index) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: verificationEmail,
-          purpose: "REGISTRATION"
+          purpose: "REGISTRATION",
         }),
       });
 
@@ -456,7 +447,6 @@ const handleOtpDigitChange = (value, index) => {
 
       {/* Registration / OTP Card */}
       <div className="w-full max-w-[700px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
-        
         {/* VIEW 1: OTP VERIFICATION SCREEN */}
         {showOtpVerify ? (
           <>
@@ -464,16 +454,23 @@ const handleOtpDigitChange = (value, index) => {
               {t.otpTitle}
             </h2>
             <p className="text-[14px] text-gray-500 text-center mb-8">
-              {t.otpDescription} <strong className="text-[#1B365D]">{verificationEmail}</strong>
+              {t.otpDescription}{" "}
+              <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
 
-            <form onSubmit={handleOtpVerifySubmit} className="flex flex-col gap-6 items-center">
+            <form
+              onSubmit={handleOtpVerifySubmit}
+              className="flex flex-col gap-6 items-center"
+            >
               <label className="text-[14px] font-medium text-[#2D3748] text-center w-full">
                 {t.otpLabel}
               </label>
 
               {/* 6 Digit Inputs */}
-              <div className="flex gap-2 md:gap-4 my-2 justify-center" onPaste={handleOtpPaste}>
+              <div
+                className="flex gap-2 md:gap-4 my-2 justify-center"
+                onPaste={handleOtpPaste}
+              >
                 {otpDigits.map((digit, idx) => (
                   <input
                     key={idx}
@@ -493,7 +490,8 @@ const handleOtpDigitChange = (value, index) => {
               {/* Dev Mode Assistance */}
               {devOtpTip && (
                 <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#FFF9E6] border border-[#F5D17E] rounded-[8px] text-[13px] text-[#A76F00] text-center font-medium my-1 animate-pulse">
-                  🔧 Development Notice: Verification code is <strong>{devOtpTip}</strong>
+                  🔧 Development Notice: Verification code is{" "}
+                  <strong>{devOtpTip}</strong>
                 </div>
               )}
 
@@ -530,7 +528,11 @@ const handleOtpDigitChange = (value, index) => {
                 }`}
                 disabled={timerCount > 0 || isResending}
               >
-                {isResending ? t.otpResending : timerCount > 0 ? `${t.otpResendCode} (${timerCount}s)` : t.otpResendCode}
+                {isResending
+                  ? t.otpResending
+                  : timerCount > 0
+                    ? `${t.otpResendCode} (${timerCount}s)`
+                    : t.otpResendCode}
               </button>
 
               <button
@@ -554,11 +556,17 @@ const handleOtpDigitChange = (value, index) => {
               {t.title}
             </h2>
 
-            <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-6">
+            <form
+              onSubmit={handleRegisterSubmit}
+              className="flex flex-col gap-6"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* NIC Number */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="nic" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="nic"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.nicLabel}
                   </label>
                   <input
@@ -575,7 +583,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Household Number */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="household" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="household"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.householdLabel}
                   </label>
                   <input
@@ -592,7 +603,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* First Name */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="firstName" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="firstName"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.firstNameLabel}
                   </label>
                   <input
@@ -609,7 +623,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Last Name */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="lastName" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="lastName"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.lastNameLabel}
                   </label>
                   <input
@@ -626,7 +643,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Email Address */}
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <label htmlFor="email" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="email"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.emailLabel}
                   </label>
                   <input
@@ -643,7 +663,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Date of Birth */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="dob" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="dob"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.dobLabel}
                   </label>
                   <input
@@ -659,7 +682,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Gender */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="gender" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="gender"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.genderLabel}
                   </label>
                   <div className="relative">
@@ -686,7 +712,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Mobile Number */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="mobile" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="mobile"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.mobileLabel}
                   </label>
                   <input
@@ -703,7 +732,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Select GN Division */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="division" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="division"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.divisionLabel}
                   </label>
                   <div className="relative">
@@ -732,7 +764,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Password */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="password" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="password"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.passwordLabel}
                   </label>
                   <input
@@ -749,7 +784,10 @@ const handleOtpDigitChange = (value, index) => {
 
                 {/* Confirm Password */}
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="confirmPassword" className="text-[14px] font-medium text-[#2D3748] text-left">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="text-[14px] font-medium text-[#2D3748] text-left"
+                  >
                     {t.confirmPasswordLabel}
                   </label>
                   <input

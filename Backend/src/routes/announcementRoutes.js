@@ -1,7 +1,7 @@
 // announcementRoutes.js — Matches frontend API calls exactly
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const userController = require('../controllers/officerController');
 const { authenticateToken } = require('../middleware/auth');
 
 // Public feed for resident dashboard (no auth needed for public announcements)

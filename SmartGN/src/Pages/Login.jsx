@@ -29,7 +29,7 @@ function Login() {
     useRef(null),
     useRef(null),
     useRef(null),
-    useRef(null)
+    useRef(null),
   ];
 
   // Translations
@@ -54,8 +54,7 @@ function Login() {
       otpResending: "Resending...",
       otpBackToLogin: "Back to Login",
       otpErrorInvalid: "Please enter a valid 6-digit code.",
-      otpResendSuccess: "Verification code resent successfully!"
-
+      otpResendSuccess: "Verification code resent successfully!",
     },
     SI: {
       title: "ඇතුල්වීම",
@@ -78,8 +77,7 @@ function Login() {
       otpResending: "නැවත යවමින්...",
       otpBackToLogin: "ඇතුල්වීමට ආපසු යන්න",
       otpErrorInvalid: "කරුණාකර වලංගු ඉලක්කම් 6ක කේතයක් ඇතුළත් කරන්න.",
-      otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!"
-      
+      otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!",
     },
     TA: {
       title: "உள்நுழைவு",
@@ -94,15 +92,16 @@ function Login() {
       forgotPassword: "கடவுச்சொல் மறந்துவிட்டதா ?",
       contactSupport: "ஆதரவைத் தொடர்பு கொள்ளவும்",
       otpTitle: "இரு காரணி சரிபார்ப்பு",
-      otpDescription: "நாங்கள் 6 இலக்க சரிபார்ப்புக் குறியீட்டை அனுப்பியுள்ளோம்:",
+      otpDescription:
+        "நாங்கள் 6 இலக்க சரிபார்ப்புக் குறியீட்டை அனுப்பியுள்ளோம்:",
       otpLabel: "சரிபார்ப்புக் குறியீட்டை உள்ளிடவும்",
       otpVerifyButton: "சரிபார்த்து உள்நுழைக",
       otpResendCode: "குறியீட்டை மீண்டும் அனுப்பவும்",
       otpResending: "மீண்டும் அனுப்புகிறது...",
       otpBackToLogin: "உள்நுழைவுக்குத் திரும்புக",
       otpErrorInvalid: "தயவுசெய்து சரியான 6 இலக்க குறியீட்டை உள்ளிடவும்.",
-      otpResendSuccess: "சரிபார்ப்புக் குறியீடு வெற்றிகரமாக மீண்டும் அனுப்பப்பட்டது!"
-      
+      otpResendSuccess:
+        "சரிபார்ப்புக் குறியீடு வெற்றிகரமாக மீண்டும் அனுப்பப்பட்டது!",
     },
   };
 
@@ -154,7 +153,7 @@ function Login() {
       });
       return;
     }
-    
+
     // Simulate OTP flow for mock officer/resident bypass
     if (lowerId === "officer" && password === "officer") {
       setVerificationEmail("officer.email@example.com");
@@ -237,7 +236,7 @@ function Login() {
     } else if (data.role === "OFFICER") {
       localStorage.setItem("smartgn_user_id", data.user.id);
       localStorage.setItem("smartgn_user_division", data.user.divisionName);
-      navigate("/dashboard/officer", {
+      navigate("/OfficerDashboard", {
         state: {
           successUser: data.user.name,
           officerId: data.user.id,
@@ -314,7 +313,9 @@ function Login() {
     } catch (err) {
       setIsSubmitting(false);
       setErrorMessage(
-        lang === "EN" ? "Connection failed. Try again." : "සම්බන්ධතාවය අසාර්ථක විය. නැවත උත්සාහ කරන්න."
+        lang === "EN"
+          ? "Connection failed. Try again."
+          : "සම්බන්ධතාවය අසාර්ථක විය. නැවත උත්සාහ කරන්න.",
       );
     }
   };
@@ -364,7 +365,6 @@ function Login() {
 
       {/* Login Card */}
       <div className="w-full max-w-[540px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
-        
         {/* VIEW 1: OTP VERIFICATION VIEW */}
         {showOtpVerify ? (
           <>
@@ -373,12 +373,19 @@ function Login() {
               {t.otpTitle}
             </h2>
             <p className="text-[14px] text-gray-500 text-center mb-8">
-              {t.otpDescription} <strong className="text-[#1B365D]">{verificationEmail}</strong>
+              {t.otpDescription}{" "}
+              <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
 
-            <form onSubmit={handleOtpVerifySubmit} className="flex flex-col gap-6 items-center">
+            <form
+              onSubmit={handleOtpVerifySubmit}
+              className="flex flex-col gap-6 items-center"
+            >
               {/* Digit Inputs */}
-              <div className="flex gap-2 md:gap-4 my-2 justify-center" onPaste={handleOtpPaste}>
+              <div
+                className="flex gap-2 md:gap-4 my-2 justify-center"
+                onPaste={handleOtpPaste}
+              >
                 {otpDigits.map((digit, idx) => (
                   <input
                     key={idx}
@@ -398,7 +405,8 @@ function Login() {
               {/* Dev Mode Assistance */}
               {devOtpTip && (
                 <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#FFF9E6] border border-[#F5D17E] rounded-[8px] text-[13px] text-[#A76F00] text-center font-medium my-1 animate-pulse">
-                  🔧 Development Notice: Verification code is <strong>{devOtpTip}</strong>
+                  🔧 Development Notice: Verification code is{" "}
+                  <strong>{devOtpTip}</strong>
                 </div>
               )}
 
@@ -435,7 +443,11 @@ function Login() {
                 }`}
                 disabled={timerCount > 0 || isResending}
               >
-                {isResending ? t.otpResending : timerCount > 0 ? `${t.otpResendCode} (${timerCount}s)` : t.otpResendCode}
+                {isResending
+                  ? t.otpResending
+                  : timerCount > 0
+                    ? `${t.otpResendCode} (${timerCount}s)`
+                    : t.otpResendCode}
               </button>
 
               <button

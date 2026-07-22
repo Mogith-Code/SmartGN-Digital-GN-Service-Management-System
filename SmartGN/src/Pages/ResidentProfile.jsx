@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { translations, useLanguage } from "../utils/translate";
+import { useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
@@ -46,7 +46,6 @@ function ResidentProfile({ onOpenHelp }) {
   // View modes: 'VIEW' | 'EDIT'
   const [viewMode, setViewMode] = useState("VIEW");
 
-  // Profile data state
   const [profile, setProfile] = useState({
     firstName: "",
     lastName: "",
@@ -57,6 +56,7 @@ function ResidentProfile({ onOpenHelp }) {
     mobile: "",
     homeAddress: "",
     division: "",
+    divisionId: "",
     dob: "",
     gender: "",
     householdNumber: "",
@@ -64,6 +64,7 @@ function ResidentProfile({ onOpenHelp }) {
     nicFront: null,
     nicBack: null,
   });
+
   // Form Field States (Edit Mode)
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
@@ -71,7 +72,7 @@ function ResidentProfile({ onOpenHelp }) {
   const [editOccupation, setEditOccupation] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editMobile, setEditMobile] = useState("");
-  const [editAddress, setEditAddress] = useState("");
+  const [editHomeAddress, setEditHomeAddress] = useState(""); // ✅ Fixed: Changed from editAddress
   const [editDob, setEditDob] = useState("");
   const [editGender, setEditGender] = useState("");
   const [editHouseholdNumber, setEditHouseholdNumber] = useState("");
@@ -101,6 +102,7 @@ function ResidentProfile({ onOpenHelp }) {
             mobile: data.mobile_no || "",
             homeAddress: data.home_address || "Add your home address",
             division: data.division_name || "",
+            divisionId: data.division_id || "",
             dob: data.date_of_birth || "",
             gender: data.gender || "",
             householdNumber: data.household_number || "",
@@ -166,7 +168,7 @@ function ResidentProfile({ onOpenHelp }) {
     setEditOccupation(profile.occupation);
     setEditEmail(profile.email);
     setEditMobile(profile.mobile);
-    setEditAddress(profile.address);
+    setEditHomeAddress(profile.homeAddress); // ✅ Fixed: Using editHomeAddress
     setEditDob(profile.dob);
     setEditGender(profile.gender);
     setEditHouseholdNumber(profile.householdNumber);
@@ -175,6 +177,7 @@ function ResidentProfile({ onOpenHelp }) {
     setEditNicBack(profile.nicBack);
     setViewMode("EDIT");
   };
+
   // Handle Photo File Upload Convert to Base64
   const handlePhotoUpload = (e, target) => {
     const file = e.target.files[0];
@@ -197,6 +200,7 @@ function ResidentProfile({ onOpenHelp }) {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
 
+    // ✅ Create updated profile object with correct field names
     const updatedProfile = {
       ...profile,
       firstName: editFirstName,
@@ -205,7 +209,7 @@ function ResidentProfile({ onOpenHelp }) {
       occupation: editOccupation,
       email: editEmail,
       mobile: editMobile,
-      address: editAddress,
+      homeAddress: editHomeAddress, // ✅ Fixed: Using editHomeAddress
       dob: editDob,
       gender: editGender,
       householdNumber: editHouseholdNumber,
@@ -221,9 +225,9 @@ function ResidentProfile({ onOpenHelp }) {
     );
     setProfile(updatedProfile);
 
-    // Also save to API
+    // ✅ Also save to API with correct field names
     try {
-      await fetch("/api/residents/profile", {
+      const response = await fetch("/api/residents/profile", {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -232,15 +236,23 @@ function ResidentProfile({ onOpenHelp }) {
           fullName: editFullName,
           mobile: editMobile,
           occupation: editOccupation,
-          homeAddress: editHomeAddress,
+          homeAddress: editHomeAddress, // ✅ Fixed: This is the correct field
         }),
       });
-    } catch (err) {
-      console.warn("Could not sync profile update to API:", err);
-    }
 
-    setViewMode("VIEW");
-    alert("Profile updated successfully.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("API Error:", errorData);
+        alert(errorData.error || "Failed to update profile. Please try again.");
+        return;
+      }
+
+      alert("Profile updated successfully.");
+      setViewMode("VIEW");
+    } catch (err) {
+      console.error("Could not sync profile update to API:", err);
+      alert("Network error. Profile saved locally but not synced to server.");
+    }
   };
 
   return (
@@ -259,14 +271,14 @@ function ResidentProfile({ onOpenHelp }) {
           {viewMode === "VIEW" && (
             <>
               <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-                <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
+                <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
                   {t.title}
                 </h2>
 
                 <div className="flex justify-end -mt-[70px]">
                   {/* Alert Banner */}
                   {showAlert && !profile.nicFront && !profile.nicBack && (
-                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 ">
+                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
                       <div className="flex items-center gap-2">
                         <span
                           className="hover:underline hover:cursor-pointer"
@@ -304,7 +316,7 @@ function ResidentProfile({ onOpenHelp }) {
               {/* Profile Card Header */}
               <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
                 <div className="flex items-center gap-4">
-                  <div className="h-20 rounded-full overflow-hidden  flex items-center justify-center">
+                  <div className="h-20 rounded-full overflow-hidden flex items-center justify-center">
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
@@ -456,7 +468,7 @@ function ResidentProfile({ onOpenHelp }) {
                 </div>
 
                 {/* National Identity Card Display */}
-                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left ">
+                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     National Identity Card
                   </h3>
@@ -691,8 +703,8 @@ function ResidentProfile({ onOpenHelp }) {
                         type="text"
                         id="address"
                         className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
-                        value={editAddress}
-                        onChange={(e) => setEditAddress(e.target.value)}
+                        value={editHomeAddress} // ✅ Fixed: Using editHomeAddress
+                        onChange={(e) => setEditHomeAddress(e.target.value)}
                         required
                       />
                     </div>

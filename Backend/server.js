@@ -69,8 +69,8 @@ const residentRoutes = require('./src/routes/residentRoutes');
 app.use('/api/residents', residentRoutes);
 
 // Users / Officers (officer profile, dashboard stats)
-const userRoutes = require('./src/routes/userRoutes');
-app.use('/api/users', userRoutes);
+const userRoutes = require('./src/routes/officerRoutes');
+app.use('/api/officer', userRoutes);
 
 // Certificates
 const certificateRoutes = require('./src/routes/certificateRoutes');

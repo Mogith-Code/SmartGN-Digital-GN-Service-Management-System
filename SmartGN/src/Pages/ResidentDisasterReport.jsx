@@ -10,7 +10,23 @@ function ResidentDisasterReport({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const t = translations[lang];
+
+  const DisasterTranslations = {
+    EN: {
+      alert:
+        "Please upload a high-quality image of your National Identity Card",
+    },
+    SI: {
+      alert:
+        "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් පත්‍රයේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
+    },
+    TA: {
+      alert:
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
+    },
+  };
+
+  const t = DisasterTranslations[lang] || DisasterTranslations.EN;
 
   // Retrieve username and division/ID from navigation state or localStorage
   const successUser =
@@ -170,9 +186,13 @@ function ResidentDisasterReport({ onOpenHelp }) {
               {showAlert && !profile.nicFront && !profile.nicBack && (
                 <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 ">
                   <div className="flex items-center gap-2">
-                    <span>
-                      Please upload a high-quality image of your National
-                      Identity Card
+                    <span
+                      className="hover:underline hover:cursor-pointer"
+                      onClick={() => {
+                        navigate("/ResidentDashboard/profile");
+                      }}
+                    >
+                      {t.alert}
                     </span>
                   </div>
                   <button
