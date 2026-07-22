@@ -61,4 +61,89 @@ router.post('/apply', authUser, async (req, res) => {
   }
 });
 
+// 2. Fetch Allowances (Resident Panel)
+router.get('/resident', authUser, async (req, res) => {
+  const residentNic = req.user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM allowance_application 
+       WHERE resident_nic = ?
+       ORDER BY application_date DESC`,
+      [residentNic]
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 3. Fetch Allowances (GN Audit panel)
+router.get('/officer', authUser, async (req, res) => {
+  const officerId = req.user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT aa.*, r.name AS resident_name, r.email AS resident_email, h.address AS resident_address
+       FROM allowance_application aa
+       JOIN resident r ON r.r_nic = aa.resident_nic
+       JOIN household h ON h.household_number = r.household_number
+       WHERE aa.gn_id = ?
+       ORDER BY aa.application_date DESC`,
+      [officerId]
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 4. Secure Transfer Simulation via simulated RTGS
+router.post('/:id/disburse', authUser, async (req, res) => {
+  const { id } = req.params;
+  const { disburseAmount } = req.body; // Amount in LKR
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM allowance_application WHERE allowance_id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance application not found.' });
+    }
+
+    const application = rows[0];
+    if (application.status !== 'APPROVED') {
+      // Automatically approve upon disbursement authorization
+      await pool.query('UPDATE allowance_application SET status = "APPROVED" WHERE allowance_id = ?', [id]);
+    }
+
+    const txnRef = `TXN-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+    // Update payment register
+    await pool.query(
+      `UPDATE allowance_application 
+       SET payment_status = 'PAID', cleared_amount = ?, cleared_time = NOW(), txn_reference = ? 
+       WHERE allowance_id = ?`,
+      [disburseAmount || 5000.00, txnRef, id]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'RTGS Secure Funds Disbursed successfully.',
+      transaction: {
+        id,
+        amount: disburseAmount || 5000.00,
+        txnRef,
+        timestamp: new Date(),
+        clearingBank: 'Central Bank of Sri Lanka',
+        status: 'PAID'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
 
