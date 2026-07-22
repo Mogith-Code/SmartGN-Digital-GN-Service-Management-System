@@ -98,6 +98,12 @@ router.get('/officer', authUser, async (req, res) => {
   }
 });
 
+// 4. Secure Transfer Simulation via simulated RTGS
+router.post('/:id/disburse', authUser, async (req, res) => {
+  const { id } = req.params;
+  const { disburseAmount } = req.body; // Amount in LKR
+
+
 
 
 
