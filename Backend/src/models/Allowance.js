@@ -103,6 +103,21 @@ router.post('/:id/disburse', authUser, async (req, res) => {
   const { id } = req.params;
   const { disburseAmount } = req.body; // Amount in LKR
 
+  try {
+    const [rows] = await pool.query('SELECT * FROM allowance_application WHERE allowance_id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance application not found.' });
+    }
+
+    const application = rows[0];
+    if (application.status !== 'APPROVED') {
+      // Automatically approve upon disbursement authorization
+      await pool.query('UPDATE allowance_application SET status = "APPROVED" WHERE allowance_id = ?', [id]);
+    }
+
+    const txnRef = `TXN-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+
 
 
 
