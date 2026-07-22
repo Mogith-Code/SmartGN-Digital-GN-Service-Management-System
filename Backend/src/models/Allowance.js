@@ -125,6 +125,23 @@ router.post('/:id/disburse', authUser, async (req, res) => {
       [disburseAmount || 5000.00, txnRef, id]
     );
 
+    res.status(200).json({
+      success: true,
+      message: 'RTGS Secure Funds Disbursed successfully.',
+      transaction: {
+        id,
+        amount: disburseAmount || 5000.00,
+        txnRef,
+        timestamp: new Date(),
+        clearingBank: 'Central Bank of Sri Lanka',
+        status: 'PAID'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 
