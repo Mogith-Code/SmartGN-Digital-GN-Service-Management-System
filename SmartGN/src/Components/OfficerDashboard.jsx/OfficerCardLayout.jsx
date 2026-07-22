@@ -4,7 +4,7 @@ import totalResidentsIcon from "../../assets/location_away_24dp_D69E2E_FILL0_wgh
 import totalPendingIcon from "../../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import disasterIcon from "../../assets/flood_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
-function OfficerCardLayout() {
+function OfficerCardLayout({ dashboardStats = {} }) {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
@@ -15,41 +15,47 @@ function OfficerCardLayout() {
       Card3Title: "Active Disaster",
     },
     SI: {
-      Card1Title: "අනුමැතිය ලැබීමට නියමිත හමුවීම් සඳහා ඉල්ලීම්",
-      Card2Title: "අනුමත හමුවීම් සඳහා ඉල්ලීම්",
-      Card3Title: "හමුවක් වෙන්කරන්න",
+      Card1Title: "මුළු පදිංචිකරුවන්",
+      Card2Title: "මුළු පොරොත්තු ඉල්ලීම්",
+      Card3Title: "සක්‍රීය ව්‍යසන",
     },
     TA: {
-      Card1Title: "நிலுவையில் உள்ள சந்திப்பு கோரிக்கைகள்",
-      Card2Title: "அங்கீகாரம் பெற்ற சந்திப்பு கோரிக்கைகள்",
-      Card3Title: "சந்திப்பை பதிவு செய்யவும்",
+      Card1Title: "மொத்த குடியிருப்பாளர்கள்",
+      Card2Title: "மொத்த நிலுவையில் உள்ள கோரிக்கைகள்",
+      Card3Title: "செயலில் உள்ள பேரழிவு",
     },
   };
 
   // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
 
+  // Format numbers with commas
+  const formatNumber = (num) => {
+    if (num === undefined || num === null) return "0";
+    return num.toLocaleString();
+  };
+
   // ============================================================================
-  // CARD ARRAY - Pass function references (NOT function calls!)
+  // CARD ARRAY - Using dashboardStats from props
   // ============================================================================
   const cards = [
     {
       id: 1,
       icon: totalResidentsIcon,
       title: t.Card1Title,
-      count: 10000,
+      count: formatNumber(dashboardStats.totalResidents),
     },
     {
       id: 2,
       icon: totalPendingIcon,
       title: t.Card2Title,
-      count: 500,
+      count: formatNumber(dashboardStats.totalPendingRequests),
     },
     {
       id: 3,
       icon: disasterIcon,
       title: t.Card3Title,
-      count: 10,
+      count: formatNumber(dashboardStats.activeDisasters),
     },
   ];
 
@@ -58,7 +64,7 @@ function OfficerCardLayout() {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D] hover:shadow-md transition-shadow duration-200"
         >
           <img src={card.icon} alt="card icon" className="w-[50px]" />
 

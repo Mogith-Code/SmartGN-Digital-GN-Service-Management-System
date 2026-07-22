@@ -7,4 +7,6 @@ const officerController = require('../controllers/officerController');
 // ============================================================
 router.get('/profile', officerController.getOfficerProfile);
 
+router.get('/dashboard-stats', officerController.getOfficerDashboardStats);
+
 module.exports = router;

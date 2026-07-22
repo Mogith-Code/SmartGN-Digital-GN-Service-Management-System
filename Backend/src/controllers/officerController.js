@@ -125,7 +125,7 @@ exports.updateOfficerProfile = async (req, res) => {
 // OFFICER DASHBOARD STATS
 // ============================================================
 
-// GET /api/users/officer/dashboard-stats
+// GET /api/officer/dashboard-stats
 exports.getOfficerDashboardStats = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
@@ -133,56 +133,161 @@ exports.getOfficerDashboardStats = async (req, res) => {
     }
 
     try {
+        let divisionId = null;
         let gnId = null;
+
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
-            if (officer.length === 0) return res.status(404).json({ error: 'Officer not found.' });
-            gnId = officer[0].gn_id;
-        }
-
-        const gnFilter = gnId ? 'AND gn_id = ?' : '';
-        const p = gnId ? [gnId] : [];
-
-        const [[pendingCerts]] = await db.query(`SELECT COUNT(*) AS count FROM certificate_pending WHERE 1=1 ${gnFilter}`, p);
-        const [[pendingAppts]] = await db.query(`SELECT COUNT(*) AS count FROM appointment_pending WHERE 1=1 ${gnFilter}`, p);
-        const [[pendingAllowances]] = await db.query(`SELECT COUNT(*) AS count FROM allowance_pending WHERE 1=1 ${gnFilter}`, p);
-        const [[pendingDisasters]] = await db.query(`SELECT COUNT(*) AS count FROM disaster_pending WHERE 1=1 ${gnFilter}`, p);
-
-        // Total residents in division
-        let residentCount = 0;
-        if (gnId) {
-            const [officer] = await db.query('SELECT division_id FROM grama_niladhari WHERE gn_id = ?', [gnId]);
-            if (officer.length > 0) {
-                const [[rc]] = await db.query(`
-                    SELECT COUNT(*) AS count FROM resident r
-                    JOIN household h ON r.household_number = h.household_number
-                    WHERE h.division_id = ? AND r.status = 'Active'
-                `, [officer[0].division_id]);
-                residentCount = rc.count;
+            // Get officer's division_id and gn_id
+            const [officer] = await db.query(
+                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ?',
+                [user.id]
+            );
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
             }
-        } else {
-            const [[rc]] = await db.query("SELECT COUNT(*) AS count FROM resident WHERE status = 'Active'");
-            residentCount = rc.count;
+            gnId = officer[0].gn_id;
+            divisionId = officer[0].division_id;
         }
 
-        // Today's approved appointments
-        const today = new Date().toISOString().split('T')[0];
-        const [[todayAppts]] = await db.query(
-            `SELECT COUNT(*) AS count FROM appointment_approved WHERE date = ? ${gnFilter}`,
-            gnId ? [today, gnId] : [today]
-        );
+        // ============================================================
+        // 1. TOTAL RESIDENTS in officer's division
+        // ============================================================
+        let totalResidents = 0;
+        if (divisionId) {
+            const [residentCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM resident r
+                JOIN household h ON r.household_number = h.household_number
+                WHERE h.division_id = ? AND r.status = 'Active'
+            `, [divisionId]);
+            totalResidents = residentCount[0].count || 0;
+        } else {
+            // Admin - all residents
+            const [residentCount] = await db.query(
+                "SELECT COUNT(*) AS count FROM resident WHERE status = 'Active'"
+            );
+            totalResidents = residentCount[0].count || 0;
+        }
 
+        // ============================================================
+        // 2. TOTAL PENDING REQUESTS (All types combined)
+        // ============================================================
+        let pendingCertificates = 0;
+        let pendingAppointments = 0;
+        let pendingAllowances = 0;
+        let pendingDisasters = 0;
+
+        if (divisionId) {
+            // Pending Certificates in officer's division
+            const [certCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM certificate_pending cp
+                JOIN resident r ON cp.resident_nic = r.r_nic
+                JOIN household h ON r.household_number = h.household_number
+                WHERE h.division_id = ?
+            `, [divisionId]);
+            pendingCertificates = certCount[0].count || 0;
+
+            // Pending Appointments in officer's division
+            const [apptCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_pending ap
+                JOIN resident r ON ap.resident_nic = r.r_nic
+                JOIN household h ON r.household_number = h.household_number
+                WHERE h.division_id = ?
+            `, [divisionId]);
+            pendingAppointments = apptCount[0].count || 0;
+
+            // Pending Allowances in officer's division
+            const [allowCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM allowance_pending al
+                JOIN resident r ON al.resident_nic = r.r_nic
+                JOIN household h ON r.household_number = h.household_number
+                WHERE h.division_id = ?
+            `, [divisionId]);
+            pendingAllowances = allowCount[0].count || 0;
+
+            // Pending Disasters in officer's division
+            const [disasterCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM disaster_pending dp
+                JOIN resident r ON dp.resident_nic = r.r_nic
+                JOIN household h ON r.household_number = h.household_number
+                WHERE h.division_id = ?
+            `, [divisionId]);
+            pendingDisasters = disasterCount[0].count || 0;
+
+        } else {
+            // Admin - all pending requests
+            const [certCount] = await db.query("SELECT COUNT(*) AS count FROM certificate_pending");
+            pendingCertificates = certCount[0].count || 0;
+
+            const [apptCount] = await db.query("SELECT COUNT(*) AS count FROM appointment_pending");
+            pendingAppointments = apptCount[0].count || 0;
+
+            const [allowCount] = await db.query("SELECT COUNT(*) AS count FROM allowance_pending");
+            pendingAllowances = allowCount[0].count || 0;
+
+            const [disasterCount] = await db.query("SELECT COUNT(*) AS count FROM disaster_pending");
+            pendingDisasters = disasterCount[0].count || 0;
+        }
+
+        // ============================================================
+        // 3. TOTAL PENDING REQUESTS (Combined)
+        // ============================================================
+        const totalPendingRequests = pendingCertificates + pendingAppointments + pendingAllowances + pendingDisasters;
+
+        // ============================================================
+        // 4. ACTIVE DISASTERS (Pending + Approved = Active)
+        // ============================================================
+        let activeDisasters = 0;
+        if (divisionId) {
+            // Active disasters = PENDING + APPROVED (not resolved/rejected)
+            const [activeCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM (
+                    SELECT disaster_id FROM disaster_pending dp
+                    JOIN resident r ON dp.resident_nic = r.r_nic
+                    JOIN household h ON r.household_number = h.household_number
+                    WHERE h.division_id = ?
+                    UNION ALL
+                    SELECT disaster_id FROM disaster_approved da
+                    JOIN resident r ON da.resident_nic = r.r_nic
+                    JOIN household h ON r.household_number = h.household_number
+                    WHERE h.division_id = ?
+                ) AS active_disasters
+            `, [divisionId, divisionId]);
+            activeDisasters = activeCount[0].count || 0;
+        } else {
+            // Admin - all active disasters
+            const [activeCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM (
+                    SELECT disaster_id FROM disaster_pending
+                    UNION ALL
+                    SELECT disaster_id FROM disaster_approved
+                ) AS active_disasters
+            `);
+            activeDisasters = activeCount[0].count || 0;
+        }
+
+        // ============================================================
+        // RETURN RESPONSE
+        // ============================================================
         return res.json({
-            pendingCertificates: pendingCerts.count,
-            pendingAppointments: pendingAppts.count,
-            pendingAllowances: pendingAllowances.count,
-            pendingDisasters: pendingDisasters.count,
-            totalResidents: residentCount,
-            todayAppointments: todayAppts.count
+            totalResidents: totalResidents,
+            totalPendingRequests: totalPendingRequests,
+            pendingCertificates: pendingCertificates,
+            pendingAppointments: pendingAppointments,
+            pendingAllowances: pendingAllowances,
+            pendingDisasters: pendingDisasters,
+            activeDisasters: activeDisasters,
         });
+
     } catch (error) {
         console.error('Error fetching officer dashboard stats:', error);
-        return res.status(500).json({ error: 'Server error.' });
+        return res.status(500).json({ error: 'Server error fetching dashboard stats.' });
     }
 };
 

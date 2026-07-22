@@ -68,7 +68,7 @@ app.use('/api/chat', chatRoutes);
 const residentRoutes = require('./src/routes/residentRoutes');
 app.use('/api/residents', residentRoutes);
 
-// Users / Officers (officer profile, dashboard stats)
+// / Officers (officer profile, dashboard stats)
 const userRoutes = require('./src/routes/officerRoutes');
 app.use('/api/officer', userRoutes);
 
