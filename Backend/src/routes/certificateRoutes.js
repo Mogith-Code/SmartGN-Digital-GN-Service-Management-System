@@ -1,8 +1,5 @@
-// Certificate Routes placeholder
+// Certificate Routes implementation
 const express = require('express');
 const router = express.Router();
 const certificateController = require('../controllers/certificateController');
-
-// Define certificate routes here
-
-module.exports = router;
+const { authenticateToken, requireOfficerOrAdmin } = require('../middleware/auth');
