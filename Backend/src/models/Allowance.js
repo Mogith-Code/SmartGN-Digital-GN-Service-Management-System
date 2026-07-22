@@ -61,4 +61,22 @@ router.post('/apply', authUser, async (req, res) => {
   }
 });
 
+// 2. Fetch Allowances (Resident Panel)
+router.get('/resident', authUser, async (req, res) => {
+  const residentNic = req.user.id;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM allowance_application 
+       WHERE resident_nic = ?
+       ORDER BY application_date DESC`,
+      [residentNic]
+    );
+    res.status(200).json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
