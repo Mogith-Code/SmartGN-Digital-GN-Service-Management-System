@@ -18,3 +18,16 @@ module.exports = {
 
     return officerRows.length > 0 ? officerRows[0].gn_id : null;
   },
+
+  async createPendingRequest(data) {
+    const { certificateNumber, certificateType, purpose, requestDate, residentNic, gnId, details } = data;
+    await db.query(`
+      INSERT INTO certificate_pending
+      (certificate_number, certificate_type, purpose, request_date, resident_nic, gn_id, details)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [certificateNumber, certificateType, purpose, requestDate, residentNic, gnId, JSON.stringify(details || {})]);
+
+    const [rows] = await db.query('SELECT request_id FROM certificate_pending WHERE certificate_number = ?', [certificateNumber]);
+    return rows[0] ? rows[0].request_id : null;
+  }
+};
