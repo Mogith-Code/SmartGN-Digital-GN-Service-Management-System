@@ -28,6 +28,17 @@ function OfficerDashboard({ onOpenHelp }) {
     gnBack: null,
   });
 
+  // Dashboard stats from database
+  const [dashboardStats, setDashboardStats] = useState({
+    totalResidents: 0,
+    totalPendingRequests: 0,
+    pendingCertificates: 0,
+    pendingAppointments: 0,
+    pendingAllowances: 0,
+    pendingDisasters: 0,
+    activeDisasters: 0,
+  });
+
   // Get resident NIC and token from localStorage
   const gnId = localStorage.getItem("smartgn_user_id");
   const token = localStorage.getItem("smartgn_token");
