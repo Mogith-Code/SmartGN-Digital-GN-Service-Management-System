@@ -15,3 +15,9 @@ const getUserFromToken = (req) => {
         return null;
     }
 };
+
+const generateCertificateNumber = () => {
+    const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `CERT-${date}-${rand}`;
+};
