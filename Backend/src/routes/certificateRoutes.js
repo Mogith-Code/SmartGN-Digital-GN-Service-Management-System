@@ -20,5 +20,8 @@ router.put('/officer/:id/reject', authenticateToken, requireOfficerOrAdmin, (req
     return certificateController.handleCertificateAction(req, res);
 });
 
+// Common / Action endpoints
+router.get('/:id', authenticateToken, certificateController.getCertificateDetails);
+router.put('/:id/action', authenticateToken, requireOfficerOrAdmin, certificateController.handleCertificateAction);
 
 module.exports = router;
