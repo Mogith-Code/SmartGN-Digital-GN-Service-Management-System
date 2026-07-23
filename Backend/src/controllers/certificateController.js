@@ -21,3 +21,14 @@ const generateCertificateNumber = () => {
     const rand = Math.floor(1000 + Math.random() * 9000);
     return `CERT-${date}-${rand}`;
 };
+
+// Helper function
+const parseDetails = (detailsRaw) => {
+    if (!detailsRaw) return {};
+    if (typeof detailsRaw === 'object') return detailsRaw;
+    try {
+        return JSON.parse(detailsRaw);
+    } catch {
+        return {};
+    }
+};
