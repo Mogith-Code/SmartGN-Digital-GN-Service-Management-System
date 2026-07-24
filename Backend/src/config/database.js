@@ -826,94 +826,105 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
     // SEEDING INITIAL DATA (FIXED - WITH division_id)
     // ============================================================
 
-    // 1. Check if divisions exist before seeding
-    const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
-    if (divisionCount[0].count === 0) {
-        await dbPool.query(`
-        INSERT INTO gn_division (division_id, division_code, name, district, province, divisional_secretariat) VALUES
-        (UUID(), 'GN-001A', 'Colombo Borella', 'Colombo', 'Western', 'Colombo Divisional Secretariat'),
-        (UUID(), 'GN-001B', 'Colombo Fort', 'Colombo', 'Western', 'Colombo Divisional Secretariat'),
-        (UUID(), 'GN-002A', 'Kandy Central', 'Kandy', 'Central', 'Kandy Divisional Secretariat')
-      `);
-        console.log('✅ Divisions seeded');
-    }
+// Check if divisions exist before seeding
+const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
+if (divisionCount[0].count === 0) {
+    const divisions = [
+        ['GN-001A', 'Colombo Borella', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
+        ['GN-001B', 'Colombo Fort', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
+        ['GN-002A', 'Kandy Central', 'Kandy', 'Central', 'Kandy Divisional Secretariat']
+    ];
 
-    // 2. Get division IDs for seeding (with proper error handling)
-    const [borellaRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001A"');
-    const [colomboRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001B"');
+    for (const [code, name, district, province, secretariat] of divisions) {
+        await dbPool.query(`
+            INSERT INTO gn_division (division_id, division_code, name, district, province, divisional_secretariat)
+            VALUES (UUID(), ?, ?, ?, ?, ?)
+        `, [code, name, district, province, secretariat]);
+    }
+    console.log('✅ Divisions seeded');
+}
+
+// 2. Get division IDs for seeding (with proper error handling)
+const [borellaRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001A"');
+const [colomboRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001B"');
+const [kandyRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-002A"');
+
+const borellaId = borellaRow.length > 0 ? borellaRow[0].division_id : null;
+const colomboId = colomboRow.length > 0 ? colomboRow[0].division_id : null;
+const kandyId = kandyRow.length > 0 ? kandyRow[0].division_id : null;
+
+// Log division IDs for debugging
+console.log('📍 Division IDs:', { borellaId, colomboId, kandyId });
+
+// 3. Check if households exist before seeding
+const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
+if (householdCount[0].count === 0 && borellaId) {
+    await dbPool.query(`
+    INSERT INTO household (household_number, address, division_id) 
+    VALUES ('H-90823', '45/2, Temple Road, Borella', ?)
+  `, [borellaId]);
+
+    await dbPool.query(`
+    INSERT INTO household (household_number, address, division_id) 
+    VALUES ('H-90824', '12, School Lane, Colombo Fort', ?)
+  `, [colomboId]);  // ← Use colomboId here!
+    console.log('✅ Households seeded');
+}
+
+// 4. Check if residents exist before seeding
+const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
+if (residentCount[0].count === 0 && borellaId && colomboId) {
+    const residentPasswordHash = bcrypt.hashSync('password123', 10);
     
-    const borellaId = borellaRow.length > 0 ? borellaRow[0].division_id : null;
-    const colomboId = colomboRow.length > 0 ? colomboRow[0].division_id : borellaId;
+    // Resident 1 - Borella Division
+    await dbPool.query(`
+    INSERT INTO resident (
+        r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
+        password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
+        home_address
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
+  `, [
+        '789456123V',
+        'Nimal',
+        'Perera',
+        '1990-05-15',
+        'Male',
+        '0771234567',
+        'nimal@example.com',
+        residentPasswordHash,
+        'Engineer',
+        'H-90823',
+        borellaId,  // ✅ Borella division
+        true,
+        true,
+        '45/2, Temple Road, Borella'
+    ]);
 
-    // 3. Check if households exist before seeding
-    const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
-    if (householdCount[0].count === 0 && borellaId) {
-        await dbPool.query(`
-        INSERT INTO household (household_number, address, division_id) 
-        VALUES ('H-90823', '45/2, Temple Road, Borella', ?)
-      `, [borellaId]);
-
-        await dbPool.query(`
-        INSERT INTO household (household_number, address, division_id) 
-        VALUES ('H-90824', '12, School Lane, Borella', ?)
-      `, [borellaId]);
-        console.log('✅ Households seeded');
-    }
-
-    // 4. Check if residents exist before seeding (FIXED - WITH division_id)
-    const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
-    if (residentCount[0].count === 0 && borellaId && colomboId) {
-        const residentPasswordHash = bcrypt.hashSync('password123', 10);
-        
-        // Resident 1 - Borella Division
-        await dbPool.query(`
-        INSERT INTO resident (
-            r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
-            home_address
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
-      `, [
-            '789456123V',
-            'Nimal',
-            'Perera',
-            '1990-05-15',
-            'Male',
-            '0771234567',
-            'nimal@example.com',
-            residentPasswordHash,
-            'Engineer',
-            'H-90823',
-            borellaId,  // ✅ division_id from gn_division
-            true,
-            true,
-            '45/2, Temple Road, Borella'
-        ]);
-
-        // Resident 2 - Colombo Division
-        await dbPool.query(`
-        INSERT INTO resident (
-            r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-            password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
-            home_address
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
-      `, [
-            '897654321V',
-            'Kamala',
-            'Silva',
-            '1985-08-20',
-            'Female',
-            '0719876543',
-            'kamala@example.com',
-            residentPasswordHash,
-            'Teacher',
-            'H-90824',
-            colomboId,  // ✅ division_id from gn_division
-            true,
-            true,
-            '12, School Lane, Borella'
-        ]);
-        console.log('✅ Residents seeded');
-    }
+    // Resident 2 - Colombo Division
+    await dbPool.query(`
+    INSERT INTO resident (
+        r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
+        password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
+        home_address
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
+  `, [
+        '897654321V',
+        'Kamala',
+        'Silva',
+        '1985-08-20',
+        'Female',
+        '0719876543',
+        'kamala@example.com',
+        residentPasswordHash,
+        'Teacher',
+        'H-90824',
+        colomboId,  // ✅ Colombo Fort division (NOT Borella!)
+        true,
+        true,
+        '12, School Lane, Colombo Fort'
+    ]);
+    console.log('✅ Residents seeded');
+}
 
    const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
 if (officerCount[0].count === 0 && borellaId) {
