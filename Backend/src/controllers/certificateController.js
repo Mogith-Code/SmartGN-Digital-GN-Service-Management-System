@@ -88,3 +88,12 @@ exports.submitCertificateRequest = async (req, res) => {
         return res.status(500).json({ error: 'Server error submitting certificate request.' });
     }
 };
+
+// GET /api/certificates/resident
+exports.getResidentCertificates = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied. Residents only.' });
+    }
+
+    const residentNic = user.id;
