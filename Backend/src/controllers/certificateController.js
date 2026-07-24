@@ -32,3 +32,18 @@ const parseDetails = (detailsRaw) => {
         return {};
     }
 };
+
+// RESIDENT ENDPOINTS
+
+// POST /api/certificates/apply
+exports.submitCertificateRequest = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied. Residents only.' });
+    }
+
+    const { certificateType, purpose, requestDate, ...extraFields } = req.body;
+
+    if (!certificateType || !purpose) {
+        return res.status(400).json({ error: 'certificateType and purpose are required.' });
+    }
