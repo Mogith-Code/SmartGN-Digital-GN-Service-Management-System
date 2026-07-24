@@ -25,13 +25,13 @@ function OfficerProfile({ onOpenHelp }) {
 
   // Dynamic Officer Profile State
   const [profile, setProfile] = useState({
-    firstName: "Kamal",
-    lastName: "Perera",
-    fullName: "Dissanayake Mudiyanselage Kamal Perera",
-    division: "Colombo, Borella",
-    serviceTime: "2",
-    email: "Nirmal.Perera@example.com",
-    mobile: "0703564478",
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    division: "",
+    serviceTime: "",
+    email: "",
+    mobile: "",
     profilePhoto: null,
     idCardFront: null,
     idCardBack: null,
@@ -49,33 +49,94 @@ function OfficerProfile({ onOpenHelp }) {
   const [editIdCardFront, setEditIdCardFront] = useState(null);
   const [editIdCardBack, setEditIdCardBack] = useState(null);
 
-  // Initialize and load from localStorage
+  // Initialize and load from API
   useEffect(() => {
-    const saved = localStorage.getItem("smartgn_officer_profile");
-    if (saved) {
-      setProfile(JSON.parse(saved));
-    } else {
-      const defaultProfile = {
-        firstName: "Kamal",
-        lastName: "Perera",
-        fullName: "Dissanayake Mudiyanselage Kamal Perera",
-        division: "Colombo, Borella",
-        serviceTime: "2",
-        email: "Nirmal.Perera@example.com",
-        mobile: "0703564478",
-        profilePhoto: null,
-        idCardFront: null,
-        idCardBack: null,
-      };
-      localStorage.setItem(
-        "smartgn_officer_profile",
-        JSON.stringify(defaultProfile),
-      );
-      setProfile(defaultProfile);
-    }
+    const fetchOfficerProfile = async () => {
+      try {
+        const token = localStorage.getItem("smartgn_token");
+        const gnId = localStorage.getItem("smartgn_user_id");
+
+        if (!token || !gnId) {
+          // Fallback to localStorage
+          const saved = localStorage.getItem("smartgn_officer_profile");
+          if (saved) {
+            setProfile(JSON.parse(saved));
+          }
+          return;
+        }
+
+        const response = await fetch("/api/officer/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Calculate service time if available
+          let serviceTime = "N/A";
+          if (data.created_at) {
+            const startDate = new Date(data.created_at);
+            const now = new Date();
+            const years = now.getFullYear() - startDate.getFullYear();
+            if (years > 0) {
+              serviceTime = `${years} year${years > 1 ? "s" : ""}`;
+            } else {
+              const months = now.getMonth() - startDate.getMonth();
+              serviceTime =
+                months > 0
+                  ? `${months} month${months > 1 ? "s" : ""}`
+                  : "Less than a month";
+            }
+          }
+
+          const profileData = {
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            fullName:
+              data.full_name ||
+              `${data.first_name || ""} ${data.last_name || ""}`.trim(),
+            division: data.division_name || "Not Assigned",
+            serviceTime: serviceTime,
+            email: data.email || "",
+            mobile: data.mobile || "",
+            profilePhoto: data.profile_photo_path || null,
+            idCardFront: data.gn_front_path || null,
+            idCardBack: data.gn_back_path || null,
+          };
+
+          setProfile(profileData);
+          localStorage.setItem(
+            "smartgn_officer_profile",
+            JSON.stringify(profileData),
+          );
+          localStorage.setItem(
+            "smartgn_user_name",
+            profileData.fullName || "GN Officer",
+          );
+        } else {
+          // Fallback to localStorage
+          const saved = localStorage.getItem("smartgn_officer_profile");
+          if (saved) {
+            setProfile(JSON.parse(saved));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching officer profile:", error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem("smartgn_officer_profile");
+        if (saved) {
+          setProfile(JSON.parse(saved));
+        }
+      }
+    };
+
+    fetchOfficerProfile();
   }, []);
 
-  // Enter edit mode uploader
+  // Enter edit mode
   const handleEnterEdit = () => {
     setEditFirstName(profile.firstName);
     setEditLastName(profile.lastName);
@@ -108,30 +169,84 @@ function OfficerProfile({ onOpenHelp }) {
     }
   };
 
-  // Handle saving the updated profile info
-  const handleSaveProfile = (e) => {
+  // Handle saving the updated profile info to API
+  const handleSaveProfile = async (e) => {
     e.preventDefault();
 
-    const updatedProfile = {
-      firstName: editFirstName,
-      lastName: editLastName,
-      fullName: editFullName,
-      division: editDivision,
-      serviceTime: editServiceTime,
-      email: editEmail,
-      mobile: editMobile,
-      profilePhoto: editProfilePhoto,
-      idCardFront: editIdCardFront,
-      idCardBack: editIdCardBack,
-    };
+    // Validate required fields
+    if (!editFirstName || !editLastName || !editEmail || !editMobile) {
+      alert("Please fill in all required fields.");
+      return;
+    }
 
-    localStorage.setItem(
-      "smartgn_officer_profile",
-      JSON.stringify(updatedProfile),
-    );
-    setProfile(updatedProfile);
-    setViewMode("VIEW");
-    alert("GN Profile details updated successfully.");
+    try {
+      const token = localStorage.getItem("smartgn_token");
+      const gnId = localStorage.getItem("smartgn_user_id");
+
+      if (!token || !gnId) {
+        alert("Please login again");
+        navigate("/login");
+        return;
+      }
+
+      // ✅ Send update to backend
+      const response = await fetch("/api/officer/profile", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: editFirstName,
+          lastName: editLastName,
+          fullName: editFullName,
+          email: editEmail,
+          mobile: editMobile,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update profile");
+      }
+
+      const data = await response.json();
+
+      // ✅ Update local state with the response
+      const updatedProfileData = {
+        ...profile,
+        firstName: editFirstName,
+        lastName: editLastName,
+        fullName: editFullName,
+        email: editEmail,
+        mobile: editMobile,
+        // Keep existing values for fields not updated via API
+        division: profile.division,
+        serviceTime: profile.serviceTime,
+        profilePhoto: editProfilePhoto,
+        idCardFront: editIdCardFront,
+        idCardBack: editIdCardBack,
+      };
+
+      // Save to localStorage
+      localStorage.setItem(
+        "smartgn_officer_profile",
+        JSON.stringify(updatedProfileData),
+      );
+      setProfile(updatedProfileData);
+      setViewMode("VIEW");
+
+      // Update localStorage user name
+      localStorage.setItem(
+        "smartgn_user_name",
+        editFullName || `${editFirstName} ${editLastName}`,
+      );
+
+      alert(data.message || "Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert(error.message || "Failed to update profile. Please try again.");
+    }
   };
 
   return (
@@ -149,23 +264,27 @@ function OfficerProfile({ onOpenHelp }) {
           {viewMode === "VIEW" && (
             <>
               <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-                <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
+                <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
                   My profile
                 </h2>
-
+                {/* ID upload alert */}
                 <div className="flex justify-end -mt-[70px]">
-                  {/* Alert Banner */}
                   {showAlert &&
                     (!profile.idCardFront || !profile.idCardBack) && (
-                      <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 ">
+                      <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
                         <div className="flex items-center gap-2">
-                          <span>
+                          <span
+                            className="hover:underline hover:cursor-pointer"
+                            onClick={() => {
+                              navigate("/OfficerDashboard/profile");
+                            }}
+                          >
                             Please upload a high-quality image of your GN
                             Identity Card
                           </span>
                         </div>
                         <button
-                          className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1"
+                          className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
                           onClick={() => setShowAlert(false)}
                           aria-label="Close Warning"
                         >
@@ -208,7 +327,7 @@ function OfficerProfile({ onOpenHelp }) {
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
-                        alt="Kamal Perera"
+                        alt="Profile"
                         style={{
                           width: "100%",
                           height: "100%",
@@ -249,7 +368,7 @@ function OfficerProfile({ onOpenHelp }) {
                         textTransform: "uppercase",
                       }}
                     >
-                      {profile.division.split(",")[0]}
+                      {profile.division}
                     </span>
                   </div>
                 </div>
@@ -268,7 +387,6 @@ function OfficerProfile({ onOpenHelp }) {
                     fontSize: "13px",
                     fontWeight: "750",
                     cursor: "pointer",
-                    boxShadow: "0 2px 8px rgba(217, 119, 6, 0.05)",
                   }}
                 >
                   <svg
@@ -286,20 +404,15 @@ function OfficerProfile({ onOpenHelp }) {
                 </button>
               </div>
 
-              {/* Main Content Layout Grid */}
+              {/* Profile details - same as before */}
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
-                {/* Left Card: Personal information */}
                 <div
                   className="border border-[#2D37484D] rounded-2xl p-[20px]"
                   style={{ textAlign: "left" }}
                 >
-                  <h3
-                    className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3"
-                    style={{ fontSize: "16px", marginBottom: "24px" }}
-                  >
+                  <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     Personal information
                   </h3>
-
                   <div
                     style={{
                       display: "flex",
@@ -330,7 +443,6 @@ function OfficerProfile({ onOpenHelp }) {
                         {profile.fullName}
                       </span>
                     </div>
-
                     <div>
                       <span
                         style={{
@@ -354,7 +466,6 @@ function OfficerProfile({ onOpenHelp }) {
                         {profile.division}
                       </span>
                     </div>
-
                     <div>
                       <span
                         style={{
@@ -366,7 +477,7 @@ function OfficerProfile({ onOpenHelp }) {
                           marginBottom: "4px",
                         }}
                       >
-                        Service time within current division
+                        Service time
                       </span>
                       <span
                         style={{
@@ -375,10 +486,9 @@ function OfficerProfile({ onOpenHelp }) {
                           color: "#1e293b",
                         }}
                       >
-                        {profile.serviceTime} Years
+                        {profile.serviceTime}
                       </span>
                     </div>
-
                     <div>
                       <span
                         style={{
@@ -402,7 +512,6 @@ function OfficerProfile({ onOpenHelp }) {
                         {profile.email}
                       </span>
                     </div>
-
                     <div>
                       <span
                         style={{
@@ -429,16 +538,10 @@ function OfficerProfile({ onOpenHelp }) {
                   </div>
                 </div>
 
-                {/* Right Cards: Grama Niladhari Identity Card uploads */}
                 <div className="border border-[#2D37484D] rounded-2xl p-6 text-left gap-[20px] flex flex-col">
-                  <h3
-                    className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3"
-                    style={{ fontSize: "16px", margin: "0" }}
-                  >
+                  <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     Grama Niladhari Identity Card
                   </h3>
-
-                  {/* Front card image slot */}
                   <div
                     className="announcement-row-placeholder"
                     style={{
@@ -457,7 +560,7 @@ function OfficerProfile({ onOpenHelp }) {
                     {profile.idCardFront ? (
                       <img
                         src={profile.idCardFront}
-                        alt="ID Front preview"
+                        alt="ID Front"
                         style={{
                           width: "100%",
                           height: "100%",
@@ -476,8 +579,6 @@ function OfficerProfile({ onOpenHelp }) {
                       </span>
                     )}
                   </div>
-
-                  {/* Back card image slot */}
                   <div
                     className="announcement-row-placeholder"
                     style={{
@@ -496,7 +597,7 @@ function OfficerProfile({ onOpenHelp }) {
                     {profile.idCardBack ? (
                       <img
                         src={profile.idCardBack}
-                        alt="ID Back preview"
+                        alt="ID Back"
                         style={{
                           width: "100%",
                           height: "100%",
@@ -522,7 +623,7 @@ function OfficerProfile({ onOpenHelp }) {
 
           {viewMode === "EDIT" && (
             <>
-              {/* Back chevron trigger */}
+              {/* Back button */}
               <div className="flex justify-start items-center mb-4">
                 <button
                   className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
@@ -559,7 +660,7 @@ function OfficerProfile({ onOpenHelp }) {
                         gap: "20px",
                       }}
                     >
-                      {/* Avatar circular preview dropzone */}
+                      {/* Avatar preview */}
                       <div
                         className="flex flex-col"
                         style={{ alignItems: "flex-start" }}
@@ -618,7 +719,6 @@ function OfficerProfile({ onOpenHelp }) {
                               </svg>
                             )}
                           </div>
-
                           <label
                             className="py-1.5 px-3 bg-[#cbd5e1] text-[#475569] rounded-md text-[12px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#94a3b8] hover:text-white"
                             style={{
@@ -732,10 +832,10 @@ function OfficerProfile({ onOpenHelp }) {
                           <input
                             type="text"
                             id="division"
-                            className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                            className="w-full py-2.5 px-3.5 bg-[#f1f5f9] border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#64748b] cursor-not-allowed font-medium box-border"
                             value={editDivision}
-                            onChange={(e) => setEditDivision(e.target.value)}
-                            required
+                            disabled
+                            readOnly
                           />
                         </div>
                         <div className="flex flex-col">
@@ -747,15 +847,15 @@ function OfficerProfile({ onOpenHelp }) {
                               fontSize: "13px",
                             }}
                           >
-                            Service Time (Years) *
+                            Service Time (Years)
                           </label>
                           <input
-                            type="number"
+                            type="text"
                             id="serviceTime"
-                            className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                            className="w-full py-2.5 px-3.5 bg-[#f1f5f9] border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#64748b] cursor-not-allowed font-medium box-border"
                             value={editServiceTime}
-                            onChange={(e) => setEditServiceTime(e.target.value)}
-                            required
+                            disabled
+                            readOnly
                           />
                         </div>
                       </div>
@@ -822,7 +922,6 @@ function OfficerProfile({ onOpenHelp }) {
                         GN Identity Card Images
                       </label>
 
-                      {/* Front Dropzone card */}
                       <div className="flex flex-col">
                         <label
                           style={{
@@ -930,7 +1029,6 @@ function OfficerProfile({ onOpenHelp }) {
                         </div>
                       </div>
 
-                      {/* Back Dropzone card */}
                       <div className="flex flex-col">
                         <label
                           style={{
@@ -1125,7 +1223,6 @@ function OfficerProfile({ onOpenHelp }) {
         ?
       </button>
 
-      {/* 3. Footer */}
       <Footer />
     </div>
   );

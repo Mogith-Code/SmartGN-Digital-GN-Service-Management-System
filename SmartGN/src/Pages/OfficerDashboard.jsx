@@ -104,8 +104,8 @@ function OfficerDashboard({ onOpenHelp }) {
           email: data.email || "",
           mobile: data.mobile || "",
           serviceTime: serviceTime,
-          gnFront: data.gn_front_path || null,
-          gnBack: data.gn_back_path || null,
+          idCardFront: data.gn_front_path || null,
+          idCardBack: data.gn_back_path || null,
         };
 
         setGnProfile(profileData);

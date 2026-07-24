@@ -275,9 +275,9 @@ function ResidentProfile({ onOpenHelp }) {
                   {t.title}
                 </h2>
 
+                {/* NIC upload alert */}
                 <div className="flex justify-end -mt-[70px]">
-                  {/* Alert Banner */}
-                  {showAlert && !profile.nicFront && !profile.nicBack && (
+                  {showAlert && profile.nic && (
                     <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
                       <div className="flex items-center gap-2">
                         <span
@@ -290,7 +290,7 @@ function ResidentProfile({ onOpenHelp }) {
                         </span>
                       </div>
                       <button
-                        className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1"
+                        className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
                         onClick={() => setShowAlert(false)}
                         aria-label="Close Warning"
                       >
