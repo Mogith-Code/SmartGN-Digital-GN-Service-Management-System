@@ -6,6 +6,7 @@ const officerController = require('../controllers/officerController');
 // PROFILE
 // ============================================================
 router.get('/profile', officerController.getOfficerProfile);
+router.put('/profile', officerController.updateOfficerProfile);
 
 router.get('/dashboard-stats', officerController.getOfficerDashboardStats);
 

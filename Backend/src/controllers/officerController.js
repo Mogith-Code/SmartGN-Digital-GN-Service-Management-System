@@ -82,39 +82,116 @@ exports.getOfficerProfile = async (req, res) => {
     }
 };
 
-// PUT /api/users/officer/profile
+// PUT /api/officer/profile
 exports.updateOfficerProfile = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || user.role !== 'OFFICER') {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
     }
 
-    const { fullName, email, mobile, password } = req.body;
+    const { firstName, lastName, fullName, email, mobile, password } = req.body;
+
+    // ✅ Validate required fields
+    if (!firstName || !lastName || !email || !mobile) {
+        return res.status(400).json({ error: 'First name, last name, email, and mobile are required.' });
+    }
+
+    // ✅ Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format.' });
+    }
+
+    // ✅ Validate mobile format (Sri Lankan mobile numbers)
+    const mobileRegex = /^(0[7][0-9]{8})$/;
+    if (!mobileRegex.test(mobile)) {
+        return res.status(400).json({ error: 'Invalid mobile number format. Use 07XXXXXXXX.' });
+    }
 
     try {
-        // Check email not taken by another officer
+        // ✅ Check if email is already taken by another officer (using gn_id)
         const [existing] = await db.query(
-            'SELECT gn_id FROM grama_niladhari WHERE email = ? AND officer_id != ?', [email, user.id]);
+            'SELECT gn_id FROM grama_niladhari WHERE email = ? AND gn_id != ?',
+            [email, user.id]
+        );
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Email is already used by another officer.' });
         }
 
-        if (password && password.trim()) {
-            const hashed = await bcrypt.hash(password, 10);
-            await db.query(`
-                UPDATE grama_niladhari
-                SET full_name = ?, email = ?, mobile = ?, password_hash = ?
-                WHERE officer_id = ?
-            `, [fullName, email, mobile, hashed, user.id]);
-        } else {
-            await db.query(`
-                UPDATE grama_niladhari
-                SET full_name = ?, email = ?, mobile = ?
-                WHERE officer_id = ?
-            `, [fullName, email, mobile, user.id]);
+        // ✅ Build update query
+        const updates = [];
+        const values = [];
+
+        updates.push('first_name = ?');
+        values.push(firstName);
+
+        updates.push('last_name = ?');
+        values.push(lastName);
+
+        // ✅ Full name: if not provided, combine first and last name
+        const fullNameToSave = fullName || `${firstName} ${lastName}`;
+        updates.push('full_name = ?');
+        values.push(fullNameToSave);
+
+        updates.push('email = ?');
+        values.push(email);
+
+        updates.push('mobile = ?');
+        values.push(mobile);
+
+        // ✅ Handle password update if provided
+        if (password && password.trim() !== '') {
+            // Validate password strength
+            if (password.length < 6) {
+                return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+            }
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updates.push('password_hash = ?');
+            values.push(hashedPassword);
         }
 
-        return res.json({ message: 'Officer profile updated successfully.' });
+        // ✅ Execute update (using gn_id)
+        values.push(user.id);
+        const query = `UPDATE grama_niladhari SET ${updates.join(', ')} WHERE gn_id = ?`;
+        
+        const [result] = await db.query(query, values);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Officer not found.' });
+        }
+
+        // ✅ Fetch updated profile
+        const [updatedRows] = await db.query(`
+            SELECT 
+                g.gn_id,
+                g.username,
+                g.first_name,
+                g.last_name,
+                g.full_name,
+                g.email,
+                g.mobile,
+                g.status,
+                g.is_2fa_enabled,
+                g.profile_photo_path,
+                g.profile_photo_filename,
+                g.gn_front_path,
+                g.gn_front_filename,
+                g.gn_back_path,
+                g.gn_back_filename,
+                g.created_at,
+                g.last_login_at,
+                g.updated_at,
+                d.name AS division_name
+            FROM grama_niladhari g
+            LEFT JOIN gn_division d ON g.division_id = d.division_id
+            WHERE g.gn_id = ?
+        `, [user.id]);
+
+        return res.json({
+            success: true,
+            message: 'Officer profile updated successfully.',
+            data: updatedRows[0]
+        });
     } catch (error) {
         console.error('Error updating officer profile:', error);
         return res.status(500).json({ error: 'Server error updating profile.' });
