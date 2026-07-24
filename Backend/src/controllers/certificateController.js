@@ -53,3 +53,25 @@ exports.submitCertificateRequest = async (req, res) => {
     if (!validTypes.includes(normalizedType)) {
         return res.status(400).json({ error: 'Invalid certificate type. Allowed: RESIDENCE, INCOME, CHARACTER.' });
     }
+
+    try {
+        const residentNic = user.id;
+        const gnId = await CertificateModel.findOfficerForResident(residentNic);
+        const certNumber = generateCertificateNumber();
+        const reqDate = requestDate || new Date().toISOString().split('T')[0];
+
+        const details = {
+            purpose,
+            requestDate: reqDate,
+            ...extraFields
+        };
+
+        const requestId = await CertificateModel.createPendingRequest({
+            certificateNumber: certNumber,
+            certificateType: normalizedType,
+            purpose,
+            requestDate: reqDate,
+            residentNic,
+            gnId,
+            details
+        });
