@@ -97,3 +97,41 @@ exports.getResidentCertificates = async (req, res) => {
     }
 
     const residentNic = user.id;
+
+    try {
+        const [pending] = await db.query(`
+            SELECT request_id, certificate_number, certificate_type, purpose, request_date,
+                   'PENDING' AS status, NULL AS gn_remarks, NULL AS rejection_reason,
+                   NULL AS issued_date, NULL AS expiry_date, details, requested_at AS created_at
+            FROM certificate_pending
+            WHERE resident_nic = ?
+        `, [residentNic]);
+
+        const [approved] = await db.query(`
+            SELECT request_id, certificate_number, certificate_type, purpose, request_date,
+                   'APPROVED' AS status, gn_remarks, NULL AS rejection_reason,
+                   issued_date, expiry_date, details, approved_at AS created_at
+            FROM certificate_approved
+            WHERE resident_nic = ?
+        `, [residentNic]);
+
+        const [rejected] = await db.query(`
+            SELECT request_id, certificate_number, certificate_type, purpose, request_date,
+                   'REJECTED' AS status, gn_remarks, rejection_reason,
+                   NULL AS issued_date, NULL AS expiry_date, details, rejected_at AS created_at
+            FROM certificate_rejected
+            WHERE resident_nic = ?
+        `, [residentNic]);
+
+        const allRequests = [...pending, ...approved, ...rejected].map(item => ({
+            ...item,
+            id: item.request_id,
+            details: parseDetails(item.details)
+        })).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+        return res.json(allRequests);
+    } catch (error) {
+        console.error('Error fetching resident certificates:', error);
+        return res.status(500).json({ error: 'Server error fetching certificate requests.' });
+    }
+};
