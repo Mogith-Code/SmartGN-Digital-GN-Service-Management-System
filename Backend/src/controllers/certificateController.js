@@ -75,3 +75,16 @@ exports.submitCertificateRequest = async (req, res) => {
             gnId,
             details
         });
+
+        return res.status(201).json({
+            message: 'Certificate application submitted successfully. Assigned to your Grama Niladhari division.',
+            certificateNumber: certNumber,
+            request_id: requestId,
+            id: requestId,
+            status: 'PENDING'
+        });
+    } catch (error) {
+        console.error('Error submitting certificate request:', error);
+        return res.status(500).json({ error: 'Server error submitting certificate request.' });
+    }
+};
