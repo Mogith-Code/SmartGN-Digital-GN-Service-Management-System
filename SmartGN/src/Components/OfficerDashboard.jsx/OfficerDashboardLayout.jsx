@@ -40,11 +40,10 @@ function OfficerDashboardLayout({
         <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
           {t.greeting}
         </h2>
-
+        {/*ID upload alert */}
         <div className="flex justify-end -mt-[70px]">
-          {/* Alert Banner - Shows only when ID images are missing */}
           {showAlert && isIdCardMissing && gnProfile.gnId && (
-            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left mt-2 sm:mt-0">
+            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
               <div className="flex items-center gap-2">
                 <span
                   className="hover:underline hover:cursor-pointer"
@@ -56,7 +55,7 @@ function OfficerDashboardLayout({
                 </span>
               </div>
               <button
-                className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a]"
+                className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
                 onClick={() => setShowAlert(false)}
                 aria-label="Close Warning"
               >
