@@ -47,3 +47,9 @@ exports.submitCertificateRequest = async (req, res) => {
     if (!certificateType || !purpose) {
         return res.status(400).json({ error: 'certificateType and purpose are required.' });
     }
+
+    const normalizedType = String(certificateType).toUpperCase();
+    const validTypes = ['RESIDENCE', 'INCOME', 'CHARACTER'];
+    if (!validTypes.includes(normalizedType)) {
+        return res.status(400).json({ error: 'Invalid certificate type. Allowed: RESIDENCE, INCOME, CHARACTER.' });
+    }
