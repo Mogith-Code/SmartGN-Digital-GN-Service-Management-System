@@ -142,6 +142,12 @@ router.post('/:id/disburse', authUser, async (req, res) => {
   }
 });
 
+// 5. Update Allowance Status (Approve/Reject) (GN Officer)
+router.put('/:id/status', authUser, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // status: 'APPROVED', 'REJECTED'
+
+
 
 
 
