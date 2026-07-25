@@ -52,7 +52,7 @@ function ResidentDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     const fetchResidentProfile = async () => {
-      if (!token || !residentNic) {
+      if (!token) {
         navigate("/login");
         return;
       }
@@ -73,7 +73,17 @@ function ResidentDashboard({ onOpenHelp }) {
             navigate("/login");
             return;
           }
-          throw new Error("Failed to fetch profile");
+          console.warn("Resident profile API non-OK status:", response.status);
+          const cachedName = localStorage.getItem("smartgn_user_name") || "Resident";
+          const cachedDivision = localStorage.getItem("smartgn_user_division") || "Assigned Division";
+          const cachedNic = localStorage.getItem("smartgn_user_nic") || residentNic || "";
+          setProfile((prev) => ({
+            ...prev,
+            fullName: cachedName,
+            division: cachedDivision,
+            nic: cachedNic,
+          }));
+          return;
         }
 
         const data = await response.json();
@@ -111,12 +121,11 @@ function ResidentDashboard({ onOpenHelp }) {
         // Store in localStorage for other components
         localStorage.setItem("smartgn_user_name", data.full_name || "Resident");
         localStorage.setItem("smartgn_user_division", data.division_name || "");
-        localStorage.setItem("smartgn_user_nic", data.r_nic || "");
+        if (data.r_nic) localStorage.setItem("smartgn_user_nic", data.r_nic);
 
         setError("");
       } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError("Failed to load profile data");
+        console.warn("Error fetching resident profile:", err);
       }
     };
 
@@ -129,7 +138,10 @@ function ResidentDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     const fetchDashboardStats = async () => {
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const headers = getAuthHeaders();
@@ -218,9 +230,13 @@ function ResidentDashboard({ onOpenHelp }) {
             fetch("/api/appointments/resident", { headers }),
           ]);
 
-          const certs = certRes.ok ? await certRes.json() : [];
-          const allows = allowRes.ok ? await allowRes.json() : [];
-          const appts = apptRes.ok ? await apptRes.json() : [];
+          const rawCerts = certRes.ok ? await certRes.json() : [];
+          const rawAllows = allowRes.ok ? await allowRes.json() : [];
+          const rawAppts = apptRes.ok ? await apptRes.json() : [];
+
+          const certs = Array.isArray(rawCerts) ? rawCerts : [];
+          const allows = Array.isArray(rawAllows) ? rawAllows : [];
+          const appts = Array.isArray(rawAppts) ? rawAppts : [];
 
           const pending =
             certs.filter((c) => c.status === "Pending").length +
