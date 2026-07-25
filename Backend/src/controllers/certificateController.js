@@ -201,3 +201,27 @@ exports.getOfficerCertificates = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching certificate requests.' });
     }
 };
+
+// GET /api/certificates/:id
+exports.getCertificateDetails = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user) {
+        return res.status(401).json({ error: 'Authentication required.' });
+    }
+
+    const { id } = req.params;
+
+    try {
+        const [pending] = await db.query(`
+            SELECT cp.*, 'PENDING' AS status,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+            FROM certificate_pending cp
+            JOIN resident r ON cp.resident_nic = r.r_nic
+            WHERE cp.request_id = ? OR cp.certificate_number = ?
+        `, [id, id]);
+
+        if (pending.length > 0) {
+            const item = pending[0];
+            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+        }
