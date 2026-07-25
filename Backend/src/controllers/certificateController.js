@@ -135,3 +135,20 @@ exports.getResidentCertificates = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching certificate requests.' });
     }
 };
+
+// OFFICER / ADMIN ENDPOINTS
+
+// GET /api/certificates/officer
+exports.getOfficerCertificates = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers/Admins only.' });
+    }
+
+    try {
+        let gnId = null;
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
+            if (officer.length === 0) return res.status(404).json({ error: 'Officer profile not found.' });
+            gnId = officer[0].gn_id;
+        }
