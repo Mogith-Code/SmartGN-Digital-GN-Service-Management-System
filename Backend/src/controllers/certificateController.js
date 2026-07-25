@@ -276,3 +276,22 @@ exports.handleCertificateAction = async (req, res) => {
     }
 
     const actionStatus = String(status).toUpperCase();
+
+    try {
+        let gnId = null;
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
+            if (officer.length === 0) return res.status(404).json({ error: 'Officer profile not found.' });
+            gnId = officer[0].gn_id;
+        } else {
+            gnId = user.id;
+        }
+
+        const [pending] = await db.query(
+            'SELECT * FROM certificate_pending WHERE request_id = ? OR certificate_number = ?',
+            [id, id]
+        );
+
+        if (pending.length === 0) {
+            return res.status(404).json({ error: 'Certificate request not found in pending queue.' });
+        }
