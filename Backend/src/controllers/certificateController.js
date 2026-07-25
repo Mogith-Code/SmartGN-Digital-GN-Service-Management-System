@@ -225,3 +225,17 @@ exports.getCertificateDetails = async (req, res) => {
             const item = pending[0];
             return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
         }
+
+        const [approved] = await db.query(`
+            SELECT ca.*, 'APPROVED' AS status,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+            FROM certificate_approved ca
+            JOIN resident r ON ca.resident_nic = r.r_nic
+            WHERE ca.request_id = ? OR ca.certificate_number = ?
+        `, [id, id]);
+
+        if (approved.length > 0) {
+            const item = approved[0];
+            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+        }
