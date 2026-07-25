@@ -4,16 +4,16 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
-const getUserFromToken = (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
-};
+// ✅ Use the user from req.user (set by authenticateToken middleware)
+// No need to re-verify the token!
 
-// GET /api/residents/profile
+// ============================================================
+// GET PROFILE
+// ============================================================
 exports.getProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -66,9 +66,13 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// PUT /api/residents/profile
+// ============================================================
+// UPDATE PROFILE (FIXED)
+// ============================================================
 exports.updateProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -79,19 +83,19 @@ exports.updateProfile = async (req, res) => {
         const updates = [];
         const values = [];
 
-        if (firstName !== undefined) {
+        if (firstName !== undefined && firstName !== '') {
             updates.push('first_name = ?');
             values.push(firstName);
         }
-        if (lastName !== undefined) {
+        if (lastName !== undefined && lastName !== '') {
             updates.push('last_name = ?');
             values.push(lastName);
         }
         if (fullName !== undefined) {
             updates.push('full_name = ?');
-            values.push(fullName);
+            values.push(fullName || null);
         }
-        if (mobile !== undefined) {
+        if (mobile !== undefined && mobile !== '') {
             updates.push('mobile_no = ?');
             values.push(mobile);
         }
@@ -108,7 +112,7 @@ exports.updateProfile = async (req, res) => {
             return res.status(400).json({ error: 'No fields to update.' });
         }
 
-        values.push(user.id);
+        values.push(user.id); // user.id is the r_nic from JWT
         const query = `UPDATE resident SET ${updates.join(', ')} WHERE r_nic = ?`;
         
         const [result] = await db.query(query, values);
@@ -117,9 +121,41 @@ exports.updateProfile = async (req, res) => {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
+        // ✅ Fetch updated profile to return
+        const [updatedRows] = await db.query(`
+            SELECT 
+                r.r_nic,
+                r.first_name,
+                r.last_name,
+                r.full_name,
+                r.date_of_birth,
+                r.gender,
+                r.mobile_no,
+                r.email,
+                r.occupation,
+                r.household_number,
+                r.division_id,
+                r.home_address,
+                r.profile_photo_path,
+                r.nic_front_path,
+                r.nic_back_path,
+                r.profile_photo_filename,
+                r.nic_front_filename,
+                r.nic_back_filename,
+                r.status,
+                r.email_verified,
+                r.nic_verified,
+                r.created_at,
+                d.name AS division_name
+            FROM resident r
+            JOIN gn_division d ON r.division_id = d.division_id
+            WHERE r.r_nic = ?
+        `, [user.id]);
+
         return res.json({ 
             success: true,
-            message: 'Profile updated successfully.' 
+            message: 'Profile updated successfully.',
+            data: updatedRows[0] || null
         });
     } catch (error) {
         console.error('Error updating profile:', error);
@@ -127,9 +163,11 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// GET /api/residents/dashboard-stats
+// ============================================================
+// GET DASHBOARD STATS
+// ============================================================
 exports.getDashboardStats = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -178,9 +216,11 @@ exports.getDashboardStats = async (req, res) => {
     }
 };
 
-// GET /api/residents/family
+// ============================================================
+// GET FAMILY MEMBERS
+// ============================================================
 exports.getFamilyMembers = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -216,9 +256,11 @@ exports.getFamilyMembers = async (req, res) => {
     }
 };
 
-// POST /api/residents/family
+// ============================================================
+// ADD FAMILY MEMBER
+// ============================================================
 exports.addFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -245,9 +287,11 @@ exports.addFamilyMember = async (req, res) => {
     }
 };
 
-// PUT /api/residents/family/:id
+// ============================================================
+// UPDATE FAMILY MEMBER
+// ============================================================
 exports.updateFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -273,9 +317,11 @@ exports.updateFamilyMember = async (req, res) => {
     }
 };
 
-// DELETE /api/residents/family/:id
+// ============================================================
+// DELETE FAMILY MEMBER
+// ============================================================
 exports.deleteFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -299,9 +345,11 @@ exports.deleteFamilyMember = async (req, res) => {
     }
 };
 
-// GET /api/residents/household
+// ============================================================
+// GET HOUSEHOLD
+// ============================================================
 exports.getHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -342,9 +390,11 @@ exports.getHousehold = async (req, res) => {
     }
 };
 
-// PUT /api/residents/household
+// ============================================================
+// UPDATE HOUSEHOLD
+// ============================================================
 exports.updateHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -382,9 +432,11 @@ exports.updateHousehold = async (req, res) => {
     }
 };
 
-// GET /api/residents/announcements
+// ============================================================
+// GET ANNOUNCEMENTS
+// ============================================================
 exports.getAnnouncements = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user) {
         return res.status(401).json({ error: 'Authentication required.' });
     }
