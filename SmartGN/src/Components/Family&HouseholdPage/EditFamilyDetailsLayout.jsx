@@ -7,6 +7,18 @@ import { useNavigate } from "react-router-dom";
 import EditFamilyMemberTable from "./EditFamilyMemberTable";
 import { getAuthHeaders } from "../../utils/api";
 
+// ✅ Relationship options based on database ENUM values
+const relationshipOptions = [
+  { value: "Head", label: "Head" },
+  { value: "Wife", label: "Wife" },
+  { value: "Son", label: "Son" },
+  { value: "Daughter", label: "Daughter" },
+  { value: "Mother", label: "Mother" },
+  { value: "Father", label: "Father" },
+  { value: "Sibling", label: "Sibling" },
+  { value: "Other", label: "Other" },
+];
+
 function EditFamilyDetailsLayout() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -308,21 +320,27 @@ function EditFamilyDetailsLayout() {
                 />
               </div>
 
+              {/* ✅ Updated to Dropdown */}
               <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
                 <label htmlFor="relationshipInput" className="font-medium">
                   Relationship: <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   id="relationshipInput"
                   value={newMember.relationship}
                   onChange={(e) =>
                     handleInputChange("relationship", e.target.value)
                   }
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
-                  placeholder="e.g., Son, Daughter, Spouse"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] bg-white py-2 cursor-pointer"
                   required
-                />
+                >
+                  <option value="">Select relationship</option>
+                  {relationshipOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

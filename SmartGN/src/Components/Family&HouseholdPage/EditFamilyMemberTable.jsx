@@ -1,10 +1,22 @@
 // EditFamilyMemberTable.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
 import editIcon from "../../assets/edit_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import deleteIcon from "../../assets/delete_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
 import saveIcon from "../../assets/save_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
+
+// ✅ Relationship options based on database ENUM values
+const relationshipOptions = [
+  { value: "Head", label: "Head" },
+  { value: "Wife", label: "Wife" },
+  { value: "Son", label: "Son" },
+  { value: "Daughter", label: "Daughter" },
+  { value: "Mother", label: "Mother" },
+  { value: "Father", label: "Father" },
+  { value: "Sibling", label: "Sibling" },
+  { value: "Other", label: "Other" },
+];
 
 function EditFamilyMemberTable({
   members = [],
@@ -22,7 +34,7 @@ function EditFamilyMemberTable({
   const [editedMembers, setEditedMembers] = useState(members);
 
   // Update edited members when props change
-  React.useEffect(() => {
+  useEffect(() => {
     setEditedMembers(members);
   }, [members]);
 
@@ -73,6 +85,13 @@ function EditFamilyMemberTable({
     EditFamilyMemberTableTranslations.EN;
 
   // ============================================================================
+  // GET MEMBER ID
+  // ============================================================================
+  const getMemberId = (member) => {
+    return member.member_id || member.id;
+  };
+
+  // ============================================================================
   // HANDLE EDIT BUTTON CLICK
   // ============================================================================
   const handleEditClick = (memberId) => {
@@ -86,9 +105,7 @@ function EditFamilyMemberTable({
   // HANDLE SAVE BUTTON CLICK
   // ============================================================================
   const handleSaveClick = async (memberId) => {
-    const member = editedMembers.find(
-      (m) => m.id === memberId || m.member_id === memberId,
-    );
+    const member = editedMembers.find((m) => getMemberId(m) === memberId);
     if (!member) return;
 
     setLoading((prev) => ({ ...prev, [memberId]: true }));
@@ -119,15 +136,11 @@ function EditFamilyMemberTable({
   // ============================================================================
   const handleCancelClick = (memberId) => {
     // Reset to original data
-    const originalMember = members.find(
-      (m) => m.id === memberId || m.member_id === memberId,
-    );
+    const originalMember = members.find((m) => getMemberId(m) === memberId);
     if (originalMember) {
       setEditedMembers((prev) =>
         prev.map((m) =>
-          m.id === memberId || m.member_id === memberId
-            ? { ...originalMember }
-            : m,
+          getMemberId(m) === memberId ? { ...originalMember } : m,
         ),
       );
     }
@@ -143,7 +156,7 @@ function EditFamilyMemberTable({
   const handleInputChange = (memberId, field, value) => {
     setEditedMembers((prev) =>
       prev.map((member) =>
-        member.id === memberId || member.member_id === memberId
+        getMemberId(member) === memberId
           ? { ...member, [field]: value }
           : member,
       ),
@@ -155,13 +168,6 @@ function EditFamilyMemberTable({
   // ============================================================================
   const handleDeleteClick = (memberId) => {
     onDeleteMember(memberId);
-  };
-
-  // ============================================================================
-  // GET MEMBER ID
-  // ============================================================================
-  const getMemberId = (member) => {
-    return member.member_id || member.id;
   };
 
   // ============================================================================
@@ -210,14 +216,20 @@ function EditFamilyMemberTable({
           />
         </td>
         <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
-          <input
-            type="text"
+          <select
             value={member.relationship || ""}
             onChange={(e) =>
               handleInputChange(memberId, "relationship", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
-          />
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1 cursor-pointer"
+          >
+            <option value="">Select relationship</option>
+            {relationshipOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
           <div className="flex gap-[20px] items-center justify-center">

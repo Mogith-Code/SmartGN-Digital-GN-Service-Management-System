@@ -121,7 +121,7 @@ async function setupTables(dbPool) {
         member_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
         name VARCHAR(100) NOT NULL,
         age INT NOT NULL CHECK (age >= 0 AND age <= 150),
-        relationship ENUM('Head', 'Spouse', 'Son', 'Daughter', 'Mother', 'Father', 'Sibling', 'Other') NOT NULL,
+        relationship ENUM('Head', 'Wife', 'Son', 'Daughter', 'Mother', 'Father', 'Sibling', 'Other') NOT NULL,
         nic VARCHAR(12) UNIQUE COMMENT 'NIC if available',
         gender ENUM('Male', 'Female', 'Other'),
         date_of_birth DATE,
