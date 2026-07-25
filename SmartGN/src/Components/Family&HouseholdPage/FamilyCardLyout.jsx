@@ -1,28 +1,25 @@
+// FamilyCardLyout.jsx
 import React from "react";
 import { useLanguage } from "../../utils/translate";
 import totalMembersIcon from "../../assets/groups_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import adultIcon from "../../assets/18_up_rating_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import childrenIcon from "../../assets/child_care_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 
-function FamilyCardLyout({ Total, Adult, Children }) {
+function FamilyCardLyout({ Total = 0, Adult = 0, Children = 0 }) {
   const { lang } = useLanguage();
 
   // TRANSLATION OBJECTS
-  // Contains all text content in three languages: English (EN),
-  // Sinhala (SI), and Tamil (TA)
   const FamilyCardLayoutTranslations = {
     EN: {
       Card1Title: "Total members",
       Card2Title: "Adult members (18+)",
       Card3Title: "Children",
     },
-
     SI: {
       Card1Title: "මුළු සාමාජිකයින්",
       Card2Title: "වැඩිහිටි සාමාජිකයින් (18+)",
       Card3Title: "ළමුන්",
     },
-
     TA: {
       Card1Title: "மொத்த உறுப்பினர்கள்",
       Card2Title: "வயது 18+ பெரியவர்கள்",
@@ -30,7 +27,6 @@ function FamilyCardLyout({ Total, Adult, Children }) {
     },
   };
 
-  // Select the appropriate translation based on current language
   const t =
     FamilyCardLayoutTranslations[lang] || FamilyCardLayoutTranslations.EN;
 
@@ -57,6 +53,7 @@ function FamilyCardLyout({ Total, Adult, Children }) {
       count: Children,
     },
   ];
+
   return (
     <>
       {cards.map((card) => (
