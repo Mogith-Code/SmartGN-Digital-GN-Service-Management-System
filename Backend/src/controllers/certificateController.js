@@ -260,3 +260,19 @@ exports.getCertificateDetails = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching certificate details.' });
     }
 };
+
+// PUT /api/certificates/:id/action
+exports.handleCertificateAction = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers/Admins only.' });
+    }
+
+    const { id } = req.params;
+    const { status, rejectionReason, remarks, gnRemarks, issuedDate, expiryDate, ...otherData } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ error: 'Status is required (APPROVED or REJECTED).' });
+    }
+
+    const actionStatus = String(status).toUpperCase();
