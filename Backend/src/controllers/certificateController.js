@@ -239,3 +239,24 @@ exports.getCertificateDetails = async (req, res) => {
             const item = approved[0];
             return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
         }
+
+        const [rejected] = await db.query(`
+            SELECT cr.*, 'REJECTED' AS status,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+            FROM certificate_rejected cr
+            JOIN resident r ON cr.resident_nic = r.r_nic
+            WHERE cr.request_id = ? OR cr.certificate_number = ?
+        `, [id, id]);
+
+        if (rejected.length > 0) {
+            const item = rejected[0];
+            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+        }
+
+        return res.status(404).json({ error: 'Certificate request not found.' });
+    } catch (error) {
+        console.error('Error fetching certificate details:', error);
+        return res.status(500).json({ error: 'Server error fetching certificate details.' });
+    }
+};
