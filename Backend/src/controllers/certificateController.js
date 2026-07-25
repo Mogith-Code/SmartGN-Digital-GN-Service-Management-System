@@ -188,3 +188,16 @@ exports.getOfficerCertificates = async (req, res) => {
             WHERE 1=1 ${filter.replace('cp.gn_id', 'cr.gn_id')}
             ORDER BY cr.rejected_at DESC
         `, params);
+
+        const results = [...pending, ...approved, ...rejected].map(item => ({
+            ...item,
+            id: item.request_id,
+            details: parseDetails(item.details)
+        }));
+
+        return res.json(results);
+    } catch (error) {
+        console.error('Error fetching officer certificates:', error);
+        return res.status(500).json({ error: 'Server error fetching certificate requests.' });
+    }
+};
