@@ -152,3 +152,39 @@ exports.getOfficerCertificates = async (req, res) => {
             if (officer.length === 0) return res.status(404).json({ error: 'Officer profile not found.' });
             gnId = officer[0].gn_id;
         }
+
+        const filter = gnId ? 'AND cp.gn_id = ?' : '';
+        const params = gnId ? [gnId] : [];
+
+        const [pending] = await db.query(`
+            SELECT cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
+                   'PENDING' AS status, cp.details, cp.requested_at AS created_at,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            FROM certificate_pending cp
+            JOIN resident r ON cp.resident_nic = r.r_nic
+            WHERE 1=1 ${filter}
+            ORDER BY cp.requested_at DESC
+        `, params);
+
+        const [approved] = await db.query(`
+            SELECT ca.request_id, ca.certificate_number, ca.certificate_type, ca.purpose, ca.request_date,
+                   'APPROVED' AS status, ca.gn_remarks, ca.issued_date, ca.expiry_date, ca.details, ca.approved_at AS created_at,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            FROM certificate_approved ca
+            JOIN resident r ON ca.resident_nic = r.r_nic
+            WHERE 1=1 ${filter.replace('cp.gn_id', 'ca.gn_id')}
+            ORDER BY ca.approved_at DESC
+        `, params);
+
+        const [rejected] = await db.query(`
+            SELECT cr.request_id, cr.certificate_number, cr.certificate_type, cr.purpose, cr.request_date,
+                   'REJECTED' AS status, cr.gn_remarks, cr.rejection_reason, cr.details, cr.rejected_at AS created_at,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            FROM certificate_rejected cr
+            JOIN resident r ON cr.resident_nic = r.r_nic
+            WHERE 1=1 ${filter.replace('cp.gn_id', 'cr.gn_id')}
+            ORDER BY cr.rejected_at DESC
+        `, params);
