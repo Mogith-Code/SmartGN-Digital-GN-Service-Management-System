@@ -50,7 +50,7 @@ function OfficerDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     const fetchOfficerProfile = async () => {
-      if (!token || !gnId) {
+      if (!token) {
         navigate("/login");
         return;
       }
@@ -71,7 +71,15 @@ function OfficerDashboard({ onOpenHelp }) {
             navigate("/login");
             return;
           }
-          throw new Error("Failed to fetch profile");
+          console.warn("Officer profile API non-OK status:", response.status);
+          const cachedName = localStorage.getItem("smartgn_user_name") || "GN Officer";
+          const cachedDivision = localStorage.getItem("smartgn_user_division") || "Assigned Division";
+          setGnProfile((prev) => ({
+            ...prev,
+            fullName: cachedName,
+            division: cachedDivision,
+          }));
+          return;
         }
 
         const data = await response.json();
@@ -123,12 +131,11 @@ function OfficerDashboard({ onOpenHelp }) {
           data.full_name || "GN Officer",
         );
         localStorage.setItem("smartgn_user_division", data.division_name || "");
-        localStorage.setItem("smartgn_user_id", data.gn_id || "");
+        if (data.gn_id) localStorage.setItem("smartgn_user_id", data.gn_id);
 
         setError("");
       } catch (err) {
-        console.error("Error fetching profile:", err);
-        setError("Failed to load profile data");
+        console.warn("Error fetching officer profile:", err);
       }
     };
 
@@ -140,7 +147,10 @@ function OfficerDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     const fetchDashboardStats = async () => {
-      if (!token || !gnId) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const response = await fetch(`/api/officer/dashboard-stats`, {
@@ -150,26 +160,23 @@ function OfficerDashboard({ onOpenHelp }) {
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard stats");
+        if (response.ok) {
+          const data = await response.json();
+
+          setDashboardStats({
+            totalResidents: data.totalResidents || 0,
+            totalPendingRequests: data.totalPendingRequests || 0,
+            pendingCertificates: data.pendingCertificates || 0,
+            pendingAppointments: data.pendingAppointments || 0,
+            pendingAllowances: data.pendingAllowances || 0,
+            pendingDisasters: data.pendingDisasters || 0,
+            activeDisasters: data.activeDisasters || 0,
+          });
+        } else {
+          console.warn("Dashboard stats returned non-OK status:", response.status);
         }
-
-        const data = await response.json();
-
-        setDashboardStats({
-          totalResidents: data.totalResidents || 0,
-          totalPendingRequests: data.totalPendingRequests || 0,
-          pendingCertificates: data.pendingCertificates || 0,
-          pendingAppointments: data.pendingAppointments || 0,
-          pendingAllowances: data.pendingAllowances || 0,
-          pendingDisasters: data.pendingDisasters || 0,
-          activeDisasters: data.activeDisasters || 0,
-        });
-
-        setError("");
       } catch (err) {
         console.error("Error fetching dashboard stats:", err);
-        setError("Failed to load dashboard stats");
       } finally {
         setLoading(false);
       }
