@@ -1,17 +1,12 @@
-// userController.js — Officer-facing endpoints (profile, dashboard stats, announcements)
+// Backend/src/controllers/officerController.js
 const db = require('../config/database');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
+// ✅ No need for getUserFromToken - use req.user from middleware
 
-const getUserFromToken = (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
-};
-
+// ============================================================
+// GENERATE ANNOUNCEMENT NUMBER
+// ============================================================
 const generateAnnouncementNumber = () => {
     const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const rand = Math.floor(100 + Math.random() * 900);
@@ -19,11 +14,12 @@ const generateAnnouncementNumber = () => {
 };
 
 // ============================================================
-// OFFICER PROFILE
+// GET OFFICER PROFILE
 // ============================================================
-// GET /api/officer/profile
 exports.getOfficerProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || user.role !== 'OFFICER') {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
     }
@@ -82,9 +78,13 @@ exports.getOfficerProfile = async (req, res) => {
     }
 };
 
-// PUT /api/officer/profile
+// ============================================================
+// UPDATE OFFICER PROFILE
+// ============================================================
 exports.updateOfficerProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || user.role !== 'OFFICER') {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
     }
@@ -109,7 +109,7 @@ exports.updateOfficerProfile = async (req, res) => {
     }
 
     try {
-        // ✅ Check if email is already taken by another officer (using gn_id)
+        // ✅ Check if email is already taken by another officer
         const [existing] = await db.query(
             'SELECT gn_id FROM grama_niladhari WHERE email = ? AND gn_id != ?',
             [email, user.id]
@@ -141,7 +141,6 @@ exports.updateOfficerProfile = async (req, res) => {
 
         // ✅ Handle password update if provided
         if (password && password.trim() !== '') {
-            // Validate password strength
             if (password.length < 6) {
                 return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
             }
@@ -199,12 +198,12 @@ exports.updateOfficerProfile = async (req, res) => {
 };
 
 // ============================================================
-// OFFICER DASHBOARD STATS
+// GET OFFICER DASHBOARD STATS
 // ============================================================
-
-// GET /api/officer/dashboard-stats
 exports.getOfficerDashboardStats = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -369,20 +368,30 @@ exports.getOfficerDashboardStats = async (req, res) => {
 };
 
 // ============================================================
-// PUBLIC ANNOUNCEMENT FEED (for resident dashboard, no auth needed)
+// ANNOUNCEMENT FUNCTIONS
 // ============================================================
 
-// GET /api/announcements/feed
+// GET /api/announcements/feed - Public announcements (no auth)
 exports.getPublicAnnouncementFeed = async (req, res) => {
     try {
         const [rows] = await db.query(`
-            SELECT a.announcement_id, a.title, a.description, a.type, a.priority, a.date,
-                   g.full_name AS officer_name, d.name AS division_name
+            SELECT 
+                a.announcement_id,
+                a.announcement_number,
+                a.title,
+                a.date,
+                a.description,
+                a.type,
+                a.priority,
+                a.created_at,
+                g.full_name AS officer_name,
+                d.name AS division_name
             FROM announcement a
             JOIN grama_niladhari g ON a.gn_id = g.gn_id
             JOIN gn_division d ON g.division_id = d.division_id
             WHERE a.is_active = TRUE
-            ORDER BY a.date DESC
+            AND (a.expires_at IS NULL OR a.expires_at > NOW())
+            ORDER BY a.date DESC, a.priority DESC
             LIMIT 10
         `);
         return res.json(rows);
@@ -392,13 +401,10 @@ exports.getPublicAnnouncementFeed = async (req, res) => {
     }
 };
 
-// ============================================================
-// ANNOUNCEMENTS
-// ============================================================
-
-// GET /api/announcements/officer  (also used as /api/users/officer/announcements)
+// GET /api/announcements/officer - Get officer's announcements
 exports.getAnnouncements = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -406,8 +412,13 @@ exports.getAnnouncements = async (req, res) => {
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
-            if (officer.length === 0) return res.status(404).json({ error: 'Officer not found.' });
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
+                [user.id]
+            );
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
             gnId = officer[0].gn_id;
         }
 
@@ -415,7 +426,19 @@ exports.getAnnouncements = async (req, res) => {
         const params = gnId ? [gnId] : [];
 
         const [rows] = await db.query(`
-            SELECT a.*, g.full_name AS officer_name, d.name AS division_name
+            SELECT 
+                a.announcement_id,
+                a.announcement_number,
+                a.title,
+                a.date,
+                a.description,
+                a.type,
+                a.priority,
+                a.is_active,
+                a.expires_at,
+                a.created_at,
+                g.full_name AS officer_name,
+                d.name AS division_name
             FROM announcement a
             JOIN grama_niladhari g ON a.gn_id = g.gn_id
             JOIN gn_division d ON g.division_id = d.division_id
@@ -430,9 +453,10 @@ exports.getAnnouncements = async (req, res) => {
     }
 };
 
-// POST /api/announcements/publish
+// POST /api/announcements/publish - Create new announcement
 exports.createAnnouncement = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -446,11 +470,16 @@ exports.createAnnouncement = async (req, res) => {
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
-            if (officer.length === 0) return res.status(404).json({ error: 'Officer not found.' });
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
+                [user.id]
+            );
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
             gnId = officer[0].gn_id;
         } else {
-            // For admin, get first active officer's gnId or use user.id
+            // For admin, use their id or get first officer
             gnId = user.id;
         }
 
@@ -463,51 +492,101 @@ exports.createAnnouncement = async (req, res) => {
             ? priority.toUpperCase() : 'MEDIUM';
 
         await db.query(`
-            INSERT INTO announcement (announcement_number, title, date, description, type, priority, gn_id, expires_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO announcement (
+                announcement_number, 
+                title, 
+                date, 
+                description, 
+                type, 
+                priority, 
+                gn_id, 
+                expires_at,
+                is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
         `, [annNumber, title, today, description, annType, annPriority, gnId, expiresAt || null]);
 
-        return res.status(201).json({ message: 'Announcement published successfully.', announcementNumber: annNumber });
+        return res.status(201).json({ 
+            success: true,
+            message: 'Announcement published successfully.',
+            data: { announcementNumber: annNumber }
+        });
     } catch (error) {
         console.error('Error creating announcement:', error);
         return res.status(500).json({ error: 'Server error creating announcement.' });
     }
 };
 
-// PUT /api/announcements/:id
+// PUT /api/announcements/:id - Update announcement
 exports.updateAnnouncement = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
     const { id } = req.params;
-    const { title, description, type, priority, isActive } = req.body;
+    const { title, description, type, priority, isActive, expiresAt } = req.body;
 
     try {
-        const validTypes = ['HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER'];
-        const annType = type && validTypes.includes(type.toUpperCase()) ? type.toUpperCase() : 'OTHER';
+        // Check if announcement exists and belongs to officer
+        const [existing] = await db.query(
+            'SELECT gn_id FROM announcement WHERE announcement_id = ?',
+            [id]
+        );
+        
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'Announcement not found.' });
+        }
 
-        const [result] = await db.query(`
-            UPDATE announcement
-            SET title = ?, description = ?, type = ?, priority = ?, is_active = ?
-            WHERE announcement_id = ?
-        `, [title, description, annType, priority || 'MEDIUM', isActive !== undefined ? isActive : true, id]);
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
+                [user.id]
+            );
+            if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
+                return res.status(403).json({ error: 'Access denied. You can only update your own announcements.' });
+            }
+        }
+
+        const validTypes = ['HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER'];
+        const annType = type && validTypes.includes(type.toUpperCase()) ? type.toUpperCase() : null;
+
+        const updates = [];
+        const values = [];
+
+        if (title) { updates.push('title = ?'); values.push(title); }
+        if (description) { updates.push('description = ?'); values.push(description); }
+        if (annType) { updates.push('type = ?'); values.push(annType); }
+        if (priority) { updates.push('priority = ?'); values.push(priority.toUpperCase()); }
+        if (isActive !== undefined) { updates.push('is_active = ?'); values.push(isActive); }
+        if (expiresAt !== undefined) { updates.push('expires_at = ?'); values.push(expiresAt); }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update.' });
+        }
+
+        values.push(id);
+        const query = `UPDATE announcement SET ${updates.join(', ')} WHERE announcement_id = ?`;
+        const [result] = await db.query(query, values);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Announcement not found.' });
         }
 
-        return res.json({ message: 'Announcement updated successfully.' });
+        return res.json({ 
+            success: true,
+            message: 'Announcement updated successfully.' 
+        });
     } catch (error) {
         console.error('Error updating announcement:', error);
         return res.status(500).json({ error: 'Server error updating announcement.' });
     }
 };
 
-// DELETE /api/announcements/:id
+// DELETE /api/announcements/:id - Soft delete announcement
 exports.deleteAnnouncement = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -515,14 +594,40 @@ exports.deleteAnnouncement = async (req, res) => {
     const { id } = req.params;
 
     try {
+        // Check if announcement exists and belongs to officer
+        const [existing] = await db.query(
+            'SELECT gn_id FROM announcement WHERE announcement_id = ?',
+            [id]
+        );
+        
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'Announcement not found.' });
+        }
+
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
+                [user.id]
+            );
+            if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
+                return res.status(403).json({ error: 'Access denied. You can only delete your own announcements.' });
+            }
+        }
+
+        // Soft delete - set is_active to FALSE
         const [result] = await db.query(
-            'UPDATE announcement SET is_active = FALSE WHERE announcement_id = ?', [id]);
+            'UPDATE announcement SET is_active = FALSE WHERE announcement_id = ?',
+            [id]
+        );
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Announcement not found.' });
         }
 
-        return res.json({ message: 'Announcement deleted (deactivated) successfully.' });
+        return res.json({ 
+            success: true,
+            message: 'Announcement deleted successfully.' 
+        });
     } catch (error) {
         console.error('Error deleting announcement:', error);
         return res.status(500).json({ error: 'Server error deleting announcement.' });

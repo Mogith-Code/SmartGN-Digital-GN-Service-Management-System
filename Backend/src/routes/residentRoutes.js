@@ -4,19 +4,19 @@ const router = express.Router();
 const residentController = require('../controllers/residentController');
 const { authenticateToken } = require('../middleware/auth');
 
-// All routes require authentication
+// ✅ All routes require authentication
 router.use(authenticateToken);
-
-// ============================================================
-// DASHBOARD STATS
-// ============================================================
-router.get('/dashboard-stats', residentController.getDashboardStats);
 
 // ============================================================
 // PROFILE
 // ============================================================
 router.get('/profile', residentController.getProfile);
 router.put('/profile', residentController.updateProfile);
+
+// ============================================================
+// DASHBOARD STATS
+// ============================================================
+router.get('/dashboard-stats', residentController.getDashboardStats);
 
 // ============================================================
 // FAMILY MEMBERS
