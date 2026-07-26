@@ -353,3 +353,16 @@ exports.handleCertificateAction = async (req, res) => {
                 status: 'APPROVED',
                 request_id: cp.request_id
             });
+        } else if (actionStatus === 'REJECTED') {
+            const reason = rejectionReason || 'Certificate application did not meet verification criteria.';
+
+            await db.query(`
+                INSERT INTO certificate_rejected
+                (request_id, certificate_number, certificate_type, purpose, request_date,
+                 resident_nic, gn_id, rejected_by, rejection_reason, gn_remarks, details, rejected_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
+                cp.resident_nic, cp.gn_id, gnId, reason, remarksContent, JSON.stringify(updatedDetails),
+                now
+            ]);
