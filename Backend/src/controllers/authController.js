@@ -28,8 +28,8 @@ exports.getDivisions = async (req, res) => {
 exports.registerResident = async (req, res) => {
     const { 
         nic, 
-        firstName,      // ← Already separate
-        lastName,       // ← Already separate
+        firstName,
+        lastName,
         dob, 
         password, 
         gender, 
@@ -45,20 +45,17 @@ exports.registerResident = async (req, res) => {
     }
 
     try {
-        // Check if division exists and get ID
         const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
         const divisionId = divisions[0].id;
 
-        // Check if resident already exists
         const [existing] = await db.query('SELECT r_nic AS nic FROM resident WHERE r_nic = ? OR email = ?', [nic, email]);
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Resident account with this NIC or Email already exists.' });
         }
 
-        // Check if household exists
         const [householdRows] = await db.query(
             'SELECT household_number FROM household WHERE household_number = ?',
             [householdNumber]
@@ -66,21 +63,27 @@ exports.registerResident = async (req, res) => {
 
         let householdCreated = false;
 
-        // If household doesn't exist, create it
+        // ✅ If household doesn't exist, create it with address
         if (householdRows.length === 0) {
             await db.query(
                 `INSERT INTO household (household_number, address, division_id)
                  VALUES (?, ?, ?)`,
-                [householdNumber, homeAddress || `Address for household ${householdNumber}, ${division}`, divisionId]
+                [householdNumber, homeAddress || null, divisionId]
             );
             householdCreated = true;
             console.log(`✅ New household created: ${householdNumber}`);
+        } else {
+            // ✅ If household exists, update address if provided
+            if (homeAddress) {
+                await db.query(
+                    'UPDATE household SET address = ? WHERE household_number = ?',
+                    [homeAddress, householdNumber]
+                );
+            }
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // ✅ No splitting needed! Use firstName and lastName directly
         await db.query(`
             INSERT INTO resident (
                 r_nic, first_name, last_name, full_name, date_of_birth, 
@@ -89,8 +92,8 @@ exports.registerResident = async (req, res) => {
             ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
         `, [
             nic, 
-            firstName,   // ← Directly from frontend
-            lastName,    // ← Directly from frontend
+            firstName,
+            lastName,
             dob, 
             hashedPassword, 
             gender, 
@@ -101,7 +104,6 @@ exports.registerResident = async (req, res) => {
             homeAddress || null
         ]);
 
-        // Generate OTP
         const otp = generateOTP();
         const expiresAt = Date.now() + 5 * 60 * 1000;
 

@@ -4,16 +4,16 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
-const getUserFromToken = (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
-};
+// ✅ Use the user from req.user (set by authenticateToken middleware)
+// No need to re-verify the token!
 
-// GET /api/residents/profile
+// ============================================================
+// GET PROFILE
+// ============================================================
 exports.getProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ User is already attached by authenticateToken middleware
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -77,9 +77,11 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+// ============================================================
 // PUT /api/residents/profile
 exports.updateProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -90,19 +92,19 @@ exports.updateProfile = async (req, res) => {
         const updates = [];
         const values = [];
 
-        if (firstName !== undefined) {
+        if (firstName !== undefined && firstName !== '') {
             updates.push('first_name = ?');
             values.push(firstName);
         }
-        if (lastName !== undefined) {
+        if (lastName !== undefined && lastName !== '') {
             updates.push('last_name = ?');
             values.push(lastName);
         }
         if (fullName !== undefined) {
             updates.push('full_name = ?');
-            values.push(fullName);
+            values.push(fullName || null);
         }
-        if (mobile !== undefined) {
+        if (mobile !== undefined && mobile !== '') {
             updates.push('mobile_no = ?');
             values.push(mobile);
         }
@@ -125,9 +127,59 @@ exports.updateProfile = async (req, res) => {
         
         const [result] = await db.query(query, values);
 
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        // ✅ If homeAddress was updated, sync to household table
+        if (homeAddress !== undefined) {
+            const [resident] = await db.query(
+                'SELECT household_number FROM resident WHERE r_nic = ?',
+                [user.id]
+            );
+            if (resident.length > 0 && resident[0].household_number) {
+                await db.query(
+                    'UPDATE household SET address = ? WHERE household_number = ?',
+                    [homeAddress || null, resident[0].household_number]
+                );
+            }
+        }
+
+        // Fetch updated profile
+        const [updatedRows] = await db.query(`
+            SELECT 
+                r.r_nic,
+                r.first_name,
+                r.last_name,
+                r.full_name,
+                r.date_of_birth,
+                r.gender,
+                r.mobile_no,
+                r.email,
+                r.occupation,
+                r.household_number,
+                r.division_id,
+                r.home_address,
+                r.profile_photo_path,
+                r.nic_front_path,
+                r.nic_back_path,
+                r.profile_photo_filename,
+                r.nic_front_filename,
+                r.nic_back_filename,
+                r.status,
+                r.email_verified,
+                r.nic_verified,
+                r.created_at,
+                d.name AS division_name
+            FROM resident r
+            JOIN gn_division d ON r.division_id = d.division_id
+            WHERE r.r_nic = ?
+        `, [user.id]);
+
         return res.json({ 
             success: true,
-            message: 'Profile updated successfully.' 
+            message: 'Profile updated successfully.',
+            data: updatedRows[0] || null
         });
     } catch (error) {
         console.error('Error updating profile:', error);
@@ -135,9 +187,11 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// GET /api/residents/dashboard-stats
+// ============================================================
+// GET DASHBOARD STATS
+// ============================================================
 exports.getDashboardStats = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -213,9 +267,11 @@ exports.getDashboardStats = async (req, res) => {
     }
 };
 
-// GET /api/residents/family
+// ============================================================
+// GET FAMILY MEMBERS
+// ============================================================
 exports.getFamilyMembers = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -251,9 +307,11 @@ exports.getFamilyMembers = async (req, res) => {
     }
 };
 
-// POST /api/residents/family
+// ============================================================
+// ADD FAMILY MEMBER
+// ============================================================
 exports.addFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -280,9 +338,11 @@ exports.addFamilyMember = async (req, res) => {
     }
 };
 
-// PUT /api/residents/family/:id
+// ============================================================
+// UPDATE FAMILY MEMBER
+// ============================================================
 exports.updateFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -308,9 +368,11 @@ exports.updateFamilyMember = async (req, res) => {
     }
 };
 
-// DELETE /api/residents/family/:id
+// ============================================================
+// DELETE FAMILY MEMBER
+// ============================================================
 exports.deleteFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -334,30 +396,43 @@ exports.deleteFamilyMember = async (req, res) => {
     }
 };
 
+// ============================================================
 // GET /api/residents/household
 exports.getHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
     try {
-        const [residentRows] = await db.query(
-            'SELECT household_number FROM resident WHERE r_nic = ?',
-            [user.id]
-        );
+        const [residentRows] = await db.query(`
+            SELECT 
+                r.household_number,
+                r.home_address,
+                r.first_name,
+                r.last_name,
+                r.full_name,
+                r.r_nic
+            FROM resident r
+            WHERE r.r_nic = ?
+        `, [user.id]);
+        
         if (residentRows.length === 0) {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
-        const householdNumber = residentRows[0].household_number;
+        const resident = residentRows[0];
+        const householdNumber = resident.household_number;
 
         const [rows] = await db.query(`
             SELECT 
                 h.household_number,
                 h.address,
                 h.total_members,
+                h.land_size,
+                h.land_owner,
                 h.created_at,
+                h.updated_at,
                 d.name AS division_name,
                 d.district,
                 d.province
@@ -370,25 +445,37 @@ exports.getHousehold = async (req, res) => {
             return res.status(404).json({ error: 'Household not found.' });
         }
 
-        return res.json(rows[0]);
+        // ✅ If household address is NULL or different from resident's address, update it
+        if (rows[0].address !== resident.home_address) {
+            await db.query(
+                'UPDATE household SET address = ? WHERE household_number = ?',
+                [resident.home_address, householdNumber]
+            );
+            rows[0].address = resident.home_address;
+        }
+
+        return res.json({
+            ...rows[0],
+            head_of_household: resident.full_name || `${resident.first_name} ${resident.last_name}`,
+            head_nic: resident.r_nic
+        });
     } catch (error) {
         console.error('Error fetching household:', error);
         return res.status(500).json({ error: 'Server error fetching household.' });
     }
 };
 
+
+
+// ============================================================
 // PUT /api/residents/household
 exports.updateHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
-    const { address } = req.body;
-
-    if (!address) {
-        return res.status(400).json({ error: 'Address is required.' });
-    }
+    const { address, land_size, land_owner } = req.body;
 
     try {
         const [residentRows] = await db.query(
@@ -401,25 +488,75 @@ exports.updateHousehold = async (req, res) => {
 
         const householdNumber = residentRows[0].household_number;
 
-        const [result] = await db.query(
-            'UPDATE household SET address = ? WHERE household_number = ?',
-            [address, householdNumber]
-        );
+        const updates = [];
+        const values = [];
+
+        // ✅ If address is updated, also update resident's home_address
+        if (address !== undefined) {
+            updates.push('address = ?');
+            values.push(address || null);
+            
+            // Also update resident's home_address
+            await db.query(
+                'UPDATE resident SET home_address = ? WHERE r_nic = ?',
+                [address || null, user.id]
+            );
+        }
+        if (land_size !== undefined) {
+            updates.push('land_size = ?');
+            values.push(land_size || null);
+        }
+        if (land_owner !== undefined) {
+            updates.push('land_owner = ?');
+            values.push(land_owner || null);
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update.' });
+        }
+
+        values.push(householdNumber);
+        const query = `UPDATE household SET ${updates.join(', ')} WHERE household_number = ?`;
+        
+        const [result] = await db.query(query, values);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Household not found.' });
         }
 
-        return res.json({ message: 'Household updated successfully.' });
+        // Fetch updated household
+        const [updatedRows] = await db.query(`
+            SELECT 
+                household_number,
+                address,
+                total_members,
+                land_size,
+                land_owner,
+                created_at
+            FROM household
+            WHERE household_number = ?
+        `, [householdNumber]);
+
+        return res.json({ 
+            success: true,
+            message: 'Household updated successfully.',
+            data: updatedRows[0]
+        });
     } catch (error) {
         console.error('Error updating household:', error);
         return res.status(500).json({ error: 'Server error updating household.' });
     }
 };
 
-// GET /api/residents/announcements
+// ============================================================
+// GET ANNOUNCEMENTS
+// ============================================================
 exports.getAnnouncements = async (req, res) => {
     const user = getUserFromToken(req);
+    const user = req.user;
+    if (!user) {
+        return res.status(401).json({ error: 'Authentication required.' });
+    }
 
     try {
         let divisionId = user?.divisionId || null;

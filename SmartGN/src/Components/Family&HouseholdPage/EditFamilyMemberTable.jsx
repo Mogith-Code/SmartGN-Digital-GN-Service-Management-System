@@ -1,18 +1,42 @@
-import React, { useState } from "react";
+// EditFamilyMemberTable.jsx
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
 import editIcon from "../../assets/edit_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import deleteIcon from "../../assets/delete_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
 import saveIcon from "../../assets/save_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_E7000B_FILL0_wght400_GRAD0_opsz24.svg";
 
-function EditFamilyMemberTable({ Editmembers = [] }) {
+// ✅ Relationship options based on database ENUM values
+const relationshipOptions = [
+  { value: "Head", label: "Head" },
+  { value: "Wife", label: "Wife" },
+  { value: "Son", label: "Son" },
+  { value: "Daughter", label: "Daughter" },
+  { value: "Mother", label: "Mother" },
+  { value: "Father", label: "Father" },
+  { value: "Sibling", label: "Sibling" },
+  { value: "Other", label: "Other" },
+];
+
+function EditFamilyMemberTable({
+  members = [],
+  onUpdateMember,
+  onDeleteMember,
+  onRefresh,
+}) {
   const { lang } = useLanguage();
+  const [loading, setLoading] = useState({});
 
   // State to track edit mode for each member
   const [editMode, setEditMode] = useState({});
 
   // State to store edited values
-  const [editedMembers, setEditedMembers] = useState(Editmembers);
+  const [editedMembers, setEditedMembers] = useState(members);
+
+  // Update edited members when props change
+  useEffect(() => {
+    setEditedMembers(members);
+  }, [members]);
 
   const EditFamilyMemberTableTranslations = {
     EN: {
@@ -21,6 +45,12 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
       age: "Age",
       occupation: "Occupation",
       relationship: "Relationship",
+      actions: "Actions",
+      noMembers: "No family members found.",
+      save: "Save",
+      cancel: "Cancel",
+      edit: "Edit",
+      delete: "Delete",
     },
     SI: {
       fullName: "සම්පූර්ණ නම",
@@ -28,19 +58,38 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
       age: "වයස",
       occupation: "රැකියාව",
       relationship: "ඥාති සම්බන්ධය",
+      actions: "ක්‍රියා",
+      noMembers: "පවුලේ සාමාජිකයින් නොමැත.",
+      save: "සුරකින්න",
+      cancel: "අවලංගු කරන්න",
+      edit: "සංස්කරණය",
+      delete: "මකන්න",
     },
     TA: {
-      fullName: "Full Name",
-      nic: "NIC",
-      age: "Age",
-      occupation: "Occupation",
-      relationship: "Relationship",
+      fullName: "முழு பெயர்",
+      nic: "தேசிய அடையாள அட்டை",
+      age: "வயது",
+      occupation: "தொழில்",
+      relationship: "உறவு",
+      actions: "செயல்கள்",
+      noMembers: "குடும்ப உறுப்பினர்கள் எதுவும் இல்லை.",
+      save: "சேமி",
+      cancel: "ரத்து செய்",
+      edit: "திருத்து",
+      delete: "நீக்கு",
     },
   };
 
   const t =
     EditFamilyMemberTableTranslations[lang] ||
     EditFamilyMemberTableTranslations.EN;
+
+  // ============================================================================
+  // GET MEMBER ID
+  // ============================================================================
+  const getMemberId = (member) => {
+    return member.member_id || member.id;
+  };
 
   // ============================================================================
   // HANDLE EDIT BUTTON CLICK
@@ -55,23 +104,50 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
   // ============================================================================
   // HANDLE SAVE BUTTON CLICK
   // ============================================================================
-  const handleSaveClick = (memberId) => {
-    setEditMode((prev) => ({
-      ...prev,
-      [memberId]: false,
-    }));
-    console.log("Saved member:", memberId);
+  const handleSaveClick = async (memberId) => {
+    const member = editedMembers.find((m) => getMemberId(m) === memberId);
+    if (!member) return;
+
+    setLoading((prev) => ({ ...prev, [memberId]: true }));
+
+    try {
+      const dataToUpdate = {
+        name: member.name || member.fullName,
+        age: member.age,
+        relationship: member.relationship,
+        nic: member.nic || null,
+        occupation: member.occupation || null,
+      };
+
+      await onUpdateMember(memberId, dataToUpdate);
+      setEditMode((prev) => ({
+        ...prev,
+        [memberId]: false,
+      }));
+    } catch (error) {
+      console.error("Error saving:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, [memberId]: false }));
+    }
   };
 
   // ============================================================================
   // HANDLE CANCEL BUTTON CLICK
   // ============================================================================
   const handleCancelClick = (memberId) => {
+    // Reset to original data
+    const originalMember = members.find((m) => getMemberId(m) === memberId);
+    if (originalMember) {
+      setEditedMembers((prev) =>
+        prev.map((m) =>
+          getMemberId(m) === memberId ? { ...originalMember } : m,
+        ),
+      );
+    }
     setEditMode((prev) => ({
       ...prev,
       [memberId]: false,
     }));
-    console.log("Cancelled editing for member:", memberId);
   };
 
   // ============================================================================
@@ -80,73 +156,88 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
   const handleInputChange = (memberId, field, value) => {
     setEditedMembers((prev) =>
       prev.map((member) =>
-        member.id === memberId ? { ...member, [field]: value } : member,
+        getMemberId(member) === memberId
+          ? { ...member, [field]: value }
+          : member,
       ),
     );
+  };
+
+  // ============================================================================
+  // HANDLE DELETE
+  // ============================================================================
+  const handleDeleteClick = (memberId) => {
+    onDeleteMember(memberId);
   };
 
   // ============================================================================
   // RENDER EDITABLE ROW
   // ============================================================================
   const renderEditableRow = (member) => {
+    const memberId = getMemberId(member);
+    const isLoading = loading[memberId];
+
     return (
-      <tr key={member.id}>
+      <tr key={memberId}>
         <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
-            value={member.fullName}
+            value={member.name || member.fullName || ""}
             onChange={(e) =>
-              handleInputChange(member.id, "fullName", e.target.value)
+              handleInputChange(memberId, "name", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded px-[px] py-[5px]"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
           />
         </td>
         <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
-            value={member.nic}
-            onChange={(e) =>
-              handleInputChange(member.id, "nic", e.target.value)
-            }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            value={member.nic || ""}
+            onChange={(e) => handleInputChange(memberId, "nic", e.target.value)}
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
           />
         </td>
         <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="number"
-            value={member.age}
-            onChange={(e) =>
-              handleInputChange(member.id, "age", e.target.value)
-            }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            value={member.age || ""}
+            onChange={(e) => handleInputChange(memberId, "age", e.target.value)}
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
           />
         </td>
         <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
           <input
             type="text"
-            value={member.occupation}
+            value={member.occupation || ""}
             onChange={(e) =>
-              handleInputChange(member.id, "occupation", e.target.value)
+              handleInputChange(memberId, "occupation", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
           />
         </td>
         <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
-          <input
-            type="text"
-            value={member.relationship}
+          <select
+            value={member.relationship || ""}
             onChange={(e) =>
-              handleInputChange(member.id, "relationship", e.target.value)
+              handleInputChange(memberId, "relationship", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] rounded"
-          />
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1 cursor-pointer"
+          >
+            <option value="">Select relationship</option>
+            {relationshipOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          <div className="flex gap-[20px] ml-[20px] items-center justify-center">
+          <div className="flex gap-[20px] items-center justify-center">
             {/* Save Button */}
             <button
-              className="cursor-pointer hover:scale-110 transition-transform"
-              onClick={() => handleSaveClick(member.id)}
+              className="cursor-pointer hover:scale-110 transition-transform disabled:opacity-50"
+              onClick={() => handleSaveClick(memberId)}
+              disabled={isLoading}
             >
               <img
                 src={saveIcon}
@@ -157,7 +248,7 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
             {/* Cancel Button */}
             <button
               className="cursor-pointer hover:scale-110 transition-transform"
-              onClick={() => handleCancelClick(member.id)}
+              onClick={() => handleCancelClick(memberId)}
             >
               <img
                 src={cancelIcon}
@@ -175,29 +266,31 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
   // RENDER VIEW ROW
   // ============================================================================
   const renderViewRow = (member) => {
+    const memberId = getMemberId(member);
+
     return (
-      <tr key={member.id}>
+      <tr key={memberId}>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          {member.fullName}
+          {member.name || member.fullName || "-"}
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          {member.nic}
+          {member.nic || "-"}
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          {member.age}
+          {member.age || "-"}
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          {member.occupation}
+          {member.occupation || "-"}
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          {member.relationship}
+          {member.relationship || "-"}
         </td>
         <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          <div className="flex gap-[20px] ml-[30px]items-center justify-center">
+          <div className="flex gap-[20px] items-center justify-center">
             {/* Edit Button */}
             <button
               className="cursor-pointer hover:scale-110 transition-transform"
-              onClick={() => handleEditClick(member.id)}
+              onClick={() => handleEditClick(memberId)}
             >
               <img
                 src={editIcon}
@@ -206,7 +299,10 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
               />
             </button>
             {/* Delete Button */}
-            <button className="cursor-pointer hover:scale-110 transition-transform">
+            <button
+              className="cursor-pointer hover:scale-110 transition-transform"
+              onClick={() => handleDeleteClick(memberId)}
+            >
               <img
                 src={deleteIcon}
                 alt="deleteIcon"
@@ -222,38 +318,47 @@ function EditFamilyMemberTable({ Editmembers = [] }) {
   // ============================================================================
   // COMPONENT RENDER
   // ============================================================================
-  return (
-    <div className="flex w-full gap-[30px]">
-      <div className="w-full overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
-                {t.fullName}
-              </th>
-              <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
-                {t.nic}
-              </th>
-              <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
-                {t.age}
-              </th>
-              <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
-                {t.occupation}
-              </th>
-              <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px]">
-                {t.relationship}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-center">
-            {editedMembers.map((member) =>
-              editMode[member.id]
-                ? renderEditableRow(member)
-                : renderViewRow(member),
-            )}
-          </tbody>
-        </table>
+  if (members.length === 0) {
+    return (
+      <div className="w-full text-center py-8 text-gray-500 border border-[#2D37484D] rounded-lg bg-[#F7FAFC]">
+        <p className="text-[16px]">{t.noMembers}</p>
       </div>
+    );
+  }
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+              {t.fullName}
+            </th>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+              {t.nic}
+            </th>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+              {t.age}
+            </th>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+              {t.occupation}
+            </th>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+              {t.relationship}
+            </th>
+            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-center">
+              {t.actions}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {editedMembers.map((member) =>
+            editMode[getMemberId(member)]
+              ? renderEditableRow(member)
+              : renderViewRow(member),
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
