@@ -22,6 +22,7 @@ function RHousehold({ onOpenHelp }) {
     landSize: "",
     landOwner: "",
     totalMembers: 0,
+    headOfHousehold: "",
   });
 
   // Get token from localStorage
@@ -81,10 +82,11 @@ function RHousehold({ onOpenHelp }) {
           const data = await response.json();
           setHouseholdDetails({
             houseNumber: data.household_number || "",
-            address: data.address || "",
+            address: data.address || "Not provided",
             landSize: data.land_size || "Not specified",
             landOwner: data.land_owner || "Not specified",
             totalMembers: data.total_members || 0,
+            headOfHousehold: data.head_of_household || "",
           });
         }
         setError("");
