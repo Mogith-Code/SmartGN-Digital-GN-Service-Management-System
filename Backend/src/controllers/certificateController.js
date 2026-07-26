@@ -378,4 +378,17 @@ exports.handleCertificateAction = async (req, res) => {
             } catch (notifErr) {
                 console.warn('Failed to insert notification:', notifErr.message);
             }
-            
+
+            return res.json({
+                message: `Certificate request ${cp.certificate_number} has been rejected.`,
+                status: 'REJECTED',
+                request_id: cp.request_id
+            });
+        } else {
+            return res.status(400).json({ error: 'Invalid action status. Must be APPROVED or REJECTED.' });
+        }
+    } catch (error) {
+        console.error('Error handling certificate action:', error);
+        return res.status(500).json({ error: 'Server error handling certificate action.' });
+    }
+};
