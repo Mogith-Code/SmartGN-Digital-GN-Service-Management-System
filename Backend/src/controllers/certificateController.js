@@ -146,15 +146,31 @@ exports.getOfficerCertificates = async (req, res) => {
     }
 
     try {
-        let gnId = null;
+        let gnId = user.id || null;
+        let divisionId = user.divisionId || null;
+
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
-            if (officer.length === 0) return res.status(404).json({ error: 'Officer profile not found.' });
-            gnId = officer[0].gn_id;
+            try {
+                const [officer] = await db.query(
+                    'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                    [user.id, user.email || user.id, user.id]
+                );
+                if (officer && officer.length > 0) {
+                    gnId = officer[0].gn_id || gnId;
+                    divisionId = officer[0].division_id || divisionId;
+                }
+            } catch (err) {
+                console.error('Error finding officer profile:', err);
+            }
         }
 
-        const filter = gnId ? 'AND cp.gn_id = ?' : '';
-        const params = gnId ? [gnId] : [];
+        const filterParams = [];
+        let filterSql = '';
+
+        if (gnId || divisionId) {
+            filterSql = 'AND (cp.gn_id = ? OR r.division_id = ? OR cp.gn_id IS NULL)';
+            filterParams.push(gnId, divisionId);
+        }
 
         const [pending] = await db.query(`
             SELECT cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
@@ -162,32 +178,34 @@ exports.getOfficerCertificates = async (req, res) => {
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
             FROM certificate_pending cp
-            JOIN resident r ON cp.resident_nic = r.r_nic
-            WHERE 1=1 ${filter}
+            LEFT JOIN resident r ON cp.resident_nic = r.r_nic
+            WHERE 1=1 ${filterSql}
             ORDER BY cp.requested_at DESC
-        `, params);
+        `, filterParams);
 
+        const filterApprovedSql = filterSql.replace(/cp\./g, 'ca.');
         const [approved] = await db.query(`
             SELECT ca.request_id, ca.certificate_number, ca.certificate_type, ca.purpose, ca.request_date,
                    'APPROVED' AS status, ca.gn_remarks, ca.issued_date, ca.expiry_date, ca.details, ca.approved_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
             FROM certificate_approved ca
-            JOIN resident r ON ca.resident_nic = r.r_nic
-            WHERE 1=1 ${filter.replace('cp.gn_id', 'ca.gn_id')}
+            LEFT JOIN resident r ON ca.resident_nic = r.r_nic
+            WHERE 1=1 ${filterApprovedSql}
             ORDER BY ca.approved_at DESC
-        `, params);
+        `, filterParams);
 
+        const filterRejectedSql = filterSql.replace(/cp\./g, 'cr.');
         const [rejected] = await db.query(`
             SELECT cr.request_id, cr.certificate_number, cr.certificate_type, cr.purpose, cr.request_date,
                    'REJECTED' AS status, cr.gn_remarks, cr.rejection_reason, cr.details, cr.rejected_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
             FROM certificate_rejected cr
-            JOIN resident r ON cr.resident_nic = r.r_nic
-            WHERE 1=1 ${filter.replace('cp.gn_id', 'cr.gn_id')}
+            LEFT JOIN resident r ON cr.resident_nic = r.r_nic
+            WHERE 1=1 ${filterRejectedSql}
             ORDER BY cr.rejected_at DESC
-        `, params);
+        `, filterParams);
 
         const results = [...pending, ...approved, ...rejected].map(item => ({
             ...item,
@@ -295,3 +313,82 @@ exports.handleCertificateAction = async (req, res) => {
         if (pending.length === 0) {
             return res.status(404).json({ error: 'Certificate request not found in pending queue.' });
         }
+
+        const cp = pending[0];
+        const now = new Date();
+        const remarksContent = remarks || gnRemarks || null;
+        const currentDetails = parseDetails(cp.details);
+        const updatedDetails = { ...currentDetails, ...otherData };
+
+        if (actionStatus === 'APPROVED' || actionStatus === 'ACCEPT' || actionStatus === 'ACCEPTED') {
+            const issueD = issuedDate || new Date().toISOString().split('T')[0];
+            // Expiry 6 months by default if not set
+            const expD = expiryDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            await db.query(`
+                INSERT INTO certificate_approved
+                (request_id, certificate_number, certificate_type, purpose, request_date,
+                 resident_nic, gn_id, approved_by, gn_remarks, details, approved_at, issued_date, expiry_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
+                cp.resident_nic, cp.gn_id, gnId, remarksContent, JSON.stringify(updatedDetails),
+                now, issueD, expD
+            ]);
+
+            await db.query('DELETE FROM certificate_pending WHERE request_id = ?', [cp.request_id]);
+
+            // Create notification for resident
+            try {
+                await db.query(`
+                    INSERT INTO notification (recipient_type, recipient_id, title, message, type)
+                    VALUES ('RESIDENT', ?, 'Certificate Approved', ?, 'SUCCESS')
+                `, [cp.resident_nic, `Your request for ${cp.certificate_type} certificate (${cp.certificate_number}) has been approved.`]);
+            } catch (notifErr) {
+                console.warn('Failed to insert notification:', notifErr.message);
+            }
+
+            return res.json({
+                message: `Certificate request ${cp.certificate_number} has been approved and issued successfully.`,
+                status: 'APPROVED',
+                request_id: cp.request_id
+            });
+        } else if (actionStatus === 'REJECTED') {
+            const reason = rejectionReason || 'Certificate application did not meet verification criteria.';
+
+            await db.query(`
+                INSERT INTO certificate_rejected
+                (request_id, certificate_number, certificate_type, purpose, request_date,
+                 resident_nic, gn_id, rejected_by, rejection_reason, gn_remarks, details, rejected_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, [
+                cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
+                cp.resident_nic, cp.gn_id, gnId, reason, remarksContent, JSON.stringify(updatedDetails),
+                now
+            ]);
+
+            await db.query('DELETE FROM certificate_pending WHERE request_id = ?', [cp.request_id]);
+
+            // Create notification for resident
+            try {
+                await db.query(`
+                    INSERT INTO notification (recipient_type, recipient_id, title, message, type)
+                    VALUES ('RESIDENT', ?, 'Certificate Rejected', ?, 'ERROR')
+                `, [cp.resident_nic, `Your request for ${cp.certificate_type} certificate (${cp.certificate_number}) was rejected: ${reason}`]);
+            } catch (notifErr) {
+                console.warn('Failed to insert notification:', notifErr.message);
+            }
+
+            return res.json({
+                message: `Certificate request ${cp.certificate_number} has been rejected.`,
+                status: 'REJECTED',
+                request_id: cp.request_id
+            });
+        } else {
+            return res.status(400).json({ error: 'Invalid action status. Must be APPROVED or REJECTED.' });
+        }
+    } catch (error) {
+        console.error('Error handling certificate action:', error);
+        return res.status(500).json({ error: 'Server error handling certificate action.' });
+    }
+};
