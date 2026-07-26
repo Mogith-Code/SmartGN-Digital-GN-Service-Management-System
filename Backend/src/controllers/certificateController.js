@@ -366,3 +366,16 @@ exports.handleCertificateAction = async (req, res) => {
                 cp.resident_nic, cp.gn_id, gnId, reason, remarksContent, JSON.stringify(updatedDetails),
                 now
             ]);
+
+            await db.query('DELETE FROM certificate_pending WHERE request_id = ?', [cp.request_id]);
+
+            // Create notification for resident
+            try {
+                await db.query(`
+                    INSERT INTO notification (recipient_type, recipient_id, title, message, type)
+                    VALUES ('RESIDENT', ?, 'Certificate Rejected', ?, 'ERROR')
+                `, [cp.resident_nic, `Your request for ${cp.certificate_type} certificate (${cp.certificate_number}) was rejected: ${reason}`]);
+            } catch (notifErr) {
+                console.warn('Failed to insert notification:', notifErr.message);
+            }
+            
