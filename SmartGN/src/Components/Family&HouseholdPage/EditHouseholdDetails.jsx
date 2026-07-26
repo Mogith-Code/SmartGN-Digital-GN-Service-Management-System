@@ -1,7 +1,8 @@
+// EditHouseholdDetails.jsx
 import React from "react";
 import AfterlogNavbar from "../Common/AfterlogNavbar";
 import RSidebar from "../Common/RSidebar";
-import EditHouseHoldDetailsLayout from "./EditHouseHoldDetailsLayout";
+import EditHouseholdDetailsLayout from "./EditHouseholdDetailsLayout";
 
 function EditHouseholdDetails() {
   return (
@@ -14,7 +15,7 @@ function EditHouseholdDetails() {
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          <EditHouseHoldDetailsLayout />
+          <EditHouseholdDetailsLayout />
         </div>
       </div>
     </div>

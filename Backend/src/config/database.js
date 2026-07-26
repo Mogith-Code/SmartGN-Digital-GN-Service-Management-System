@@ -30,26 +30,28 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-    // 2. HOUSEHOLD TABLE
-    // ============================================================
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS household (
-        household_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-        household_number VARCHAR(50) UNIQUE NOT NULL,
-        address TEXT NOT NULL,
-        division_id VARCHAR(36) NOT NULL,
-        head_of_household_nic VARCHAR(12) COMMENT 'Resident NIC',
-        total_members INT DEFAULT 1,
-        is_active BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE CASCADE,
-        INDEX idx_household_number (household_number),
-        INDEX idx_division (division_id),
-        INDEX idx_is_active (is_active)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+// 2. HOUSEHOLD TABLE (UPDATED - Added address back)
+// ============================================================
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS household (
+    household_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    household_number VARCHAR(50) UNIQUE NOT NULL,
+    address TEXT NULL COMMENT 'Household address (synced with resident)',
+    division_id VARCHAR(36) NOT NULL,
+    head_of_household_nic VARCHAR(12) COMMENT 'Resident NIC',
+    total_members INT DEFAULT 1,
+    land_size VARCHAR(50) COMMENT 'Size of the land (e.g., 10 perches, 20 acres)',
+    land_owner VARCHAR(255) COMMENT 'Name of the land owner',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE CASCADE,
+    INDEX idx_household_number (household_number),
+    INDEX idx_division (division_id),
+    INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
     // ============================================================
     // 3. RESIDENT TABLE (With division_id)
@@ -121,7 +123,7 @@ async function setupTables(dbPool) {
         member_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
         name VARCHAR(100) NOT NULL,
         age INT NOT NULL CHECK (age >= 0 AND age <= 150),
-        relationship ENUM('Head', 'Spouse', 'Son', 'Daughter', 'Mother', 'Father', 'Sibling', 'Other') NOT NULL,
+        relationship ENUM('Head', 'Wife', 'Son', 'Daughter', 'Mother', 'Father', 'Sibling', 'Other') NOT NULL,
         nic VARCHAR(12) UNIQUE COMMENT 'NIC if available',
         gender ENUM('Male', 'Female', 'Other'),
         date_of_birth DATE,
