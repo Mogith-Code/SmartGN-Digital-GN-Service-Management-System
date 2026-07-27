@@ -129,6 +129,20 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       submittedDate: new Date().toISOString().split("T")[0],
       request_date: new Date().toISOString(),
       purpose: purpose,
+
+      // Custom template fields
+      divisionalSecretariat,
+      gnDivisionNumber,
+      sex,
+      age,
+      civilStatus,
+      nationality,
+      religion,
+      occupation,
+      villagePeriod,
+      electoralRegister,
+      fatherName,
+      fatherAddress,
   };
 
   return (
