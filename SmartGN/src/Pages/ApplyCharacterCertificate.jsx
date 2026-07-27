@@ -172,6 +172,14 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       JSON.stringify(offRequests),
     );
 
+    // Attempt backend API submission
+    try {
+      const token = localStorage.getItem("smartgn_token");
+      const headers = {
+        Authorization: token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json",
+      };
+
   };
 
   return (
