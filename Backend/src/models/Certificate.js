@@ -19,6 +19,12 @@ module.exports = {
         [divId]
       );
 
+      return officerRows.length > 0 ? officerRows[0].gn_id : null;
+    } catch (err) {
+      console.error('Error finding officer for resident:', err);
+      return null;
+    }
+  },
 
   async createPendingRequest(data) {
     const { certificateNumber, certificateType, purpose, requestDate, residentNic, gnId, details } = data;
