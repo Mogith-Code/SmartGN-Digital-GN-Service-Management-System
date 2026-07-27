@@ -116,6 +116,19 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
     const newRequest = {
       id: newRequestId,
       request_id: newRequestId,
+      type: "Character Certificate",
+      certificate_type: "CHARACTER",
+      status: "Pending",
+      name: fullName,
+      resident_name: fullName,
+      nic: nicNumber,
+      resident_nic: nicNumber,
+      address: address,
+      resident_address: address,
+      division: userDivision,
+      submittedDate: new Date().toISOString().split("T")[0],
+      request_date: new Date().toISOString(),
+      purpose: purpose,
   };
 
   return (
