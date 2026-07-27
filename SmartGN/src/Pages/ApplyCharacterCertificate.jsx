@@ -227,6 +227,18 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       console.warn("API submission warning:", err.message);
     }
 
+    // Navigate to validation success page
+    navigate("/ResidentDashboard/certificates/success", {
+      state: {
+        requestNumber: newRequest.request_id || newRequestId,
+        certificateType: "Character Certificate",
+        applicantName: fullName,
+        division: userDivision,
+        purpose: purpose,
+        submittedDate: new Date().toLocaleDateString(),
+      },
+    });
+
   };
 
   return (
