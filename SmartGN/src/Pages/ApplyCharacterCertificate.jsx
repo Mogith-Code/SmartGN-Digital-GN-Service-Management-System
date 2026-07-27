@@ -143,6 +143,17 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       electoralRegister,
       fatherName,
       fatherAddress,
+      personalKnown,
+      personalKnownSince,
+      gnPeriod,
+      natureOfOtherEvidences,
+      convictedByCourt,
+      convictedDetails,
+      publicActivitiesInterest,
+      publicActivitiesDetails,
+      character,
+      remarks,
+    };
   };
 
   return (
