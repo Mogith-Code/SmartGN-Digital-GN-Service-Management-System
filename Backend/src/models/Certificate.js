@@ -10,6 +10,15 @@ module.exports = {
         WHERE r.r_nic = ? OR r.email = ?
       `, [residentNic, residentNic]);
 
+      if (residentRows.length === 0) return null;
+      const divId = residentRows[0].division_id || residentRows[0].h_division_id;
+      if (!divId) return null;
+
+      const [officerRows] = await db.query(
+        'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND status = "Active" LIMIT 1',
+        [divId]
+      );
+
 
   async createPendingRequest(data) {
     const { certificateNumber, certificateType, purpose, requestDate, residentNic, gnId, details } = data;
