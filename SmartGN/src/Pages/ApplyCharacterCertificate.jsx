@@ -154,6 +154,24 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       character,
       remarks,
     };
+
+    // ALWAYS add to resident certificates store
+    const resCerts = JSON.parse(
+      localStorage.getItem("smartgn_certificates") || "[]",
+    );
+    resCerts.unshift(newRequest);
+    localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
+
+    // ALWAYS add to officer certificates store
+    const offRequests = JSON.parse(
+      localStorage.getItem("smartgn_certificate_requests") || "[]",
+    );
+    offRequests.unshift(newRequest);
+    localStorage.setItem(
+      "smartgn_certificate_requests",
+      JSON.stringify(offRequests),
+    );
+
   };
 
   return (
