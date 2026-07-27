@@ -216,6 +216,17 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         }),
       });
 
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.certificateNumber || resData.request_id) {
+          newRequest.id = resData.request_id || resData.certificateNumber;
+          newRequest.request_id = resData.request_id || resData.certificateNumber;
+        }
+      }
+    } catch (err) {
+      console.warn("API submission warning:", err.message);
+    }
+
   };
 
   return (
