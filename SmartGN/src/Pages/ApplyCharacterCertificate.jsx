@@ -180,6 +180,42 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         "Content-Type": "application/json",
       };
 
+      const response = await fetch("/api/certificates/apply", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          certificateType: "CHARACTER",
+          purpose: purpose,
+          requestDate: new Date().toISOString().split("T")[0],
+          supportingDocs: [],
+          divisionalSecretariat,
+          gnDivisionNumber,
+          fullName,
+          age,
+          address,
+          sex,
+          civilStatus,
+          nationality,
+          religion,
+          occupation,
+          villagePeriod,
+          nicNumber,
+          electoralRegister,
+          fatherName,
+          fatherAddress,
+          personalKnown,
+          personalKnownSince,
+          gnPeriod,
+          natureOfOtherEvidences,
+          convictedByCourt,
+          convictedDetails,
+          publicActivitiesInterest,
+          publicActivitiesDetails,
+          character,
+          remarks,
+        }),
+      });
+
   };
 
   return (
