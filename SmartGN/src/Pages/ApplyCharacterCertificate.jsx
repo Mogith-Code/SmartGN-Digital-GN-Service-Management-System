@@ -112,12 +112,74 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
 
     setErrorMessage("");
 
+    const newRequestId = `REQ-CC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newRequest = {
+      id: newRequestId,
+      request_id: newRequestId,
+      type: "Character Certificate",
+      certificate_type: "CHARACTER",
+      status: "Pending",
+      name: fullName,
+      resident_name: fullName,
+      nic: nicNumber,
+      resident_nic: nicNumber,
+      address: address,
+      resident_address: address,
+      division: userDivision,
+      submittedDate: new Date().toISOString().split("T")[0],
+      request_date: new Date().toISOString(),
+      purpose: purpose,
+
+      // Custom template fields
+      divisionalSecretariat,
+      gnDivisionNumber,
+      sex,
+      age,
+      civilStatus,
+      nationality,
+      religion,
+      occupation,
+      villagePeriod,
+      electoralRegister,
+      fatherName,
+      fatherAddress,
+      personalKnown,
+      personalKnownSince,
+      gnPeriod,
+      natureOfOtherEvidences,
+      convictedByCourt,
+      convictedDetails,
+      publicActivitiesInterest,
+      publicActivitiesDetails,
+      character,
+      remarks,
+    };
+
+    // ALWAYS add to resident certificates store
+    const resCerts = JSON.parse(
+      localStorage.getItem("smartgn_certificates") || "[]",
+    );
+    resCerts.unshift(newRequest);
+    localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
+
+    // ALWAYS add to officer certificates store
+    const offRequests = JSON.parse(
+      localStorage.getItem("smartgn_certificate_requests") || "[]",
+    );
+    offRequests.unshift(newRequest);
+    localStorage.setItem(
+      "smartgn_certificate_requests",
+      JSON.stringify(offRequests),
+    );
+
+    // Attempt backend API submission
     try {
       const token = localStorage.getItem("smartgn_token");
       const headers = {
         Authorization: token ? `Bearer ${token}` : "",
         "Content-Type": "application/json",
       };
+
       const response = await fetch("/api/certificates/apply", {
         method: "POST",
         headers,
@@ -154,87 +216,29 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(
-          data.error || "Failed to submit certificate application",
-        );
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.certificateNumber || resData.request_id) {
+          newRequest.id = resData.request_id || resData.certificateNumber;
+          newRequest.request_id = resData.request_id || resData.certificateNumber;
+        }
       }
-
-      alert("Character certificate application submitted successfully!");
-      navigate("/dashboard/resident/certificates", {
-        state: { successUser, division: userDivision },
-      });
     } catch (err) {
-      console.warn("API error, using Local Storage fallback:", err.message);
-
-      const newRequestId = `REQ-CC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const newRequest = {
-        id: newRequestId,
-        request_id: newRequestId,
-        type: "Character Certificate",
-        certificate_type: "CHARACTER",
-        status: "Pending",
-        name: fullName,
-        resident_name: fullName,
-        nic: nicNumber,
-        resident_nic: nicNumber,
-        address: address,
-        resident_address: address,
-        division: userDivision,
-        submittedDate: new Date().toISOString().split("T")[0],
-        request_date: new Date().toISOString(),
-        purpose: purpose,
-
-        // Custom template fields
-        divisionalSecretariat,
-        gnDivisionNumber,
-        sex,
-        age,
-        civilStatus,
-        nationality,
-        religion,
-        occupation,
-        villagePeriod,
-        electoralRegister,
-        fatherName,
-        fatherAddress,
-        personalKnown,
-        personalKnownSince,
-        gnPeriod,
-        natureOfOtherEvidences,
-        convictedByCourt,
-        convictedDetails,
-        publicActivitiesInterest,
-        publicActivitiesDetails,
-        character,
-        remarks,
-      };
-
-      // Add to resident certificates store
-      const resCerts = JSON.parse(
-        localStorage.getItem("smartgn_certificates") || "[]",
-      );
-      resCerts.unshift(newRequest);
-      localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
-
-      // Add to officer certificates store
-      const offRequests = JSON.parse(
-        localStorage.getItem("smartgn_certificate_requests") || "[]",
-      );
-      offRequests.unshift(newRequest);
-      localStorage.setItem(
-        "smartgn_certificate_requests",
-        JSON.stringify(offRequests),
-      );
-
-      alert(
-        "Character certificate application submitted successfully! (Stored in Local Storage)",
-      );
-      navigate("/dashboard/resident/certificates", {
-        state: { successUser, division: userDivision },
-      });
+      console.warn("API submission warning:", err.message);
     }
+
+    // Navigate to validation success page
+    navigate("/ResidentDashboard/certificates/success", {
+      state: {
+        requestNumber: newRequest.request_id || newRequestId,
+        certificateType: "Character Certificate",
+        applicantName: fullName,
+        division: userDivision,
+        purpose: purpose,
+        submittedDate: new Date().toLocaleDateString(),
+      },
+    });
+
   };
 
   return (
