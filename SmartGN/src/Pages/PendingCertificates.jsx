@@ -81,11 +81,22 @@ function PendingCertificates({ onOpenHelp }) {
       const response = await fetch("/api/certificates/resident", { headers });
       if (!response.ok) throw new Error("API failed");
       const data = await response.json();
-      const pending = data.filter(
+      const localData = JSON.parse(
+        localStorage.getItem("smartgn_certificates") || "[]",
+      );
+      const apiPending = data.filter(
         (c) => c.status === "PENDING" || c.status === "Pending",
       );
+      const apiIds = new Set(apiPending.map((c) => String(c.id || c.request_id)));
+      const extraLocalPending = localData.filter(
+        (c) =>
+          (c.status === "PENDING" || c.status === "Pending") &&
+          !apiIds.has(String(c.id || c.request_id)),
+      );
+      const combinedPending = [...apiPending, ...extraLocalPending];
+
       setPendingList(
-        pending.map((c, index) => ({
+        combinedPending.map((c, index) => ({
           id: c.id || c.request_id,
           type:
             c.type ||
