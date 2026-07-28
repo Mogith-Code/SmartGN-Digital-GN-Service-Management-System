@@ -119,3 +119,11 @@ function CertificateSuccess({ onOpenHelp }) {
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white animate-ping"></div>
             </div>
+
+            {/* Title & Subtitle */}
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#1B365D] mb-2 tracking-tight">
+              {t.title}
+            </h2>
+            <p className="text-[15px] text-[#475569] max-w-[540px] leading-relaxed mb-6">
+              {t.subtitle}
+            </p>
