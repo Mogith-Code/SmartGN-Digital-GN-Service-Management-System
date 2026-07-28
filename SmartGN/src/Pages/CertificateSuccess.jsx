@@ -88,3 +88,29 @@ function CertificateSuccess({ onOpenHelp }) {
   const division = stateData.division || localStorage.getItem("smartgn_user_division") || "Grama Niladhari Division";
   const purpose = stateData.purpose || "Official Certificate Request";
   const submittedDate = stateData.submittedDate || new Date().toLocaleDateString();
+
+  return (
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+      {/* Top Navbar */}
+      <AfterlogNavbar />
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        {/* Sidebar */}
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+
+        {/* Main Content Area */}
+        <main className="flex-1 p-4 sm:p-6 md:p-10 bg-[#F7FAFC] flex flex-col items-center justify-center">
+          <div className="w-full max-w-[700px] bg-white rounded-[24px] border border-[#2D37482D] shadow-[0_15px_45px_rgba(0,0,0,0.06)] p-6 sm:p-8 md:p-10 flex flex-col items-center text-center my-6">
+            
+            {/* Animated Validation Badge */}
+            <div className="mb-6 relative">
+              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,0.18)]">
+                <svg
+                  className="w-10 h-10 text-emerald-500"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  viewBox="0 0 24 24"
+                >
