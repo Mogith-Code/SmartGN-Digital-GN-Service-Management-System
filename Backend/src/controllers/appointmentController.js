@@ -1,3 +1,4 @@
+// Backend/src/controllers/appointmentController.js
 const db = require('../config/database');
 const jwt = require('jsonwebtoken');
 
@@ -10,10 +11,20 @@ const getUserFromToken = (req) => {
     try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
 };
 
+// Generate appointment number e.g. APT-20260718-123
+const generateAppointmentNumber = () => {
+    const date = new Date();
+    const dateStr = date.getFullYear() +
+        String(date.getMonth() + 1).padStart(2, '0') +
+        String(date.getDate()).padStart(2, '0');
+    const rand = Math.floor(100 + Math.random() * 900);
+    return `APT-${dateStr}-${rand}`;
+};
+
+// ============================================================
 // GET APPOINTMENT COUNTS (Pending & Approved only)
 // ============================================================
 exports.getAppointmentCounts = async (req, res) => {
-    // Check if user is authenticated and is a resident
     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
@@ -22,19 +33,16 @@ exports.getAppointmentCounts = async (req, res) => {
     const nic = user.id;
 
     try {
-        // Get count of pending appointments
         const [pendingResult] = await db.query(
             'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?',
             [nic]
         );
 
-        // Get count of approved appointments
         const [approvedResult] = await db.query(
             'SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?',
             [nic]
         );
 
-        // Return the counts
         return res.json({
             pending: pendingResult[0]?.count || 0,
             approved: approvedResult[0]?.count || 0
@@ -46,6 +54,84 @@ exports.getAppointmentCounts = async (req, res) => {
     }
 };
 
+// ============================================================
+// GET ALL RESIDENT APPOINTMENTS (For Calendar & Display)
+// ============================================================
+exports.getAllResidentAppointments = async (req, res) => {
+    const user = getUserFromToken(req);
+    console.log("Decoded user:", user); // ✅ Add this for debugging
+    
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied. Residents only.' });
+    }
+
+    const nic = user.id;
+    console.log("Fetching appointments for NIC:", nic); // ✅ Add this
+
+    try {
+        // Get pending appointments
+        const [pending] = await db.query(`
+            SELECT 
+                appointment_id, 
+                appointment_number, 
+                date, 
+                time, 
+                purpose,
+                contact_number,
+                'Pending' AS status, 
+                created_at AS requested_at
+            FROM appointment_pending 
+            WHERE resident_nic = ?
+            ORDER BY date ASC, time ASC
+        `, [nic]);
+        console.log("Pending appointments found:", pending.length); // ✅ Add this
+
+        // Get approved appointments
+        const [approved] = await db.query(`
+            SELECT 
+                appointment_id, 
+                appointment_number, 
+                date, 
+                time, 
+                purpose,
+                contact_number,
+                'Approved' AS status, 
+                requested_at,
+                approved_at
+            FROM appointment_approved 
+            WHERE resident_nic = ?
+            ORDER BY date ASC, time ASC
+        `, [nic]);
+        console.log("Approved appointments found:", approved.length); // ✅ Add this
+
+        // Combine all appointments
+        const allAppointments = [...pending, ...approved];
+
+        return res.json({
+            success: true,
+            appointments: allAppointments,
+            counts: {
+                pending: pending.length,
+                approved: approved.length,
+                total: allAppointments.length
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching all appointments:', error);
+        console.error('Error details:', error.message); // ✅ Add this
+        console.error('SQL Error:', error.sql); // ✅ Add this if it exists
+        console.error('SQL Message:', error.sqlMessage); // ✅ Add this if it exists
+        
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching appointments.',
+            details: error.message // ✅ Include error details for debugging
+        });
+    }
+};
+
+// ============================================================
 // BOOK APPOINTMENT (Resident)
 // ============================================================
 exports.bookAppointment = async (req, res) => {
@@ -57,7 +143,6 @@ exports.bookAppointment = async (req, res) => {
     const residentNic = user.id;
     const { purpose, date, time, contactNumber } = req.body;
 
-    // Validate required fields
     if (!purpose || !date || !time || !contactNumber) {
         return res.status(400).json({ 
             error: 'All fields are required: purpose, date, time, and contactNumber.' 
@@ -65,7 +150,6 @@ exports.bookAppointment = async (req, res) => {
     }
 
     try {
-        // 1. Get resident's division ID from their household
         const [residentRows] = await db.query(`
             SELECT h.division_id
             FROM resident r
@@ -79,7 +163,6 @@ exports.bookAppointment = async (req, res) => {
 
         const divisionId = residentRows[0].division_id;
 
-        // 2. Find active GN officer for this division
         const [officerRows] = await db.query(`
             SELECT gn_id 
             FROM grama_niladhari 
@@ -89,17 +172,14 @@ exports.bookAppointment = async (req, res) => {
 
         if (officerRows.length === 0) {
             return res.status(404).json({ 
-                error: 'No active GN Officer found for your division. Please contact your GN office.' 
+                error: 'No active GN Officer found for your division.' 
             });
         }
 
         const gnId = officerRows[0].gn_id;
-
-        // 3. Generate unique appointment number
         const appointmentNumber = generateAppointmentNumber();
 
-        // 4. Insert into appointment_pending table with contact_number
-        const [result] = await db.query(`
+        await db.query(`
             INSERT INTO appointment_pending (
                 appointment_number,
                 date,
@@ -114,12 +194,11 @@ exports.bookAppointment = async (req, res) => {
             date,
             time,
             purpose,
-            contactNumber,  // ✅ Added contact_number
+            contactNumber,
             residentNic,
             gnId
         ]);
 
-        // 5. Return success response
         return res.status(201).json({
             success: true,
             message: 'Appointment booked successfully! Awaiting officer confirmation.',
@@ -135,13 +214,6 @@ exports.bookAppointment = async (req, res) => {
 
     } catch (error) {
         console.error('Error booking appointment:', error);
-        
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ 
-                error: 'An appointment with this number already exists. Please try again.' 
-            });
-        }
-
         return res.status(500).json({ 
             error: 'Server error booking appointment. Please try again later.' 
         });

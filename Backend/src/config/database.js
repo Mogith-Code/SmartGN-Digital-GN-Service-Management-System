@@ -245,6 +245,7 @@ CREATE TABLE IF NOT EXISTS appointment_approved (
     date DATE NOT NULL,
     time TIME NOT NULL,
     purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
     resident_nic VARCHAR(12) NOT NULL,
     gn_id VARCHAR(36) NOT NULL,
     approved_by VARCHAR(36) NOT NULL,
