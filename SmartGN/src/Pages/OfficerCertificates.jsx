@@ -82,10 +82,17 @@ function OfficerCertificates({ onOpenHelp }) {
         nic: item.resident_nic,
         address: item.resident_address || "",
       }));
-      setCerts(formatted);
+      const savedLocal = JSON.parse(
+        localStorage.getItem("smartgn_certificate_requests") || "[]",
+      );
+      const apiIds = new Set(formatted.map((c) => String(c.id)));
+      const extraLocal = savedLocal.filter((c) => !apiIds.has(String(c.id)));
+      const merged = [...formatted, ...extraLocal];
+
+      setCerts(merged);
       localStorage.setItem(
         "smartgn_certificate_requests",
-        JSON.stringify(formatted),
+        JSON.stringify(merged),
       );
     } catch (err) {
       console.error("API failed, loading mock certificates:", err);
