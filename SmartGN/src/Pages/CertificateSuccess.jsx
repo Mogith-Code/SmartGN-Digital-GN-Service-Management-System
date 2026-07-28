@@ -127,3 +127,17 @@ function CertificateSuccess({ onOpenHelp }) {
             <p className="text-[15px] text-[#475569] max-w-[540px] leading-relaxed mb-6">
               {t.subtitle}
             </p>
+
+            </div>
+          </main>
+          </div>
+          </div>
+
+          );
+}
+
+export default CertificateSuccess;
+        
+
+        
+
