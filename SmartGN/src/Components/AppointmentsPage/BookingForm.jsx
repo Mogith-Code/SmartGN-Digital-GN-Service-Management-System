@@ -158,6 +158,39 @@ function BookingForm({ onOpenHelp }) {
   const token = localStorage.getItem("smartgn_token");
 
   // ============================================================================
+  // CONVERT TIME TO 24-HOUR FORMAT
+  // ============================================================================
+  const convertTo24Hour = (timeStr) => {
+    if (!timeStr) return "09:00:00";
+
+    // Trim whitespace
+    timeStr = timeStr.trim();
+
+    // If already in 24-hour format (HH:MM), return with seconds
+    if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
+      const [hours, minutes] = timeStr.split(":");
+      return `${hours.padStart(2, "0")}:${minutes}:00`;
+    }
+
+    // Convert from 12-hour format (e.g., "2:30 PM")
+    const parts = timeStr.split(" ");
+    if (parts.length !== 2) return "09:00:00"; // Default if format is wrong
+
+    const [time, period] = parts;
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (isNaN(hours) || isNaN(minutes)) return "09:00:00";
+
+    if (period.toUpperCase() === "PM" && hours !== 12) {
+      hours += 12;
+    } else if (period.toUpperCase() === "AM" && hours === 12) {
+      hours = 0;
+    }
+
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+  };
+
+  // ============================================================================
   // GENERATE AVAILABLE DATES (Today to End of Current Month)
   // ============================================================================
   useEffect(() => {
@@ -275,13 +308,18 @@ function BookingForm({ onOpenHelp }) {
     // Format date as YYYY-MM-DD
     const formattedDate = `${selectedDateObj.year}-${String(selectedDateObj.month + 1).padStart(2, "0")}-${String(selectedDateObj.day).padStart(2, "0")}`;
 
+    // ✅ Convert time to 24-hour format
+    const formattedTime = convertTo24Hour(bookTime);
+
     // Prepare form data
     const formData = {
       purpose: purpose.trim(),
       date: formattedDate,
-      time: bookTime,
+      time: formattedTime,
       contactNumber: contactNumber.trim(),
     };
+
+    console.log("Submitting form data:", formData);
 
     try {
       setIsSubmitting(true);
@@ -309,7 +347,6 @@ function BookingForm({ onOpenHelp }) {
       // Reset form after successful booking
       setTimeout(() => {
         handleReset();
-        // Navigate back to appointments page after 2 seconds
         navigate("/ResidentDashboard/RAppointment");
       }, 2500);
     } catch (error) {
