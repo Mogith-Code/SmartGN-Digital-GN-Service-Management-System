@@ -79,3 +79,12 @@ function CertificateSuccess({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
   const t = certificateSuccessTranslations[lang] || certificateSuccessTranslations.EN;
+
+  // Retrieve details passed from application form
+  const stateData = location.state || {};
+  const requestNumber = stateData.requestNumber || `CERT-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const certificateType = stateData.certificateType || t.defaultCertType;
+  const applicantName = stateData.applicantName || localStorage.getItem("smartgn_user_name") || t.defaultUser;
+  const division = stateData.division || localStorage.getItem("smartgn_user_division") || "Grama Niladhari Division";
+  const purpose = stateData.purpose || "Official Certificate Request";
+  const submittedDate = stateData.submittedDate || new Date().toLocaleDateString();
