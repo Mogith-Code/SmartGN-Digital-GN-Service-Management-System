@@ -219,3 +219,46 @@ exports.bookAppointment = async (req, res) => {
         });
     }
 };
+
+// CANCEL APPOINTMENT (Resident)
+// ============================================================
+exports.cancelAppointment = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied. Residents only.' });
+    }
+
+    const { id } = req.params;
+    const nic = user.id;
+
+    try {
+        // Check if appointment exists and belongs to this resident
+        const [pending] = await db.query(
+            'SELECT * FROM appointment_pending WHERE appointment_id = ? AND resident_nic = ?',
+            [id, nic]
+        );
+
+        if (pending.length === 0) {
+            return res.status(404).json({ 
+                error: 'Appointment not found or already processed.' 
+            });
+        }
+
+        // Delete the appointment
+        await db.query(
+            'DELETE FROM appointment_pending WHERE appointment_id = ?',
+            [id]
+        );
+
+        return res.json({
+            success: true,
+            message: 'Appointment cancelled successfully.'
+        });
+
+    } catch (error) {
+        console.error('Error cancelling appointment:', error);
+        return res.status(500).json({ 
+            error: 'Server error cancelling appointment.' 
+        });
+    }
+};
