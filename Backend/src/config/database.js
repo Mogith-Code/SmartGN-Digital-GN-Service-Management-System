@@ -216,14 +216,15 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
     // 7. APPOINTMENT TABLES (Separated)
     // ============================================================
     
-    // 7a. PENDING APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_pending (
+// 7a. PENDING APPOINTMENTS
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS appointment_pending (
     appointment_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     appointment_number VARCHAR(20) UNIQUE NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
     purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
     resident_nic VARCHAR(12) NOT NULL,
     gn_id VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -234,7 +235,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
     INDEX idx_gn (gn_id),
     INDEX idx_date (date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-  `);
+`);
 
     // 7b. APPROVED APPOINTMENTS
     await dbPool.query(`
