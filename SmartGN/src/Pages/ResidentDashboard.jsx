@@ -74,9 +74,13 @@ function ResidentDashboard({ onOpenHelp }) {
             return;
           }
           console.warn("Resident profile API non-OK status:", response.status);
-          const cachedName = localStorage.getItem("smartgn_user_name") || "Resident";
-          const cachedDivision = localStorage.getItem("smartgn_user_division") || "Assigned Division";
-          const cachedNic = localStorage.getItem("smartgn_user_nic") || residentNic || "";
+          const cachedName =
+            localStorage.getItem("smartgn_user_name") || "Resident";
+          const cachedDivision =
+            localStorage.getItem("smartgn_user_division") ||
+            "Assigned Division";
+          const cachedNic =
+            localStorage.getItem("smartgn_user_nic") || residentNic || "";
           setProfile((prev) => ({
             ...prev,
             fullName: cachedName,
