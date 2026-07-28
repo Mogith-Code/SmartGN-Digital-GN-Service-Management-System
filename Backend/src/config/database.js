@@ -216,100 +216,74 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
     // 7. APPOINTMENT TABLES (Separated)
     // ============================================================
     
-    // 7a. PENDING APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_pending (
-        appointment_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_date (date)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+// 7a. PENDING APPOINTMENTS
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS appointment_pending (
+    appointment_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    appointment_number VARCHAR(20) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_gn (gn_id),
+    INDEX idx_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`);
 
     // 7b. APPROVED APPOINTMENTS
     await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_approved (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        approved_by VARCHAR(36) NOT NULL,
-        approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        confirmed_at DATETIME DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_date (date),
-        INDEX idx_approved_at (approved_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+CREATE TABLE IF NOT EXISTS appointment_approved (
+    appointment_id VARCHAR(36) PRIMARY KEY,
+    appointment_number VARCHAR(20) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(36) NOT NULL,
+    approved_by VARCHAR(36) NOT NULL,
+    requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
+    approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when approved',
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_gn (gn_id),
+    INDEX idx_date (date),
+    INDEX idx_approved_at (approved_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
 
     // 7c. REJECTED APPOINTMENTS
     await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_rejected (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        rejected_by VARCHAR(36) NOT NULL,
-        rejection_reason TEXT,
-        rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_rejected_at (rejected_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
-
-    // 7d. COMPLETED APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_completed (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        feedback TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_completed_at (completed_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+CREATE TABLE IF NOT EXISTS appointment_rejected (
+    appointment_id VARCHAR(36) PRIMARY KEY,
+    appointment_number VARCHAR(20) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(36) NOT NULL,
+    rejected_by VARCHAR(36) NOT NULL,
+    requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
+    rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when rejected',
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_gn (gn_id),
+    INDEX idx_date (date),
+    INDEX idx_rejected_at (rejected_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
   `);
 
     // ============================================================

@@ -2,6 +2,15 @@
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
+
+const getUserFromToken = (req) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return null;
+    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
+};
+
 // ✅ No need for getUserFromToken - use req.user from middleware
 
 // ============================================================
@@ -18,7 +27,7 @@ const generateAnnouncementNumber = () => {
 // ============================================================
 exports.getOfficerProfile = async (req, res) => {
     // ✅ User is already attached by authenticateToken middleware
-    const user = req.user;
+      const user = getUserFromToken(req);
     
     if (!user || user.role !== 'OFFICER') {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
@@ -95,7 +104,7 @@ exports.getOfficerProfile = async (req, res) => {
 // ============================================================
 exports.updateOfficerProfile = async (req, res) => {
     // ✅ User is already attached by authenticateToken middleware
-    const user = req.user;
+       const user = getUserFromToken(req);
     
     if (!user || user.role !== 'OFFICER') {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
@@ -214,7 +223,7 @@ exports.updateOfficerProfile = async (req, res) => {
 // ============================================================
 exports.getOfficerDashboardStats = async (req, res) => {
     // ✅ User is already attached by authenticateToken middleware
-    const user = req.user;
+      const user = getUserFromToken(req);
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
@@ -446,7 +455,7 @@ exports.getPublicAnnouncementFeed = async (req, res) => {
 
 // GET /api/announcements/officer - Get officer's announcements
 exports.getAnnouncements = async (req, res) => {
-    const user = req.user;
+      const user = getUserFromToken(req);
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
@@ -498,7 +507,7 @@ exports.getAnnouncements = async (req, res) => {
 
 // POST /api/announcements/publish - Create new announcement
 exports.createAnnouncement = async (req, res) => {
-    const user = req.user;
+       const user = getUserFromToken(req);
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
@@ -561,7 +570,7 @@ exports.createAnnouncement = async (req, res) => {
 
 // PUT /api/announcements/:id - Update announcement
 exports.updateAnnouncement = async (req, res) => {
-    const user = req.user;
+     const user = getUserFromToken(req);
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
@@ -628,7 +637,7 @@ exports.updateAnnouncement = async (req, res) => {
 
 // DELETE /api/announcements/:id - Soft delete announcement
 exports.deleteAnnouncement = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
         return res.status(403).json({ error: 'Access denied.' });
