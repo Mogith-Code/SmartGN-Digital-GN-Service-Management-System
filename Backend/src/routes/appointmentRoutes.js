@@ -15,6 +15,9 @@ router.get('/rappointments', appointmentController.getAllResidentAppointments);
 // POST - Book a new appointment
 router.post('/book', appointmentController.bookAppointment);
 
+// PUT - Cancel appointment
+router.put('/:id/cancel', appointmentController.cancelAppointment);
+
 
 
 
