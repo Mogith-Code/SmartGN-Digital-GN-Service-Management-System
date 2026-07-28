@@ -41,11 +41,6 @@ function HouseholdDetailsLayout({ HDetails }) {
       </div>
 
       <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
-        <span className="font-medium">{t.headOfHousehold}</span>
-        <span className="font-regular">{HDetails.headOfHousehold || "-"}</span>
-      </div>
-
-      <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
         <span className="font-medium">{t.address}</span>
         <span className="font-regular">
           {HDetails.address || "Not provided"}
