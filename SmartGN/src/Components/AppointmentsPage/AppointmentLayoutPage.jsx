@@ -9,7 +9,7 @@ import AppointmentSummary from "./AppointmentSummary";
 import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 
-function AppointmentLayoutPage() {
+function AppointmentLayoutPage({ pendingCount = 0, approvedCount = 0 }) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
@@ -114,14 +114,6 @@ function AppointmentLayoutPage() {
       createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
     },
   ]);
-
-  // Calculate dynamic stats
-  const pendingCount = appointments.filter(
-    (item) => item.status === "Pending",
-  ).length;
-  const approvedCount = appointments.filter(
-    (item) => item.status === "Approved",
-  ).length;
 
   // Get appointment for selected date if it exists
   const getAppointmentForSelectedDate = () => {
