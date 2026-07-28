@@ -19,7 +19,7 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
     firstName: "",
     lastName: "",
     fullName: "",
-    nic: "",
+    nic: "200324511540",
     occupation: "",
     email: "",
     mobile: "",
