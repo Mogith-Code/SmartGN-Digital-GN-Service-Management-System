@@ -4,8 +4,19 @@ import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import AppointmentLayoutPage from "../Components/AppointmentsPage/AppointmentLayoutPage";
 import Footer from "../Components/Common/Footer";
+import { useState } from "react";
 
 function RAppointment({ onOpenHelp }) {
+  // State for counts
+  const [pendingCount, setPendingCount] = useState(0);
+  const [approvedCount, setApprovedCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Get resident NIC and token from localStorage
+  const residentNic = localStorage.getItem("smartgn_user_id");
+  const token = localStorage.getItem("smartgn_token");
+
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       {/* Navbar */}
