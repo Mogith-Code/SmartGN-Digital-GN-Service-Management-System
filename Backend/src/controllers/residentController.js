@@ -4,14 +4,10 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
-// ✅ Use the user from req.user (set by authenticateToken middleware)
-// No need to re-verify the token!
-
 // ============================================================
 // GET PROFILE
 // ============================================================
 exports.getProfile = async (req, res) => {
-    // ✅ User is already attached by authenticateToken middleware
     const user = req.user;
     
     if (!user || user.role !== 'RESIDENT') {
@@ -56,7 +52,6 @@ exports.getProfile = async (req, res) => {
         `, [user.id, user.email || user.id]);
 
         if (rows.length === 0) {
-            // Return fallback resident object from token details
             return res.json({
                 r_nic: user.id || '197812345678V',
                 first_name: user.name ? user.name.split(' ')[0] : 'Resident',
@@ -131,7 +126,6 @@ exports.updateProfile = async (req, res) => {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
-        // ✅ If homeAddress was updated, sync to household table
         if (homeAddress !== undefined) {
             const [resident] = await db.query(
                 'SELECT household_number FROM resident WHERE r_nic = ?',
@@ -145,7 +139,6 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // Fetch updated profile
         const [updatedRows] = await db.query(`
             SELECT 
                 r.r_nic,
@@ -445,7 +438,6 @@ exports.getHousehold = async (req, res) => {
             return res.status(404).json({ error: 'Household not found.' });
         }
 
-        // ✅ If household address is NULL or different from resident's address, update it
         if (rows[0].address !== resident.home_address) {
             await db.query(
                 'UPDATE household SET address = ? WHERE household_number = ?',
@@ -464,8 +456,6 @@ exports.getHousehold = async (req, res) => {
         return res.status(500).json({ error: 'Server error fetching household.' });
     }
 };
-
-
 
 // ============================================================
 // PUT /api/residents/household
@@ -491,12 +481,10 @@ exports.updateHousehold = async (req, res) => {
         const updates = [];
         const values = [];
 
-        // ✅ If address is updated, also update resident's home_address
         if (address !== undefined) {
             updates.push('address = ?');
             values.push(address || null);
             
-            // Also update resident's home_address
             await db.query(
                 'UPDATE resident SET home_address = ? WHERE r_nic = ?',
                 [address || null, user.id]
@@ -524,7 +512,6 @@ exports.updateHousehold = async (req, res) => {
             return res.status(404).json({ error: 'Household not found.' });
         }
 
-        // Fetch updated household
         const [updatedRows] = await db.query(`
             SELECT 
                 household_number,
@@ -552,7 +539,7 @@ exports.updateHousehold = async (req, res) => {
 // GET ANNOUNCEMENTS
 // ============================================================
 exports.getAnnouncements = async (req, res) => {
-    const user = getUserFromToken(req);
+    // ✅ Single declaration - use req.user from middleware
     const user = req.user;
     if (!user) {
         return res.status(401).json({ error: 'Authentication required.' });
