@@ -114,3 +114,8 @@ function CertificateSuccess({ onOpenHelp }) {
                   strokeWidth="3"
                   viewBox="0 0 24 24"
                 >
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white animate-ping"></div>
+            </div>
