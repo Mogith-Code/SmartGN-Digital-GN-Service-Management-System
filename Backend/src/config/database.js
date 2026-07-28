@@ -798,6 +798,25 @@ CREATE TABLE IF NOT EXISTS appointment_rejected (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+
+ // SEED GN DIVISIONS FROM PACKAGE
+// ============================================================
+try {
+    // Check if divisions exist before seeding
+    const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
+    if (divisionCount[0].count === 0) {
+        console.log('🌱 Seeding GN divisions from package...');
+        
+        // Use the direct JSON import method
+        const seedGnDivisions = require('../seed/seedGnDivisions');
+        await seedGnDivisions();
+        console.log('✅ GN divisions seeded successfully');
+    } else {
+        console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
+    }
+} catch (error) {
+    console.warn('⚠️ Could not seed GN divisions:', error.message);
+} 
     // ============================================================
     // SEEDING INITIAL DATA (FIXED - WITH division_id)
     // ============================================================
