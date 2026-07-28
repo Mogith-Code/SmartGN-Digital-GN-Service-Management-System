@@ -73,3 +73,9 @@ const certificateSuccessTranslations = {
     defaultUser: "விண்ணப்பதாரர்",
   },
 };
+
+function CertificateSuccess({ onOpenHelp }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { lang } = useLanguage();
+  const t = certificateSuccessTranslations[lang] || certificateSuccessTranslations.EN;
