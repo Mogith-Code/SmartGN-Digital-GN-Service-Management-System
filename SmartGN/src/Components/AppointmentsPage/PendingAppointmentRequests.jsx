@@ -374,8 +374,12 @@ function PendingAppointmentRequests() {
                   <div className="flex justify-end gap-[10px] mt-[10px]">
                     {/* Edit Button - Disabled for now */}
                     <button
-                      className="flex px-[20px] py-[10px] bg-[#1B365D] rounded-[15px] hover:bg-[#005BBD] transition-colors cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group opacity-50 cursor-not-allowed"
-                      disabled
+                      className="flex px-[20px] py-[10px] bg-[#1B365D] rounded-[15px] hover:bg-[#005BBD] transition-colors shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          "/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment",
+                        )
+                      }
                     >
                       <div className="flex items-center gap-[10px] text-[#F7FAFC] text-[14px] font-regular">
                         <img
