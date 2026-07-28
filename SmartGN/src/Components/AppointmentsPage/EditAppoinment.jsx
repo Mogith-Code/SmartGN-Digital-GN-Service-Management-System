@@ -1,21 +1,23 @@
+// src/pages/EditAppointment.jsx
 import React from "react";
 import AfterlogNavbar from "../Common/AfterlogNavbar";
 import RSidebar from "../Common/RSidebar";
 import Footer from "../Common/Footer";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
-import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
+import updateIcon from "../../assets/update_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function EditAppoinment({ onOpenHelp }) {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const { id } = useParams(); // Get appointment ID from URL
 
   const BookingFormTranslations = {
     EN: {
-      Title: "Edit Appoointment",
+      Title: "Edit Appointment",
       back: "Back",
       Purpose: "Appointment Purpose: ",
       eg: "e.g. ",
@@ -45,18 +47,21 @@ function EditAppoinment({ onOpenHelp }) {
       Sat: "Sat",
       Selected: "Selected: ",
       reset: "Reset",
-      bookAppointment: "Book Appointment",
-      bookingSuccess: "Appointment booked successfully!",
-      bookingError: "Failed to book appointment. Please try again.",
+      updateAppointment: "Update Appointment",
+      updateSuccess: "Appointment updated successfully!",
+      updateError: "Failed to update appointment. Please try again.",
       contactRequired: "Please enter your contact number.",
       purposeRequired: "Please enter an appointment purpose.",
       dateRequired: "Please select a date.",
-      submitting: "Booking...",
+      submitting: "Updating...",
       success: "Success!",
       goBack: "Go Back",
+      loading: "Loading appointment details...",
+      error: "Error loading appointment details",
+      retry: "Retry",
     },
     SI: {
-      Title: "නව හමුව වෙන්කරන්න",
+      Title: "හමුව සංස්කරණය කරන්න",
       back: "ආපසු",
       Purpose: "හමුවේ අරමුණ: ",
       eg: "උදා. ",
@@ -86,18 +91,22 @@ function EditAppoinment({ onOpenHelp }) {
       Sat: "සෙන.",
       Selected: "තෝරාගත්: ",
       reset: "නැවත සකසන්න",
-      bookAppointment: "හමුව වෙන්කරන්න",
-      bookingSuccess: "හමුව සාර්ථකව වෙන්කරන ලදී!",
-      bookingError: "හමුව වෙන්කර ගැනීමට අසමත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+      updateAppointment: "හමුව යාවත්කාලීන කරන්න",
+      updateSuccess: "හමුව සාර්ථකව යාවත්කාලීන කරන ලදී!",
+      updateError:
+        "හමුව යාවත්කාලීන කිරීමට අසමත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
       contactRequired: "කරුණාකර ඔබේ සම්බන්ධ කරගත හැකි අංකය ඇතුළත් කරන්න.",
       purposeRequired: "කරුණාකර හමුවේ අරමුණ ඇතුළත් කරන්න.",
       dateRequired: "කරුණාකර දිනයක් තෝරන්න.",
-      submitting: "වෙන්කරමින්...",
+      submitting: "යාවත්කාලීන කරමින්...",
       success: "සාර්ථකයි!",
       goBack: "ආපසු යන්න",
+      loading: "හමුවේ විස්තර පූරණය වෙමින්...",
+      error: "හමුවේ විස්තර පූරණය කිරීමේ දෝෂයකි",
+      retry: "නැවත උත්සාහ කරන්න",
     },
     TA: {
-      Title: "புதிய சந்திப்பை பதிவு செய்யவும்",
+      Title: "சந்திப்பை திருத்து",
       back: "பின்னால்",
       Purpose: "சந்திப்பின் நோக்கம்: ",
       eg: "எ.கா. ",
@@ -127,16 +136,19 @@ function EditAppoinment({ onOpenHelp }) {
       Sat: "சனி",
       Selected: "தேர்ந்தெடுக்கப்பட்டது: ",
       reset: "மீட்டமைக்கவும்",
-      bookAppointment: "சந்திப்பை பதிவு செய்யவும்",
-      bookingSuccess: "சந்திப்பு வெற்றிகரமாக பதிவு செய்யப்பட்டது!",
-      bookingError:
-        "சந்திப்பை பதிவு செய்ய முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+      updateAppointment: "சந்திப்பை புதுப்பிக்கவும்",
+      updateSuccess: "சந்திப்பு வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
+      updateError:
+        "சந்திப்பை புதுப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
       contactRequired: "தயவுசெய்து உங்கள் தொடர்பு எண்ணை உள்ளிடவும்.",
       purposeRequired: "தயவுசெய்து சந்திப்பின் நோக்கத்தை உள்ளிடவும்.",
       dateRequired: "தயவுசெய்து ஒரு தேதியை தேர்ந்தெடுக்கவும்.",
-      submitting: "பதிவு செய்கிறது...",
+      submitting: "புதுப்பிக்கிறது...",
       success: "வெற்றி!",
       goBack: "திரும்பிச் செல்",
+      loading: "சந்திப்பு விவரங்கள் ஏற்றப்படுகின்றன...",
+      error: "சந்திப்பு விவரங்களை ஏற்றுவதில் பிழை",
+      retry: "மீண்டும் முயற்சிக்கவும்",
     },
   };
 
@@ -152,6 +164,9 @@ function EditAppoinment({ onOpenHelp }) {
   const [availableDates, setAvailableDates] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+  const [appointmentData, setAppointmentData] = useState(null);
 
   // Get token from localStorage
   const token = localStorage.getItem("smartgn_token");
@@ -185,11 +200,129 @@ function EditAppoinment({ onOpenHelp }) {
       });
     }
     setAvailableDates(dates);
-
-    if (dates.length > 0) {
-      setBookDay(currentDay);
-    }
   }, []);
+
+  // ============================================================================
+  // FETCH APPOINTMENT DETAILS
+  // ============================================================================
+  useEffect(() => {
+    const fetchAppointmentDetails = async () => {
+      if (!token || !id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setFetchError(null);
+
+        // Fetch all appointments and find the specific one
+        const response = await fetch("/api/appointments/rappointments", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch appointment details");
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Find the appointment by ID
+          const appointment = data.appointments.find(
+            (app) => app.appointment_id === id,
+          );
+
+          if (appointment) {
+            setAppointmentData(appointment);
+
+            // Populate form fields
+            setPurpose(appointment.purpose || "");
+            setContactNumber(appointment.contact_number || "");
+
+            // Set date
+            if (appointment.date) {
+              const dateObj = new Date(appointment.date);
+              const day = dateObj.getDate();
+              // Check if this day is in available dates
+              const dateExists = availableDates.some((d) => d.day === day);
+              if (dateExists) {
+                setBookDay(day);
+              } else {
+                // If not in available dates, add it
+                const month = dateObj.getMonth();
+                const year = dateObj.getFullYear();
+                // Add the date to available dates
+                setAvailableDates((prev) => {
+                  const exists = prev.some(
+                    (d) =>
+                      d.day === day && d.month === month && d.year === year,
+                  );
+                  if (!exists) {
+                    return [
+                      ...prev,
+                      {
+                        day: day,
+                        month: month,
+                        year: year,
+                        monthName: dateObj.toLocaleString("default", {
+                          month: "long",
+                        }),
+                        dayName: dateObj.toLocaleString("default", {
+                          weekday: "long",
+                        }),
+                        isToday: false,
+                        isWeekend:
+                          dateObj.getDay() === 0 || dateObj.getDay() === 6,
+                        formatted: dateObj.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        }),
+                      },
+                    ].sort((a, b) => a.day - b.day);
+                  }
+                  return prev;
+                });
+                setBookDay(day);
+              }
+            }
+
+            // Set time
+            if (appointment.time) {
+              // Convert from 24-hour to 12-hour format
+              const timeStr = appointment.time;
+              if (timeStr.includes("AM") || timeStr.includes("PM")) {
+                setBookTime(timeStr);
+              } else {
+                const [hours, minutes] = timeStr.split(":");
+                const h = parseInt(hours);
+                const ampm = h >= 12 ? "PM" : "AM";
+                const h12 = h % 12 || 12;
+                setBookTime(`${h12}:${minutes} ${ampm}`);
+              }
+            }
+          } else {
+            setFetchError("Appointment not found");
+          }
+        } else {
+          throw new Error(data.error || "Failed to fetch appointment details");
+        }
+      } catch (err) {
+        setFetchError(err.message);
+        console.error("Error fetching appointment:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (availableDates.length > 0) {
+      fetchAppointmentDetails();
+    }
+  }, [token, id, availableDates]);
 
   // ============================================================================
   // GET MONTH NAME
@@ -224,10 +357,32 @@ function EditAppoinment({ onOpenHelp }) {
   // HANDLE RESET FORM
   // ============================================================================
   const handleReset = () => {
-    setPurpose("");
-    setBookDay(availableDates.length > 0 ? availableDates[0].day : null);
-    setBookTime("9:00 AM");
-    setContactNumber("");
+    if (appointmentData) {
+      // Reset to original values
+      setPurpose(appointmentData.purpose || "");
+      setContactNumber(appointmentData.contact_number || "");
+      if (appointmentData.date) {
+        const dateObj = new Date(appointmentData.date);
+        setBookDay(dateObj.getDate());
+      }
+      if (appointmentData.time) {
+        const timeStr = appointmentData.time;
+        if (timeStr.includes("AM") || timeStr.includes("PM")) {
+          setBookTime(timeStr);
+        } else {
+          const [hours, minutes] = timeStr.split(":");
+          const h = parseInt(hours);
+          const ampm = h >= 12 ? "PM" : "AM";
+          const h12 = h % 12 || 12;
+          setBookTime(`${h12}:${minutes} ${ampm}`);
+        }
+      }
+    } else {
+      setBookDay(availableDates.length > 0 ? availableDates[0].day : null);
+      setBookTime("9:00 AM");
+      setContactNumber("");
+      setPurpose("");
+    }
     setErrorMessage("");
     setSuccessMessage("");
     setBookingComplete(false);
@@ -235,16 +390,14 @@ function EditAppoinment({ onOpenHelp }) {
   };
 
   // ============================================================================
-  // HANDLE FORM SUBMISSION - SEND TO BACKEND
+  // HANDLE FORM SUBMISSION - UPDATE APPOINTMENT
   // ============================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Clear previous messages
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Validate form
     if (!purpose.trim()) {
       setErrorMessage(t.purposeRequired);
       return;
@@ -258,23 +411,19 @@ function EditAppoinment({ onOpenHelp }) {
       return;
     }
 
-    // Check if user is authenticated
     if (!token) {
-      setErrorMessage("Please login to book an appointment.");
+      setErrorMessage("Please login to update appointment.");
       return;
     }
 
-    // Get the selected date object
     const selectedDateObj = availableDates.find((d) => d.day === bookDay);
     if (!selectedDateObj) {
       setErrorMessage("Invalid date selected.");
       return;
     }
 
-    // Format date as YYYY-MM-DD
     const formattedDate = `${selectedDateObj.year}-${String(selectedDateObj.month + 1).padStart(2, "0")}-${String(selectedDateObj.day).padStart(2, "0")}`;
 
-    // Prepare form data
     const formData = {
       purpose: purpose.trim(),
       date: formattedDate,
@@ -285,8 +434,8 @@ function EditAppoinment({ onOpenHelp }) {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch("/api/appointments/book", {
-        method: "POST",
+      const response = await fetch(`/api/appointments/${id}/update`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -297,29 +446,76 @@ function EditAppoinment({ onOpenHelp }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to book appointment");
+        throw new Error(data.error || "Failed to update appointment");
       }
 
-      // Success!
-      setSuccessMessage(data.message || t.bookingSuccess);
+      setSuccessMessage(data.message || t.updateSuccess);
       setErrorMessage("");
       setBookingComplete(true);
 
-      // Reset form after successful booking
       setTimeout(() => {
         handleReset();
-        // Navigate back to appointments page after 2 seconds
-        navigate("/ResidentDashboard/RAppointment");
+        navigate("/ResidentDashboard/RAppointment/PendingAppointmentRequests");
       }, 2500);
     } catch (error) {
-      console.error("Booking error:", error);
-      setErrorMessage(error.message || t.bookingError);
+      console.error("Update error:", error);
+      setErrorMessage(error.message || t.updateError);
       setSuccessMessage("");
       setBookingComplete(false);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+        <AfterlogNavbar />
+        <div className="flex flex-col md:flex-row gap-0 md:gap-[20px] flex-1">
+          <div className="hidden md:block bg-[#FFFFFF]">
+            <RSidebar />
+          </div>
+          <div className="w-full bg-[#FFFFFF] border-l-0 md:border-l border-[#2D37482D] flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D69E2E] mx-auto"></div>
+              <p className="mt-4 text-[#1B365D]">{t.loading}</p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (fetchError) {
+    return (
+      <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
+        <AfterlogNavbar />
+        <div className="flex flex-col md:flex-row gap-0 md:gap-[20px] flex-1">
+          <div className="hidden md:block bg-[#FFFFFF]">
+            <RSidebar />
+          </div>
+          <div className="w-full bg-[#FFFFFF] border-l-0 md:border-l border-[#2D37482D] flex items-center justify-center">
+            <div className="text-center">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+                <p className="text-red-600 font-semibold mb-2">{t.error}</p>
+                <p className="text-red-500 text-sm">{fetchError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-6 py-2 bg-[#D69E2E] text-white rounded-lg hover:bg-[#B8860B] transition-colors"
+                >
+                  {t.retry}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
@@ -370,7 +566,7 @@ function EditAppoinment({ onOpenHelp }) {
                 <span className="font-medium">{successMessage}</span>
               </div>
               <p className="text-sm mt-1">
-                Redirecting to appointments page...
+                Redirecting to pending appointments...
               </p>
             </div>
           )}
@@ -398,6 +594,18 @@ function EditAppoinment({ onOpenHelp }) {
           {/* Booking Form */}
           <form onSubmit={handleSubmit}>
             <div className="mx-4 sm:mx-5 md:mx-6 lg:mx-[50px] my-4 sm:my-5 md:my-6 lg:my-[30px] flex flex-col gap-4 sm:gap-5 border border-[#2D37482D] rounded-xl sm:rounded-2xl lg:rounded-[15px] p-4 sm:p-5 md:p-6 lg:p-[20px]">
+              {/* Appointment Number Display */}
+              {appointmentData && (
+                <div className="flex gap-[10px] items-center bg-[#E2E8F0] p-2 px-4 rounded-lg">
+                  <span className="text-sm font-medium text-[#1B365D]">
+                    Appointment Number:
+                  </span>
+                  <span className="text-sm font-bold text-[#1B365D]">
+                    {appointmentData.appointment_number || "N/A"}
+                  </span>
+                </div>
+              )}
+
               {/* ============================================================ */}
               {/* APPOINTMENT PURPOSE - TEXT INPUT */}
               {/* ============================================================ */}
@@ -420,7 +628,7 @@ function EditAppoinment({ onOpenHelp }) {
               </div>
 
               {/* ============================================================ */}
-              {/* DATE SELECTION - Dynamic from Today to End of Month */}
+              {/* DATE SELECTION */}
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="daySelect" className="font-medium">
@@ -511,10 +719,9 @@ function EditAppoinment({ onOpenHelp }) {
               </div>
 
               {/* ============================================================ */}
-              {/* ACTION BUTTONS - Reset & Submit */}
+              {/* ACTION BUTTONS */}
               {/* ============================================================ */}
               <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 md:gap-5 lg:gap-[20px] mt-2 sm:mt-3 md:mt-4 lg:mt-[10px]">
-                {/* Reset Button */}
                 <button
                   type="button"
                   onClick={handleReset}
@@ -529,7 +736,6 @@ function EditAppoinment({ onOpenHelp }) {
                   />
                 </button>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-[1.02] group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -560,10 +766,10 @@ function EditAppoinment({ onOpenHelp }) {
                     </>
                   ) : (
                     <>
-                      <span>{t.bookAppointment}</span>
+                      <span>{t.updateAppointment}</span>
                       <img
-                        src={confirmIcon}
-                        alt="confirmIcon"
+                        src={updateIcon}
+                        alt="updateIcon"
                         className="w-3.5 sm:w-4 md:w-4.5 lg:w-[16px]"
                       />
                     </>
@@ -571,7 +777,6 @@ function EditAppoinment({ onOpenHelp }) {
                 </button>
               </div>
 
-              {/* Booking Complete Indicator */}
               {bookingComplete && (
                 <div className="flex justify-center mt-2">
                   <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
@@ -595,7 +800,6 @@ function EditAppoinment({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Floating Help Trigger */}
       <button
         className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#D69E2E] text-white border-0 text-base sm:text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00] z-50"
         aria-label="Help Trigger"

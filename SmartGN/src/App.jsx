@@ -68,7 +68,7 @@ function App() {
         />
 
         <Route
-          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment"
+          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment/:id"
           element={<EditAppoinment onOpenHelp={openChatbot} />}
         />
 

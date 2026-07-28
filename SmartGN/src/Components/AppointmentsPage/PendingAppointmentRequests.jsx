@@ -377,7 +377,7 @@ function PendingAppointmentRequests() {
                       className="flex px-[20px] py-[10px] bg-[#1B365D] rounded-[15px] hover:bg-[#005BBD] transition-colors shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group cursor-pointer"
                       onClick={() =>
                         navigate(
-                          "/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment",
+                          `/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment/${appointment.appointment_id}`,
                         )
                       }
                     >
