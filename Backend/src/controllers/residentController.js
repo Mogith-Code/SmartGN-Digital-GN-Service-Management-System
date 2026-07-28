@@ -4,12 +4,17 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
+const getUserFromToken = (req) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return null;
+    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
+};
 // ============================================================
 // GET PROFILE
 // ============================================================
 exports.getProfile = async (req, res) => {
-    const user = req.user;
-    
+     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -75,7 +80,7 @@ exports.getProfile = async (req, res) => {
 // ============================================================
 // PUT /api/residents/profile
 exports.updateProfile = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
@@ -184,7 +189,7 @@ exports.updateProfile = async (req, res) => {
 // GET DASHBOARD STATS
 // ============================================================
 exports.getDashboardStats = async (req, res) => {
-    const user = req.user;
+     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -264,7 +269,7 @@ exports.getDashboardStats = async (req, res) => {
 // GET FAMILY MEMBERS
 // ============================================================
 exports.getFamilyMembers = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -304,7 +309,7 @@ exports.getFamilyMembers = async (req, res) => {
 // ADD FAMILY MEMBER
 // ============================================================
 exports.addFamilyMember = async (req, res) => {
-    const user = req.user;
+     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -335,7 +340,7 @@ exports.addFamilyMember = async (req, res) => {
 // UPDATE FAMILY MEMBER
 // ============================================================
 exports.updateFamilyMember = async (req, res) => {
-    const user = req.user;
+     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -365,7 +370,7 @@ exports.updateFamilyMember = async (req, res) => {
 // DELETE FAMILY MEMBER
 // ============================================================
 exports.deleteFamilyMember = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -392,7 +397,7 @@ exports.deleteFamilyMember = async (req, res) => {
 // ============================================================
 // GET /api/residents/household
 exports.getHousehold = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -460,7 +465,7 @@ exports.getHousehold = async (req, res) => {
 // ============================================================
 // PUT /api/residents/household
 exports.updateHousehold = async (req, res) => {
-    const user = req.user;
+    const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -540,7 +545,7 @@ exports.updateHousehold = async (req, res) => {
 // ============================================================
 exports.getAnnouncements = async (req, res) => {
     // ✅ Single declaration - use req.user from middleware
-    const user = req.user;
+    const user = getUserFromToken(req);
     if (!user) {
         return res.status(401).json({ error: 'Authentication required.' });
     }
