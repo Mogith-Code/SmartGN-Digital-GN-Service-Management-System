@@ -133,6 +133,18 @@ function CertificateSuccess({ onOpenHelp }) {
               <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse"></span>
               {t.badgeStatus}
             </div>
+
+            {/* Summary Box */}
+            <div className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 sm:p-6 mb-8 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[14px]">
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.refNo}
+                  </span>
+                  <span className="font-mono font-bold text-[#1B365D] text-[15px]">
+                    {requestNumber}
+                  </span>
+                </div>
         
 
         
