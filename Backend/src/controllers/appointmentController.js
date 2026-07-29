@@ -538,3 +538,174 @@ exports.getOfficerAppointments = async (req, res) => {
         });
     }
 };
+
+// ============================================================
+// APPROVE APPOINTMENT (Officer)
+// ============================================================
+exports.approveAppointment = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    const { id } = req.params;
+
+    try {
+        // Get the pending appointment
+        const [pending] = await db.query(
+            'SELECT * FROM appointment_pending WHERE appointment_id = ?',
+            [id]
+        );
+        
+        if (pending.length === 0) {
+            return res.status(404).json({ error: 'Appointment not found in pending queue.' });
+        }
+
+        const ap = pending[0];
+        
+        // Get the officer's GN ID
+        let gnId = null;
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+            }
+        } else {
+            gnId = user.id;
+        }
+
+        // Insert into appointment_approved table
+        await db.query(`
+            INSERT INTO appointment_approved (
+                appointment_id,
+                appointment_number,
+                date,
+                time,
+                purpose,
+                contact_number,
+                resident_nic,
+                gn_id,
+                approved_by,
+                requested_at,
+                approved_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        `, [
+            ap.appointment_id,
+            ap.appointment_number,
+            ap.date,
+            ap.time,
+            ap.purpose,
+            ap.contact_number,
+            ap.resident_nic,
+            ap.gn_id,
+            gnId,
+            ap.created_at
+        ]);
+
+        // Delete from pending table
+        await db.query('DELETE FROM appointment_pending WHERE appointment_id = ?', [id]);
+
+        return res.json({
+            success: true,
+            message: 'Appointment approved successfully.',
+            data: {
+                appointment_id: ap.appointment_id,
+                appointment_number: ap.appointment_number
+            }
+        });
+
+    } catch (error) {
+        console.error('Error approving appointment:', error);
+        return res.status(500).json({ error: 'Server error approving appointment.' });
+    }
+};
+
+// ============================================================
+// REJECT APPOINTMENT (Officer)
+// ============================================================
+exports.rejectAppointment = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    const { id } = req.params;
+    const { rejectionReason } = req.body;
+
+    try {
+        // Get the pending appointment
+        const [pending] = await db.query(
+            'SELECT * FROM appointment_pending WHERE appointment_id = ?',
+            [id]
+        );
+        
+        if (pending.length === 0) {
+            return res.status(404).json({ error: 'Appointment not found in pending queue.' });
+        }
+
+        const ap = pending[0];
+        
+        // Get the officer's GN ID
+        let gnId = null;
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+            }
+        } else {
+            gnId = user.id;
+        }
+
+        // Insert into appointment_rejected table
+        await db.query(`
+            INSERT INTO appointment_rejected (
+                appointment_id,
+                appointment_number,
+                date,
+                time,
+                purpose,
+                resident_nic,
+                gn_id,
+                rejected_by,
+                rejection_reason,
+                requested_at,
+                rejected_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        `, [
+            ap.appointment_id,
+            ap.appointment_number,
+            ap.date,
+            ap.time,
+            ap.purpose,
+            ap.resident_nic,
+            ap.gn_id,
+            gnId,
+            rejectionReason || 'Appointment could not be accommodated.',
+            ap.created_at
+        ]);
+
+        // Delete from pending table
+        await db.query('DELETE FROM appointment_pending WHERE appointment_id = ?', [id]);
+
+        return res.json({
+            success: true,
+            message: 'Appointment rejected successfully.',
+            data: {
+                appointment_id: ap.appointment_id,
+                appointment_number: ap.appointment_number
+            }
+        });
+
+    } catch (error) {
+        console.error('Error rejecting appointment:', error);
+        return res.status(500).json({ error: 'Server error rejecting appointment.' });
+    }
+};
