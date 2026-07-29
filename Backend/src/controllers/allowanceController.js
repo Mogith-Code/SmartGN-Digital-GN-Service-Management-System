@@ -90,5 +90,53 @@ router.post('/:id/disburse', authUser, async (req, res) => {
       [disburseAmount || 5000.00, txnRef, id]
     );
 
+    res.status(200).json({
+      success: true,
+      message: 'RTGS Secure Funds Disbursed successfully.',
+      transaction: {
+        id,
+        amount: disburseAmount || 5000.00,
+        txnRef,
+        timestamp: new Date(),
+        clearingBank: 'Central Bank of Sri Lanka',
+        status: 'PAID'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 5. Update Allowance Status (Approve/Reject) (GN Officer)
+router.put('/:id/status', authUser, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // status: 'APPROVED', 'REJECTED'
+
+  try {
+    if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+      return res.status(400).json({ error: 'Valid status (APPROVED/REJECTED) is required.' });
+    }
+
+    const [rows] = await pool.query('SELECT * FROM allowance_application WHERE allowance_id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance application not found.' });
+    }
+
+    await pool.query(
+      `UPDATE allowance_application 
+       SET status = ? 
+       WHERE allowance_id = ?`,
+      [status, id]
+    );
+
+    res.status(200).json({ success: true, message: `Allowance application has been successfully ${status.toLowerCase()}.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export default router;
+
+
 
 
