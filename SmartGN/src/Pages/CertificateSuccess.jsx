@@ -192,6 +192,28 @@ function CertificateSuccess({ onOpenHelp }) {
                 </div>
               </div>
             </div>
+
+            {/* Timeline Progress */}
+            <div className="w-full text-left mb-8">
+              <h4 className="text-[15px] font-bold text-[#1B365D] mb-4">
+                {t.timelineTitle}
+              </h4>
+
+              <div className="space-y-4">
+                {/* Step 1 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                    ✓
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-[#1e293b]">
+                      {t.step1Title}
+                    </h5>
+                    <p className="text-xs text-[#64748B]">
+                      {t.step1Desc}
+                    </p>
+                  </div>
+                </div>
         
 
         
