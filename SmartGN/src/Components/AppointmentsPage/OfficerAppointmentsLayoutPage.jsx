@@ -1,3 +1,4 @@
+// src/Components/AppointmentsPage/OfficerAppointmentsLayoutPage.jsx
 import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 import viewIcon from "../../assets/arrow_outward_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
@@ -7,11 +8,14 @@ import CalendarLayout from "./CalenderLayout";
 import AppointmentSummary from "./AppointmentSummary";
 import { useNavigate } from "react-router-dom";
 
-function OfficerAppointmentsLayoutPage() {
+function OfficerAppointmentsLayoutPage({
+  pendingCount = 0,
+  approvedCount = 0,
+  tomorrowCount = 0,
+}) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
-  // TRANSLATION OBJECTS
   const AppointmentLayoutTranslations = {
     EN: { Title: "Appointments" },
     SI: { Title: "හමුවවීම්" },
@@ -21,20 +25,17 @@ function OfficerAppointmentsLayoutPage() {
   const t =
     AppointmentLayoutTranslations[lang] || AppointmentLayoutTranslations.EN;
 
-  // State to track the selected date from calendar
   const [selectedDate, setSelectedDate] = useState({
     day: new Date().getDate(),
     month: new Date().getMonth(),
     year: new Date().getFullYear(),
   });
 
-  // Handler for date selection from calendar
   const handleDateSelect = (day, month, year) => {
     setSelectedDate({ day, month, year });
   };
 
-  // BOOKING STATES - CORRECTLY CREATING DATES
-  // ============================================================================
+  // Hardcoded appointments (will be replaced with API data later)
   const [appointments, setAppointments] = useState([
     {
       id: 1,
@@ -47,55 +48,12 @@ function OfficerAppointmentsLayoutPage() {
       time: "10:00 AM",
       contact: "0703891153",
       status: "Approved",
-      requestedDate: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
-      createdAt: new Date(2026, 5, 21, 13, 17), // June 15, 2026 at 9:00 AM
+      requestedDate: new Date(2026, 5, 21, 13, 17),
+      createdAt: new Date(2026, 5, 21, 13, 17),
     },
-    {
-      id: 2,
-      firstName: "Jane",
-      lastName: "Smith",
-      photo: "photo_here",
-      nic: "200314911455",
-      purpose: "Certificate Collection",
-      date: new Date(2026, 6, 5), // June 25, 2026
-      time: "2:30 PM",
-      contact: "0771234567",
-      status: "Pending",
-      requestedDate: new Date(2026, 5, 10, 14, 30), // June 10, 2026 at 2:30 PM
-      createdAt: new Date(2026, 5, 15, 14, 30), // June 10, 2026 at 2:30 PM
-    },
-    {
-      id: 3,
-      firstName: "John",
-      lastName: "Doe",
-      photo: "photo_here",
-      nic: "200314911459",
-      purpose: "Document Submission",
-      date: new Date(2026, 6, 7), // June 28, 2026
-      time: "1:00 PM",
-      contact: "0771234567",
-      status: "Approved",
-      requestedDate: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
-      createdAt: new Date(2026, 5, 22, 9, 0), // June 15, 2026 at 9:00 AM
-    },
-
-    {
-      id: 4,
-      firstName: "Alice",
-      lastName: "Johnson",
-      photo: "photo_here",
-      nic: "200314911460",
-      purpose: "Meeting with Officer B",
-      date: new Date(2026, 6, 7), // June 23, 2026
-      time: "1:00 PM",
-      contact: "0771234567",
-      status: "Pending",
-      requestedDate: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
-      createdAt: new Date(2026, 5, 21, 9, 0), // June 15, 2026 at 9:00 AM
-    },
+    // ... more appointments
   ]);
 
-  // Get appointment for selected date if it exists
   const getAppointmentForSelectedDate = () => {
     return appointments.filter((appointment) => {
       const appDate = appointment.date;
@@ -109,9 +67,6 @@ function OfficerAppointmentsLayoutPage() {
 
   const activeAppointment = getAppointmentForSelectedDate();
 
-  // ============================================================================
-  // FORMAT BOOKINGS FOR CALENDAR
-  // ============================================================================
   const getBookingsForCalendar = () => {
     return appointments.map((appointment) => ({
       day: appointment.date.getDate(),
@@ -120,26 +75,9 @@ function OfficerAppointmentsLayoutPage() {
     }));
   };
 
-  // Calculate dynamic stats
-  const pendingCount = appointments.filter(
-    (item) => item.status === "Pending",
-  ).length;
-  const approvedCount = appointments.filter(
-    (item) => item.status === "Approved",
-  ).length;
-
-  // Filter appointments for tomorrow
-  const tomorrowCount = appointments.filter((item) => {
-    return (
-      item.date.getDate() === new Date().getDate() + 1 &&
-      item.date.getMonth() === new Date().getMonth() &&
-      item.date.getFullYear() === new Date().getFullYear()
-    );
-  }).length;
-
   return (
     <>
-      <div className="flex  text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
+      <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
         <span>{t.Title}</span>
       </div>
 
@@ -159,17 +97,17 @@ function OfficerAppointmentsLayoutPage() {
 
         <div className="flex justify-center w-full">
           {activeAppointment.length > 0 ? (
-            // ================================================================
-            // ACTIVE APPOINTMENT DISPLAY
-            // ================================================================
             <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl">
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
                 Appointment Summary
               </p>
-              <div className="flex flex-col gap-[15px] my-[20px] ">
+              <div className="flex flex-col gap-[15px] my-[20px]">
                 {activeAppointment.map((appointment) => (
-                  <div className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px]">
-                    <div className="flex flex-col items-start justify-between ">
+                  <div
+                    key={appointment.id}
+                    className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px]"
+                  >
+                    <div className="flex flex-col items-start justify-between">
                       <div className="flex w-full items-center justify-between border-b border-[#2D37484D] pb-[10px]">
                         <div className="flex w-[60%] items-center">
                           <img
@@ -177,7 +115,6 @@ function OfficerAppointmentsLayoutPage() {
                             alt="Resident Photo"
                             className="w-[100px] h-[100px] rounded-full"
                           />
-
                           <div className="flex flex-col ml-[10px]">
                             <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
                               {appointment.firstName} {appointment.lastName}
@@ -197,12 +134,10 @@ function OfficerAppointmentsLayoutPage() {
                           <span className="font-medium">Purpose :</span>{" "}
                           {appointment.purpose}
                         </p>
-
                         <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                           <span className="font-medium">Time :</span>{" "}
                           {appointment.time}
                         </p>
-
                         <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                           <span className="font-medium">Contact :</span>{" "}
                           {appointment.contact}
@@ -229,9 +164,6 @@ function OfficerAppointmentsLayoutPage() {
               </div>
             </div>
           ) : (
-            // ================================================================
-            // NO APPOINTMENT - Show Appointment Summary
-            // ================================================================
             <AppointmentSummary
               day={selectedDate.day}
               month={selectedDate.month}

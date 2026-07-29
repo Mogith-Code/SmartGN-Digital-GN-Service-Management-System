@@ -332,7 +332,7 @@ exports.cancelAppointment = async (req, res) => {
 };
 
 // ============================================================
-// OFFICER APPOINTMENT COUNTS
+// OFFICER APPOINTMENT COUNTS (Including Tomorrow)
 // ============================================================
 exports.getOfficerAppointmentCounts = async (req, res) => {
     const user = req.user;
@@ -346,76 +346,18 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
         
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
-                [user.id, user.email || user.id]
+                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             
             if (officer.length === 0) {
-                return res.status(404).json({ error: 'Officer not found.' });
-            }
-            gnId = officer[0].gn_id;
-        }
-
-        let pendingCount = 0;
-        let approvedCount = 0;
-
-        if (gnId) {
-            const [pendingResult] = await db.query(`
-                SELECT COUNT(*) AS count 
-                FROM appointment_pending ap
-                WHERE ap.gn_id = ?
-            `, [gnId]);
-            pendingCount = pendingResult[0]?.count || 0;
-
-            const [approvedResult] = await db.query(`
-                SELECT COUNT(*) AS count 
-                FROM appointment_approved aa
-                WHERE aa.gn_id = ?
-            `, [gnId]);
-            approvedCount = approvedResult[0]?.count || 0;
-        }
-
-        return res.json({
-            success: true,
-            pending: pendingCount,
-            approved: approvedCount,
-            total: pendingCount + approvedCount
-        });
-    } catch (error) {
-        console.error('Error fetching officer appointment counts:', error);
-        return res.status(500).json({ 
-            success: false,
-            error: 'Server error fetching appointment counts.' 
-        });
-    }
-};
-
-// ============================================================
-// GET OFFICER APPOINTMENT COUNTS (Including Tomorrow)
-// ============================================================
-exports.getOfficerAppointmentCounts = async (req, res) => {
-    const user = req.user;
-    
-    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
-        return res.status(403).json({ error: 'Access denied. Officers only.' });
-    }
-
-    try {
-        let gnId = null;
-        let divisionId = null;
-        
-        if (user.role === 'OFFICER') {
-            const [officer] = await db.query(
-                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
-                [user.id, user.email || user.id]
-            );
-            
-            if (officer.length === 0) {
-                return res.status(404).json({ error: 'Officer not found.' });
+                return res.status(404).json({ error: 'Officer not found in database.' });
             }
             
             gnId = officer[0].gn_id;
-            divisionId = officer[0].division_id;
+        } else {
+            // ADMIN - use their ID as gn_id
+            gnId = user.id;
         }
 
         let pendingCount = 0;
@@ -439,7 +381,7 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
             `, [gnId]);
             approvedCount = approvedResult[0]?.count || 0;
 
-            // ✅ Get tomorrow's appointments (Pending + Approved)
+            // Get tomorrow's appointments (Pending + Approved)
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const tomorrowStr = tomorrow.toISOString().split('T')[0];
@@ -458,7 +400,7 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
                 WHERE aa.gn_id = ? AND aa.date = ?
             `, [gnId, tomorrowStr]);
 
-            // ✅ Combine both counts
+            // Combine both counts
             tomorrowCount = (pendingTomorrow[0]?.count || 0) + (approvedTomorrow[0]?.count || 0);
         }
 
@@ -473,7 +415,8 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
         console.error('Error fetching officer appointment counts:', error);
         return res.status(500).json({ 
             success: false,
-            error: 'Server error fetching appointment counts.' 
+            error: 'Server error fetching appointment counts.',
+            details: error.message 
         });
     }
 };
