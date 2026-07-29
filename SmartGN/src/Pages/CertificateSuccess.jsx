@@ -145,6 +145,53 @@ function CertificateSuccess({ onOpenHelp }) {
                     {requestNumber}
                   </span>
                 </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.certType}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {certificateType}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.applicant}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {applicantName}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.divisionLabel}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {division}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.submittedOn}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {submittedDate}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.purposeLabel}
+                  </span>
+                  <span className="font-semibold text-[#1e293b] truncate block">
+                    {purpose}
+                  </span>
+                </div>
+              </div>
+            </div>
         
 
         
