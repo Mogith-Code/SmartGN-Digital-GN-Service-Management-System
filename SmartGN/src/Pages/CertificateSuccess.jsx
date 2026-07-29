@@ -214,6 +214,38 @@ function CertificateSuccess({ onOpenHelp }) {
                     </p>
                   </div>
                 </div>
+
+                {/* Step 2 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 animate-pulse">
+                    2
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-[#1e293b]">
+                      {t.step2Title}
+                    </h5>
+                    <p className="text-xs text-[#64748B]">
+                      {t.step2Desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                    3
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-slate-500">
+                      {t.step3Title}
+                    </h5>
+                    <p className="text-xs text-slate-400">
+                      {t.step3Desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
         
 
         
