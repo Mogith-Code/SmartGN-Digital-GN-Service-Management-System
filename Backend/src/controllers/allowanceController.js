@@ -63,3 +63,16 @@ router.get('/officer', authUser, async (req, res) => {
   }
 });
 
+// 4. Secure Transfer Simulation via simulated RTGS
+router.post('/:id/disburse', authUser, async (req, res) => {
+  const { id } = req.params;
+  const { disburseAmount } = req.body; // Amount in LKR
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM allowance_application WHERE allowance_id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Allowance application not found.' });
+    }
+
+
+
