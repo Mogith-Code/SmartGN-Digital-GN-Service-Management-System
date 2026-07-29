@@ -80,5 +80,15 @@ router.post('/:id/disburse', authUser, async (req, res) => {
       await pool.query('UPDATE allowance_application SET status = "APPROVED" WHERE allowance_id = ?', [id]);
     }
 
+    const txnRef = `TXN-${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+    // Update payment register
+    await pool.query(
+      `UPDATE allowance_application 
+       SET payment_status = 'PAID', cleared_amount = ?, cleared_time = NOW(), txn_reference = ? 
+       WHERE allowance_id = ?`,
+      [disburseAmount || 5000.00, txnRef, id]
+    );
+
 
 
