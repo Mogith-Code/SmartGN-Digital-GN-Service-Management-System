@@ -389,3 +389,68 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
         });
     }
 };
+
+// ============================================================
+// GET OFFICER APPOINTMENT COUNTS
+// ============================================================
+exports.getOfficerAppointmentCounts = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    try {
+        let gnId = null;
+        let divisionId = null;
+        
+        if (user.role === 'OFFICER') {
+            // Get officer's gn_id and division_id
+            const [officer] = await db.query(
+                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            
+            gnId = officer[0].gn_id;
+            divisionId = officer[0].division_id;
+        }
+
+        let pendingCount = 0;
+        let approvedCount = 0;
+
+        if (gnId) {
+            // Get pending appointments for this officer's division
+            const [pendingResult] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_pending ap
+                WHERE ap.gn_id = ?
+            `, [gnId]);
+            pendingCount = pendingResult[0]?.count || 0;
+
+            // Get approved appointments for this officer's division
+            const [approvedResult] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_approved aa
+                WHERE aa.gn_id = ?
+            `, [gnId]);
+            approvedCount = approvedResult[0]?.count || 0;
+        }
+
+        return res.json({
+            success: true,
+            pending: pendingCount,
+            approved: approvedCount,
+            total: pendingCount + approvedCount
+        });
+    } catch (error) {
+        console.error('Error fetching officer appointment counts:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching appointment counts.' 
+        });
+    }
+};
