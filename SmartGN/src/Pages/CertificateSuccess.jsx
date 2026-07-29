@@ -246,6 +246,42 @@ function CertificateSuccess({ onOpenHelp }) {
                 </div>
               </div>
             </div>
+
+            {/* Buttons */}
+            <div className="w-full flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => navigate("/ResidentDashboard/certificates/pending")}
+                className="flex-1 py-3 px-5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[15px] rounded-xl transition-all duration-200 shadow-md cursor-pointer"
+              >
+                {t.viewPendingBtn}
+              </button>
+              <button
+                onClick={() => navigate("/ResidentDashboard")}
+                className="flex-1 py-3 px-5 bg-white border border-[#CBD5E1] hover:bg-slate-50 text-[#1E293B] font-medium text-[15px] rounded-xl transition-all duration-200 cursor-pointer"
+              >
+                {t.dashboardBtn}
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+}
+
+export default CertificateSuccess;
         
 
         
