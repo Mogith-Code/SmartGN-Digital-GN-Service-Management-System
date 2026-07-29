@@ -171,9 +171,8 @@ exports.updateProfile = async (req, res) => {
 };
 
 // ============================================================
-// DASHBOARD STATISTICS
+// GET DASHBOARD STATS
 // ============================================================
-
 exports.getDashboardStats = async (req, res) => {
     const user = req.user;
     
@@ -188,35 +187,93 @@ exports.getDashboardStats = async (req, res) => {
     let pendingDisasters = 0, familyCount = 0;
 
     try {
-        const [certPending] = await db.query('SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?', [nic]);
-        pendingCerts = certPending[0]?.count || 0;
+        // Certificate counts
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?',
+                [nic]
+            );
+            pendingCerts = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [certApproved] = await db.query('SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?', [nic]);
-        approvedCerts = certApproved[0]?.count || 0;
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?',
+                [nic]
+            );
+            approvedCerts = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [apptPending] = await db.query('SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?', [nic]);
-        pendingAppts = apptPending[0]?.count || 0;
+        // ✅ Appointment counts - Check both pending and approved tables
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?',
+                [nic]
+            );
+            pendingAppts = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [apptApproved] = await db.query('SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?', [nic]);
-        approvedAppts = apptApproved[0]?.count || 0;
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?',
+                [nic]
+            );
+            approvedAppts = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [allowPending] = await db.query('SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?', [nic]);
-        pendingAllowances = allowPending[0]?.count || 0;
+        // Allowance counts
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?',
+                [nic]
+            );
+            pendingAllowances = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [allowApproved] = await db.query('SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?', [nic]);
-        approvedAllowances = allowApproved[0]?.count || 0;
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?',
+                [nic]
+            );
+            approvedAllowances = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [disasterPending] = await db.query('SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?', [nic]);
-        pendingDisasters = disasterPending[0]?.count || 0;
+        // Disaster counts
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?',
+                [nic]
+            );
+            pendingDisasters = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
-        const [family] = await db.query('SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE', [nic]);
-        familyCount = family[0]?.count || 0;
+        // Family member count
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE',
+                [nic]
+            );
+            familyCount = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
 
         return res.json({
-            certificates: { pending: pendingCerts, approved: approvedCerts },
-            appointments: { pending: pendingAppts, approved: approvedAppts },
-            allowances: { pending: pendingAllowances, approved: approvedAllowances },
-            disasters: { pending: pendingDisasters },
+            certificates: {
+                pending: pendingCerts,
+                approved: approvedCerts
+            },
+            appointments: {
+                pending: pendingAppts,
+                approved: approvedAppts,
+                // ✅ Add upcoming count (approved appointments with future dates)
+                upcoming: approvedAppts
+            },
+            allowances: {
+                pending: pendingAllowances,
+                approved: approvedAllowances
+            },
+            disasters: {
+                pending: pendingDisasters
+            },
             familyMembers: familyCount
         });
     } catch (error) {

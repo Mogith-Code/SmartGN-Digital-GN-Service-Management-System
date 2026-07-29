@@ -15,6 +15,11 @@ router.put('/:id/cancel', appointmentController.cancelAppointment);
 router.put('/:id/update', appointmentController.updateAppointment);
 
 // Officer routes
-router.get('/officer/counts', appointmentController.getOfficerAppointmentCounts);
+router.get('/officercounts', appointmentController.getOfficerAppointmentCounts);
+router.get('/officerappointments', appointmentController.getOfficerAppointments);
+
+// ✅ Add approve and reject routes
+router.put('/:id/approve', appointmentController.approveAppointment);
+router.put('/:id/reject', appointmentController.rejectAppointment);
 
 module.exports = router;
