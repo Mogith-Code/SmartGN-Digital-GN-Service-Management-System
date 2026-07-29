@@ -14,7 +14,7 @@ router.post('/book', appointmentController.bookAppointment);
 router.put('/:id/cancel', appointmentController.cancelAppointment);
 router.put('/:id/update', appointmentController.updateAppointment);
 
-// Officer routes
-router.get('/officer/counts', appointmentController.getOfficerAppointmentCounts);
+//  Officer routes
+router.get('/officercounts', appointmentController.getOfficerAppointmentCounts);
 
 module.exports = router;
