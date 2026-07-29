@@ -391,7 +391,7 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
 };
 
 // ============================================================
-// GET OFFICER APPOINTMENT COUNTS
+// GET OFFICER APPOINTMENT COUNTS (Including Tomorrow)
 // ============================================================
 exports.getOfficerAppointmentCounts = async (req, res) => {
     const user = req.user;
@@ -405,7 +405,6 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
         let divisionId = null;
         
         if (user.role === 'OFFICER') {
-            // Get officer's gn_id and division_id
             const [officer] = await db.query(
                 'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
                 [user.id, user.email || user.id]
@@ -421,9 +420,10 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
 
         let pendingCount = 0;
         let approvedCount = 0;
+        let tomorrowCount = 0;
 
         if (gnId) {
-            // Get pending appointments for this officer's division
+            // Get pending appointments count
             const [pendingResult] = await db.query(`
                 SELECT COUNT(*) AS count 
                 FROM appointment_pending ap
@@ -431,19 +431,42 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
             `, [gnId]);
             pendingCount = pendingResult[0]?.count || 0;
 
-            // Get approved appointments for this officer's division
+            // Get approved appointments count
             const [approvedResult] = await db.query(`
                 SELECT COUNT(*) AS count 
                 FROM appointment_approved aa
                 WHERE aa.gn_id = ?
             `, [gnId]);
             approvedCount = approvedResult[0]?.count || 0;
+
+            // ✅ Get tomorrow's appointments (Pending + Approved)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+            // Get pending appointments for tomorrow
+            const [pendingTomorrow] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_pending ap
+                WHERE ap.gn_id = ? AND ap.date = ?
+            `, [gnId, tomorrowStr]);
+
+            // Get approved appointments for tomorrow
+            const [approvedTomorrow] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_approved aa
+                WHERE aa.gn_id = ? AND aa.date = ?
+            `, [gnId, tomorrowStr]);
+
+            // ✅ Combine both counts
+            tomorrowCount = (pendingTomorrow[0]?.count || 0) + (approvedTomorrow[0]?.count || 0);
         }
 
         return res.json({
             success: true,
             pending: pendingCount,
             approved: approvedCount,
+            tomorrow: tomorrowCount,
             total: pendingCount + approvedCount
         });
     } catch (error) {
