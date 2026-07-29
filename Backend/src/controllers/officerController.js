@@ -1,5 +1,6 @@
 // Backend/src/controllers/officerController.js
 const db = require('../config/database');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
