@@ -1,15 +1,5 @@
 // Backend/src/controllers/appointmentController.js
 const db = require('../config/database');
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
-
-const getUserFromToken = (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
-};
 
 // Generate appointment number e.g. APT-20260718-123
 const generateAppointmentNumber = () => {
@@ -21,16 +11,12 @@ const generateAppointmentNumber = () => {
     return `APT-${dateStr}-${rand}`;
 };
 
-// ============================================================================
-// CONVERT TIME TO 24-HOUR FORMAT (Backend helper)
-// ============================================================================
+// Convert time to 24-hour format
 const convertTo24Hour = (timeStr) => {
     if (!timeStr) return "09:00:00";
     
-    // Trim whitespace
     timeStr = timeStr.trim();
     
-    // If already in 24-hour format (HH:MM:SS or HH:MM)
     if (timeStr.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
         const parts = timeStr.split(':');
         const hours = parts[0].padStart(2, '0');
@@ -39,37 +25,30 @@ const convertTo24Hour = (timeStr) => {
         return `${hours}:${minutes}:${seconds}`;
     }
     
-    // Convert from 12-hour format (e.g., "2:30 PM" or "02:30 PM")
     const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
     if (match) {
         let hours = parseInt(match[1]);
         const minutes = match[2];
         const period = match[3].toUpperCase();
         
-        if (period === 'PM' && hours !== 12) {
-            hours += 12;
-        } else if (period === 'AM' && hours === 12) {
-            hours = 0;
-        }
+        if (period === 'PM' && hours !== 12) hours += 12;
+        else if (period === 'AM' && hours === 12) hours = 0;
         
         return `${String(hours).padStart(2, '0')}:${minutes}:00`;
     }
     
-    // If format is like "14:30:00" already
-    if (timeStr.match(/^\d{2}:\d{2}:\d{2}$/)) {
-        return timeStr;
-    }
+    if (timeStr.match(/^\d{2}:\d{2}:\d{2}$/)) return timeStr;
     
-    // Default fallback
     console.warn('Unrecognized time format:', timeStr);
     return "09:00:00";
 };
 
 // ============================================================
-// GET APPOINTMENT COUNTS (Pending & Approved only)
+// RESIDENT APPOINTMENT COUNTS
 // ============================================================
 exports.getAppointmentCounts = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -91,7 +70,6 @@ exports.getAppointmentCounts = async (req, res) => {
             pending: pendingResult[0]?.count || 0,
             approved: approvedResult[0]?.count || 0
         });
-
     } catch (error) {
         console.error('Error fetching appointment counts:', error);
         return res.status(500).json({ error: 'Server error fetching appointment counts.' });
@@ -99,10 +77,11 @@ exports.getAppointmentCounts = async (req, res) => {
 };
 
 // ============================================================
-// GET ALL RESIDENT APPOINTMENTS (For Calendar & Display)
+// GET ALL RESIDENT APPOINTMENTS
 // ============================================================
 exports.getAllResidentAppointments = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -110,7 +89,6 @@ exports.getAllResidentAppointments = async (req, res) => {
     const nic = user.id;
 
     try {
-        // Get pending appointments
         const [pending] = await db.query(`
             SELECT 
                 appointment_id, 
@@ -126,7 +104,6 @@ exports.getAllResidentAppointments = async (req, res) => {
             ORDER BY date ASC, time ASC
         `, [nic]);
 
-        // Get approved appointments
         const [approved] = await db.query(`
             SELECT 
                 appointment_id, 
@@ -143,7 +120,6 @@ exports.getAllResidentAppointments = async (req, res) => {
             ORDER BY date ASC, time ASC
         `, [nic]);
 
-        // Combine all appointments
         const allAppointments = [...pending, ...approved];
 
         return res.json({
@@ -155,22 +131,21 @@ exports.getAllResidentAppointments = async (req, res) => {
                 total: allAppointments.length
             }
         });
-
     } catch (error) {
-        console.error('Error fetching all appointments:', error);
+        console.error('Error fetching appointments:', error);
         return res.status(500).json({ 
             success: false,
-            error: 'Server error fetching appointments.',
-            details: error.message 
+            error: 'Server error fetching appointments.'
         });
     }
 };
 
 // ============================================================
-// BOOK APPOINTMENT (Resident)
+// BOOK APPOINTMENT
 // ============================================================
 exports.bookAppointment = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -213,8 +188,6 @@ exports.bookAppointment = async (req, res) => {
 
         const gnId = officerRows[0].gn_id;
         const appointmentNumber = generateAppointmentNumber();
-
-        // ✅ Convert time to 24-hour format
         const formattedTime = convertTo24Hour(time);
 
         await db.query(`
@@ -241,15 +214,14 @@ exports.bookAppointment = async (req, res) => {
             success: true,
             message: 'Appointment booked successfully! Awaiting officer confirmation.',
             data: {
-                appointmentNumber: appointmentNumber,
-                date: date,
+                appointmentNumber,
+                date,
                 time: formattedTime,
-                purpose: purpose,
-                contactNumber: contactNumber,
+                purpose,
+                contactNumber,
                 status: 'Pending'
             }
         });
-
     } catch (error) {
         console.error('Error booking appointment:', error);
         return res.status(500).json({ 
@@ -259,10 +231,11 @@ exports.bookAppointment = async (req, res) => {
 };
 
 // ============================================================
-// UPDATE APPOINTMENT (Resident)
+// UPDATE APPOINTMENT
 // ============================================================
 exports.updateAppointment = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -278,7 +251,6 @@ exports.updateAppointment = async (req, res) => {
     }
 
     try {
-        // Check if appointment exists and belongs to this resident
         const [pending] = await db.query(
             'SELECT * FROM appointment_pending WHERE appointment_id = ? AND resident_nic = ?',
             [id, nic]
@@ -290,10 +262,8 @@ exports.updateAppointment = async (req, res) => {
             });
         }
 
-        // ✅ Convert time to 24-hour format
         const formattedTime = convertTo24Hour(time);
 
-        // Update the appointment
         await db.query(`
             UPDATE appointment_pending 
             SET purpose = ?, date = ?, time = ?, contact_number = ?
@@ -311,7 +281,6 @@ exports.updateAppointment = async (req, res) => {
                 contactNumber
             }
         });
-
     } catch (error) {
         console.error('Error updating appointment:', error);
         return res.status(500).json({ 
@@ -321,10 +290,11 @@ exports.updateAppointment = async (req, res) => {
 };
 
 // ============================================================
-// CANCEL APPOINTMENT (Resident)
+// CANCEL APPOINTMENT
 // ============================================================
 exports.cancelAppointment = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
@@ -333,7 +303,6 @@ exports.cancelAppointment = async (req, res) => {
     const nic = user.id;
 
     try {
-        // Check if appointment exists and belongs to this resident
         const [pending] = await db.query(
             'SELECT * FROM appointment_pending WHERE appointment_id = ? AND resident_nic = ?',
             [id, nic]
@@ -345,7 +314,6 @@ exports.cancelAppointment = async (req, res) => {
             });
         }
 
-        // Delete the appointment
         await db.query(
             'DELETE FROM appointment_pending WHERE appointment_id = ?',
             [id]
@@ -355,11 +323,69 @@ exports.cancelAppointment = async (req, res) => {
             success: true,
             message: 'Appointment cancelled successfully.'
         });
-
     } catch (error) {
         console.error('Error cancelling appointment:', error);
         return res.status(500).json({ 
             error: 'Server error cancelling appointment.' 
+        });
+    }
+};
+
+// ============================================================
+// OFFICER APPOINTMENT COUNTS
+// ============================================================
+exports.getOfficerAppointmentCounts = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    try {
+        let gnId = null;
+        
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            gnId = officer[0].gn_id;
+        }
+
+        let pendingCount = 0;
+        let approvedCount = 0;
+
+        if (gnId) {
+            const [pendingResult] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_pending ap
+                WHERE ap.gn_id = ?
+            `, [gnId]);
+            pendingCount = pendingResult[0]?.count || 0;
+
+            const [approvedResult] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM appointment_approved aa
+                WHERE aa.gn_id = ?
+            `, [gnId]);
+            approvedCount = approvedResult[0]?.count || 0;
+        }
+
+        return res.json({
+            success: true,
+            pending: pendingCount,
+            approved: approvedCount,
+            total: pendingCount + approvedCount
+        });
+    } catch (error) {
+        console.error('Error fetching officer appointment counts:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching appointment counts.' 
         });
     }
 };

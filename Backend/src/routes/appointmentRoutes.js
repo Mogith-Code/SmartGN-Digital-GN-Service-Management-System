@@ -4,21 +4,17 @@ const router = express.Router();
 const appointmentController = require('../controllers/appointmentController');
 const { authenticateToken } = require('../middleware/auth');
 
+// All routes require authentication
 router.use(authenticateToken);
 
-// GET appointment counts (pending & approved)
+// Resident routes
 router.get('/residentcounts', appointmentController.getAppointmentCounts);
-
-// GET all resident appointments (pending & approved only)
 router.get('/rappointments', appointmentController.getAllResidentAppointments);
-
-// POST - Book a new appointment
 router.post('/book', appointmentController.bookAppointment);
-
-// PUT - Cancel appointment
 router.put('/:id/cancel', appointmentController.cancelAppointment);
-
-// PUT - Update appointment
 router.put('/:id/update', appointmentController.updateAppointment);
+
+// Officer routes
+router.get('/officer/counts', appointmentController.getOfficerAppointmentCounts);
 
 module.exports = router;
