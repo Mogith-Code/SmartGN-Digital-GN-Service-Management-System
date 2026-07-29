@@ -10,6 +10,7 @@ function OfficerAppointment({ onOpenHelp }) {
   const [pendingCount, setPendingCount] = useState(0);
   const [approvedCount, setApprovedCount] = useState(0);
   const [tomorrowCount, setTomorrowCount] = useState(0);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -17,9 +18,9 @@ function OfficerAppointment({ onOpenHelp }) {
   const token = localStorage.getItem("smartgn_token");
   const gnId = localStorage.getItem("smartgn_user_id");
 
-  // Fetch appointment counts
+  // Fetch appointment counts and appointments
   useEffect(() => {
-    const fetchAppointmentCounts = async () => {
+    const fetchAppointmentData = async () => {
       if (!token) {
         setLoading(false);
         return;
@@ -28,45 +29,56 @@ function OfficerAppointment({ onOpenHelp }) {
       try {
         setLoading(true);
 
-        const response = await fetch("/api/appointments/officercounts", {
+        // Fetch counts
+        const countsResponse = await fetch("/api/appointments/officercounts", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
 
-        if (!response.ok) {
-          if (response.status === 401 || response.status === 403) {
-            throw new Error("Authentication failed. Please login again.");
-          }
+        if (!countsResponse.ok) {
           throw new Error("Failed to fetch appointment counts");
         }
 
-        const data = await response.json();
+        const countsData = await countsResponse.json();
 
-        if (data.success) {
-          setPendingCount(data.pending || 0);
-          setApprovedCount(data.approved || 0);
-          setTomorrowCount(data.tomorrow || 0);
+        if (countsData.success) {
+          setPendingCount(countsData.pending || 0);
+          setApprovedCount(countsData.approved || 0);
+          setTomorrowCount(countsData.tomorrow || 0);
+        }
 
-          console.log("Officer appointment counts:", {
-            pending: data.pending,
-            approved: data.approved,
-            tomorrow: data.tomorrow,
-            total: data.total,
-          });
-        } else {
-          throw new Error(data.error || "Failed to fetch counts");
+        // Fetch all appointments
+        const appointmentsResponse = await fetch(
+          "/api/appointments/officerappointments",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (!appointmentsResponse.ok) {
+          throw new Error("Failed to fetch appointments");
+        }
+
+        const appointmentsData = await appointmentsResponse.json();
+
+        if (appointmentsData.success) {
+          setAppointments(appointmentsData.appointments || []);
+          console.log("Officer appointments:", appointmentsData.appointments);
         }
       } catch (err) {
         setError(err.message);
-        console.error("Error fetching appointment counts:", err);
+        console.error("Error fetching appointment data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAppointmentCounts();
+    fetchAppointmentData();
   }, [token, gnId]);
 
   // Show loading state
@@ -121,12 +133,13 @@ function OfficerAppointment({ onOpenHelp }) {
           <OSidebar />
         </div>
 
-        {/* Main Content - Pass counts as props */}
+        {/* Main Content - Pass counts and appointments as props */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
           <OfficerAppointmentsLayoutPage
             pendingCount={pendingCount}
             approvedCount={approvedCount}
             tomorrowCount={tomorrowCount}
+            appointments={appointments}
           />
         </div>
       </div>

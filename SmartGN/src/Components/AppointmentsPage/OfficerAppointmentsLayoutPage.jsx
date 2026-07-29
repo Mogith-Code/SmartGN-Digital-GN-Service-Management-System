@@ -12,6 +12,7 @@ function OfficerAppointmentsLayoutPage({
   pendingCount = 0,
   approvedCount = 0,
   tomorrowCount = 0,
+  appointments = [],
 }) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
@@ -35,28 +36,48 @@ function OfficerAppointmentsLayoutPage({
     setSelectedDate({ day, month, year });
   };
 
-  // Hardcoded appointments (will be replaced with API data later)
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      firstName: "Nirmal",
-      lastName: "Perera",
-      photo: "photo_here",
-      nic: "200314911465",
-      purpose: "Meeting with Officer A",
-      date: new Date(2026, 6, 5),
-      time: "10:00 AM",
-      contact: "0703891153",
-      status: "Approved",
-      requestedDate: new Date(2026, 5, 21, 13, 17),
-      createdAt: new Date(2026, 5, 21, 13, 17),
-    },
-    // ... more appointments
-  ]);
+  // ✅ Filter only approved appointments
+  const approvedAppointments = appointments.filter(
+    (app) => app.status === "Approved",
+  );
 
+  // ✅ Format time from 24-hour to 12-hour
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A";
+    try {
+      if (timeString.includes("AM") || timeString.includes("PM")) {
+        return timeString;
+      }
+      const [hours, minutes] = timeString.split(":");
+      const h = parseInt(hours);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12;
+      return `${h12}:${minutes} ${ampm}`;
+    } catch {
+      return timeString;
+    }
+  };
+
+  // ✅ Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // ✅ Get approved appointments for the selected date
   const getAppointmentForSelectedDate = () => {
-    return appointments.filter((appointment) => {
-      const appDate = appointment.date;
+    return approvedAppointments.filter((appointment) => {
+      const appDate = new Date(appointment.date);
       return (
         appDate.getDate() === selectedDate.day &&
         appDate.getMonth() === selectedDate.month &&
@@ -67,12 +88,16 @@ function OfficerAppointmentsLayoutPage({
 
   const activeAppointment = getAppointmentForSelectedDate();
 
+  // ✅ Get bookings for calendar - only approved appointments
   const getBookingsForCalendar = () => {
-    return appointments.map((appointment) => ({
-      day: appointment.date.getDate(),
-      month: appointment.date.getMonth(),
-      year: appointment.date.getFullYear(),
-    }));
+    return approvedAppointments.map((appointment) => {
+      const appDate = new Date(appointment.date);
+      return {
+        day: appDate.getDate(),
+        month: appDate.getMonth(),
+        year: appDate.getFullYear(),
+      };
+    });
   };
 
   return (
@@ -101,11 +126,11 @@ function OfficerAppointmentsLayoutPage({
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
                 Appointment Summary
               </p>
-              <div className="flex flex-col gap-[15px] my-[20px]">
+              <div className="flex flex-col gap-[15px] my-[20px] max-h-[400px] overflow-y-auto">
                 {activeAppointment.map((appointment) => (
                   <div
-                    key={appointment.id}
-                    className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px]"
+                    key={appointment.appointment_id || appointment.id}
+                    className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6] transition-colors"
                   >
                     <div className="flex flex-col items-start justify-between">
                       <div className="flex w-full items-center justify-between border-b border-[#2D37484D] pb-[10px]">
@@ -117,10 +142,15 @@ function OfficerAppointmentsLayoutPage({
                           />
                           <div className="flex flex-col ml-[10px]">
                             <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                              {appointment.firstName} {appointment.lastName}
+                              {appointment.resident?.fullName ||
+                                `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
+                                "Resident"}
                             </span>
                             <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                              {appointment.nic}
+                              NIC:{" "}
+                              {appointment.resident?.nic ||
+                                appointment.resident_nic ||
+                                "N/A"}
                             </span>
                           </div>
                         </div>
@@ -132,16 +162,33 @@ function OfficerAppointmentsLayoutPage({
                       <div className="flex flex-col w-full justify-between mt-[10px]">
                         <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                           <span className="font-medium">Purpose :</span>{" "}
-                          {appointment.purpose}
+                          {appointment.purpose || "N/A"}
+                        </p>
+                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                          <span className="font-medium">Date :</span>{" "}
+                          {formatDate(appointment.date)}
                         </p>
                         <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                           <span className="font-medium">Time :</span>{" "}
-                          {appointment.time}
+                          {formatTime(appointment.time)}
                         </p>
                         <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                           <span className="font-medium">Contact :</span>{" "}
-                          {appointment.contact}
+                          {appointment.contact_number ||
+                            appointment.contact ||
+                            "N/A"}
                         </p>
+                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                          <span className="font-medium">Status :</span>{" "}
+                          <span className="text-green-600 font-medium">
+                            {appointment.status}
+                          </span>
+                        </p>
+                        {appointment.appointment_number && (
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D37488D]">
+                            Appointment #: {appointment.appointment_number}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -164,11 +211,39 @@ function OfficerAppointmentsLayoutPage({
               </div>
             </div>
           ) : (
-            <AppointmentSummary
-              day={selectedDate.day}
-              month={selectedDate.month}
-              year={selectedDate.year}
-            />
+            <div className="flex w-full flex-col items-center justify-center p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl bg-[#F7FAFC] min-h-[200px]">
+              <div className="text-center">
+                <svg
+                  className="w-16 h-16 mx-auto text-[#2D37484D] mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <p className="text-[#2D3748] font-medium text-lg">
+                  No Approved Appointments on{" "}
+                  {new Date(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                  ).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </p>
+                <p className="text-[#2D37488D] text-sm mt-2">
+                  Click on a date with a booking to view details
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>
