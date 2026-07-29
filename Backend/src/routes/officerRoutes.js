@@ -10,7 +10,7 @@ const { authenticateToken, requireOfficerOrAdmin } = require('../middleware/auth
 
 // ✅ Apply authentication middleware to all routes
 router.use(authenticateToken);
-router.use(requireOfficerOrAdmin);
+// router.use(requireOfficerOrAdmin);
 
 // ============================================================
 // OFFICER PROFILE
