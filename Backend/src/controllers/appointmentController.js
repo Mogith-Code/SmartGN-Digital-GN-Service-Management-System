@@ -450,12 +450,12 @@ exports.getOfficerAppointments = async (req, res) => {
         let approvedAppointments = [];
 
         if (gnId) {
-            // Get pending appointments
+            // Get pending appointments - ✅ Format date as YYYY-MM-DD
             const [pending] = await db.query(`
                 SELECT 
                     appointment_id,
                     appointment_number,
-                    date,
+                    DATE_FORMAT(date, '%Y-%m-%d') AS date,
                     time,
                     purpose,
                     contact_number,
@@ -467,12 +467,12 @@ exports.getOfficerAppointments = async (req, res) => {
                 ORDER BY date ASC, time ASC
             `, [gnId]);
 
-            // Get approved appointments
+            // Get approved appointments - ✅ Format date as YYYY-MM-DD
             const [approved] = await db.query(`
                 SELECT 
                     appointment_id,
                     appointment_number,
-                    date,
+                    DATE_FORMAT(date, '%Y-%m-%d') AS date,
                     time,
                     purpose,
                     contact_number,
@@ -625,17 +625,28 @@ exports.approveAppointment = async (req, res) => {
 };
 
 // ============================================================
-// REJECT APPOINTMENT (Officer)
+// REJECT APPOINTMENT (Officer) - Complete Version
 // ============================================================
 exports.rejectAppointment = async (req, res) => {
     const user = req.user;
     
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
-        return res.status(403).json({ error: 'Access denied. Officers only.' });
+        return res.status(403).json({ 
+            success: false,
+            error: 'Access denied. Officers only.' 
+        });
     }
 
     const { id } = req.params;
     const { rejectionReason } = req.body;
+
+    // Validate rejection reason
+    if (!rejectionReason || !rejectionReason.trim()) {
+        return res.status(400).json({ 
+            success: false,
+            error: 'Rejection reason is required.' 
+        });
+    }
 
     try {
         // Get the pending appointment
@@ -645,7 +656,10 @@ exports.rejectAppointment = async (req, res) => {
         );
         
         if (pending.length === 0) {
-            return res.status(404).json({ error: 'Appointment not found in pending queue.' });
+            return res.status(404).json({ 
+                success: false,
+                error: 'Appointment not found in pending queue.' 
+            });
         }
 
         const ap = pending[0];
@@ -664,33 +678,70 @@ exports.rejectAppointment = async (req, res) => {
             gnId = user.id;
         }
 
-        // Insert into appointment_rejected table
-        await db.query(`
-            INSERT INTO appointment_rejected (
-                appointment_id,
-                appointment_number,
-                date,
-                time,
-                purpose,
-                resident_nic,
-                gn_id,
-                rejected_by,
-                rejection_reason,
-                requested_at,
-                rejected_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        `, [
-            ap.appointment_id,
-            ap.appointment_number,
-            ap.date,
-            ap.time,
-            ap.purpose,
-            ap.resident_nic,
-            ap.gn_id,
-            gnId,
-            rejectionReason || 'Appointment could not be accommodated.',
-            ap.created_at
-        ]);
+        // Try to insert into appointment_rejected
+        try {
+            await db.query(`
+                INSERT INTO appointment_rejected (
+                    appointment_id,
+                    appointment_number,
+                    date,
+                    time,
+                    purpose,
+                    contact_number,
+                    resident_nic,
+                    gn_id,
+                    rejected_by,
+                    rejection_reason,
+                    requested_at,
+                    rejected_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            `, [
+                ap.appointment_id,
+                ap.appointment_number,
+                ap.date,
+                ap.time,
+                ap.purpose,
+                ap.contact_number || '', // Handle null contact_number
+                ap.resident_nic,
+                ap.gn_id,
+                gnId,
+                rejectionReason.trim(),
+                ap.created_at
+            ]);
+        } catch (insertError) {
+            // If the table doesn't have contact_number column, try without it
+            if (insertError.code === 'ER_BAD_FIELD_ERROR') {
+                console.log('contact_number column missing, trying without it...');
+                await db.query(`
+                    INSERT INTO appointment_rejected (
+                        appointment_id,
+                        appointment_number,
+                        date,
+                        time,
+                        purpose,
+                        resident_nic,
+                        gn_id,
+                        rejected_by,
+                        rejection_reason,
+                        requested_at,
+                        rejected_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                `, [
+                    ap.appointment_id,
+                    ap.appointment_number,
+                    ap.date,
+                    ap.time,
+                    ap.purpose,
+                    ap.resident_nic,
+                    ap.gn_id,
+                    gnId,
+                    rejectionReason.trim(),
+                    ap.created_at
+                ]);
+            } else {
+                throw insertError;
+            }
+        }
 
         // Delete from pending table
         await db.query('DELETE FROM appointment_pending WHERE appointment_id = ?', [id]);
@@ -700,12 +751,17 @@ exports.rejectAppointment = async (req, res) => {
             message: 'Appointment rejected successfully.',
             data: {
                 appointment_id: ap.appointment_id,
-                appointment_number: ap.appointment_number
+                appointment_number: ap.appointment_number,
+                rejection_reason: rejectionReason.trim()
             }
         });
 
     } catch (error) {
         console.error('Error rejecting appointment:', error);
-        return res.status(500).json({ error: 'Server error rejecting appointment.' });
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error rejecting appointment.',
+            details: error.message 
+        });
     }
 };

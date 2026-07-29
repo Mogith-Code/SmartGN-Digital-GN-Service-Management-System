@@ -198,7 +198,9 @@ function OfficerAppointmentsLayoutPage({
                 <button
                   className="flex gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] items-center px-3 sm:px-4 md:px-5 lg:px-[20px] py-1.5 sm:py-2 md:py-2.5 lg:py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:bg-[#005BBD] hover:scale-[1.02] text-[11px] sm:text-xs md:text-sm lg:text-[12px] font-regular cursor-pointer transition-all duration-200"
                   onClick={() =>
-                    navigate("/OfficerAppointment/OfficerApprovedAppointment")
+                    navigate(
+                      "/OfficerDashboard/OfficerAppointment/OfficerApprovedAppointment",
+                    )
                   }
                 >
                   <span>More Appointments</span>

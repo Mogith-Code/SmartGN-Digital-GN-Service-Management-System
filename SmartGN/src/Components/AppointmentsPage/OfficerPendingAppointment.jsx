@@ -199,6 +199,9 @@ function OfficerPendingAppointment({ onOpenHelp }) {
     try {
       setProcessingId(appointmentId);
 
+      console.log("Rejecting appointment:", appointmentId);
+      console.log("Rejection reason:", rejectionReason);
+
       const response = await fetch(
         `/api/appointments/${appointmentId}/reject`,
         {
@@ -207,16 +210,32 @@ function OfficerPendingAppointment({ onOpenHelp }) {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ rejectionReason: rejectionReason.trim() }),
+          body: JSON.stringify({
+            rejectionReason: rejectionReason.trim(),
+          }),
         },
       );
 
+      // ✅ Log response status for debugging
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to reject appointment");
+        let errorMessage = "Failed to reject appointment";
+        try {
+          const errorData = await response.json();
+          console.log("Error response:", errorData);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // If response is not JSON
+          const text = await response.text();
+          console.log("Error response text:", text);
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log("Reject response:", data);
 
       if (data.success) {
         alert(t.rejectSuccess);
@@ -226,7 +245,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
         throw new Error(data.error || "Failed to reject appointment");
       }
     } catch (err) {
-      alert(t.error);
+      alert(t.error + "\n" + err.message);
       console.error("Error rejecting appointment:", err);
     } finally {
       setProcessingId(null);

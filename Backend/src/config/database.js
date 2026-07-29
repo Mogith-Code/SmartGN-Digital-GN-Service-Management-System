@@ -261,29 +261,31 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // 7c. REJECTED APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_rejected (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        rejected_by VARCHAR(36) NOT NULL,
-        requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
-        rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when rejected',
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_date (date),
-        INDEX idx_rejected_at (rejected_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    `);
+// 7c. REJECTED APPOINTMENTS
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS appointment_rejected (
+    appointment_id VARCHAR(36) PRIMARY KEY,
+    appointment_number VARCHAR(20) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(36) NOT NULL,
+    rejected_by VARCHAR(36) NOT NULL,
+    rejection_reason TEXT,
+    requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
+    rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when rejected',
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_gn (gn_id),
+    INDEX idx_date (date),
+    INDEX idx_rejected_at (rejected_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`);
 
     // ============================================================
     // 8. CERTIFICATE TABLES (Separated)
