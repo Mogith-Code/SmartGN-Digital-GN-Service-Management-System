@@ -16,5 +16,6 @@ router.put('/:id/update', appointmentController.updateAppointment);
 
 // Officer routes
 router.get('/officercounts', appointmentController.getOfficerAppointmentCounts);
+router.get('/officerappointments', appointmentController.getOfficerAppointments);
 
 module.exports = router;
