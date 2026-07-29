@@ -35,6 +35,7 @@ import ResidentDisasterReport from "./Pages/ResidentDisasterReport.jsx";
 import OfficerDisasterReports from "./Pages/OfficerDisasterReport.jsx";
 import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 import Success from "./Pages/Success.jsx";
+import CertificateSuccess from "./Pages/CertificateSuccess.jsx";
 import ProfileDetails from "./Components/ResidentsDetails/ProfileDetails.jsx";
 import EditAppoinment from "./Components/AppointmentsPage/EditAppoinment.jsx";
 
@@ -206,6 +207,10 @@ function App() {
         <Route
           path="/ResidentDashboard/certificates/approved"
           element={<ApprovedCertificates onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/ResidentDashboard/certificates/success"
+          element={<CertificateSuccess onOpenHelp={openChatbot} />}
         />
         <Route
           path="/ResidentDashboard/allowances"

@@ -128,12 +128,157 @@ function CertificateSuccess({ onOpenHelp }) {
               {t.subtitle}
             </p>
 
+            {/* Status Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] border border-[#FDE68A] text-[#D97706] rounded-full text-[13px] font-semibold mb-8">
+              <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse"></span>
+              {t.badgeStatus}
             </div>
-          </main>
-          </div>
-          </div>
 
-          );
+            {/* Summary Box */}
+            <div className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 sm:p-6 mb-8 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[14px]">
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.refNo}
+                  </span>
+                  <span className="font-mono font-bold text-[#1B365D] text-[15px]">
+                    {requestNumber}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.certType}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {certificateType}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.applicant}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {applicantName}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.divisionLabel}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {division}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.submittedOn}
+                  </span>
+                  <span className="font-semibold text-[#1e293b]">
+                    {submittedDate}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-xs uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">
+                    {t.purposeLabel}
+                  </span>
+                  <span className="font-semibold text-[#1e293b] truncate block">
+                    {purpose}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline Progress */}
+            <div className="w-full text-left mb-8">
+              <h4 className="text-[15px] font-bold text-[#1B365D] mb-4">
+                {t.timelineTitle}
+              </h4>
+
+              <div className="space-y-4">
+                {/* Step 1 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                    ✓
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-[#1e293b]">
+                      {t.step1Title}
+                    </h5>
+                    <p className="text-xs text-[#64748B]">
+                      {t.step1Desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 animate-pulse">
+                    2
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-[#1e293b]">
+                      {t.step2Title}
+                    </h5>
+                    <p className="text-xs text-[#64748B]">
+                      {t.step2Desc}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex gap-3.5 items-start">
+                  <div className="w-7 h-7 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                    3
+                  </div>
+                  <div>
+                    <h5 className="text-[14px] font-semibold text-slate-500">
+                      {t.step3Title}
+                    </h5>
+                    <p className="text-xs text-slate-400">
+                      {t.step3Desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="w-full flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => navigate("/ResidentDashboard/certificates/pending")}
+                className="flex-1 py-3 px-5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[15px] rounded-xl transition-all duration-200 shadow-md cursor-pointer"
+              >
+                {t.viewPendingBtn}
+              </button>
+              <button
+                onClick={() => navigate("/ResidentDashboard")}
+                className="flex-1 py-3 px-5 bg-white border border-[#CBD5E1] hover:bg-slate-50 text-[#1E293B] font-medium text-[15px] rounded-xl transition-all duration-200 cursor-pointer"
+              >
+                {t.dashboardBtn}
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
 }
 
 export default CertificateSuccess;
