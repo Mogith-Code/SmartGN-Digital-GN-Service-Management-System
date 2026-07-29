@@ -74,5 +74,11 @@ router.post('/:id/disburse', authUser, async (req, res) => {
       return res.status(404).json({ error: 'Allowance application not found.' });
     }
 
+     const application = rows[0];
+    if (application.status !== 'APPROVED') {
+      // Automatically approve upon disbursement authorization
+      await pool.query('UPDATE allowance_application SET status = "APPROVED" WHERE allowance_id = ?', [id]);
+    }
+
 
 
