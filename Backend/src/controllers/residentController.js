@@ -1,27 +1,19 @@
 // Backend/src/controllers/residentController.js
 const db = require('../config/database');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
+// ============================================================
+// PROFILE MANAGEMENT
+// ============================================================
 
-const getUserFromToken = (req) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
-};
-// ============================================================
-// GET PROFILE
-// ============================================================
 exports.getProfile = async (req, res) => {
-     const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
     try {
-        let [rows] = await db.query(`
+        const [rows] = await db.query(`
             SELECT 
                 r.r_nic,
                 r.first_name,
@@ -38,9 +30,6 @@ exports.getProfile = async (req, res) => {
                 r.profile_photo_path,
                 r.nic_front_path,
                 r.nic_back_path,
-                r.profile_photo_filename,
-                r.nic_front_filename,
-                r.nic_back_filename,
                 r.status,
                 r.email_verified,
                 r.nic_verified,
@@ -78,10 +67,8 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// ============================================================
-// PUT /api/residents/profile
 exports.updateProfile = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
     
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
@@ -162,9 +149,6 @@ exports.updateProfile = async (req, res) => {
                 r.profile_photo_path,
                 r.nic_front_path,
                 r.nic_back_path,
-                r.profile_photo_filename,
-                r.nic_front_filename,
-                r.nic_back_filename,
                 r.status,
                 r.email_verified,
                 r.nic_verified,
@@ -187,10 +171,12 @@ exports.updateProfile = async (req, res) => {
 };
 
 // ============================================================
-// GET DASHBOARD STATS
+// DASHBOARD STATISTICS
 // ============================================================
+
 exports.getDashboardStats = async (req, res) => {
-     const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -202,62 +188,35 @@ exports.getDashboardStats = async (req, res) => {
     let pendingDisasters = 0, familyCount = 0;
 
     try {
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?', [nic]);
-            pendingCerts = rows[0]?.count || 0;
-        } catch (e) {}
+        const [certPending] = await db.query('SELECT COUNT(*) AS count FROM certificate_pending WHERE resident_nic = ?', [nic]);
+        pendingCerts = certPending[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?', [nic]);
-            approvedCerts = rows[0]?.count || 0;
-        } catch (e) {}
+        const [certApproved] = await db.query('SELECT COUNT(*) AS count FROM certificate_approved WHERE resident_nic = ?', [nic]);
+        approvedCerts = certApproved[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?', [nic]);
-            pendingAppts = rows[0]?.count || 0;
-        } catch (e) {}
+        const [apptPending] = await db.query('SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?', [nic]);
+        pendingAppts = apptPending[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?', [nic]);
-            approvedAppts = rows[0]?.count || 0;
-        } catch (e) {}
+        const [apptApproved] = await db.query('SELECT COUNT(*) AS count FROM appointment_approved WHERE resident_nic = ?', [nic]);
+        approvedAppts = apptApproved[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?', [nic]);
-            pendingAllowances = rows[0]?.count || 0;
-        } catch (e) {}
+        const [allowPending] = await db.query('SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?', [nic]);
+        pendingAllowances = allowPending[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?', [nic]);
-            approvedAllowances = rows[0]?.count || 0;
-        } catch (e) {}
+        const [allowApproved] = await db.query('SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?', [nic]);
+        approvedAllowances = allowApproved[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?', [nic]);
-            pendingDisasters = rows[0]?.count || 0;
-        } catch (e) {}
+        const [disasterPending] = await db.query('SELECT COUNT(*) AS count FROM disaster_pending WHERE resident_nic = ?', [nic]);
+        pendingDisasters = disasterPending[0]?.count || 0;
 
-        try {
-            const [rows] = await db.query('SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE', [nic]);
-            familyCount = rows[0]?.count || 0;
-        } catch (e) {}
+        const [family] = await db.query('SELECT COUNT(*) AS count FROM family_member WHERE resident_nic = ? AND is_active = TRUE', [nic]);
+        familyCount = family[0]?.count || 0;
 
         return res.json({
-            certificates: {
-                pending: pendingCerts,
-                approved: approvedCerts
-            },
-            appointments: {
-                pending: pendingAppts,
-                approved: approvedAppts
-            },
-            allowances: {
-                pending: pendingAllowances,
-                approved: approvedAllowances
-            },
-            disasters: {
-                pending: pendingDisasters
-            },
+            certificates: { pending: pendingCerts, approved: approvedCerts },
+            appointments: { pending: pendingAppts, approved: approvedAppts },
+            allowances: { pending: pendingAllowances, approved: approvedAllowances },
+            disasters: { pending: pendingDisasters },
             familyMembers: familyCount
         });
     } catch (error) {
@@ -267,36 +226,28 @@ exports.getDashboardStats = async (req, res) => {
 };
 
 // ============================================================
-// GET FAMILY MEMBERS
+// FAMILY MEMBERS CRUD
 // ============================================================
+
 exports.getFamilyMembers = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
     try {
         const [rows] = await db.query(`
-            SELECT 
-                member_id,
-                name,
-                age,
-                relationship,
-                nic,
-                gender,
-                date_of_birth,
-                occupation,
-                is_active
+            SELECT member_id, name, age, relationship, nic, gender, date_of_birth, occupation
             FROM family_member
             WHERE resident_nic = ? AND is_active = TRUE
-            ORDER BY 
-                CASE relationship
-                    WHEN 'Head' THEN 1
-                    WHEN 'Spouse' THEN 2
-                    WHEN 'Son' THEN 3
-                    WHEN 'Daughter' THEN 4
-                    ELSE 5
-                END
+            ORDER BY CASE relationship
+                WHEN 'Head' THEN 1
+                WHEN 'Spouse' THEN 2
+                WHEN 'Son' THEN 3
+                WHEN 'Daughter' THEN 4
+                ELSE 5
+            END
         `, [user.id]);
 
         return res.json(rows);
@@ -306,11 +257,9 @@ exports.getFamilyMembers = async (req, res) => {
     }
 };
 
-// ============================================================
-// ADD FAMILY MEMBER
-// ============================================================
 exports.addFamilyMember = async (req, res) => {
-     const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -337,11 +286,9 @@ exports.addFamilyMember = async (req, res) => {
     }
 };
 
-// ============================================================
-// UPDATE FAMILY MEMBER
-// ============================================================
 exports.updateFamilyMember = async (req, res) => {
-     const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -367,11 +314,9 @@ exports.updateFamilyMember = async (req, res) => {
     }
 };
 
-// ============================================================
-// DELETE FAMILY MEMBER
-// ============================================================
 exports.deleteFamilyMember = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -396,22 +341,19 @@ exports.deleteFamilyMember = async (req, res) => {
 };
 
 // ============================================================
-// GET /api/residents/household
+// HOUSEHOLD MANAGEMENT
+// ============================================================
+
 exports.getHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
 
     try {
         const [residentRows] = await db.query(`
-            SELECT 
-                r.household_number,
-                r.home_address,
-                r.first_name,
-                r.last_name,
-                r.full_name,
-                r.r_nic
+            SELECT r.household_number, r.home_address, r.first_name, r.last_name, r.full_name, r.r_nic
             FROM resident r
             WHERE r.r_nic = ?
         `, [user.id]);
@@ -424,17 +366,8 @@ exports.getHousehold = async (req, res) => {
         const householdNumber = resident.household_number;
 
         const [rows] = await db.query(`
-            SELECT 
-                h.household_number,
-                h.address,
-                h.total_members,
-                h.land_size,
-                h.land_owner,
-                h.created_at,
-                h.updated_at,
-                d.name AS division_name,
-                d.district,
-                d.province
+            SELECT h.household_number, h.address, h.total_members, h.land_size, h.land_owner,
+                   h.created_at, h.updated_at, d.name AS division_name, d.district, d.province
             FROM household h
             JOIN gn_division d ON h.division_id = d.division_id
             WHERE h.household_number = ?
@@ -463,10 +396,9 @@ exports.getHousehold = async (req, res) => {
     }
 };
 
-// ============================================================
-// PUT /api/residents/household
 exports.updateHousehold = async (req, res) => {
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied.' });
     }
@@ -483,18 +415,13 @@ exports.updateHousehold = async (req, res) => {
         }
 
         const householdNumber = residentRows[0].household_number;
-
         const updates = [];
         const values = [];
 
         if (address !== undefined) {
             updates.push('address = ?');
             values.push(address || null);
-            
-            await db.query(
-                'UPDATE resident SET home_address = ? WHERE r_nic = ?',
-                [address || null, user.id]
-            );
+            await db.query('UPDATE resident SET home_address = ? WHERE r_nic = ?', [address || null, user.id]);
         }
         if (land_size !== undefined) {
             updates.push('land_size = ?');
@@ -510,25 +437,19 @@ exports.updateHousehold = async (req, res) => {
         }
 
         values.push(householdNumber);
-        const query = `UPDATE household SET ${updates.join(', ')} WHERE household_number = ?`;
-        
-        const [result] = await db.query(query, values);
+        const [result] = await db.query(
+            `UPDATE household SET ${updates.join(', ')} WHERE household_number = ?`,
+            values
+        );
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Household not found.' });
         }
 
-        const [updatedRows] = await db.query(`
-            SELECT 
-                household_number,
-                address,
-                total_members,
-                land_size,
-                land_owner,
-                created_at
-            FROM household
-            WHERE household_number = ?
-        `, [householdNumber]);
+        const [updatedRows] = await db.query(
+            'SELECT household_number, address, total_members, land_size, land_owner, created_at FROM household WHERE household_number = ?',
+            [householdNumber]
+        );
 
         return res.json({ 
             success: true,
@@ -542,11 +463,12 @@ exports.updateHousehold = async (req, res) => {
 };
 
 // ============================================================
-// GET ANNOUNCEMENTS
+// ANNOUNCEMENTS
 // ============================================================
+
 exports.getAnnouncements = async (req, res) => {
-    // ✅ Single declaration - use req.user from middleware
-    const user = getUserFromToken(req);
+    const user = req.user;
+    
     if (!user) {
         return res.status(401).json({ error: 'Authentication required.' });
     }
@@ -555,16 +477,14 @@ exports.getAnnouncements = async (req, res) => {
         let divisionId = user?.divisionId || null;
 
         if (user && user.role === 'RESIDENT') {
-            try {
-                const [rows] = await db.query(`
-                    SELECT r.division_id, h.division_id AS h_division_id
-                    FROM resident r
-                    LEFT JOIN household h ON r.household_number = h.household_number
-                    WHERE r.r_nic = ? OR r.email = ?
-                `, [user.id, user.email || user.id]);
-                if (rows.length > 0) divisionId = rows[0].division_id || rows[0].h_division_id || divisionId;
-            } catch (err) {
-                console.error('Error finding division for announcements:', err);
+            const [rows] = await db.query(`
+                SELECT r.division_id, h.division_id AS h_division_id
+                FROM resident r
+                LEFT JOIN household h ON r.household_number = h.household_number
+                WHERE r.r_nic = ? OR r.email = ?
+            `, [user.id, user.email || user.id]);
+            if (rows.length > 0) {
+                divisionId = rows[0].division_id || rows[0].h_division_id || divisionId;
             }
         }
 
