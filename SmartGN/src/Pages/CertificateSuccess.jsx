@@ -128,15 +128,11 @@ function CertificateSuccess({ onOpenHelp }) {
               {t.subtitle}
             </p>
 
+            {/* Status Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#FEF3C7] border border-[#FDE68A] text-[#D97706] rounded-full text-[13px] font-semibold mb-8">
+              <span className="w-2 h-2 rounded-full bg-[#D97706] animate-pulse"></span>
+              {t.badgeStatus}
             </div>
-          </main>
-          </div>
-          </div>
-
-          );
-}
-
-export default CertificateSuccess;
         
 
         
