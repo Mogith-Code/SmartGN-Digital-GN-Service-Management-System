@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import Footer from "../Common/Footer";
 import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { encryptId } from "../../utils/encryption";
 
 function OfficerApprovedAppointment() {
   const navigate = useNavigate();
@@ -262,89 +263,111 @@ function OfficerApprovedAppointment() {
           {/* Approved Appointments List */}
           {approvedAppointments.length > 0 ? (
             <>
-              {approvedAppointments.map((appointment) => (
-                <div
-                  key={appointment.appointment_id}
-                  className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-                >
-                  <div className="flex justify-between mb-[10px]">
-                    <div className="flex w-[40%] items-center">
-                      <img
-                        src={profileIcon}
-                        alt="Resident Photo"
-                        className="w-[100px] h-[100px] rounded-full"
-                      />
+              {approvedAppointments.map((appointment) => {
+                // Get NIC for encryption
+                const residentNic =
+                  appointment.resident?.nic ||
+                  appointment.resident_nic ||
+                  "N/A";
+                const encryptedNic = encryptId(residentNic);
 
-                      <div className="flex flex-col ml-[10px]">
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                          {appointment.resident?.fullName ||
-                            `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
-                            "Resident"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                          NIC:{" "}
-                          {appointment.resident?.nic ||
-                            appointment.resident_nic ||
-                            "N/A"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                          {t.viewProfile}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-light text-green-600 flex items-center gap-1">
+                // Debug log to check values
+                console.log("🔍 Resident NIC:", residentNic);
+                console.log("🔍 Encrypted NIC:", encryptedNic);
+                console.log(
+                  "🔍 Navigation path:",
+                  `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`,
+                );
+
+                return (
+                  <div
+                    key={appointment.appointment_id}
+                    className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                  >
+                    <div className="flex justify-between mb-[10px]">
+                      <div className="flex w-[40%] items-center">
                         <img
-                          src={approvedIcon}
-                          alt="approved"
-                          className="h-4 w-4"
+                          src={profileIcon}
+                          alt="Resident Photo"
+                          className="w-[100px] h-[100px] rounded-full"
                         />
-                        Approved
-                      </span>
-                      <span className="font-light text-xs text-[#2D37488D]">
-                        {appointment.approved_at
-                          ? formatDateTime(appointment.approved_at)
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
 
-                  <hr className="border border-[#2D37482D]" />
-
-                  <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.purpose} </span>
-                      <span>{appointment.purpose || "N/A"}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.appointmentDate}</span>
-                      <span>{formatDate(appointment.date)}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.time}</span>
-                      <span>{formatTime(appointment.time)}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.contact}</span>
-                      <span>{appointment.contact_number || "N/A"}</span>
-                    </div>
-
-                    {appointment.appointment_number && (
-                      <div className="flex gap-[5px]">
-                        <span className="font-medium">
-                          {t.appointmentNumber}
-                        </span>
-                        <span>{appointment.appointment_number}</span>
+                        <div className="flex flex-col ml-[10px]">
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                            {appointment.resident?.fullName ||
+                              `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
+                              "Resident"}
+                          </span>
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                            NIC: {residentNic}
+                          </span>
+                          <span
+                            className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline"
+                            onClick={() => {
+                              // ✅ Navigate with encrypted NIC
+                              const path = `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`;
+                              console.log("🔄 Navigating to:", path);
+                              navigate(path);
+                            }}
+                          >
+                            {t.viewProfile}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-light text-green-600 flex items-center gap-1">
+                          <img
+                            src={approvedIcon}
+                            alt="approved"
+                            className="h-4 w-4"
+                          />
+                          Approved
+                        </span>
+                        <span className="font-light text-xs text-[#2D37488D]">
+                          {appointment.approved_at
+                            ? formatDateTime(appointment.approved_at)
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
 
-                  <hr className="border border-[#2D37482D]" />
-                </div>
-              ))}
+                    <hr className="border border-[#2D37482D]" />
+
+                    <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.purpose} </span>
+                        <span>{appointment.purpose || "N/A"}</span>
+                      </div>
+
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.appointmentDate}</span>
+                        <span>{formatDate(appointment.date)}</span>
+                      </div>
+
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.time}</span>
+                        <span>{formatTime(appointment.time)}</span>
+                      </div>
+
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.contact}</span>
+                        <span>{appointment.contact_number || "N/A"}</span>
+                      </div>
+
+                      {appointment.appointment_number && (
+                        <div className="flex gap-[5px]">
+                          <span className="font-medium">
+                            {t.appointmentNumber}
+                          </span>
+                          <span>{appointment.appointment_number}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <hr className="border border-[#2D37482D]" />
+                  </div>
+                );
+              })}
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
