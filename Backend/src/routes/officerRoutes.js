@@ -23,4 +23,7 @@ router.put('/profile', officerController.updateOfficerProfile);
 // ============================================================
 router.get('/dashboard-stats', officerController.getOfficerDashboardStats);
 
+// ✅ Resident stats
+router.get('/resident-stats', officerController.getResidentStats);
+
 module.exports = router;
