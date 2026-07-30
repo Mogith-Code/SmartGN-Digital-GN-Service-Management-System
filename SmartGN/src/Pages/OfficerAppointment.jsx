@@ -1,5 +1,5 @@
 // src/Pages/OfficerAppointment.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
@@ -13,73 +13,99 @@ function OfficerAppointment({ onOpenHelp }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   // Get token from localStorage
   const token = localStorage.getItem("smartgn_token");
   const gnId = localStorage.getItem("smartgn_user_id");
 
   // Fetch appointment counts and appointments
-  useEffect(() => {
-    const fetchAppointmentData = async () => {
-      if (!token) {
-        setLoading(false);
-        return;
+  const fetchAppointmentData = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log("🔄 Fetching appointment data...");
+
+      // Fetch counts
+      const countsResponse = await fetch("/api/appointments/officercounts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!countsResponse.ok) {
+        throw new Error("Failed to fetch appointment counts");
       }
 
-      try {
-        setLoading(true);
+      const countsData = await countsResponse.json();
 
-        // Fetch counts
-        const countsResponse = await fetch("/api/appointments/officercounts", {
+      if (countsData.success) {
+        console.log("📊 Counts received:", countsData);
+        setPendingCount(countsData.pending || 0);
+        setApprovedCount(countsData.approved || 0);
+        setTomorrowCount(countsData.tomorrow || 0);
+        setLastUpdated(new Date().toLocaleString());
+      }
+
+      // Fetch all appointments
+      const appointmentsResponse = await fetch(
+        "/api/appointments/officerappointments",
+        {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        });
+        },
+      );
 
-        if (!countsResponse.ok) {
-          throw new Error("Failed to fetch appointment counts");
-        }
+      if (!appointmentsResponse.ok) {
+        throw new Error("Failed to fetch appointments");
+      }
 
-        const countsData = await countsResponse.json();
+      const appointmentsData = await appointmentsResponse.json();
 
-        if (countsData.success) {
-          setPendingCount(countsData.pending || 0);
-          setApprovedCount(countsData.approved || 0);
-          setTomorrowCount(countsData.tomorrow || 0);
-        }
-
-        // Fetch all appointments
-        const appointmentsResponse = await fetch(
-          "/api/appointments/officerappointments",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
+      if (appointmentsData.success) {
+        setAppointments(appointmentsData.appointments || []);
+        console.log(
+          "📋 Appointments received:",
+          appointmentsData.appointments?.length || 0,
         );
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error("❌ Error fetching appointment data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-        if (!appointmentsResponse.ok) {
-          throw new Error("Failed to fetch appointments");
-        }
+  // Initial fetch
+  useEffect(() => {
+    fetchAppointmentData();
+  }, [fetchAppointmentData]);
 
-        const appointmentsData = await appointmentsResponse.json();
-
-        if (appointmentsData.success) {
-          setAppointments(appointmentsData.appointments || []);
-          console.log("Officer appointments:", appointmentsData.appointments);
-        }
-      } catch (err) {
-        setError(err.message);
-        console.error("Error fetching appointment data:", err);
-      } finally {
-        setLoading(false);
+  // Refresh when page becomes visible (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log("🔄 Page became visible, refreshing data...");
+        fetchAppointmentData();
       }
     };
 
-    fetchAppointmentData();
-  }, [token, gnId]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchAppointmentData]);
 
   // Show loading state
   if (loading) {
@@ -110,7 +136,7 @@ function OfficerAppointment({ onOpenHelp }) {
               </p>
               <p className="text-red-500 text-sm">{error}</p>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => fetchAppointmentData()}
                 className="mt-4 px-6 py-2 bg-[#D69E2E] text-white rounded-lg hover:bg-[#B8860B] transition-colors"
               >
                 Retry
