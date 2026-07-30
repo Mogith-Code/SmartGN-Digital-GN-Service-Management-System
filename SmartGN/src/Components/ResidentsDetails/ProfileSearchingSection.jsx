@@ -1,20 +1,19 @@
 // src/Components/ResidentsDetails/ProfileSearchingSection.jsx
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import { useNavigate } from "react-router-dom";
+import { encryptId } from "../../utils/encryption";
 
 function ProfileSearchingSection() {
   const navigate = useNavigate();
 
-  // State for search term
   const [searchTerm, setSearchTerm] = useState("");
   const [residents, setResidents] = useState([]);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get token from localStorage
   const token = localStorage.getItem("smartgn_token");
 
   // ============================================================
@@ -74,7 +73,6 @@ function ProfileSearchingSection() {
     const searchLower = searchTerm.toLowerCase().trim();
 
     const filtered = residents.filter((resident) => {
-      // Check NIC (r_nic or nic)
       const nic = (resident.r_nic || resident.nic || "").toLowerCase();
       const firstName = (resident.first_name || "").toLowerCase();
       const lastName = (resident.last_name || "").toLowerCase();
@@ -93,15 +91,10 @@ function ProfileSearchingSection() {
     setFilteredResidents(filtered);
   }, [searchTerm, residents]);
 
-  // Handle search input change
   const handleSearch = (e) => {
-    const value = e.target.value;
-    // Remove any non-alphanumeric characters for NIC search
-    // but keep it for name search
-    setSearchTerm(value);
+    setSearchTerm(e.target.value);
   };
 
-  // Handle clear search
   const clearSearch = () => {
     setSearchTerm("");
   };
@@ -110,7 +103,6 @@ function ProfileSearchingSection() {
   // RENDER
   // ============================================================
 
-  // Show loading state
   if (loading) {
     return (
       <div className="flex flex-col gap-[20px] w-full p-4 sm:p-5 md:p-6 lg:p-[20px] border-[1.5px] border-[#2D37484D] rounded-xl">
@@ -137,7 +129,6 @@ function ProfileSearchingSection() {
     );
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="flex flex-col gap-[20px] w-full p-4 sm:p-5 md:p-6 lg:p-[20px] border-[1.5px] border-[#2D37484D] rounded-xl">
@@ -174,9 +165,7 @@ function ProfileSearchingSection() {
 
   return (
     <div className="flex flex-col gap-[20px] w-full p-4 sm:p-5 md:p-6 lg:p-[20px] border-[1.5px] border-[#2D37484D] rounded-xl">
-      {/* ================================================================ */}
-      {/* SEARCH BAR */}
-      {/* ================================================================ */}
+      {/* Search Bar */}
       <div className="relative w-full md:w-[50%] bg-[#E2E8F0] border border-[#2D37482D] rounded-[10px] py-[10px] px-[30px] flex items-center gap-[10px]">
         <img
           src={searchIcon}
@@ -187,7 +176,7 @@ function ProfileSearchingSection() {
           type="text"
           value={searchTerm}
           onChange={handleSearch}
-          placeholder="Search by NIC, Name, or Household Number..."
+          placeholder="Search residents using NIC number..."
           className="w-full bg-transparent border-none outline-none text-[16px] font-light text-[#2D3748] placeholder-[#2D3748] placeholder-opacity-50"
           autoFocus
         />
@@ -202,9 +191,7 @@ function ProfileSearchingSection() {
         )}
       </div>
 
-      {/* ================================================================ */}
-      {/* SEARCH RESULTS COUNT */}
-      {/* ================================================================ */}
+      {/* Search Results Count */}
       <div className="flex justify-between items-center">
         <span className="text-sm text-[#2D37488D]">
           {searchTerm ? (
@@ -230,22 +217,18 @@ function ProfileSearchingSection() {
         )}
       </div>
 
-      {/* ================================================================ */}
-      {/* RESIDENTS LIST */}
-      {/* ================================================================ */}
+      {/* Residents List */}
       {filteredResidents.length > 0 ? (
         filteredResidents.map((resident) => {
-          // Get the display name
           const displayName =
             resident.full_name ||
             `${resident.first_name || ""} ${resident.last_name || ""}`.trim() ||
             "Unnamed Resident";
-
-          // Get the NIC
           const displayNic = resident.r_nic || resident.nic || "N/A";
-
-          // Get the household number
           const displayHousehold = resident.household_number || "N/A";
+
+          // ✅ Encrypt NIC for URL
+          const encryptedNic = encryptId(displayNic);
 
           return (
             <div
@@ -253,7 +236,6 @@ function ProfileSearchingSection() {
               className="flex flex-col gap-[20px] w-full py-[10px] px-[20px] border border-[#2D37484D] rounded-xl hover:bg-[#F7FAFC] transition-colors duration-200"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                {/* Left Section: Profile Photo & Name */}
                 <div className="flex items-center">
                   {resident.profile_photo_path ? (
                     <img
@@ -278,24 +260,19 @@ function ProfileSearchingSection() {
                   </div>
                 </div>
                 <div className="flex w-[40%] items-center justify-between">
-                  {/* Middle Section: Household Number */}
                   <div className="ml-[55px] sm:ml-[70px] md:ml-0">
                     <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
                       Household No: {displayHousehold}
                     </span>
                   </div>
-
-                  {/* Right Section: View Profile Button */}
                   <div className="ml-[55px] sm:ml-[70px] md:ml-0">
                     <span
                       className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
                       onClick={() => {
-                        const nic = resident.r_nic || resident.nic;
-                        if (nic) {
-                          navigate(
-                            `/OfficerDashboard/ResidentsDetails/profile/${nic}`,
-                          );
-                        }
+                        // ✅ Navigate with encrypted NIC
+                        navigate(
+                          `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`,
+                        );
                       }}
                     >
                       View Profile
@@ -307,9 +284,6 @@ function ProfileSearchingSection() {
           );
         })
       ) : (
-        // ================================================================
-        // EMPTY STATE - No results found
-        // ================================================================
         <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
           <div className="text-5xl mb-4">🔍</div>
           <h3 className="text-lg font-medium text-[#2D3748] mb-2">
