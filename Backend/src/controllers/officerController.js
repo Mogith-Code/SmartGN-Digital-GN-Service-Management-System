@@ -710,3 +710,75 @@ exports.getResidentStats = async (req, res) => {
         });
     }
 };
+
+// ============================================================
+// GET ALL RESIDENTS FOR OFFICER'S DIVISION
+// ============================================================
+exports.getResidents = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    try {
+        let divisionId = null;
+
+        // Get officer's division ID
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT division_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            
+            divisionId = officer[0].division_id;
+        }
+
+        let residents = [];
+
+        if (divisionId) {
+            const [rows] = await db.query(`
+                SELECT 
+                    r.r_nic,
+                    r.first_name,
+                    r.last_name,
+                    r.full_name,
+                    r.email,
+                    r.mobile_no,
+                    r.occupation,
+                    r.household_number,
+                    r.home_address,
+                    r.profile_photo_path,
+                    r.status,
+                    r.created_at,
+                    h.address AS household_address,
+                    d.name AS division_name
+                FROM resident r
+                LEFT JOIN household h ON r.household_number = h.household_number
+                LEFT JOIN gn_division d ON r.division_id = d.division_id
+                WHERE r.division_id = ? OR h.division_id = ?
+                AND (r.status = 'Active' OR r.status IS NULL)
+                ORDER BY r.first_name ASC
+            `, [divisionId, divisionId]);
+            residents = rows;
+        }
+
+        return res.json({
+            success: true,
+            data: residents,
+            count: residents.length
+        });
+
+    } catch (error) {
+        console.error('Error fetching residents:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching residents.',
+            details: error.message 
+        });
+    }
+};

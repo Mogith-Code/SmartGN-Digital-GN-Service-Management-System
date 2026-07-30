@@ -37,4 +37,6 @@ router.put('/household', authenticateToken, residentController.updateHousehold);
 // ============================================================
 router.get('/announcements', authenticateToken, residentController.getAnnouncements);
 
+
+
 module.exports = router;

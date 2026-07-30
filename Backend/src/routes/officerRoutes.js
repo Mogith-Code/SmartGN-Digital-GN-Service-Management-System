@@ -26,4 +26,7 @@ router.get('/dashboard-stats', officerController.getOfficerDashboardStats);
 // ✅ Resident stats
 router.get('/resident-stats', officerController.getResidentStats);
 
+// Get all residents for officer's division
+router.get('/residents', officerController.getResidents);
+
 module.exports = router;
