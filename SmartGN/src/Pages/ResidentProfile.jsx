@@ -224,6 +224,7 @@ function ResidentProfile({ onOpenHelp }) {
       JSON.stringify(updatedProfile),
     );
     setProfile(updatedProfile);
+    window.dispatchEvent(new Event("profileUpdated"));
 
     // ✅ Also save to API with correct field names
     try {

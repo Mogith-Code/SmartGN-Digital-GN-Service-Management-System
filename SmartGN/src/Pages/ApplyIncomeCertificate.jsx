@@ -4,6 +4,7 @@ import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import { addNotification } from "../utils/notifications";
 import logo from "../assets/logo.png";
 
 function ApplyIncomeCertificate({ onOpenHelp }) {
@@ -279,6 +280,20 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
       } catch (err) {
         console.warn("API submission warning:", err.message);
       }
+
+      addNotification("officer", {
+        type: "certificate",
+        title: "New Certificate Application",
+        message: `New Income Certificate application received from ${fullName}.`,
+        link: "/dashboard/officer/certificates",
+      });
+
+      addNotification("resident", {
+        type: "certificate",
+        title: "Certificate Application Submitted",
+        message: `Your Income Certificate request (${newRequest.id || newRequestId}) has been submitted for approval.`,
+        link: "/ResidentDashboard/certificates/pending",
+      });
 
       // Navigate to validation success page
       navigate("/ResidentDashboard/certificates/success", {

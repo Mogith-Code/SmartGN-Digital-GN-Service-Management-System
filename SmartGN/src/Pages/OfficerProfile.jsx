@@ -234,6 +234,7 @@ function OfficerProfile({ onOpenHelp }) {
         JSON.stringify(updatedProfileData),
       );
       setProfile(updatedProfileData);
+      window.dispatchEvent(new Event("profileUpdated"));
       setViewMode("VIEW");
 
       // Update localStorage user name

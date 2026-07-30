@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
+import NotificationsDropdown from "./NotificationsDropdown";
+import { getAuthHeaders } from "../../utils/api";
 import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -75,6 +77,55 @@ function AfterlogNavbar() {
   };
 
   const t = navTranslations[lang] || navTranslations.EN;
+
+  // Dynamic Resident Profile state
+  const [profile, setProfile] = useState({
+    firstName: "Nimal",
+    lastName: "Perera",
+    division: "Colombo, Borella",
+    profilePhoto: null,
+  });
+
+  const loadProfile = async () => {
+    const saved = localStorage.getItem("smartgn_resident_profile");
+    if (saved) {
+      try {
+        setProfile(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error parsing saved profile", e);
+      }
+    } else {
+      try {
+        const res = await fetch("/api/residents/profile", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const mapped = {
+            firstName: data.first_name || "Nimal",
+            lastName: data.last_name || "Perera",
+            division: data.division_name || "Colombo, Borella",
+            profilePhoto: data.profile_photo_path || null,
+          };
+          setProfile(mapped);
+          localStorage.setItem("smartgn_resident_profile", JSON.stringify(mapped));
+        }
+      } catch (err) {
+        // Fallback keep default
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadProfile();
+    const handleProfileUpdate = () => loadProfile();
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+    window.addEventListener("storage", handleProfileUpdate);
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+      window.removeEventListener("storage", handleProfileUpdate);
+    };
+  }, []);
 
   // State to track which menu item is being hovered
   const [hoveredItemId, setHoveredItemId] = useState(null);
@@ -222,31 +273,37 @@ function AfterlogNavbar() {
           {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
-            />
-            <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
-              2
-            </span>
-          </div>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown role="resident" />
 
-          {/* User Profile Info - ✅ Display dynamic division name */}
-          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
+          {/* User Profile Info */}
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => navigate("/ResidentDashboard/profile")}
+            title="Click to view profile"
+          >
             <div className="flex flex-col text-right">
-              <span className="text-[16px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-medium text-[#2D3748]">
-                {divisionName}
+              <span className="text-[11px] sm:text-[12px] md:text-[13px] font-semibold text-[#1B365D] max-w-[130px] truncate">
+                {profile.firstName} {profile.lastName}
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-medium text-[#64748b] max-w-[130px] truncate">
+                {profile.division || "Colombo, Borella"}
               </span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
-              <img
-                src={accountIcon}
-                alt="User Profile"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[46px] xl:h-[46px] rounded-full bg-slate-200 flex items-center justify-center border-[2px] border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
+              {profile.profilePhoto ? (
+                <img
+                  src={profile.profilePhoto}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={accountIcon}
+                  alt="User Profile"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -275,25 +332,28 @@ function AfterlogNavbar() {
           {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-4 h-4 sm:w-5 sm:h-6 object-contain"
-            />
-            <span className="absolute -top-1 -right-1 bg-[#D69E2E] text-[#F7FAFC] text-[8px] sm:text-[10px] font-medium w-3 h-3 sm:w-4 sm:h-4 rounded-full flex items-center justify-center">
-              2
-            </span>
-          </div>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown role="resident" />
 
           {/* User Avatar (No text on mobile) */}
-          <div className="w-7 h-7 sm:w-8 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
-            <img
-              src={accountIcon}
-              alt="User Profile"
-              className="w-full h-full object-cover"
-            />
+          <div
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-[#005BBD] overflow-hidden flex-shrink-0 cursor-pointer"
+            onClick={() => navigate("/ResidentDashboard/profile")}
+            title="Click to view profile"
+          >
+            {profile.profilePhoto ? (
+              <img
+                src={profile.profilePhoto}
+                alt="User Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={accountIcon}
+                alt="User Profile"
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
         </div>
       </div>
