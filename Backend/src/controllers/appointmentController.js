@@ -356,7 +356,6 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
             
             gnId = officer[0].gn_id;
         } else {
-            // ADMIN - use their ID as gn_id
             gnId = user.id;
         }
 
@@ -381,27 +380,25 @@ exports.getOfficerAppointmentCounts = async (req, res) => {
             `, [gnId]);
             approvedCount = approvedResult[0]?.count || 0;
 
-            // Get tomorrow's appointments (Pending + Approved)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-            // Get pending appointments for tomorrow
-            const [pendingTomorrow] = await db.query(`
+            // ✅ Get tomorrow's appointments count using MySQL DATE_ADD
+            const [tomorrowResult] = await db.query(`
                 SELECT COUNT(*) AS count 
-                FROM appointment_pending ap
-                WHERE ap.gn_id = ? AND ap.date = ?
-            `, [gnId, tomorrowStr]);
+                FROM (
+                    SELECT appointment_id FROM appointment_pending 
+                    WHERE gn_id = ? AND DATE(date) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+                    UNION ALL
+                    SELECT appointment_id FROM appointment_approved 
+                    WHERE gn_id = ? AND DATE(date) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+                ) AS tomorrow_appointments
+            `, [gnId, gnId]);
 
-            // Get approved appointments for tomorrow
-            const [approvedTomorrow] = await db.query(`
-                SELECT COUNT(*) AS count 
-                FROM appointment_approved aa
-                WHERE aa.gn_id = ? AND aa.date = ?
-            `, [gnId, tomorrowStr]);
+            tomorrowCount = tomorrowResult[0]?.count || 0;
 
-            // Combine both counts
-            tomorrowCount = (pendingTomorrow[0]?.count || 0) + (approvedTomorrow[0]?.count || 0);
+            // ✅ Debug log to verify
+            const [dateResult] = await db.query(`
+                SELECT DATE_ADD(CURDATE(), INTERVAL 1 DAY) AS tomorrow_date
+            `);
+            const tomorrowDate = dateResult[0]?.tomorrow_date || 'unknown';
         }
 
         return res.json({

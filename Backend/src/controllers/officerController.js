@@ -626,3 +626,159 @@ exports.deleteAnnouncement = async (req, res) => {
         return res.status(500).json({ error: 'Server error deleting announcement.' });
     }
 };
+
+// ============================================================
+// GET RESIDENT STATISTICS FOR OFFICER'S DIVISION
+// ============================================================
+exports.getResidentStats = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    try {
+        let gnId = null;
+        let divisionId = null;
+        let totalResidents = 0;
+        let totalFamilies = 0;
+        let totalBeneficiaries = 0;
+
+        // Get officer's GN ID and division ID
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            
+            gnId = officer[0].gn_id;
+            divisionId = officer[0].division_id;
+        } else {
+            gnId = user.id;
+        }
+
+        if (divisionId && gnId) {
+            // ✅ 1. Total Residents in the officer's division
+            const [residentCount] = await db.query(`
+                SELECT COUNT(DISTINCT r.r_nic) AS count 
+                FROM resident r
+                LEFT JOIN household h ON r.household_number = h.household_number
+                WHERE r.division_id = ? OR h.division_id = ?
+            `, [divisionId, divisionId]);
+            totalResidents = residentCount[0]?.count || 0;
+
+            // ✅ 2. Total Families (Households) in the officer's division
+            const [householdCount] = await db.query(`
+                SELECT COUNT(*) AS count 
+                FROM household 
+                WHERE division_id = ?
+            `, [divisionId]);
+            totalFamilies = householdCount[0]?.count || 0;
+
+            // ✅ 3. Total Beneficiaries - Count from allowance_approved table
+            // All records in allowance_approved are approved by default
+            const [beneficiaryCount] = await db.query(`
+                SELECT COUNT(DISTINCT aa.resident_nic) AS count 
+                FROM allowance_approved aa
+                LEFT JOIN resident r ON aa.resident_nic = r.r_nic
+                LEFT JOIN household h ON r.household_number = h.household_number
+                WHERE aa.gn_id = ?
+                AND (r.division_id = ? OR h.division_id = ?)
+            `, [gnId, divisionId, divisionId]);
+            totalBeneficiaries = beneficiaryCount[0]?.count || 0;
+        }
+
+        return res.json({
+            success: true,
+            data: {
+                totalResidents,
+                totalFamilies,
+                totalBeneficiaries
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching resident stats:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching resident statistics.',
+            details: error.message 
+        });
+    }
+};
+
+// ============================================================
+// GET ALL RESIDENTS FOR OFFICER'S DIVISION
+// ============================================================
+exports.getResidents = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers only.' });
+    }
+
+    try {
+        let divisionId = null;
+
+        // Get officer's division ID
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT division_id FROM grama_niladhari WHERE gn_id = ? OR email = ?',
+                [user.id, user.email || user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            
+            divisionId = officer[0].division_id;
+        }
+
+        let residents = [];
+
+        if (divisionId) {
+            const [rows] = await db.query(`
+                SELECT 
+                    r.r_nic,
+                    r.first_name,
+                    r.last_name,
+                    r.full_name,
+                    r.email,
+                    r.mobile_no,
+                    r.occupation,
+                    r.household_number,
+                    r.home_address,
+                    r.profile_photo_path,
+                    r.status,
+                    r.created_at,
+                    h.address AS household_address,
+                    d.name AS division_name
+                FROM resident r
+                LEFT JOIN household h ON r.household_number = h.household_number
+                LEFT JOIN gn_division d ON r.division_id = d.division_id
+                WHERE r.division_id = ? OR h.division_id = ?
+                AND (r.status = 'Active' OR r.status IS NULL)
+                ORDER BY r.first_name ASC
+            `, [divisionId, divisionId]);
+            residents = rows;
+        }
+
+        return res.json({
+            success: true,
+            data: residents,
+            count: residents.length
+        });
+
+    } catch (error) {
+        console.error('Error fetching residents:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching residents.',
+            details: error.message 
+        });
+    }
+};
