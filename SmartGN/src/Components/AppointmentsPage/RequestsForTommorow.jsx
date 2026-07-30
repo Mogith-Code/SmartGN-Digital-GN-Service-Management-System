@@ -11,6 +11,7 @@ import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz
 import approvedIcon from "../../assets/verified_24dp_22C55E_FILL0_wght400_GRAD0_opsz24.svg";
 import pendingIcon from "../../assets/schedule_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Common/Footer";
+import { encryptId } from "../../utils/encryption";
 
 function RequestsForTomorrow() {
   const navigate = useNavigate();
@@ -141,9 +142,8 @@ function RequestsForTomorrow() {
           data.appointments?.length || 0,
         );
 
-        // ✅ Filter appointments for tomorrow using simple string comparison
+        // Filter appointments for tomorrow using simple string comparison
         const tomorrowApps = data.appointments.filter((app) => {
-          // The date comes as 'YYYY-MM-DD' from the backend
           const isTomorrow = app.date === tomorrowStr;
           if (isTomorrow) {
             console.log(
@@ -410,168 +410,186 @@ function RequestsForTomorrow() {
 
           {tomorrowAppointments.length > 0 ? (
             <>
-              {tomorrowAppointments.map((appointment) => (
-                <div
-                  key={appointment.appointment_id}
-                  className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-                >
-                  <div className="flex justify-between mb-[10px]">
-                    <div className="flex w-[40%] items-center">
-                      <img
-                        src={profileIcon}
-                        alt="Resident Photo"
-                        className="w-[100px] h-[100px] rounded-full"
-                      />
+              {tomorrowAppointments.map((appointment) => {
+                // Get NIC for encryption
+                const residentNic =
+                  appointment.resident?.nic ||
+                  appointment.resident_nic ||
+                  "N/A";
+                const encryptedNic = encryptId(residentNic);
 
-                      <div className="flex flex-col ml-[10px]">
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                          {appointment.resident?.fullName ||
-                            `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
-                            "Resident"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                          NIC:{" "}
-                          {appointment.resident?.nic ||
-                            appointment.resident_nic ||
-                            "N/A"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                          {t.viewProfile}
+                return (
+                  <div
+                    key={appointment.appointment_id}
+                    className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                  >
+                    <div className="flex justify-between mb-[10px]">
+                      <div className="flex w-[40%] items-center">
+                        <img
+                          src={profileIcon}
+                          alt="Resident Photo"
+                          className="w-[100px] h-[100px] rounded-full"
+                        />
+
+                        <div className="flex flex-col ml-[10px]">
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                            {appointment.resident?.fullName ||
+                              `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
+                              "Resident"}
+                          </span>
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                            NIC: {residentNic}
+                          </span>
+                          <span
+                            className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline"
+                            onClick={() => {
+                              // ✅ Navigate with encrypted NIC
+                              navigate(
+                                `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`,
+                              );
+                            }}
+                          >
+                            {t.viewProfile}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-light">
+                          {formatRequestedDate(
+                            appointment.requested_at || appointment.created_at,
+                          )}
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-light">
-                        {formatRequestedDate(
-                          appointment.requested_at || appointment.created_at,
-                        )}
-                      </span>
-                    </div>
-                  </div>
 
-                  <hr className="border border-[#2D37482D]" />
+                    <hr className="border border-[#2D37482D]" />
 
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col w-[50%] text-[16px] text-[#2D3748] my-[10px]">
-                      <div className="flex gap-[5px]">
-                        <span className="font-medium">{t.purpose} </span>
-                        <span>{appointment.purpose || "N/A"}</span>
-                      </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-col w-[50%] text-[16px] text-[#2D3748] my-[10px]">
+                        <div className="flex gap-[5px]">
+                          <span className="font-medium">{t.purpose} </span>
+                          <span>{appointment.purpose || "N/A"}</span>
+                        </div>
 
-                      <div className="flex gap-[5px]">
-                        <span className="font-medium">{t.appointmentDate}</span>
-                        <span>{formatDate(appointment.date)}</span>
-                      </div>
-
-                      <div className="flex gap-[5px]">
-                        <span className="font-medium">{t.time}</span>
-                        <span>{formatTime(appointment.time)}</span>
-                      </div>
-
-                      <div className="flex gap-[5px]">
-                        <span className="font-medium">{t.contact}</span>
-                        <span>{appointment.contact_number || "N/A"}</span>
-                      </div>
-
-                      {appointment.appointment_number && (
                         <div className="flex gap-[5px]">
                           <span className="font-medium">
-                            {t.appointmentNumber}
+                            {t.appointmentDate}
                           </span>
-                          <span>{appointment.appointment_number}</span>
+                          <span>{formatDate(appointment.date)}</span>
                         </div>
-                      )}
+
+                        <div className="flex gap-[5px]">
+                          <span className="font-medium">{t.time}</span>
+                          <span>{formatTime(appointment.time)}</span>
+                        </div>
+
+                        <div className="flex gap-[5px]">
+                          <span className="font-medium">{t.contact}</span>
+                          <span>{appointment.contact_number || "N/A"}</span>
+                        </div>
+
+                        {appointment.appointment_number && (
+                          <div className="flex gap-[5px]">
+                            <span className="font-medium">
+                              {t.appointmentNumber}
+                            </span>
+                            <span>{appointment.appointment_number}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="text-sm text-[#2D37488D]">
+                          {t.status}
+                        </span>
+                        {appointment.status === "Approved" ? (
+                          <div className="flex border gap-[10px] border-[#22C55E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#22C55E] items-center bg-[#22C55E10]">
+                            <img
+                              src={approvedIcon}
+                              alt="Approved"
+                              className="w-[20px] h-[20px]"
+                            />
+                            <span>Approved</span>
+                          </div>
+                        ) : (
+                          <div className="flex border gap-[10px] border-[#D69E2E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#D69E2E] items-center bg-[#D69E2E10]">
+                            <img
+                              src={pendingIcon}
+                              alt="Pending"
+                              className="w-[20px] h-[20px]"
+                            />
+                            <span>Pending</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Status Badge - Shows both Pending and Approved */}
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="text-sm text-[#2D37488D]">
-                        {t.status}
-                      </span>
-                      {appointment.status === "Approved" ? (
-                        <div className="flex border gap-[10px] border-[#22C55E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#22C55E] items-center bg-[#22C55E10]">
-                          <img
-                            src={approvedIcon}
-                            alt="Approved"
-                            className="w-[20px] h-[20px]"
-                          />
-                          <span>Approved</span>
-                        </div>
-                      ) : (
-                        <div className="flex border gap-[10px] border-[#D69E2E] rounded-[50px] py-[10px] px-[20px] text-[16px] text-[#D69E2E] items-center bg-[#D69E2E10]">
-                          <img
-                            src={pendingIcon}
-                            alt="Pending"
-                            className="w-[20px] h-[20px]"
-                          />
-                          <span>Pending</span>
-                        </div>
-                      )}
-                    </div>
+                    <hr className="border border-[#2D37482D]" />
+
+                    {/* Action Buttons - Only for Pending appointments */}
+                    {appointment.status === "Pending" && (
+                      <div className="flex justify-end gap-[10px] mt-[10px]">
+                        <button
+                          onClick={() =>
+                            handleApprove(appointment.appointment_id)
+                          }
+                          disabled={processingId === appointment.appointment_id}
+                          className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group ${
+                            processingId === appointment.appointment_id
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          {processingId === appointment.appointment_id ? (
+                            <>
+                              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <img
+                                src={confirmIcon}
+                                alt="confirmIcon"
+                                className="h-[15px]"
+                              />
+                              <span>{t.approve}</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            handleReject(appointment.appointment_id)
+                          }
+                          disabled={processingId === appointment.appointment_id}
+                          className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group ${
+                            processingId === appointment.appointment_id
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          {processingId === appointment.appointment_id ? (
+                            <>
+                              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                              <span>Processing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <img
+                                src={cancelIcon}
+                                alt="cancelIcon"
+                                className="h-[16px]"
+                              />
+                              <span>{t.reject}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
-
-                  <hr className="border border-[#2D37482D]" />
-
-                  {/* Action Buttons - Only for Pending appointments */}
-                  {appointment.status === "Pending" && (
-                    <div className="flex justify-end gap-[10px] mt-[10px]">
-                      <button
-                        onClick={() =>
-                          handleApprove(appointment.appointment_id)
-                        }
-                        disabled={processingId === appointment.appointment_id}
-                        className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group ${
-                          processingId === appointment.appointment_id
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        {processingId === appointment.appointment_id ? (
-                          <>
-                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                            <span>Processing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <img
-                              src={confirmIcon}
-                              alt="confirmIcon"
-                              className="h-[15px]"
-                            />
-                            <span>{t.approve}</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => handleReject(appointment.appointment_id)}
-                        disabled={processingId === appointment.appointment_id}
-                        className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group ${
-                          processingId === appointment.appointment_id
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        {processingId === appointment.appointment_id ? (
-                          <>
-                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                            <span>Processing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <img
-                              src={cancelIcon}
-                              alt="cancelIcon"
-                              className="h-[16px]"
-                            />
-                            <span>{t.reject}</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">

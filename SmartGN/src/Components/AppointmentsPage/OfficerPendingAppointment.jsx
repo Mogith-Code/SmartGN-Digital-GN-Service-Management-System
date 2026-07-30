@@ -9,6 +9,7 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import cancelIcon from "../../assets/cancel_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import { encryptId } from "../../utils/encryption";
 
 function OfficerPendingAppointment({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -216,7 +217,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
         },
       );
 
-      // ✅ Log response status for debugging
+      // Log response status for debugging
       console.log("Response status:", response.status);
 
       if (!response.ok) {
@@ -369,133 +370,158 @@ function OfficerPendingAppointment({ onOpenHelp }) {
           {/* Pending Appointments List */}
           {pendingAppointments.length > 0 ? (
             <>
-              {pendingAppointments.map((appointment) => (
-                <div
-                  key={appointment.appointment_id}
-                  className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
-                >
-                  <div className="flex justify-between mb-[10px]">
-                    <div className="flex w-[30%] items-center">
-                      <img
-                        src={profileIcon}
-                        alt="Resident Photo"
-                        className="w-[100px] h-[100px] rounded-full"
-                      />
+              {pendingAppointments.map((appointment) => {
+                // Get NIC for encryption
+                const residentNic =
+                  appointment.resident?.nic ||
+                  appointment.resident_nic ||
+                  "N/A";
+                const encryptedNic = encryptId(residentNic);
 
-                      <div className="flex flex-col ml-[10px]">
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                          {appointment.resident?.fullName ||
-                            `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
-                            "Resident"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                          {appointment.resident?.nic ||
-                            appointment.resident_nic ||
-                            "N/A"}
-                        </span>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline">
-                          {t.viewProfile}
+                // Debug log to check values
+                console.log("🔍 Resident NIC:", residentNic);
+                console.log("🔍 Encrypted NIC:", encryptedNic);
+                console.log(
+                  "🔍 Navigation path:",
+                  `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`,
+                );
+
+                return (
+                  <div
+                    key={appointment.appointment_id}
+                    className="mx-[50px] my-[30px] flex flex-col border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                  >
+                    <div className="flex justify-between mb-[10px]">
+                      <div className="flex w-[30%] items-center">
+                        <img
+                          src={profileIcon}
+                          alt="Resident Photo"
+                          className="w-[100px] h-[100px] rounded-full"
+                        />
+
+                        <div className="flex flex-col ml-[10px]">
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                            {appointment.resident?.fullName ||
+                              `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
+                              "Resident"}
+                          </span>
+                          <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                            {residentNic}
+                          </span>
+                          <span
+                            className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline"
+                            onClick={() => {
+                              // ✅ Navigate with encrypted NIC
+                              const path = `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`;
+                              console.log("🔄 Navigating to:", path);
+                              navigate(path);
+                            }}
+                          >
+                            {t.viewProfile}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-light">
+                          {formatRequestedDate(
+                            appointment.requested_at || appointment.created_at,
+                          )}
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <span className="font-light">
-                        {formatRequestedDate(
-                          appointment.requested_at || appointment.created_at,
-                        )}
-                      </span>
-                    </div>
-                  </div>
 
-                  <hr className="border border-[#2D37482D]" />
+                    <hr className="border border-[#2D37482D]" />
 
-                  <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.purpose} </span>
-                      <span>{appointment.purpose || "N/A"}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.appointmentDate}</span>
-                      <span>{formatDate(appointment.date)}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.time}</span>
-                      <span>{formatTime(appointment.time)}</span>
-                    </div>
-
-                    <div className="flex gap-[5px]">
-                      <span className="font-medium">{t.contact}</span>
-                      <span>{appointment.contact_number || "N/A"}</span>
-                    </div>
-
-                    {appointment.appointment_number && (
+                    <div className="flex flex-col text-[16px] text-[#2D3748] my-[10px]">
                       <div className="flex gap-[5px]">
-                        <span className="font-medium">Appointment #</span>
-                        <span>{appointment.appointment_number}</span>
+                        <span className="font-medium">{t.purpose} </span>
+                        <span>{appointment.purpose || "N/A"}</span>
                       </div>
-                    )}
-                  </div>
 
-                  <hr className="border border-[#2D37482D]" />
-                  <div className="flex justify-end gap-[10px] mt-[10px]">
-                    {/* Approve Button */}
-                    <button
-                      onClick={() => handleApprove(appointment.appointment_id)}
-                      disabled={processingId === appointment.appointment_id}
-                      className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group ${
-                        processingId === appointment.appointment_id
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      {processingId === appointment.appointment_id ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                          <span>Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <img
-                            src={confirmIcon}
-                            alt="confirmIcon"
-                            className="h-[15px]"
-                          />
-                          <span>{t.approve}</span>
-                        </>
-                      )}
-                    </button>
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.appointmentDate}</span>
+                        <span>{formatDate(appointment.date)}</span>
+                      </div>
 
-                    {/* Reject Button */}
-                    <button
-                      onClick={() => handleReject(appointment.appointment_id)}
-                      disabled={processingId === appointment.appointment_id}
-                      className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group ${
-                        processingId === appointment.appointment_id
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      {processingId === appointment.appointment_id ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                          <span>Processing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <img
-                            src={cancelIcon}
-                            alt="cancelIcon"
-                            className="h-[16px]"
-                          />
-                          <span>{t.reject}</span>
-                        </>
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.time}</span>
+                        <span>{formatTime(appointment.time)}</span>
+                      </div>
+
+                      <div className="flex gap-[5px]">
+                        <span className="font-medium">{t.contact}</span>
+                        <span>{appointment.contact_number || "N/A"}</span>
+                      </div>
+
+                      {appointment.appointment_number && (
+                        <div className="flex gap-[5px]">
+                          <span className="font-medium">Appointment #</span>
+                          <span>{appointment.appointment_number}</span>
+                        </div>
                       )}
-                    </button>
+                    </div>
+
+                    <hr className="border border-[#2D37482D]" />
+                    <div className="flex justify-end gap-[10px] mt-[10px]">
+                      {/* Approve Button */}
+                      <button
+                        onClick={() =>
+                          handleApprove(appointment.appointment_id)
+                        }
+                        disabled={processingId === appointment.appointment_id}
+                        className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#1B365D] text-[#F7FAFC] rounded-[15px] hover:bg-[#005BBD] transition-colors text-[14px] font-regular cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group ${
+                          processingId === appointment.appointment_id
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        {processingId === appointment.appointment_id ? (
+                          <>
+                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <img
+                              src={confirmIcon}
+                              alt="confirmIcon"
+                              className="h-[15px]"
+                            />
+                            <span>{t.approve}</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Reject Button */}
+                      <button
+                        onClick={() => handleReject(appointment.appointment_id)}
+                        disabled={processingId === appointment.appointment_id}
+                        className={`flex gap-[10px] items-center px-[20px] py-[10px] bg-[#E7000B] text-[#F7FAFC] rounded-[15px] hover:bg-[#FF000C] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] text-[14px] font-regular cursor-pointer hover:scale-101 group ${
+                          processingId === appointment.appointment_id
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        {processingId === appointment.appointment_id ? (
+                          <>
+                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <img
+                              src={cancelIcon}
+                              alt="cancelIcon"
+                              className="h-[16px]"
+                            />
+                            <span>{t.reject}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </>
           ) : (
             <div className="flex mx-[50px] my-[30px] flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">

@@ -1,3 +1,4 @@
+// Backend/src/controllers/authController.js
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -13,7 +14,11 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// 1. GET /api/auth/divisions
+// ============================================================
+// PUBLIC ROUTES
+// ============================================================
+
+// GET /api/auth/divisions
 exports.getDivisions = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
@@ -63,7 +68,6 @@ exports.registerResident = async (req, res) => {
 
         let householdCreated = false;
 
-        // ✅ If household doesn't exist, create it with address
         if (householdRows.length === 0) {
             await db.query(
                 `INSERT INTO household (household_number, address, division_id)
@@ -73,7 +77,6 @@ exports.registerResident = async (req, res) => {
             householdCreated = true;
             console.log(`✅ New household created: ${householdNumber}`);
         } else {
-            // ✅ If household exists, update address if provided
             if (homeAddress) {
                 await db.query(
                     'UPDATE household SET address = ? WHERE household_number = ?',
@@ -131,7 +134,7 @@ exports.registerResident = async (req, res) => {
     }
 };
 
-// POST /api/auth/verify-registration (Verifies registration OTP and activates account)
+// POST /api/auth/verify-registration
 exports.verifyRegistration = async (req, res) => {
     const { email, nic, otp } = req.body;
 
@@ -139,7 +142,6 @@ exports.verifyRegistration = async (req, res) => {
         return res.status(400).json({ error: 'Please enter all fields.' });
     }
 
-    // Support offline bypass/development bypass
     const isMock = email === 'resident@example.com' || otp === '123456';
 
     const storedData = otpStore.get(email);
@@ -160,7 +162,6 @@ exports.verifyRegistration = async (req, res) => {
     }
 
     try {
-        // Update resident status to Active and enable 2FA
         const targetEmail = storedData ? storedData.tempUserData.email : email;
         const targetNic = storedData ? storedData.tempUserData.nic : nic;
 
@@ -181,7 +182,7 @@ exports.verifyRegistration = async (req, res) => {
     }
 };
 
-// 3. POST /api/auth/login (Universal Login with 2FA)
+// POST /api/auth/login
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
@@ -192,7 +193,7 @@ exports.login = async (req, res) => {
     const queryVal = identifier.trim();
 
     try {
-        // 1. Check in admin table (no 2FA required for admins)
+        // 1. Check in admin table
         const [admins] = await db.query('SELECT * FROM admin WHERE username = ? OR email = ?', [queryVal, queryVal]);
         if (admins.length > 0) {
             const admin = admins[0];
@@ -212,7 +213,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        // ✅ 2. Check in grama_niladhari (officer) table - FIXED
+        // 2. Check in grama_niladhari (officer) table
         const [officers] = await db.query(`
             SELECT o.*, d.name AS division_name 
             FROM grama_niladhari o
@@ -232,7 +233,6 @@ exports.login = async (req, res) => {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate OTP for Officer Login
             const otp = generateOTP();
             const expiresAt = Date.now() + 5 * 60 * 1000;
 
@@ -282,7 +282,6 @@ exports.login = async (req, res) => {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            // Generate OTP for Resident Login
             const otp = generateOTP();
             const expiresAt = Date.now() + 5 * 60 * 1000;
 
@@ -318,7 +317,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// POST /api/auth/verify-2fa (Verifies login OTP and returns JWT)
+// POST /api/auth/verify-2fa
 exports.verify2FA = async (req, res) => {
     const { email, otp } = req.body;
 
@@ -326,7 +325,6 @@ exports.verify2FA = async (req, res) => {
         return res.status(400).json({ error: 'Please enter all fields.' });
     }
 
-    // Support offline bypass/development bypass
     const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || otp === '123456';
 
     const storedData = otpStore.get(email);
@@ -350,7 +348,6 @@ exports.verify2FA = async (req, res) => {
         let payload, userDetails;
 
         if (isMock) {
-            // Simulated login token details
             const isOfficer = email.includes('officer');
             payload = isOfficer ? {
                 id: 'GN-001',
@@ -417,7 +414,7 @@ exports.verify2FA = async (req, res) => {
     }
 };
 
-// POST /api/auth/resend-otp (Resends OTP for active session)
+// POST /api/auth/resend-otp
 exports.resendOTP = async (req, res) => {
     const { email, purpose } = req.body;
 
@@ -449,7 +446,7 @@ exports.resendOTP = async (req, res) => {
     }
 };
 
-// POST /api/auth/register/officer (Admin creates GN Officer)
+// POST /api/auth/register/officer (Admin only)
 exports.registerOfficer = async (req, res) => {
     const { username, firstName, lastName, email, mobile, division, password } = req.body;
 
@@ -458,14 +455,12 @@ exports.registerOfficer = async (req, res) => {
     }
 
     try {
-        // Check if division exists and get ID
         const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
         const divisionId = divisions[0].id;
 
-        // Check if officer username/email already exists
         const [existing] = await db.query(
             'SELECT gn_id FROM grama_niladhari WHERE username = ? OR email = ?',
             [username, email]
@@ -474,7 +469,6 @@ exports.registerOfficer = async (req, res) => {
             return res.status(400).json({ error: 'Officer with this username or email already exists.' });
         }
 
-        // Generate unique GN ID like GN-123
         let gnId;
         let isUnique = false;
         while (!isUnique) {
@@ -489,19 +483,14 @@ exports.registerOfficer = async (req, res) => {
             }
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Full name can be generated or left NULL
-        const fullName = null; // User can update later
-
-        // Insert Officer with all fields
         await db.query(`
             INSERT INTO grama_niladhari (
                 gn_id, username, password_hash, first_name, last_name, full_name,
                 email, mobile, division_id, status, is_2fa_enabled
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
-        `, [gnId, username, hashedPassword, firstName, lastName, fullName, email, mobile, divisionId]);
+        `, [gnId, username, hashedPassword, firstName, lastName, null, email, mobile, divisionId]);
 
         return res.status(201).json({ 
             message: 'GN Officer account registered successfully with 2FA enabled.',
@@ -512,6 +501,10 @@ exports.registerOfficer = async (req, res) => {
         return res.status(500).json({ error: 'Server error creating officer account.' });
     }
 };
+
+// ============================================================
+// ADMIN ROUTES - OFFICER MANAGEMENT
+// ============================================================
 
 // GET /api/auth/admin/officers
 exports.getOfficers = async (req, res) => {
@@ -541,329 +534,6 @@ exports.getOfficers = async (req, res) => {
     } catch (error) {
         console.error('Error fetching officers list:', error);
         return res.status(500).json({ error: 'Server error fetching officers.' });
-    }
-};
-// GET /api/auth/admin/residents
-exports.getResidents = async (req, res) => {
-    try {
-        const [rows] = await db.query(`
-            SELECT 
-                r.r_nic, 
-                r.full_name AS name, 
-                r.email, 
-                r.mobile_no, 
-                r.division_id,
-                d.name AS division_name, 
-                r.status, 
-                r.occupation, 
-                r.household_number,
-                r.home_address,
-                h.address AS household_address
-            FROM resident r
-            JOIN household h ON r.household_number = h.household_number
-            JOIN gn_division d ON r.division_id = d.division_id
-            ORDER BY r.created_at DESC
-        `);
-        const mapped = rows.map(r => ({ ...r, nic: r.r_nic }));
-        return res.json(mapped);
-    } catch (error) {
-        console.error('Error fetching residents list:', error);
-        return res.status(500).json({ error: 'Server error fetching residents.' });
-    }
-};
-
-// 7. GET /api/auth/admin/households
-exports.getHouseholds = async (req, res) => {
-    try {
-        const [rows] = await db.query(`
-            SELECT 
-                h.household_number,
-                h.address,
-                h.created_at,
-                COUNT(r.r_nic) AS resident_count
-            FROM household h
-            LEFT JOIN resident r ON h.household_number = r.household_number
-            GROUP BY h.household_number
-            ORDER BY h.created_at DESC
-        `);
-        return res.json(rows);
-    } catch (error) {
-        console.error('Error fetching households:', error);
-        return res.status(500).json({ error: 'Server error fetching households.' });
-    }
-};
-
-// 8. PUT /api/auth/admin/households/:householdNumber
-exports.updateHousehold = async (req, res) => {
-    const { householdNumber } = req.params;
-    const { address } = req.body;
-
-    try {
-        const [result] = await db.query(`
-            UPDATE household 
-            SET address = ?
-            WHERE household_number = ?
-        `, [address, householdNumber]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Household not found.' });
-        }
-
-        return res.json({ message: 'Household details updated successfully.' });
-    } catch (error) {
-        console.error('Error updating household:', error);
-        return res.status(500).json({ error: 'Server error updating household details.' });
-    }
-};
-
-// 9. PUT /api/auth/admin/officers/:id/status
-exports.updateOfficerStatus = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status || (status !== 'Active' && status !== 'Suspended')) {
-        return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
-    }
-
-    try {
-        const [result] = await db.query('UPDATE grama_niladhari SET status = ? WHERE officer_id = ? OR gn_id = ?', [status, id, id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Officer not found.' });
-        }
-        return res.json({ message: 'Officer status updated successfully.' });
-    } catch (error) {
-        console.error('Error updating officer status:', error);
-        return res.status(500).json({ error: 'Server error updating officer status.' });
-    }
-};
-
-// 10. PUT /api/auth/admin/residents/:nic/status
-exports.updateResidentStatus = async (req, res) => {
-    const { nic } = req.params;
-    const { status } = req.body;
-
-    if (!status || (status !== 'Active' && status !== 'Suspended')) {
-        return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
-    }
-
-    try {
-        const [result] = await db.query('UPDATE resident SET status = ? WHERE r_nic = ?', [status, nic]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Resident not found.' });
-        }
-        return res.json({ message: 'Resident status updated successfully.' });
-    } catch (error) {
-        console.error('Error updating resident status:', error);
-        return res.status(500).json({ error: 'Server error updating resident status.' });
-    }
-};
-
-// 11. DELETE /api/auth/admin/officers/:id
-exports.deleteOfficer = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const [result] = await db.query('DELETE FROM grama_niladhari WHERE officer_id = ? OR gn_id = ?', [id, id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Officer not found.' });
-        }
-        return res.json({ message: 'GN Officer account deleted successfully.' });
-    } catch (error) {
-        console.error('Error deleting officer:', error);
-        return res.status(500).json({ error: 'Server error deleting officer.' });
-    }
-};
-
-// 12. DELETE /api/auth/admin/residents/:nic
-exports.deleteResident = async (req, res) => {
-    const { nic } = req.params;
-
-    try {
-        // Check if resident exists and get household number
-        const [resident] = await db.query('SELECT household_number FROM resident WHERE r_nic = ?', [nic]);
-        if (resident.length === 0) {
-            return res.status(404).json({ error: 'Resident not found.' });
-        }
-
-        const householdNumber = resident[0].household_number;
-
-        // Delete resident
-        await db.query('DELETE FROM resident WHERE r_nic = ?', [nic]);
-
-        // Check if any other residents are in this household
-        const [remaining] = await db.query(
-            'SELECT r_nic FROM resident WHERE household_number = ?',
-            [householdNumber]
-        );
-
-        // If no residents remain, delete the household
-        if (remaining.length === 0) {
-            await db.query('DELETE FROM household WHERE household_number = ?', [householdNumber]);
-            console.log(`✅ Household ${householdNumber} deleted as it had no residents.`);
-        }
-
-        return res.json({ message: 'Resident account deleted successfully.' });
-    } catch (error) {
-        console.error('Error deleting resident:', error);
-        return res.status(500).json({ error: 'Server error deleting resident.' });
-    }
-};
-
-// PUT /api/auth/admin/officers/:id
-exports.updateOfficer = async (req, res) => {
-    const { id } = req.params;
-    const { 
-        username, firstName, lastName, fullName, email, mobile, 
-        division, status, password 
-    } = req.body;
-
-    if (!username || !firstName || !lastName || !email || !mobile || !division || !status) {
-        return res.status(400).json({ error: 'Please fill in all required fields.' });
-    }
-
-    try {
-        // Check if division exists and get ID
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
-        if (divisions.length === 0) {
-            return res.status(400).json({ error: 'Selected division is invalid.' });
-        }
-        const divisionId = divisions[0].id;
-
-        // Check if username/email already taken by another officer
-        const [existing] = await db.query(
-            'SELECT gn_id FROM grama_niladhari WHERE (username = ? OR email = ?) AND gn_id != ?',
-            [username, email, id]
-        );
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Username or Email is already taken by another officer.' });
-        }
-
-        let result;
-        if (password && password.trim() !== '') {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            [result] = await db.query(`
-                UPDATE grama_niladhari 
-                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
-                    email = ?, mobile = ?, division_id = ?, status = ?, password_hash = ?
-                WHERE gn_id = ?
-            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, hashedPassword, id]);
-        } else {
-            [result] = await db.query(`
-                UPDATE grama_niladhari 
-                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
-                    email = ?, mobile = ?, division_id = ?, status = ?
-                WHERE gn_id = ?
-            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, id]);
-        }
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Officer not found.' });
-        }
-
-        return res.json({ message: 'Officer account updated successfully.' });
-    } catch (error) {
-        console.error('Error updating officer:', error);
-        return res.status(500).json({ error: 'Server error updating officer details.' });
-    }
-};
-
-// PUT /api/auth/admin/residents/:nic
-exports.updateResident = async (req, res) => {
-    const { nic } = req.params;
-    const { name, email, mobile_no, status, occupation, household_number, home_address, address, division_id } = req.body;
-
-    if (!name || !email || !mobile_no || !status || !household_number) {
-        return res.status(400).json({ error: 'Please fill in all required fields.' });
-    }
-
-    try {
-        const [existing] = await db.query('SELECT r_nic FROM resident WHERE email = ? AND r_nic != ?', [email, nic]);
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Email is already taken by another resident.' });
-        }
-
-        const nameParts = name.trim().split(/\s+/);
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-
-        const updates = [];
-        const values = [];
-
-        updates.push('first_name = ?'); values.push(firstName);
-        updates.push('last_name = ?'); values.push(lastName);
-        updates.push('email = ?'); values.push(email);
-        updates.push('mobile_no = ?'); values.push(mobile_no);
-        updates.push('status = ?'); values.push(status);
-        updates.push('occupation = ?'); values.push(occupation || null);
-        updates.push('household_number = ?'); values.push(household_number);
-        updates.push('home_address = ?'); values.push(home_address || null);
-
-        // Only update division_id if provided
-        if (division_id) {
-            updates.push('division_id = ?');
-            values.push(division_id);
-        }
-
-        values.push(nic);
-        const query = `UPDATE resident SET ${updates.join(', ')} WHERE r_nic = ?`;
-        
-        const [result] = await db.query(query, values);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Resident not found.' });
-        }
-
-        if (address) {
-            await db.query(`
-                UPDATE household 
-                SET address = ?
-                WHERE household_number = ?
-            `, [address, household_number]);
-        }
-
-        return res.json({ message: 'Resident account updated successfully.' });
-    } catch (error) {
-        console.error('Error updating resident:', error);
-        return res.status(500).json({ error: 'Server error updating resident details.' });
-    }
-};
-
-// GET /api/auth/admin/residents/:nic
-exports.getResidentByNic = async (req, res) => {
-    const { nic } = req.params;
-
-    try {
-        const [rows] = await db.query(`
-            SELECT 
-                r.r_nic,
-                r.full_name AS name,
-                r.email,
-                r.mobile_no,
-                r.date_of_birth AS dob,
-                r.gender,
-                r.occupation,
-                r.status,
-                r.household_number,
-                r.division_id,
-                r.home_address,
-                r.created_at,
-                d.name AS division_name,
-                h.address AS household_address
-            FROM resident r
-            JOIN household h ON r.household_number = h.household_number
-            JOIN gn_division d ON r.division_id = d.division_id
-            WHERE r.r_nic = ?
-        `, [nic]);
-
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Resident not found.' });
-        }
-
-        const detail = { ...rows[0], nic: rows[0].r_nic };
-        return res.json(detail);
-    } catch (error) {
-        console.error('Error fetching resident:', error);
-        return res.status(500).json({ error: 'Server error fetching resident details.' });
     }
 };
 
@@ -905,9 +575,378 @@ exports.getOfficerById = async (req, res) => {
     }
 };
 
-// GN DIVISION MANAGEMENT CONTROLLERS
+// PUT /api/auth/admin/officers/:id
+exports.updateOfficer = async (req, res) => {
+    const { id } = req.params;
+    const { username, firstName, lastName, fullName, email, mobile, division, status, password } = req.body;
 
-// 17. GET /api/auth/admin/divisions
+    if (!username || !firstName || !lastName || !email || !mobile || !division || !status) {
+        return res.status(400).json({ error: 'Please fill in all required fields.' });
+    }
+
+    try {
+        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        if (divisions.length === 0) {
+            return res.status(400).json({ error: 'Selected division is invalid.' });
+        }
+        const divisionId = divisions[0].id;
+
+        const [existing] = await db.query(
+            'SELECT gn_id FROM grama_niladhari WHERE (username = ? OR email = ?) AND gn_id != ?',
+            [username, email, id]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Username or Email is already taken by another officer.' });
+        }
+
+        let result;
+        if (password && password.trim() !== '') {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            [result] = await db.query(`
+                UPDATE grama_niladhari 
+                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
+                    email = ?, mobile = ?, division_id = ?, status = ?, password_hash = ?
+                WHERE gn_id = ?
+            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, hashedPassword, id]);
+        } else {
+            [result] = await db.query(`
+                UPDATE grama_niladhari 
+                SET username = ?, first_name = ?, last_name = ?, full_name = ?,
+                    email = ?, mobile = ?, division_id = ?, status = ?
+                WHERE gn_id = ?
+            `, [username, firstName, lastName, fullName || null, email, mobile, divisionId, status, id]);
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Officer not found.' });
+        }
+
+        return res.json({ message: 'Officer account updated successfully.' });
+    } catch (error) {
+        console.error('Error updating officer:', error);
+        return res.status(500).json({ error: 'Server error updating officer details.' });
+    }
+};
+
+// PUT /api/auth/admin/officers/:id/status
+exports.updateOfficerStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status || (status !== 'Active' && status !== 'Suspended')) {
+        return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
+    }
+
+    try {
+        const [result] = await db.query('UPDATE grama_niladhari SET status = ? WHERE gn_id = ?', [status, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Officer not found.' });
+        }
+        return res.json({ message: 'Officer status updated successfully.' });
+    } catch (error) {
+        console.error('Error updating officer status:', error);
+        return res.status(500).json({ error: 'Server error updating officer status.' });
+    }
+};
+
+// DELETE /api/auth/admin/officers/:id
+exports.deleteOfficer = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const [result] = await db.query('DELETE FROM grama_niladhari WHERE gn_id = ?', [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Officer not found.' });
+        }
+        return res.json({ message: 'GN Officer account deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting officer:', error);
+        return res.status(500).json({ error: 'Server error deleting officer.' });
+    }
+};
+
+// ============================================================
+// ADMIN ROUTES - RESIDENT MANAGEMENT
+// ============================================================
+
+// GET /api/auth/admin/residents
+exports.getResidents = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                r.r_nic, 
+                r.full_name AS name, 
+                r.email, 
+                r.mobile_no, 
+                r.division_id,
+                d.name AS division_name, 
+                r.status, 
+                r.occupation, 
+                r.household_number,
+                r.home_address,
+                h.address AS household_address
+            FROM resident r
+            JOIN household h ON r.household_number = h.household_number
+            JOIN gn_division d ON r.division_id = d.division_id
+            ORDER BY r.created_at DESC
+        `);
+        const mapped = rows.map(r => ({ ...r, nic: r.r_nic }));
+        return res.json(mapped);
+    } catch (error) {
+        console.error('Error fetching residents list:', error);
+        return res.status(500).json({ error: 'Server error fetching residents.' });
+    }
+};
+
+// GET /api/auth/admin/residents/:nic (Officer & Admin accessible)
+exports.getResidentByNic = async (req, res) => {
+    const { nic } = req.params;
+
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                r.r_nic,
+                r.first_name,
+                r.last_name,
+                r.full_name AS name,
+                r.email,
+                r.mobile_no,
+                r.date_of_birth AS dob,
+                r.gender,
+                r.occupation,
+                r.status,
+                r.household_number,
+                r.division_id,
+                r.home_address,
+                r.created_at,
+                d.name AS division_name,
+                h.address AS household_address
+            FROM resident r
+            JOIN household h ON r.household_number = h.household_number
+            JOIN gn_division d ON r.division_id = d.division_id
+            WHERE r.r_nic = ?
+        `, [nic]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        const detail = { 
+            ...rows[0], 
+            nic: rows[0].r_nic,
+            name: rows[0].name || `${rows[0].first_name} ${rows[0].last_name}`.trim()
+        };
+
+        return res.json({
+            success: true,
+            data: detail
+        });
+    } catch (error) {
+        console.error('Error fetching resident:', error);
+        return res.status(500).json({ error: 'Server error fetching resident details.' });
+    }
+};
+
+// GET /api/auth/admin/residents/:nic/family (Officer & Admin accessible)
+exports.getResidentFamily = async (req, res) => {
+    const { nic } = req.params;
+
+    if (!nic) {
+        return res.status(400).json({ error: 'Resident NIC is required.' });
+    }
+
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                member_id AS id,
+                name,
+                nic,
+                age,
+                occupation,
+                relationship,
+                gender,
+                date_of_birth AS dob
+            FROM family_member
+            WHERE resident_nic = ?
+              AND is_active = TRUE
+            ORDER BY 
+                CASE relationship WHEN 'Head' THEN 0 ELSE 1 END,
+                age DESC
+        `, [nic]);
+
+        return res.json({
+            success: true,
+            data: rows,
+            count: rows.length
+        });
+
+    } catch (error) {
+        console.error('Error fetching resident family:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching family members.',
+            details: error.message 
+        });
+    }
+};
+
+// PUT /api/auth/admin/residents/:nic
+exports.updateResident = async (req, res) => {
+    const { nic } = req.params;
+    const { name, email, mobile_no, status, occupation, household_number, home_address, division_id } = req.body;
+
+    if (!name || !email || !mobile_no || !status || !household_number) {
+        return res.status(400).json({ error: 'Please fill in all required fields.' });
+    }
+
+    try {
+        const [existing] = await db.query('SELECT r_nic FROM resident WHERE email = ? AND r_nic != ?', [email, nic]);
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Email is already taken by another resident.' });
+        }
+
+        const nameParts = name.trim().split(/\s+/);
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        const updates = [];
+        const values = [];
+
+        updates.push('first_name = ?'); values.push(firstName);
+        updates.push('last_name = ?'); values.push(lastName);
+        updates.push('email = ?'); values.push(email);
+        updates.push('mobile_no = ?'); values.push(mobile_no);
+        updates.push('status = ?'); values.push(status);
+        updates.push('occupation = ?'); values.push(occupation || null);
+        updates.push('household_number = ?'); values.push(household_number);
+        updates.push('home_address = ?'); values.push(home_address || null);
+
+        if (division_id) {
+            updates.push('division_id = ?');
+            values.push(division_id);
+        }
+
+        values.push(nic);
+        const query = `UPDATE resident SET ${updates.join(', ')} WHERE r_nic = ?`;
+        
+        const [result] = await db.query(query, values);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        return res.json({ message: 'Resident account updated successfully.' });
+    } catch (error) {
+        console.error('Error updating resident:', error);
+        return res.status(500).json({ error: 'Server error updating resident details.' });
+    }
+};
+
+// PUT /api/auth/admin/residents/:nic/status
+exports.updateResidentStatus = async (req, res) => {
+    const { nic } = req.params;
+    const { status } = req.body;
+
+    if (!status || (status !== 'Active' && status !== 'Suspended')) {
+        return res.status(400).json({ error: 'Valid status (Active or Suspended) required.' });
+    }
+
+    try {
+        const [result] = await db.query('UPDATE resident SET status = ? WHERE r_nic = ?', [status, nic]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+        return res.json({ message: 'Resident status updated successfully.' });
+    } catch (error) {
+        console.error('Error updating resident status:', error);
+        return res.status(500).json({ error: 'Server error updating resident status.' });
+    }
+};
+
+// DELETE /api/auth/admin/residents/:nic
+exports.deleteResident = async (req, res) => {
+    const { nic } = req.params;
+
+    try {
+        const [resident] = await db.query('SELECT household_number FROM resident WHERE r_nic = ?', [nic]);
+        if (resident.length === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        const householdNumber = resident[0].household_number;
+
+        await db.query('DELETE FROM resident WHERE r_nic = ?', [nic]);
+
+        const [remaining] = await db.query(
+            'SELECT r_nic FROM resident WHERE household_number = ?',
+            [householdNumber]
+        );
+
+        if (remaining.length === 0) {
+            await db.query('DELETE FROM household WHERE household_number = ?', [householdNumber]);
+            console.log(`✅ Household ${householdNumber} deleted as it had no residents.`);
+        }
+
+        return res.json({ message: 'Resident account deleted successfully.' });
+    } catch (error) {
+        console.error('Error deleting resident:', error);
+        return res.status(500).json({ error: 'Server error deleting resident.' });
+    }
+};
+
+// ============================================================
+// ADMIN ROUTES - HOUSEHOLD MANAGEMENT
+// ============================================================
+
+// GET /api/auth/admin/households
+exports.getHouseholds = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT 
+                h.household_number,
+                h.address,
+                h.created_at,
+                COUNT(r.r_nic) AS resident_count
+            FROM household h
+            LEFT JOIN resident r ON h.household_number = r.household_number
+            GROUP BY h.household_number
+            ORDER BY h.created_at DESC
+        `);
+        return res.json(rows);
+    } catch (error) {
+        console.error('Error fetching households:', error);
+        return res.status(500).json({ error: 'Server error fetching households.' });
+    }
+};
+
+// PUT /api/auth/admin/households/:number
+exports.updateHousehold = async (req, res) => {
+    const { number } = req.params;
+    const { address } = req.body;
+
+    try {
+        const [result] = await db.query(`
+            UPDATE household 
+            SET address = ?
+            WHERE household_number = ?
+        `, [address, number]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Household not found.' });
+        }
+
+        return res.json({ message: 'Household details updated successfully.' });
+    } catch (error) {
+        console.error('Error updating household:', error);
+        return res.status(500).json({ error: 'Server error updating household details.' });
+    }
+};
+
+// ============================================================
+// ADMIN ROUTES - GN DIVISION MANAGEMENT
+// ============================================================
+
+// GET /api/auth/admin/divisions
 exports.getAllDivisionsDetails = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -933,7 +972,7 @@ exports.getAllDivisionsDetails = async (req, res) => {
     }
 };
 
-// 18. POST /api/auth/admin/divisions
+// POST /api/auth/admin/divisions
 exports.createDivision = async (req, res) => {
     const { division_code, name, district, province, divisional_secretariat, population, household_count } = req.body;
 
@@ -942,7 +981,6 @@ exports.createDivision = async (req, res) => {
     }
 
     try {
-        // Check if code or name exists
         const [existing] = await db.query(
             'SELECT division_id FROM gn_division WHERE division_code = ? OR name = ?',
             [division_code, name]
@@ -971,7 +1009,7 @@ exports.createDivision = async (req, res) => {
     }
 };
 
-// 19. PUT /api/auth/admin/divisions/:id
+// PUT /api/auth/admin/divisions/:id
 exports.updateDivision = async (req, res) => {
     const { id } = req.params;
     const { division_code, name, district, province, divisional_secretariat, population, household_count, is_active } = req.body;
@@ -1019,7 +1057,7 @@ exports.updateDivision = async (req, res) => {
     }
 };
 
-// 20. PUT /api/auth/admin/divisions/:id/status
+// PUT /api/auth/admin/divisions/:id/status
 exports.toggleDivisionStatus = async (req, res) => {
     const { id } = req.params;
     const { is_active, status } = req.body;
@@ -1050,7 +1088,7 @@ exports.toggleDivisionStatus = async (req, res) => {
     }
 };
 
-// 21. DELETE /api/auth/admin/divisions/:id
+// DELETE /api/auth/admin/divisions/:id
 exports.deleteDivision = async (req, res) => {
     const { id } = req.params;
 
