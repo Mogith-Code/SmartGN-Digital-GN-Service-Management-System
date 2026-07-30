@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
+import { addNotification } from '../utils/notifications'
 import Footer from '../Components/Common/Footer'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
@@ -251,6 +252,13 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         throw new Error(data.error || 'Failed to approve certificate.')
       }
 
+      addNotification('resident', {
+        type: 'certificate',
+        title: 'Certificate Request Approved',
+        message: `Your ${certRequest?.type || 'Certificate'} request (${id}) has been approved by Grama Niladhari.`,
+        link: '/ResidentDashboard/certificates/approved'
+      })
+
       setCertRequest(prev => prev ? { ...prev, status: 'Approved' } : null)
       setDocumentAuditCheck(true)
       alert(`Certificate request ${id} has been Approved and Issued successfully!`)
@@ -273,6 +281,13 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         const updatedRes = resList.map(c => (c.id === id || c.request_id === id) ? { ...c, ...payload, status: 'APPROVED' } : c)
         localStorage.setItem('smartgn_certificates', JSON.stringify(updatedRes))
       }
+
+      addNotification('resident', {
+        type: 'certificate',
+        title: 'Certificate Request Approved',
+        message: `Your ${certRequest?.type || 'Certificate'} request (${id}) has been approved by Grama Niladhari.`,
+        link: '/ResidentDashboard/certificates/approved'
+      })
 
       setCertRequest(prev => prev ? { ...prev, status: 'Approved' } : null)
       setDocumentAuditCheck(true)
@@ -297,6 +312,13 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         throw new Error(data.error || 'Failed to reject certificate.')
       }
 
+      addNotification('resident', {
+        type: 'certificate',
+        title: 'Certificate Request Rejected',
+        message: `Your ${certRequest?.type || 'Certificate'} request (${id}) has been rejected. Reason: ${reason || 'Incomplete supporting documents.'}`,
+        link: '/ResidentDashboard/certificates/rejected'
+      })
+
       setCertRequest(prev => prev ? { ...prev, status: 'Rejected' } : null)
       alert(`Certificate request ${id} has been Rejected.`)
       navigate('/dashboard/officer/certificates', { state: { successUser: `${profile.firstName} ${profile.lastName}`, officerId: officerIdVal } })
@@ -316,6 +338,13 @@ function OfficerCertificateDetails({ onOpenHelp }) {
         const updatedRes = resList.map(c => (c.id === id || c.request_id === id) ? { ...c, status: 'REJECTED', rejectionReason: reason || 'Incomplete supporting documents.' } : c)
         localStorage.setItem('smartgn_certificates', JSON.stringify(updatedRes))
       }
+
+      addNotification('resident', {
+        type: 'certificate',
+        title: 'Certificate Request Rejected',
+        message: `Your ${certRequest?.type || 'Certificate'} request (${id}) has been rejected. Reason: ${reason || 'Incomplete supporting documents.'}`,
+        link: '/ResidentDashboard/certificates/rejected'
+      })
 
       setCertRequest(prev => prev ? { ...prev, status: 'Rejected' } : null)
       alert(`Certificate request ${id} has been Rejected. (offline data synced)`)
