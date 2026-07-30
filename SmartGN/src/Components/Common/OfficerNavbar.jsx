@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
+import NotificationsDropdown from "./NotificationsDropdown";
 import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -88,11 +89,26 @@ function OfficerNavbar() {
     localStorage.getItem("smartgn_user_id") ||
     "200324511540";
 
-  useEffect(() => {
+  const loadOfficerProfile = () => {
     const saved = localStorage.getItem("smartgn_officer_profile");
     if (saved) {
-      setProfile(JSON.parse(saved));
+      try {
+        setProfile(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error loading officer profile:", e);
+      }
     }
+  };
+
+  useEffect(() => {
+    loadOfficerProfile();
+    const handleProfileUpdate = () => loadOfficerProfile();
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+    window.addEventListener("storage", handleProfileUpdate);
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+      window.removeEventListener("storage", handleProfileUpdate);
+    };
   }, []);
 
   // State to track which menu item is being hovered (mobile menu)
@@ -248,29 +264,24 @@ function OfficerNavbar() {
           {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
-            />
-            <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
-              2
-            </span>
-          </div>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown role="officer" />
 
           {/* Officer Profile Info */}
-          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
+          <div
+            className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => navigate("/dashboard/officer/profile")}
+            title="Click to view profile"
+          >
             <div className="hidden xs:flex flex-col text-right">
               <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-regular text-[#2D3748]">
                 {officerIdVal}
               </span>
-              <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748]">
+              <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748] max-w-[150px] truncate">
                 {profile.firstName} {profile.lastName}
               </span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
               {profile.profilePhoto ? (
                 <img
                   src={profile.profilePhoto}
@@ -312,20 +323,15 @@ function OfficerNavbar() {
           {/* Language Selector */}
           <LanguageSelector />
 
-          {/* Notifications Bell */}
-          <div className="relative cursor-pointer flex items-center justify-center">
-            <img
-              src={notificationIcon}
-              alt="Notifications"
-              className="w-4 h-4 sm:w-5 sm:h-6 object-contain"
-            />
-            <span className="absolute -top-1 -right-1 bg-[#D69E2E] text-[#F7FAFC] text-[8px] sm:text-[10px] font-medium w-3 h-3 sm:w-4 sm:h-4 rounded-full flex items-center justify-center">
-              2
-            </span>
-          </div>
+          {/* Notifications Dropdown */}
+          <NotificationsDropdown role="officer" />
 
           {/* User Avatar (No text on mobile) */}
-          <div className="w-7 h-7 sm:w-8 sm:h-10 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+          <div
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-[#005BBD] overflow-hidden flex-shrink-0 cursor-pointer"
+            onClick={() => navigate("/dashboard/officer/profile")}
+            title="Click to view profile"
+          >
             {profile.profilePhoto ? (
               <img
                 src={profile.profilePhoto}
