@@ -32,6 +32,12 @@ function AfterlogNavbar() {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
+  // ✅ Get user's division name from localStorage
+  const divisionName =
+    localStorage.getItem("smartgn_user_division") || "GN Division";
+  const userName = localStorage.getItem("smartgn_user_name") || "User";
+  const userRole = localStorage.getItem("smartgn_user_role") || "Resident";
+
   const navTranslations = {
     EN: {
       home: "Home",
@@ -388,8 +394,15 @@ function AfterlogNavbar() {
           </div>
         </div>
 
+        {/* ✅ User Info in Mobile Menu */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#2D37481D] bg-[#EBF8FF]">
+          <p className="text-sm font-medium text-[#1B365D]">{userName}</p>
+          <p className="text-xs text-[#2D3748]">{divisionName}</p>
+          <p className="text-xs text-[#D69E2E] mt-0.5">{userRole}</p>
+        </div>
+
         {/* Navigation Menu */}
-        <div className="flex flex-col h-[calc(100%-130px)] overflow-y-auto">
+        <div className="flex flex-col h-[calc(100%-220px)] overflow-y-auto">
           <nav className="flex flex-col gap-0.5 sm:gap-1 p-2 sm:p-3">
             {menuItems.map((item) => (
               <NavLink

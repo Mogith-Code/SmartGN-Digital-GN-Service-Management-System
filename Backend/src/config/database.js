@@ -30,31 +30,31 @@ async function setupTables(dbPool) {
   `);
 
     // ============================================================
-// 2. HOUSEHOLD TABLE (UPDATED - Added address back)
-// ============================================================
-await dbPool.query(`
-CREATE TABLE IF NOT EXISTS household (
-    household_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    household_number VARCHAR(50) UNIQUE NOT NULL,
-    address TEXT NULL COMMENT 'Household address (synced with resident)',
-    division_id VARCHAR(36) NOT NULL,
-    head_of_household_nic VARCHAR(12) COMMENT 'Resident NIC',
-    total_members INT DEFAULT 1,
-    land_size VARCHAR(50) COMMENT 'Size of the land (e.g., 10 perches, 20 acres)',
-    land_owner VARCHAR(255) COMMENT 'Name of the land owner',
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE CASCADE,
-    INDEX idx_household_number (household_number),
-    INDEX idx_division (division_id),
-    INDEX idx_is_active (is_active)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    // 2. HOUSEHOLD TABLE
+    // ============================================================
+    await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS household (
+        household_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+        household_number VARCHAR(50) UNIQUE NOT NULL,
+        address TEXT NULL COMMENT 'Household address (synced with resident)',
+        division_id VARCHAR(36) NOT NULL,
+        head_of_household_nic VARCHAR(12) COMMENT 'Resident NIC',
+        total_members INT DEFAULT 1,
+        land_size VARCHAR(50) COMMENT 'Size of the land (e.g., 10 perches, 20 acres)',
+        land_owner VARCHAR(255) COMMENT 'Name of the land owner',
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE CASCADE,
+        INDEX idx_household_number (household_number),
+        INDEX idx_division (division_id),
+        INDEX idx_is_active (is_active)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `);
 
     // ============================================================
-    // 3. RESIDENT TABLE (With division_id)
+    // 3. RESIDENT TABLE
     // ============================================================
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS resident (
@@ -141,53 +141,52 @@ CREATE TABLE IF NOT EXISTS household (
   `);
 
     // ============================================================
-   // 5. GRAMA NILADHARI (GN Officer) TABLE (UPDATED)
-// ============================================================
-await dbPool.query(`
-CREATE TABLE IF NOT EXISTS grama_niladhari (
-    gn_id VARCHAR(20) PRIMARY KEY COMMENT 'e.g., GN-001',
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    full_name VARCHAR(101) NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    mobile VARCHAR(15) NOT NULL,
-    division_id VARCHAR(36) NOT NULL COMMENT 'Assigned division',
-    status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
-    
-    -- Profile image
-    profile_photo_path VARCHAR(255),
-    profile_photo_filename VARCHAR(255),
-    
-    -- GN ID Card images
-    gn_front_path VARCHAR(255),
-    gn_front_filename VARCHAR(255),
-    gn_back_path VARCHAR(255),
-    gn_back_filename VARCHAR(255),
-    
-    -- Security
-    failed_login_attempts INT DEFAULT 0,
-    account_locked_until DATETIME DEFAULT NULL,
-    last_login_at DATETIME DEFAULT NULL,
-    last_login_ip VARCHAR(45),
-    password_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- 2FA
-    two_factor_secret VARCHAR(255),
-    is_2fa_enabled BOOLEAN DEFAULT FALSE,
-    
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE RESTRICT,
-    INDEX idx_username (username),
-    INDEX idx_email (email),
-    INDEX idx_division (division_id),
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    // 5. GRAMA NILADHARI (GN Officer) TABLE
+    // ============================================================
+    await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS grama_niladhari (
+        gn_id VARCHAR(20) PRIMARY KEY COMMENT 'e.g., GN-001',
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        full_name VARCHAR(101) NULL,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        mobile VARCHAR(15) NOT NULL,
+        division_id VARCHAR(36) NOT NULL COMMENT 'Assigned division',
+        status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
+        
+        -- Profile image
+        profile_photo_path VARCHAR(255),
+        profile_photo_filename VARCHAR(255),
+        
+        -- GN ID Card images
+        gn_front_path VARCHAR(255),
+        gn_front_filename VARCHAR(255),
+        gn_back_path VARCHAR(255),
+        gn_back_filename VARCHAR(255),
+        
+        -- Security
+        failed_login_attempts INT DEFAULT 0,
+        account_locked_until DATETIME DEFAULT NULL,
+        last_login_at DATETIME DEFAULT NULL,
+        last_login_ip VARCHAR(45),
+        password_changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        -- 2FA
+        two_factor_secret VARCHAR(255),
+        is_2fa_enabled BOOLEAN DEFAULT FALSE,
+        
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        
+        FOREIGN KEY (division_id) REFERENCES gn_division(division_id) ON DELETE RESTRICT,
+        INDEX idx_username (username),
+        INDEX idx_email (email),
+        INDEX idx_division (division_id),
+        INDEX idx_status (status)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `);
-
 
     // ============================================================
     // 6. ADMIN TABLE
@@ -224,10 +223,9 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         date DATE NOT NULL,
         time TIME NOT NULL,
         purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
+        contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(36) NOT NULL,
-        requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
@@ -235,8 +233,8 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_resident (resident_nic),
         INDEX idx_gn (gn_id),
         INDEX idx_date (date)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
 
     // 7b. APPROVED APPOINTMENTS
     await dbPool.query(`
@@ -246,13 +244,12 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         date DATE NOT NULL,
         time TIME NOT NULL,
         purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
+        contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(36) NOT NULL,
         approved_by VARCHAR(36) NOT NULL,
-        approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        confirmed_at DATETIME DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
+        approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when approved',
         
         FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
         FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
@@ -261,56 +258,34 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_gn (gn_id),
         INDEX idx_date (date),
         INDEX idx_approved_at (approved_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
 
-    // 7c. REJECTED APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_rejected (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        rejected_by VARCHAR(36) NOT NULL,
-        rejection_reason TEXT,
-        rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_rejected_at (rejected_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
-
-    // 7d. COMPLETED APPOINTMENTS
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS appointment_completed (
-        appointment_id VARCHAR(36) PRIMARY KEY,
-        appointment_number VARCHAR(20) UNIQUE NOT NULL,
-        date DATE NOT NULL,
-        time TIME NOT NULL,
-        purpose VARCHAR(255) NOT NULL,
-        notes TEXT,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        feedback TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_gn (gn_id),
-        INDEX idx_completed_at (completed_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+// 7c. REJECTED APPOINTMENTS
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS appointment_rejected (
+    appointment_id VARCHAR(36) PRIMARY KEY,
+    appointment_number VARCHAR(20) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(36) NOT NULL,
+    rejected_by VARCHAR(36) NOT NULL,
+    rejection_reason TEXT,
+    requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
+    rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when rejected',
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_gn (gn_id),
+    INDEX idx_date (date),
+    INDEX idx_rejected_at (rejected_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+`);
 
     // ============================================================
     // 8. CERTIFICATE TABLES (Separated)
@@ -336,7 +311,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (certificate_type),
         INDEX idx_request_date (request_date)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 8b. APPROVED CERTIFICATES
     await dbPool.query(`
@@ -364,7 +339,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (certificate_type),
         INDEX idx_approved_at (approved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 8c. REJECTED CERTIFICATES
     await dbPool.query(`
@@ -390,7 +365,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (certificate_type),
         INDEX idx_rejected_at (rejected_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // Safe ALTER TABLE migrations for existing schemas
     try { await dbPool.query("ALTER TABLE certificate_pending ADD COLUMN details JSON"); } catch (e) {}
@@ -419,7 +394,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_resident (resident_nic),
         INDEX idx_type (allowance_type)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 9b. APPROVED ALLOWANCES
     await dbPool.query(`
@@ -448,7 +423,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (allowance_type),
         INDEX idx_approved_at (approved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 9c. REJECTED ALLOWANCES
     await dbPool.query(`
@@ -473,7 +448,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (allowance_type),
         INDEX idx_rejected_at (rejected_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 10. DISASTER TABLES (Separated)
@@ -502,7 +477,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (disaster_type),
         INDEX idx_severity (severity)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 10b. APPROVED DISASTER REQUESTS
     await dbPool.query(`
@@ -532,7 +507,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (disaster_type),
         INDEX idx_approved_at (approved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 10c. REJECTED DISASTER REQUESTS
     await dbPool.query(`
@@ -561,7 +536,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (disaster_type),
         INDEX idx_rejected_at (rejected_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // 10d. RESOLVED DISASTER REQUESTS
     await dbPool.query(`
@@ -592,7 +567,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (disaster_type),
         INDEX idx_resolved_at (resolved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 11. DOCUMENT TABLE
@@ -622,7 +597,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (document_type),
         INDEX idx_is_verified (is_verified)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 12. CHAT TABLES
@@ -648,7 +623,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_session_token (session_token),
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS knowledge_base (
@@ -666,7 +641,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_is_active (is_active),
         FULLTEXT INDEX idx_fulltext (question, answer, keywords)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS chat_message (
@@ -685,7 +660,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_sender_type (sender_type),
         INDEX idx_timestamp (timestamp)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 13. GOVERNMENT PROPERTY TABLE
@@ -713,7 +688,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_type (property_type),
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 14. ANNOUNCEMENT TABLE
@@ -741,7 +716,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_date (date),
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 15. AUDIT LOG TABLE
@@ -766,7 +741,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_table (table_name),
         INDEX idx_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 16. NOTIFICATION TABLE
@@ -788,7 +763,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_is_read (is_read),
         INDEX idx_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 17. LOGIN ATTEMPTS TABLE
@@ -807,7 +782,7 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         INDEX idx_ip (ip_address),
         INDEX idx_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
     // 18. SYSTEM SETTINGS TABLE
@@ -822,152 +797,169 @@ CREATE TABLE IF NOT EXISTS grama_niladhari (
         
         INDEX idx_category (category)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+    `);
 
     // ============================================================
-    // SEEDING INITIAL DATA (FIXED - WITH division_id)
+    // SEED GN DIVISIONS FROM PACKAGE
     // ============================================================
+    let firstDivisionId = null;
+    
+    try {
+        // Check if divisions exist before seeding
+        const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
+        if (divisionCount[0].count === 0) {
+            console.log('🌱 Seeding GN divisions from package...');
+            
+            // Use the direct JSON import method
+            const seedGnDivisions = require('../seed/seedGnDivisions');
+            await seedGnDivisions(dbPool);
+            console.log('✅ GN divisions seeded successfully from package');
+        } else {
+            console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
+        }
+        
+        // Get the first division ID (GN-001A or any division)
+        const [firstDivisionRow] = await dbPool.query(`
+            SELECT division_id FROM gn_division 
+            ORDER BY division_code ASC 
+            LIMIT 1
+        `);
+        
+        if (firstDivisionRow.length > 0) {
+            firstDivisionId = firstDivisionRow[0].division_id;
+            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+        } else {
+            console.warn('⚠️ No division found after seeding. Please check the seed package.');
+        }
+    } catch (error) {
+        console.warn('⚠️ Could not seed GN divisions from package:', error.message);
+        console.log('📌 Falling back to manual division seeding...');
+        
+        // Fallback: Seed divisions manually if package fails
+        const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
+        if (divisionCount[0].count === 0) {
+            const divisions = [
+                ['GN-001A', 'Colombo Borella', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
+                ['GN-001B', 'Colombo Fort', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
+                ['GN-002A', 'Kandy Central', 'Kandy', 'Central', 'Kandy Divisional Secretariat']
+            ];
 
-// Check if divisions exist before seeding
-const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
-if (divisionCount[0].count === 0) {
-    const divisions = [
-        ['GN-001A', 'Colombo Borella', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
-        ['GN-001B', 'Colombo Fort', 'Colombo', 'Western', 'Colombo Divisional Secretariat'],
-        ['GN-002A', 'Kandy Central', 'Kandy', 'Central', 'Kandy Divisional Secretariat']
-    ];
-
-    for (const [code, name, district, province, secretariat] of divisions) {
-        await dbPool.query(`
-            INSERT INTO gn_division (division_id, division_code, name, district, province, divisional_secretariat)
-            VALUES (UUID(), ?, ?, ?, ?, ?)
-        `, [code, name, district, province, secretariat]);
+            for (const [code, name, district, province, secretariat] of divisions) {
+                await dbPool.query(`
+                    INSERT INTO gn_division (division_id, division_code, name, district, province, divisional_secretariat)
+                    VALUES (UUID(), ?, ?, ?, ?, ?)
+                `, [code, name, district, province, secretariat]);
+            }
+            console.log('✅ GN divisions seeded manually (fallback)');
+        }
+        
+        // Get the first division ID
+        const [firstDivisionRow] = await dbPool.query(`
+            SELECT division_id FROM gn_division 
+            ORDER BY division_code ASC 
+            LIMIT 1
+        `);
+        
+        if (firstDivisionRow.length > 0) {
+            firstDivisionId = firstDivisionRow[0].division_id;
+            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+        }
     }
-    console.log('✅ Divisions seeded');
-}
 
-// 2. Get division IDs for seeding (with proper error handling)
-const [borellaRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001A"');
-const [colomboRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-001B"');
-const [kandyRow] = await dbPool.query('SELECT division_id FROM gn_division WHERE division_code = "GN-002A"');
-
-const borellaId = borellaRow.length > 0 ? borellaRow[0].division_id : null;
-const colomboId = colomboRow.length > 0 ? colomboRow[0].division_id : null;
-const kandyId = kandyRow.length > 0 ? kandyRow[0].division_id : null;
-
-// Log division IDs for debugging
-console.log('📍 Division IDs:', { borellaId, colomboId, kandyId });
-
-// 3. Check if households exist before seeding
-const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
-if (householdCount[0].count === 0 && borellaId) {
-    await dbPool.query(`
-    INSERT INTO household (household_number, address, division_id) 
-    VALUES ('H-90823', '45/2, Temple Road, Borella', ?)
-  `, [borellaId]);
-
-    await dbPool.query(`
-    INSERT INTO household (household_number, address, division_id) 
-    VALUES ('H-90824', '12, School Lane, Colombo Fort', ?)
-  `, [colomboId]);  // ← Use colomboId here!
-    console.log('✅ Households seeded');
-}
-
-// 4. Check if residents exist before seeding
-const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
-if (residentCount[0].count === 0 && borellaId && colomboId) {
-    const residentPasswordHash = bcrypt.hashSync('password123', 10);
+    // ============================================================
+    // SEED HOUSEHOLD, RESIDENT, GN OFFICER, ADMIN
+    // ============================================================
     
-    // Resident 1 - Borella Division
-    await dbPool.query(`
-    INSERT INTO resident (
-        r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-        password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
-        home_address
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
-  `, [
-        '789456123V',
-        'Nimal',
-        'Perera',
-        '1990-05-15',
-        'Male',
-        '0771234567',
-        'nimal@example.com',
-        residentPasswordHash,
-        'Engineer',
-        'H-90823',
-        borellaId,  // ✅ Borella division
-        true,
-        true,
-        '45/2, Temple Road, Borella'
-    ]);
+    if (firstDivisionId) {
+        console.log('📌 Seeding related data for the first division...');
+        
+        // 1. SEED HOUSEHOLD
+        const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
+        if (householdCount[0].count === 0) {
+            console.log('📌 Seeding household...');
+            await dbPool.query(`
+                INSERT INTO household (household_id, household_number, address, division_id) 
+                VALUES (UUID(), 'H-90823', '45/2, Temple Road, Borella', ?)
+            `, [firstDivisionId]);
+            console.log('✅ Household seeded');
+        } else {
+            console.log(`✅ Household already exists (${householdCount[0].count} records)`);
+        }
 
-    // Resident 2 - Colombo Division
-    await dbPool.query(`
-    INSERT INTO resident (
-        r_nic, first_name, last_name, date_of_birth, gender, mobile_no, email, 
-        password_hash, occupation, household_number, division_id, status, email_verified, mobile_verified,
-        home_address
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
-  `, [
-        '897654321V',
-        'Kamala',
-        'Silva',
-        '1985-08-20',
-        'Female',
-        '0719876543',
-        'kamala@example.com',
-        residentPasswordHash,
-        'Teacher',
-        'H-90824',
-        colomboId,  // ✅ Colombo Fort division (NOT Borella!)
-        true,
-        true,
-        '12, School Lane, Colombo Fort'
-    ]);
-    console.log('✅ Residents seeded');
-}
+        // 2. SEED RESIDENT
+        const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
+        if (residentCount[0].count === 0) {
+            console.log('📌 Seeding resident...');
+            const residentPasswordHash = bcrypt.hashSync('password123', 10);
+            
+            await dbPool.query(`
+                INSERT INTO resident (
+                    r_nic, first_name, last_name, full_name, date_of_birth, gender, mobile_no, email, 
+                    password_hash, occupation, household_number, division_id, status, 
+                    email_verified, mobile_verified, home_address
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', ?, ?, ?)
+            `, [
+                '789456123V',
+                'Nimal',
+                'Perera',
+                'Nimal Perera',
+                '1990-05-15',
+                'Male',
+                '0771234567',
+                'nimal@example.com',
+                residentPasswordHash,
+                'Engineer',
+                'H-90823',
+                firstDivisionId,
+                true,
+                true,
+                '45/2, Temple Road, Borella'
+            ]);
+            console.log('✅ Resident seeded');
+        } else {
+            console.log(`✅ Resident already exists (${residentCount[0].count} records)`);
+        }
 
-   const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
-if (officerCount[0].count === 0 && borellaId) {
-    const officerPasswordHash = bcrypt.hashSync('password123', 10);
-    
-    await dbPool.query(`
-    INSERT INTO grama_niladhari (
-        gn_id, username, password_hash, first_name, last_name, full_name,
-        email, mobile, division_id, status, is_2fa_enabled,
-        profile_photo_path, profile_photo_filename,
-        gn_front_path, gn_front_filename, gn_back_path, gn_back_filename
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE, ?, ?, ?, ?, ?, ?)
-  `, [
-        'GN-001',
-        'kamal_gn',
-        officerPasswordHash,
-        'Kamal',
-        'Perera',
-        'Kamal Perera',
-        'kamal.gn@example.com',
-        '0703564478',
-        borellaId,
-        null, // profile_photo_path
-        null, // profile_photo_filename
-        null, // gn_front_path
-        null, // gn_front_filename
-        null, // gn_back_path
-        null  // gn_back_filename
-    ]);
-    console.log('✅ GN Officers seeded');
-}
+        // 3. SEED GN OFFICER
+        const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
+        if (officerCount[0].count === 0) {
+            console.log('📌 Seeding GN Officer...');
+            const officerPasswordHash = bcrypt.hashSync('password123', 10);
+            
+            await dbPool.query(`
+                INSERT INTO grama_niladhari (
+                    gn_id, username, password_hash, first_name, last_name, full_name,
+                    email, mobile, division_id, status, is_2fa_enabled
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
+            `, [
+                'GN-001',
+                'kamal_gn',
+                officerPasswordHash,
+                'Kamal',
+                'Perera',
+                'Kamal Perera',
+                'kamal.gn@example.com',
+                '0703564478',
+                firstDivisionId
+            ]);
+            console.log('✅ GN Officer seeded');
+        } else {
+            console.log(`✅ GN Officer already exists (${officerCount[0].count} records)`);
+        }
+    } else {
+        console.warn('⚠️ No division ID available. Skipping household, resident, and GN officer seeding.');
+    }
 
-    // 6. Check if Admin exists before seeding
+    // 4. SEED ADMIN (Always seed if not exists)
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');
     if (adminCount[0].count === 0) {
+        console.log('📌 Seeding Admin...');
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
         
         await dbPool.query(`
-        INSERT INTO admin (full_name, username, password_hash, email, role) 
-        VALUES (?, ?, ?, ?, ?)
-      `, [
+            INSERT INTO admin (full_name, username, password_hash, email, role) 
+            VALUES (?, ?, ?, ?, ?)
+        `, [
             'System Administrator',
             'admin',
             adminPasswordHash,
@@ -975,32 +967,36 @@ if (officerCount[0].count === 0 && borellaId) {
             'SuperAdmin'
         ]);
         console.log('✅ Admin seeded');
+    } else {
+        console.log(`✅ Admin already exists (${adminCount[0].count} records)`);
     }
 
-    // 7. Check if system settings exist before seeding
+    // 5. SEED SYSTEM SETTINGS
     const [settingsCount] = await dbPool.query('SELECT COUNT(*) as count FROM system_settings');
     if (settingsCount[0].count === 0) {
+        console.log('📌 Seeding system settings...');
         await dbPool.query(`
-        INSERT INTO system_settings (setting_key, setting_value, description, category) VALUES
-        ('app_name', 'SmartGN', 'Application name', 'general'),
-        ('app_version', '2.0.0', 'Application version', 'general'),
-        ('max_login_attempts', '5', 'Maximum failed login attempts before lockout', 'security'),
-        ('lockout_duration_minutes', '30', 'Account lockout duration in minutes', 'security'),
-        ('session_timeout_minutes', '60', 'Session timeout in minutes', 'security'),
-        ('certificate_validity_days', '365', 'Default certificate validity period', 'certificate')
-      `);
+            INSERT INTO system_settings (setting_key, setting_value, description, category) VALUES
+            ('app_name', 'SmartGN', 'Application name', 'general'),
+            ('app_version', '2.0.0', 'Application version', 'general'),
+            ('max_login_attempts', '5', 'Maximum failed login attempts before lockout', 'security'),
+            ('lockout_duration_minutes', '30', 'Account lockout duration in minutes', 'security'),
+            ('session_timeout_minutes', '60', 'Session timeout in minutes', 'security'),
+            ('certificate_validity_days', '365', 'Default certificate validity period', 'certificate')
+        `);
         console.log('✅ System settings seeded');
     }
 
-    // 8. Check if knowledge base exists before seeding
+    // 6. SEED KNOWLEDGE BASE
     const [kbCount] = await dbPool.query('SELECT COUNT(*) as count FROM knowledge_base');
     if (kbCount[0].count === 0) {
+        console.log('📌 Seeding knowledge base...');
         await dbPool.query(`
-        INSERT INTO knowledge_base (question, answer, category) VALUES
-        ('How to apply for a character certificate?', 'To apply for a character certificate, visit your local GN office or apply online through the SmartGN portal. You will need to provide your NIC and fill out the application form.', 'Certificates'),
-        ('What is the Aswesuma allowance?', 'Aswesuma is a social welfare benefit program that provides financial assistance to low-income families in Sri Lanka.', 'Allowances'),
-        ('How to report a disaster?', 'You can report a disaster through the SmartGN portal by creating a disaster request. Provide details about the disaster type, location, and your contact information.', 'Disaster')
-      `);
+            INSERT INTO knowledge_base (question, answer, category) VALUES
+            ('How to apply for a character certificate?', 'To apply for a character certificate, visit your local GN office or apply online through the SmartGN portal. You will need to provide your NIC and fill out the application form.', 'Certificates'),
+            ('What is the Aswesuma allowance?', 'Aswesuma is a social welfare benefit program that provides financial assistance to low-income families in Sri Lanka.', 'Allowances'),
+            ('How to report a disaster?', 'You can report a disaster through the SmartGN portal by creating a disaster request. Provide details about the disaster type, location, and your contact information.', 'Disaster')
+        `);
         console.log('✅ Knowledge base seeded');
     }
 

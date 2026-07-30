@@ -42,6 +42,7 @@ function ResidentDashboard({ onOpenHelp }) {
   const [upcomingAppointmentsCount, setUpcomingAppointmentsCount] = useState(0);
   const [announcements, setAnnouncements] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Get resident NIC and token from localStorage
   const residentNic = localStorage.getItem("smartgn_user_id");
@@ -74,9 +75,13 @@ function ResidentDashboard({ onOpenHelp }) {
             return;
           }
           console.warn("Resident profile API non-OK status:", response.status);
-          const cachedName = localStorage.getItem("smartgn_user_name") || "Resident";
-          const cachedDivision = localStorage.getItem("smartgn_user_division") || "Assigned Division";
-          const cachedNic = localStorage.getItem("smartgn_user_nic") || residentNic || "";
+          const cachedName =
+            localStorage.getItem("smartgn_user_name") || "Resident";
+          const cachedDivision =
+            localStorage.getItem("smartgn_user_division") ||
+            "Assigned Division";
+          const cachedNic =
+            localStorage.getItem("smartgn_user_nic") || residentNic || "";
           setProfile((prev) => ({
             ...prev,
             fullName: cachedName,
@@ -130,8 +135,7 @@ function ResidentDashboard({ onOpenHelp }) {
     };
 
     fetchResidentProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [residentNic, token]); // Removed navigate from dependencies to avoid issues
+  }, [residentNic, token]);
 
   // ============================================================
   // FETCH DASHBOARD STATS
@@ -150,9 +154,13 @@ function ResidentDashboard({ onOpenHelp }) {
         const statsRes = await fetch("/api/residents/dashboard-stats", {
           headers,
         });
+
         if (statsRes.ok) {
           const stats = await statsRes.json();
 
+          console.log("Dashboard stats received:", stats); // Debug log
+
+          // ✅ FIX: Include appointments in total counts
           const pending =
             (stats.certificates?.pending || 0) +
             (stats.appointments?.pending || 0) +
@@ -161,6 +169,7 @@ function ResidentDashboard({ onOpenHelp }) {
 
           const approved =
             (stats.certificates?.approved || 0) +
+            (stats.appointments?.approved || 0) + // ✅ ADDED: Approved appointments
             (stats.allowances?.approved || 0);
 
           setTotalPendingCount(pending);
@@ -245,7 +254,8 @@ function ResidentDashboard({ onOpenHelp }) {
 
           const approved =
             certs.filter((c) => c.status === "Approved").length +
-            allows.filter((a) => a.status === "APPROVED").length;
+            allows.filter((a) => a.status === "APPROVED").length +
+            appts.filter((a) => a.status === "Approved").length; // ✅ ADDED
 
           const upcoming = appts.filter((a) => a.status === "Approved").length;
 
@@ -301,8 +311,14 @@ function ResidentDashboard({ onOpenHelp }) {
     };
 
     fetchDashboardStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, refreshKey]); // ✅ Added refreshKey dependency
+
+  // ============================================================
+  // REFRESH DASHBOARD (Call this when returning from other pages)
+  // ============================================================
+  const refreshDashboard = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   // ============================================================
   // FETCH ANNOUNCEMENTS
@@ -389,6 +405,7 @@ function ResidentDashboard({ onOpenHelp }) {
             upcomingAppointmentsCount={upcomingAppointmentsCount}
             announcements={announcements}
             recentActivities={recentActivities}
+            onRefresh={refreshDashboard}
           />
         </div>
       </div>

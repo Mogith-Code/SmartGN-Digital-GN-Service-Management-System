@@ -10,7 +10,7 @@ const { authenticateToken, requireOfficerOrAdmin } = require('../middleware/auth
 
 // ✅ Apply authentication middleware to all routes
 router.use(authenticateToken);
-router.use(requireOfficerOrAdmin);
+// router.use(requireOfficerOrAdmin);
 
 // ============================================================
 // OFFICER PROFILE
@@ -22,5 +22,11 @@ router.put('/profile', officerController.updateOfficerProfile);
 // OFFICER DASHBOARD
 // ============================================================
 router.get('/dashboard-stats', officerController.getOfficerDashboardStats);
+
+// ✅ Resident stats
+router.get('/resident-stats', officerController.getResidentStats);
+
+// Get all residents for officer's division
+router.get('/residents', officerController.getResidents);
 
 module.exports = router;

@@ -37,6 +37,7 @@ import OfficerAnnouncements from "./Pages/OfficerAnnouncements.jsx";
 import Success from "./Pages/Success.jsx";
 import CertificateSuccess from "./Pages/CertificateSuccess.jsx";
 import ProfileDetails from "./Components/ResidentsDetails/ProfileDetails.jsx";
+import EditAppoinment from "./Components/AppointmentsPage/EditAppoinment.jsx";
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -65,6 +66,11 @@ function App() {
         <Route
           path="/ResidentDashboard/RAppointment/PendingAppointmentRequests"
           element={<PendingAppointmentRequests onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/ResidentDashboard/RAppointment/PendingAppointmentRequests/EditAppointment/:id"
+          element={<EditAppoinment onOpenHelp={openChatbot} />}
         />
 
         <Route

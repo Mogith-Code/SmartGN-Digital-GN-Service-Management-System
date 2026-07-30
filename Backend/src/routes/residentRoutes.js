@@ -10,31 +10,33 @@ router.use(authenticateToken);
 // ============================================================
 // PROFILE
 // ============================================================
-router.get('/profile', residentController.getProfile);
-router.put('/profile', residentController.updateProfile);
+router.get('/profile', authenticateToken, residentController.getProfile);
+router.put('/profile', authenticateToken, residentController.updateProfile);
 
 // ============================================================
 // DASHBOARD STATS
 // ============================================================
-router.get('/dashboard-stats', residentController.getDashboardStats);
+router.get('/dashboard-stats', authenticateToken, residentController.getDashboardStats);
 
 // ============================================================
 // FAMILY MEMBERS
 // ============================================================
-router.get('/family', residentController.getFamilyMembers);
-router.post('/family', residentController.addFamilyMember);
-router.put('/family/:id', residentController.updateFamilyMember);
-router.delete('/family/:id', residentController.deleteFamilyMember);
+router.get('/family', authenticateToken, residentController.getFamilyMembers);
+router.post('/family', authenticateToken, residentController.addFamilyMember);
+router.put('/family/:id', authenticateToken, residentController.updateFamilyMember);
+router.delete('/family/:id', authenticateToken, residentController.deleteFamilyMember);
 
 // ============================================================
 // HOUSEHOLD
 // ============================================================
-router.get('/household', residentController.getHousehold);
-router.put('/household', residentController.updateHousehold);
+router.get('/household', authenticateToken, residentController.getHousehold);
+router.put('/household', authenticateToken, residentController.updateHousehold);
 
 // ============================================================
 // ANNOUNCEMENTS (For residents)
 // ============================================================
-router.get('/announcements', residentController.getAnnouncements);
+router.get('/announcements', authenticateToken, residentController.getAnnouncements);
+
+
 
 module.exports = router;

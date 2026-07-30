@@ -18,7 +18,6 @@ function EditHouseholdDetailsLayout() {
     address: "",
     land_size: "",
     land_owner: "",
-    head_of_household: "",
   });
 
   // State for edit form
@@ -53,7 +52,6 @@ function EditHouseholdDetailsLayout() {
         address: data.address || "",
         land_size: data.land_size || "",
         land_owner: data.land_owner || "",
-        head_of_household: data.head_of_household || "",
       });
 
       // Populate edit form
@@ -181,14 +179,6 @@ function EditHouseholdDetailsLayout() {
               <label className="font-medium">Household Number :</label>
               <span className="text-[16px] font-semibold text-[#1B365D]">
                 {household.household_number || "-"}
-              </span>
-            </div>
-
-            {/* Head of Household (Read Only) */}
-            <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
-              <label className="font-medium">Head of Household :</label>
-              <span className="text-[16px] font-semibold text-[#1B365D]">
-                {household.head_of_household || "-"}
               </span>
             </div>
 
