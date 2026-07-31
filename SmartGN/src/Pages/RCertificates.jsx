@@ -234,7 +234,7 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Request Types Card */}
-          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] flex flex-col mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-[30px] flex flex-col mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Certificate types you can request
             </h3>
@@ -302,7 +302,7 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Requested Status Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
+          <div className="bg-white border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Requested certificates status
             </h3>
