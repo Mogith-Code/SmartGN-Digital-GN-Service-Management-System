@@ -59,7 +59,7 @@ function FamilyCardLyout({ Total = 0, Adult = 0, Children = 0 }) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D]"
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-all duration-200"
         >
           <img src={card.icon} alt={card.alt} className="w-[50px]" />
 
