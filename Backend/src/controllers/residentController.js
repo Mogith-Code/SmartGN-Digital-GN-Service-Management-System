@@ -1,11 +1,55 @@
 // Backend/src/controllers/residentController.js
 const db = require('../config/database');
 const { saveBase64Image } = require('../utils/fileUpload');
+const fs = require('fs');
+const path = require('path');
 
 // ============================================================
-// PROFILE MANAGEMENT
+// HELPER: DELETE IMAGE FILE
 // ============================================================
+const deleteImageFile = (imagePath) => {
+    if (!imagePath) return;
+    try {
+        // Handle both relative paths and full URLs
+        let filePath = imagePath;
+        
+        // If it's a URL with http, extract the path
+        if (imagePath.startsWith('http')) {
+            const url = new URL(imagePath);
+            filePath = url.pathname;
+        }
+        
+        // Remove leading slash if present
+        if (filePath.startsWith('/')) {
+            filePath = filePath.substring(1);
+        }
+        
+        // If path starts with 'uploads/', keep it as is
+        // Otherwise, assume it's just the filename
+        let fullPath;
+        if (filePath.startsWith('uploads/')) {
+            fullPath = path.join(__dirname, '../..', filePath);
+        } else {
+            fullPath = path.join(__dirname, '../../uploads', filePath);
+        }
+        
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            console.log(`✅ Deleted image: ${fullPath}`);
+            return true;
+        } else {
+            console.log(`⚠️ Image not found: ${fullPath}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        return false;
+    }
+};
 
+// ============================================================
+// GET PROFILE
+// ============================================================
 exports.getProfile = async (req, res) => {
     const user = req.user;
     
@@ -31,6 +75,9 @@ exports.getProfile = async (req, res) => {
                 r.profile_photo_path,
                 r.nic_front_path,
                 r.nic_back_path,
+                r.profile_photo_filename,
+                r.nic_front_filename,
+                r.nic_back_filename,
                 r.status,
                 r.email_verified,
                 r.nic_verified,
@@ -61,13 +108,22 @@ exports.getProfile = async (req, res) => {
             });
         }
 
-        return res.json(rows[0]);
+        // Ensure image paths are properly formatted
+        const result = rows[0];
+        result.profile_photo_path = result.profile_photo_path || null;
+        result.nic_front_path = result.nic_front_path || null;
+        result.nic_back_path = result.nic_back_path || null;
+
+        return res.json(result);
     } catch (error) {
         console.error('Error fetching resident profile:', error);
         return res.status(500).json({ error: 'Server error fetching profile.' });
     }
 };
 
+// ============================================================
+// UPDATE PROFILE
+// ============================================================
 exports.updateProfile = async (req, res) => {
     const user = req.user;
     
@@ -88,9 +144,16 @@ exports.updateProfile = async (req, res) => {
     } = req.body;
 
     try {
+        // First, get current profile to check existing images
+        const [currentProfile] = await db.query(
+            'SELECT profile_photo_path, nic_front_path, nic_back_path FROM resident WHERE r_nic = ?',
+            [user.id]
+        );
+
         const updates = [];
         const values = [];
 
+        // Text fields
         if (firstName !== undefined && firstName !== '') {
             updates.push('first_name = ?');
             values.push(firstName);
@@ -115,26 +178,96 @@ exports.updateProfile = async (req, res) => {
             updates.push('home_address = ?');
             values.push(homeAddress || null);
         }
-        if (profilePhoto !== undefined && profilePhoto !== null) {
-            const photoPath = saveBase64Image(profilePhoto, 'profile', user.id);
-            updates.push('profile_photo_path = ?');
-            values.push(photoPath);
+
+        // ✅ Profile Photo - Handle remove, update, or keep
+        if (profilePhoto !== undefined) {
+            const currentPhoto = currentProfile.length > 0 ? currentProfile[0].profile_photo_path : null;
+            
+            if (profilePhoto === null || profilePhoto === '') {
+                // User wants to remove the photo
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                updates.push('profile_photo_path = ?');
+                values.push(null);
+            } else if (typeof profilePhoto === 'string' && profilePhoto.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                const photoPath = saveBase64Image(profilePhoto, 'profile', user.id);
+                if (photoPath) {
+                    updates.push('profile_photo_path = ?');
+                    values.push(photoPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('profile_photo_path = ?');
+                values.push(profilePhoto);
+            }
         }
-        if (nicFront !== undefined && nicFront !== null) {
-            const frontPath = saveBase64Image(nicFront, 'nic_front', user.id);
-            updates.push('nic_front_path = ?');
-            values.push(frontPath);
+
+        // ✅ NIC Front - Handle remove, update, or keep
+        if (nicFront !== undefined) {
+            const currentFront = currentProfile.length > 0 ? currentProfile[0].nic_front_path : null;
+            
+            if (nicFront === null || nicFront === '') {
+                // User wants to remove the photo
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                updates.push('nic_front_path = ?');
+                values.push(null);
+            } else if (typeof nicFront === 'string' && nicFront.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                const frontPath = saveBase64Image(nicFront, 'nic_front', user.id);
+                if (frontPath) {
+                    updates.push('nic_front_path = ?');
+                    values.push(frontPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('nic_front_path = ?');
+                values.push(nicFront);
+            }
         }
-        if (nicBack !== undefined && nicBack !== null) {
-            const backPath = saveBase64Image(nicBack, 'nic_back', user.id);
-            updates.push('nic_back_path = ?');
-            values.push(backPath);
+
+        // ✅ NIC Back - Handle remove, update, or keep
+        if (nicBack !== undefined) {
+            const currentBack = currentProfile.length > 0 ? currentProfile[0].nic_back_path : null;
+            
+            if (nicBack === null || nicBack === '') {
+                // User wants to remove the photo
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                updates.push('nic_back_path = ?');
+                values.push(null);
+            } else if (typeof nicBack === 'string' && nicBack.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                const backPath = saveBase64Image(nicBack, 'nic_back', user.id);
+                if (backPath) {
+                    updates.push('nic_back_path = ?');
+                    values.push(backPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('nic_back_path = ?');
+                values.push(nicBack);
+            }
         }
 
         if (updates.length === 0) {
             return res.status(400).json({ error: 'No fields to update.' });
         }
 
+        // Execute update
         values.push(user.id);
         const query = `UPDATE resident SET ${updates.join(', ')} WHERE r_nic = ? OR email = ?`;
         values.push(user.email || user.id);
@@ -145,6 +278,7 @@ exports.updateProfile = async (req, res) => {
             return res.status(404).json({ error: 'Resident not found.' });
         }
 
+        // Sync household address if homeAddress was updated
         if (homeAddress !== undefined) {
             const [resident] = await db.query(
                 'SELECT household_number FROM resident WHERE r_nic = ?',
@@ -158,6 +292,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
+        // Fetch updated profile
         const [updatedRows] = await db.query(`
             SELECT 
                 r.r_nic,
@@ -175,6 +310,9 @@ exports.updateProfile = async (req, res) => {
                 r.profile_photo_path,
                 r.nic_front_path,
                 r.nic_back_path,
+                r.profile_photo_filename,
+                r.nic_front_filename,
+                r.nic_back_filename,
                 r.status,
                 r.email_verified,
                 r.nic_verified,
@@ -185,14 +323,25 @@ exports.updateProfile = async (req, res) => {
             WHERE r.r_nic = ?
         `, [user.id]);
 
+        // Ensure image paths are properly formatted
+        const updatedData = updatedRows[0] || null;
+        if (updatedData) {
+            updatedData.profile_photo_path = updatedData.profile_photo_path || null;
+            updatedData.nic_front_path = updatedData.nic_front_path || null;
+            updatedData.nic_back_path = updatedData.nic_back_path || null;
+        }
+
         return res.json({ 
             success: true,
             message: 'Profile updated successfully.',
-            data: updatedRows[0] || null
+            data: updatedData
         });
     } catch (error) {
         console.error('Error updating profile:', error);
-        return res.status(500).json({ error: 'Server error updating profile.' });
+        return res.status(500).json({ 
+            error: 'Server error updating profile.',
+            details: error.message 
+        });
     }
 };
 
@@ -211,6 +360,7 @@ exports.getDashboardStats = async (req, res) => {
     let pendingAppts = 0, approvedAppts = 0;
     let pendingAllowances = 0, approvedAllowances = 0;
     let pendingDisasters = 0, familyCount = 0;
+    let upcomingAppts = 0;
 
     try {
         // Certificate counts
@@ -230,7 +380,7 @@ exports.getDashboardStats = async (req, res) => {
             approvedCerts = rows[0]?.count || 0;
         } catch (e) { /* Table might not exist */ }
 
-        // ✅ Appointment counts - Check both pending and approved tables
+        // Appointment counts
         try {
             const [rows] = await db.query(
                 'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?',
@@ -246,6 +396,29 @@ exports.getDashboardStats = async (req, res) => {
             );
             approvedAppts = rows[0]?.count || 0;
         } catch (e) { /* Table might not exist */ }
+
+        // Get upcoming appointments (from tomorrow onwards)
+        try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const tomorrowStr = `${year}-${month}-${day}`;
+
+            const [rows] = await db.query(
+                `SELECT COUNT(*) AS count 
+                 FROM appointment_approved 
+                 WHERE resident_nic = ? AND date >= ?`,
+                [nic, tomorrowStr]
+            );
+            upcomingAppts = rows[0]?.count || 0;
+            
+            console.log(`📅 Upcoming appointments for ${nic}: ${upcomingAppts} (from ${tomorrowStr})`);
+        } catch (e) { 
+            console.log('Error counting upcoming appointments:', e.message);
+            upcomingAppts = 0;
+        }
 
         // Allowance counts
         try {
@@ -290,8 +463,7 @@ exports.getDashboardStats = async (req, res) => {
             appointments: {
                 pending: pendingAppts,
                 approved: approvedAppts,
-                // ✅ Add upcoming count (approved appointments with future dates)
-                upcoming: approvedAppts
+                upcoming: upcomingAppts
             },
             allowances: {
                 pending: pendingAllowances,
@@ -311,7 +483,6 @@ exports.getDashboardStats = async (req, res) => {
 // ============================================================
 // FAMILY MEMBERS CRUD
 // ============================================================
-
 exports.getFamilyMembers = async (req, res) => {
     const user = req.user;
     
@@ -426,7 +597,6 @@ exports.deleteFamilyMember = async (req, res) => {
 // ============================================================
 // HOUSEHOLD MANAGEMENT
 // ============================================================
-
 exports.getHousehold = async (req, res) => {
     const user = req.user;
     
@@ -548,7 +718,6 @@ exports.updateHousehold = async (req, res) => {
 // ============================================================
 // ANNOUNCEMENTS
 // ============================================================
-
 exports.getAnnouncements = async (req, res) => {
     const user = req.user;
     
