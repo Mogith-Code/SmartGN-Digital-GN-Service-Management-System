@@ -196,7 +196,6 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-// ============================================================
 // GET DASHBOARD STATS
 // ============================================================
 exports.getDashboardStats = async (req, res) => {
@@ -211,6 +210,7 @@ exports.getDashboardStats = async (req, res) => {
     let pendingAppts = 0, approvedAppts = 0;
     let pendingAllowances = 0, approvedAllowances = 0;
     let pendingDisasters = 0, familyCount = 0;
+    let upcomingAppts = 0; // ✅ New variable for upcoming appointments
 
     try {
         // Certificate counts
@@ -230,7 +230,7 @@ exports.getDashboardStats = async (req, res) => {
             approvedCerts = rows[0]?.count || 0;
         } catch (e) { /* Table might not exist */ }
 
-        // ✅ Appointment counts - Check both pending and approved tables
+        // Appointment counts
         try {
             const [rows] = await db.query(
                 'SELECT COUNT(*) AS count FROM appointment_pending WHERE resident_nic = ?',
@@ -246,6 +246,30 @@ exports.getDashboardStats = async (req, res) => {
             );
             approvedAppts = rows[0]?.count || 0;
         } catch (e) { /* Table might not exist */ }
+
+        // ✅ Get upcoming appointments (from tomorrow onwards)
+        try {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            // Format as YYYY-MM-DD
+            const year = tomorrow.getFullYear();
+            const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const day = String(tomorrow.getDate()).padStart(2, '0');
+            const tomorrowStr = `${year}-${month}-${day}`;
+
+            const [rows] = await db.query(
+                `SELECT COUNT(*) AS count 
+                 FROM appointment_approved 
+                 WHERE resident_nic = ? AND date >= ?`,
+                [nic, tomorrowStr]
+            );
+            upcomingAppts = rows[0]?.count || 0;
+            
+            console.log(`📅 Upcoming appointments for ${nic}: ${upcomingAppts} (from ${tomorrowStr})`);
+        } catch (e) { 
+            console.log('Error counting upcoming appointments:', e.message);
+            upcomingAppts = 0;
+        }
 
         // Allowance counts
         try {
@@ -290,8 +314,7 @@ exports.getDashboardStats = async (req, res) => {
             appointments: {
                 pending: pendingAppts,
                 approved: approvedAppts,
-                // ✅ Add upcoming count (approved appointments with future dates)
-                upcoming: approvedAppts
+                upcoming: upcomingAppts // ✅ Now counts from tomorrow onwards
             },
             allowances: {
                 pending: pendingAllowances,

@@ -12,6 +12,7 @@ function ResidentCardLayout({
   upcomingAppointmentsCount,
 }) {
   const { lang } = useLanguage();
+  const navigate = useNavigate();
 
   // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
