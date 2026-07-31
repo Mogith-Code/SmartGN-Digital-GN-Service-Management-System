@@ -255,14 +255,15 @@ function ResidentProfile({ onOpenHelp }) {
       if (serverData) {
         const serverMapped = {
           ...updatedProfile,
-          profilePhoto: serverData.profile_photo_path || updatedProfile.profilePhoto,
+          profilePhoto:
+            serverData.profile_photo_path || updatedProfile.profilePhoto,
           nicFront: serverData.nic_front_path || updatedProfile.nicFront,
           nicBack: serverData.nic_back_path || updatedProfile.nicBack,
         };
         setProfile(serverMapped);
         localStorage.setItem(
           "smartgn_resident_profile",
-          JSON.stringify(serverMapped)
+          JSON.stringify(serverMapped),
         );
       }
 
@@ -297,7 +298,7 @@ function ResidentProfile({ onOpenHelp }) {
                 {/* NIC upload alert */}
                 <div className="flex justify-end -mt-[70px]">
                   {showAlert && profile.nic && (
-                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                       <div className="flex items-center gap-2">
                         <span
                           className="hover:underline hover:cursor-pointer"
@@ -333,7 +334,7 @@ function ResidentProfile({ onOpenHelp }) {
               </div>
 
               {/* Profile Card Header */}
-              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
+              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-4">
                   <div className="h-20 rounded-full overflow-hidden flex items-center justify-center">
                     {profile.profilePhoto ? (
@@ -360,7 +361,7 @@ function ResidentProfile({ onOpenHelp }) {
                   </div>
                 </div>
                 <button
-                  className="flex items-center gap-2 py-2.5 px-5 bg-white border border-[#d97706] rounded-full text-[#d97706] text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#d97706] hover:text-white"
+                  className="flex items-center gap-2 py-2.5 px-5 bg-white border border-[#d97706] rounded-full text-[#d97706] text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#d97706] hover:text-white shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
                   onClick={handleEnterEdit}
                 >
                   <svg
@@ -384,7 +385,7 @@ function ResidentProfile({ onOpenHelp }) {
               {/* Dynamic split panel for details and NIC */}
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 {/* Personal Information */}
-                <div className="border border-[#2D37484D] rounded-2xl p-[20px] text-left">
+                <div className="border border-[#2D37484D] rounded-2xl p-[20px] text-left shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     Personal information
                   </h3>
@@ -487,7 +488,7 @@ function ResidentProfile({ onOpenHelp }) {
                 </div>
 
                 {/* National Identity Card Display */}
-                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left">
+                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     National Identity Card
                   </h3>
@@ -531,7 +532,7 @@ function ResidentProfile({ onOpenHelp }) {
             <>
               {/* Back Button */}
               <div
-                className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
+                className="flex px-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
                 onClick={() => setViewMode("VIEW")}
               >
                 <img
@@ -542,12 +543,12 @@ function ResidentProfile({ onOpenHelp }) {
                 back
               </div>
 
-              <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
+              <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
                 Edit your profile
               </div>
 
               {/* Image Upload Zone & Editor Form */}
-              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] mb-[30px]">
+              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] my-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <form onSubmit={handleSaveProfile}>
                   {/* Circular profile image upload widget */}
                   <div className="flex flex-col items-center mb-6">
@@ -901,7 +902,7 @@ function ResidentProfile({ onOpenHelp }) {
                     <button
                       type="button"
                       onClick={() => setViewMode("VIEW")}
-                      className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5"
+                      className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
                     >
                       <svg
                         width="14"
@@ -919,7 +920,7 @@ function ResidentProfile({ onOpenHelp }) {
 
                     <button
                       type="submit"
-                      className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5"
+                      className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
                     >
                       <svg
                         width="14"
