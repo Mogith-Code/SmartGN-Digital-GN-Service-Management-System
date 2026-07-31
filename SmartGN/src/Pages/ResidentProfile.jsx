@@ -336,12 +336,12 @@ function ResidentProfile({ onOpenHelp }) {
               {/* Profile Card Header */}
               <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-4">
-                  <div className="h-20 rounded-full overflow-hidden flex items-center justify-center">
+                  <div className="h-20 w-20 rounded-full overflow-hidden border border-[#2D3748] flex items-center justify-center">
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
                         alt="Profile avatar"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-center object-cover "
                       />
                     ) : (
                       <img
@@ -402,7 +402,7 @@ function ResidentProfile({ onOpenHelp }) {
                       <span className="text-[12px] text-[#64748b] font-bold uppercase mb-1">
                         Number of Family Members:
                       </span>
-                      <span className="text-[15px] font-semibold text-[#1e293b]">
+                      <span className="text-[15px] font-semibold text-[#1e293b] ">
                         {familyCount}
                         &nbsp; &nbsp;
                         <span
@@ -414,7 +414,7 @@ function ResidentProfile({ onOpenHelp }) {
                               },
                             })
                           }
-                          className="cursor-pointer text-[#d97706] font-bold underline"
+                          className="cursor-pointer text-[#d97706] font-semibold hover:underline hover:font-bold"
                         >
                           View family details
                         </span>
