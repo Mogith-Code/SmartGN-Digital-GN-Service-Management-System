@@ -24,6 +24,4 @@ router.put('/officer/:id/reject', authenticateToken, requireOfficerOrAdmin, (req
 router.get('/:id', authenticateToken, certificateController.getCertificateDetails);
 router.put('/:id/action', authenticateToken, requireOfficerOrAdmin, certificateController.handleCertificateAction);
 
-router.get('/officer/stats', authenticateToken, requireOfficerOrAdmin, certificateController.getOfficerStats);
-
 module.exports = router;
