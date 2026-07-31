@@ -1,6 +1,7 @@
 // Backend/src/controllers/officerController.js
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
+const { saveBase64Image } = require('../utils/fileUpload');
 
 // ============================================================
 // GENERATE ANNOUNCEMENT NUMBER
@@ -92,7 +93,7 @@ exports.updateOfficerProfile = async (req, res) => {
         return res.status(403).json({ error: 'Access denied. Officers only.' });
     }
 
-    const { firstName, lastName, fullName, email, mobile, password } = req.body;
+    const { firstName, lastName, fullName, email, mobile, password, profilePhoto, idCardFront, idCardBack, gnFront, gnBack } = req.body;
 
     if (!firstName || !lastName || !email || !mobile) {
         return res.status(400).json({ error: 'First name, last name, email, and mobile are required.' });
@@ -145,6 +146,27 @@ exports.updateOfficerProfile = async (req, res) => {
             values.push(hashedPassword);
         }
 
+        const photoVal = profilePhoto;
+        if (photoVal !== undefined && photoVal !== null) {
+            const photoPath = saveBase64Image(photoVal, 'officer_profile', user.id);
+            updates.push('profile_photo_path = ?');
+            values.push(photoPath);
+        }
+
+        const frontVal = idCardFront || gnFront;
+        if (frontVal !== undefined && frontVal !== null) {
+            const frontPath = saveBase64Image(frontVal, 'officer_front', user.id);
+            updates.push('gn_front_path = ?');
+            values.push(frontPath);
+        }
+
+        const backVal = idCardBack || gnBack;
+        if (backVal !== undefined && backVal !== null) {
+            const backPath = saveBase64Image(backVal, 'officer_back', user.id);
+            updates.push('gn_back_path = ?');
+            values.push(backPath);
+        }
+
         values.push(user.id);
         const query = `UPDATE grama_niladhari SET ${updates.join(', ')} WHERE gn_id = ?`;
         
@@ -180,10 +202,14 @@ exports.updateOfficerProfile = async (req, res) => {
             WHERE g.gn_id = ?
         `, [user.id]);
 
+        const updatedData = updatedRows[0] || {};
         return res.json({
             success: true,
             message: 'Officer profile updated successfully.',
-            data: updatedRows[0]
+            data: updatedData,
+            profile_photo_path: updatedData.profile_photo_path || null,
+            gn_front_path: updatedData.gn_front_path || null,
+            gn_back_path: updatedData.gn_back_path || null
         });
     } catch (error) {
         console.error('Error updating officer profile:', error);

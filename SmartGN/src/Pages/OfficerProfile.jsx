@@ -202,6 +202,9 @@ function OfficerProfile({ onOpenHelp }) {
           fullName: editFullName,
           email: editEmail,
           mobile: editMobile,
+          profilePhoto: editProfilePhoto,
+          idCardFront: editIdCardFront,
+          idCardBack: editIdCardBack,
         }),
       });
 
@@ -212,7 +215,7 @@ function OfficerProfile({ onOpenHelp }) {
 
       const data = await response.json();
 
-      // ✅ Update local state with the response
+      // ✅ Update local state with the response from backend
       const updatedProfileData = {
         ...profile,
         firstName: editFirstName,
@@ -220,12 +223,9 @@ function OfficerProfile({ onOpenHelp }) {
         fullName: editFullName,
         email: editEmail,
         mobile: editMobile,
-        // Keep existing values for fields not updated via API
-        division: profile.division,
-        serviceTime: profile.serviceTime,
-        profilePhoto: editProfilePhoto,
-        idCardFront: editIdCardFront,
-        idCardBack: editIdCardBack,
+        profilePhoto: data.profile_photo_path || editProfilePhoto,
+        idCardFront: data.gn_front_path || editIdCardFront,
+        idCardBack: data.gn_back_path || editIdCardBack,
       };
 
       // Save to localStorage

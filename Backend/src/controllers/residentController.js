@@ -1,5 +1,6 @@
 // Backend/src/controllers/residentController.js
 const db = require('../config/database');
+const { saveBase64Image } = require('../utils/fileUpload');
 
 // ============================================================
 // PROFILE MANAGEMENT
@@ -74,7 +75,17 @@ exports.updateProfile = async (req, res) => {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
-    const { firstName, lastName, fullName, mobile, occupation, homeAddress } = req.body;
+    const { 
+        firstName, 
+        lastName, 
+        fullName, 
+        mobile, 
+        occupation, 
+        homeAddress, 
+        profilePhoto, 
+        nicFront, 
+        nicBack 
+    } = req.body;
 
     try {
         const updates = [];
@@ -103,6 +114,21 @@ exports.updateProfile = async (req, res) => {
         if (homeAddress !== undefined) {
             updates.push('home_address = ?');
             values.push(homeAddress || null);
+        }
+        if (profilePhoto !== undefined && profilePhoto !== null) {
+            const photoPath = saveBase64Image(profilePhoto, 'profile', user.id);
+            updates.push('profile_photo_path = ?');
+            values.push(photoPath);
+        }
+        if (nicFront !== undefined && nicFront !== null) {
+            const frontPath = saveBase64Image(nicFront, 'nic_front', user.id);
+            updates.push('nic_front_path = ?');
+            values.push(frontPath);
+        }
+        if (nicBack !== undefined && nicBack !== null) {
+            const backPath = saveBase64Image(nicBack, 'nic_back', user.id);
+            updates.push('nic_back_path = ?');
+            values.push(backPath);
         }
 
         if (updates.length === 0) {
