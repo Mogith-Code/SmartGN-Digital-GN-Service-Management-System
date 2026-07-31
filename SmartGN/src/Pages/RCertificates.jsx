@@ -173,7 +173,7 @@ function ResidentCertificates({ onOpenHelp }) {
             {/* NIC upload alert */}
             <div className="flex justify-end -mt-[70px]">
               {showAlert && profile.nic && (
-                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <div className="flex items-center gap-2">
                     <span
                       className="hover:underline hover:cursor-pointer"
@@ -212,7 +212,7 @@ function ResidentCertificates({ onOpenHelp }) {
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer"
                 onClick={() =>
                   navigate(card.navpath, {
                     state: { successUser, division: userDivision },
@@ -234,14 +234,14 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Request Types Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] flex flex-col mx-[30px]">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-[30px] flex flex-col mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Certificate types you can request
             </h3>
 
             <div className="flex flex-col gap-4">
               {/* Type 1: Character Certificates */}
-              <div className="flex justify-between items-center py-2">
+              <div className="flex justify-between items-center">
                 <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
                   Character certificates
                 </span>
@@ -271,7 +271,7 @@ function ResidentCertificates({ onOpenHelp }) {
               </div>
 
               {/* Type 2: Income Certificates */}
-              <div className="flex justify-between items-center py-4 border-t border-[#fedc9b] mt-2">
+              <div className="flex justify-between items-center">
                 <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
                   Income certificates
                 </span>
@@ -302,7 +302,7 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Requested Status Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
+          <div className="bg-white border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Requested certificates status
             </h3>

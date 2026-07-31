@@ -1,11 +1,12 @@
 // FamilyHouseholdLayout.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
 import FamilyCardLyout from "./FamilyCardLyout";
 import editIcon from "../../assets/edit_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import FamilyMemberTable from "./FamilyMemberTable";
 import HouseholdDetailsLayout from "./HouseholdDetailsLayout";
 import { useNavigate } from "react-router-dom";
+import { getAuthHeaders } from "../../utils/api";
 
 function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
     firstName: "",
     lastName: "",
     fullName: "",
-    nic: "200324511540",
+    nic: "",
     occupation: "",
     email: "",
     mobile: "",
@@ -68,6 +69,79 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
     FamilyHouseholdLayoutTranslations[lang] ||
     FamilyHouseholdLayoutTranslations.EN;
 
+  // ✅ Check if NIC images are missing - used for alert
+  const areNicImagesMissing = () => {
+    return !profile.nicFront || !profile.nicBack;
+  };
+
+  // ✅ Fetch profile to get NIC images
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/residents/profile", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile((prev) => ({
+            ...prev,
+            nic: data.r_nic || "",
+            nicFront: data.nic_front_path || null,
+            nicBack: data.nic_back_path || null,
+          }));
+
+          // ✅ Auto-hide alert if both NIC images exist
+          if (data.nic_front_path && data.nic_back_path) {
+            setShowAlert(false);
+          } else {
+            setShowAlert(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching profile for NIC images:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // ✅ Listen for profile updates from other components
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      // Re-fetch profile when updated
+      const fetchUpdatedProfile = async () => {
+        try {
+          const res = await fetch("/api/residents/profile", {
+            headers: getAuthHeaders(),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProfile((prev) => ({
+              ...prev,
+              nic: data.r_nic || "",
+              nicFront: data.nic_front_path || null,
+              nicBack: data.nic_back_path || null,
+            }));
+
+            if (data.nic_front_path && data.nic_back_path) {
+              setShowAlert(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error refreshing profile:", error);
+        }
+      };
+
+      fetchUpdatedProfile();
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
+  }, []);
+
   // Calculate stats from familyMembers prop
   const totalMembers = familyMembers.length;
   const adultMembers = familyMembers.filter(
@@ -84,10 +158,10 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
           {t.Title}
         </h2>
 
-        {/* NIC upload alert */}
+        {/* ✅ NIC upload alert - Check if NIC images are missing */}
         <div className="flex justify-end -mt-[70px]">
-          {showAlert && profile.nic && (
-            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+          {showAlert && areNicImagesMissing() && (
+            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2">
                 <span
                   className="hover:underline hover:cursor-pointer"
@@ -132,7 +206,7 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
       </div>
 
       {/* Family Members Table */}
-      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <div className="flex w-full justify-between items-center mb-[15px]">
           <span className="text-[20px] text-[#1B365D] font-medium">
             {t.familyMembers}
@@ -155,7 +229,7 @@ function FamilyHouseholdLayout({ familyMembers = [], householdDetails = {} }) {
       </div>
 
       {/* Household Details */}
-      <div className="flex flex-col gap-[10px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px]">
+      <div className="flex flex-col gap-[10px] border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <div className="flex w-full justify-between items-center mb-[15px]">
           <span className="text-[20px] text-[#1B365D] font-medium">
             {t.householdDetails}

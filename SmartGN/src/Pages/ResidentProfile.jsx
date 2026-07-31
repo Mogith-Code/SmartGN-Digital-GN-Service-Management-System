@@ -172,6 +172,11 @@ function ResidentProfile({ onOpenHelp }) {
     fetchFamilyCount();
   }, []);
 
+  // ✅ Check if NIC images are missing - used for alert
+  const areNicImagesMissing = () => {
+    return !profile.nicFront || !profile.nicBack;
+  };
+
   // Populate form fields when entering Edit Mode
   const handleEnterEdit = () => {
     setEditFirstName(profile.firstName);
@@ -188,7 +193,6 @@ function ResidentProfile({ onOpenHelp }) {
     setEditNicFront(profile.nicFront);
     setEditNicBack(profile.nicBack);
     setViewMode("EDIT");
-    // Scroll to top when entering edit mode
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -196,12 +200,10 @@ function ResidentProfile({ onOpenHelp }) {
   const handlePhotoUpload = (e, target) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert("File size should be less than 5MB");
         return;
       }
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         alert("Please upload an image file");
         return;
@@ -235,7 +237,6 @@ function ResidentProfile({ onOpenHelp }) {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
 
-    // Validate required fields
     if (!editFirstName || !editLastName || !editEmail || !editMobile) {
       alert(t.fillRequired);
       return;
@@ -243,7 +244,6 @@ function ResidentProfile({ onOpenHelp }) {
 
     setIsSubmitting(true);
 
-    // ✅ Prepare update data - send null for removed images
     const updateData = {
       firstName: editFirstName,
       lastName: editLastName,
@@ -288,7 +288,6 @@ function ResidentProfile({ onOpenHelp }) {
       console.log("✅ Profile update response:", data);
 
       if (data.success) {
-        // ✅ Update local state with server response
         const updatedProfile = {
           ...profile,
           firstName: data.data?.first_name || editFirstName,
@@ -306,7 +305,6 @@ function ResidentProfile({ onOpenHelp }) {
             profile.householdNumber,
           division: data.data?.division_name || profile.division,
           nic: data.data?.r_nic || profile.nic,
-          // ✅ Use server response for images (will be null if removed)
           profilePhoto: data.data?.profile_photo_path || null,
           nicFront: data.data?.nic_front_path || null,
           nicBack: data.data?.nic_back_path || null,
@@ -318,10 +316,16 @@ function ResidentProfile({ onOpenHelp }) {
           JSON.stringify(updatedProfile),
         );
 
-        // ✅ Update edit states to match server response
         setEditProfilePhoto(updatedProfile.profilePhoto);
         setEditNicFront(updatedProfile.nicFront);
         setEditNicBack(updatedProfile.nicBack);
+
+        // ✅ Update showAlert based on NIC images
+        if (updatedProfile.nicFront && updatedProfile.nicBack) {
+          setShowAlert(false);
+        } else {
+          setShowAlert(true);
+        }
 
         alert(t.updateSuccess);
         setViewMode("VIEW");
@@ -357,9 +361,9 @@ function ResidentProfile({ onOpenHelp }) {
                   {t.title}
                 </h2>
 
-                {/* NIC upload alert */}
+                {/* ✅ NIC upload alert - Check if NIC images are missing */}
                 <div className="flex justify-end -mt-[70px]">
-                  {showAlert && profile.nic && (
+                  {showAlert && areNicImagesMissing() && (
                     <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                       <div className="flex items-center gap-2">
                         <span
