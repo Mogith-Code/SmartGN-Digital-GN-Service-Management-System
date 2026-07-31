@@ -745,30 +745,23 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               {/* Paper Layout representation */}
               <div className="bg-white mx-auto border-2 border-slate-300 shadow-md p-10 max-w-[800px] text-left font-serif text-[#1e293b] leading-relaxed relative min-h-[1050px]">
                 {/* Official Branding Header */}
-                <div className="flex flex-col items-center justify-center mb-6 text-center font-sans">
+                <div className="flex flex-col items-center justify-center pb-[10px] border-b double border-slate-400 mb-[10px] text-center font-sans">
                   <img
                     src={logo}
                     alt="SmartGN Logo"
-                    className="h-14 mb-2 object-contain"
+                    className="h-10 object-contain"
                   />
-                  <h1 className="text-[20px] font-extrabold uppercase text-[#1B365D] tracking-wider m-0">
-                    SmartGN
-                  </h1>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
-                    Digital Grama Niladhari Service Management System
-                  </span>
-                  <div className="w-full border-b-[3px] double border-slate-400 mt-4"></div>
                 </div>
 
-                <div className="text-center mb-8 font-sans">
-                  <h2 className="text-[17px] font-bold text-slate-800 m-0 uppercase tracking-wide">
+                <div className=" mb-[30px] pb-[5px] border-b double border-slate-400 font-sans">
+                  <h2 className=" text-center text-[16px] font-bold text-slate-800 uppercase tracking-wide">
                     Certificate on Residence and Character issued by the Grama
                     Niladhari
                   </h2>
                   <span className="text-[12px] font-medium text-slate-500 block mt-1">
                     Certificate ID: DRAFT-CC-PREVIEW
                   </span>
-                  <p className="text-[11px] italic text-slate-500 max-w-xl mx-auto mt-2 font-serif leading-normal">
+                  <p className="text-[11px] italic text-slate-500 mt-2 font-serif leading-normal">
                     This certificate is issued by the Grama Niladhari of the
                     division in which the applicant resides and is valid only
                     for 06 months from the date of issue.
