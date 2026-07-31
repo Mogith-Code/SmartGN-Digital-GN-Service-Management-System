@@ -1,6 +1,65 @@
 // src/seed/seedGnDivisions.js
-const { getDistricts, getCities, getDNDivisions } = require('@rdilshan/gn-division');
 const db = require('../config/database');
+
+let gnPackage;
+try {
+    gnPackage = require('@rdilshan/gn-division');
+} catch (err) {
+    console.warn('⚠️ @rdilshan/gn-division npm package not found, using built-in GN division dataset.');
+    const defaultData = {
+        'Colombo': {
+            'Borella': ['Colombo Borella', 'Borella North', 'Borella South'],
+            'Fort': ['Colombo Fort', 'Pettah', 'Slave Island'],
+            'Dehiwala': ['Dehiwala East', 'Dehiwala West', 'Mount Lavinia'],
+            'Nugegoda': ['Nugegoda Town', 'Nawala', 'Pagoda'],
+            'Maharagama': ['Maharagama Town', 'Pannipitiya', 'Godagama']
+        },
+        'Kandy': {
+            'Kandy Central': ['Kandy Town', 'Peradeniya', 'Katugastota'],
+            'Gampola': ['Gampola Town', 'Gelioya', 'Ulapane'],
+            'Kundasale': ['Kundasale Town', 'Pallekele', 'Nattarampotha']
+        },
+        'Galle': {
+            'Galle Fort': ['Galle Fort', 'Karapitiya', 'Unawatuna'],
+            'Hikkaduwa': ['Hikkaduwa Town', 'Dodanduwa', 'Thiranagama']
+        },
+        'Gampaha': {
+            'Negombo': ['Negombo Town', 'Katunayake', 'Kochchikade'],
+            'Gampaha': ['Gampaha Town', 'Yakkala', 'Ganemulla'],
+            'Kelaniya': ['Kelaniya Town', 'Kiribathgoda', 'Peliyagoda']
+        },
+        'Kalutara': {
+            'Panadura': ['Panadura Town', 'Walana', 'Gorakana'],
+            'Kalutara': ['Kalutara Town', 'Nagoda', 'Katukurunda']
+        },
+        'Jaffna': {
+            'Jaffna Town': ['Jaffna Central', 'Nallur', 'Chundikuli']
+        },
+        'Matara': {
+            'Matara Town': ['Matara Fort', 'Weligama', 'Mirissa']
+        },
+        'Kurunegala': {
+            'Kurunegala Town': ['Kurunegala Central', 'Mawathagama']
+        },
+        'Anuradhapura': {
+            'Anuradhapura Town': ['Anuradhapura Central', 'Mihintale']
+        },
+        'Ratnapura': {
+            'Ratnapura Town': ['Ratnapura Central', 'Balangoda']
+        },
+        'Badulla': {
+            'Badulla Town': ['Badulla Central', 'Bandarawela', 'Ella']
+        }
+    };
+
+    gnPackage = {
+        getDistricts: () => Object.keys(defaultData),
+        getCities: (district) => Object.keys(defaultData[district] || {}),
+        getDNDivisions: (district, city) => (defaultData[district] && defaultData[district][city]) || [`${city} Division`]
+    };
+}
+
+const { getDistricts, getCities, getDNDivisions } = gnPackage;
 
 /**
  * Seed all GN divisions from the package into the database
