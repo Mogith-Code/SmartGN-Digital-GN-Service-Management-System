@@ -37,6 +37,7 @@ function BookingForm({ onOpenHelp }) {
       November: "November",
       December: "December",
       Today: "Today",
+      Tomorrow: "Tomorrow",
       Sun: "Sun",
       Mon: "Mon",
       Tue: "Tue",
@@ -55,6 +56,12 @@ function BookingForm({ onOpenHelp }) {
       submitting: "Booking...",
       success: "Success!",
       goBack: "Go Back",
+      alreadyBooked:
+        "You already have an appointment on {date}. Only one appointment per day is allowed.",
+      alreadyBookedTitle: "Already Booked",
+      fetchingAppointments: "Checking your existing appointments...",
+      invalidDate: "Please select a valid date.",
+      noAvailableDates: "No available dates in the next 14 days.",
     },
     SI: {
       Title: "නව හමුවක් වෙන්කරන්න",
@@ -78,6 +85,7 @@ function BookingForm({ onOpenHelp }) {
       November: "නවම්බර්",
       December: "දෙසැම්බර්",
       Today: "අද",
+      Tomorrow: "හෙට",
       Sun: "ඉරිදා",
       Mon: "සඳුදා",
       Tue: "අඟහරු.",
@@ -96,6 +104,12 @@ function BookingForm({ onOpenHelp }) {
       submitting: "වෙන්කරමින්...",
       success: "සාර්ථකයි!",
       goBack: "ආපසු යන්න",
+      alreadyBooked:
+        "ඔබ දැනටමත් {date} සඳහා හමුවක් වෙන්කර ඇත. දිනකට එක් හමුවක් පමණක් වෙන්කර ගත හැක.",
+      alreadyBookedTitle: "දැනටමත් වෙන්කර ඇත",
+      fetchingAppointments: "ඔබගේ පවතින හමුවීම් පරීක්ෂා කරමින්...",
+      invalidDate: "කරුණාකර වලංගු දිනයක් තෝරන්න.",
+      noAvailableDates: "ඉදිරි දින 14 තුළ හමුවීම් සඳහා නිදහස් දින නොමැත.",
     },
     TA: {
       Title: "புதிய சந்திப்பை பதிவு செய்யவும்",
@@ -119,6 +133,7 @@ function BookingForm({ onOpenHelp }) {
       November: "நவம்பர்",
       December: "டிசம்பர்",
       Today: "இன்று",
+      Tomorrow: "நாளை",
       Sun: "ஞாயிறு",
       Mon: "திங்கள்",
       Tue: "செவ்வாய்",
@@ -138,6 +153,12 @@ function BookingForm({ onOpenHelp }) {
       submitting: "பதிவு செய்கிறது...",
       success: "வெற்றி!",
       goBack: "திரும்பிச் செல்",
+      alreadyBooked:
+        "{date} அன்று நீங்கள் ஏற்கனவே ஒரு சந்திப்பை பதிவு செய்துள்ளீர்கள். ஒரு நாளில் ஒரு சந்திப்பு மட்டுமே அனுமதிக்கப்படுகிறது.",
+      alreadyBookedTitle: "ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது",
+      fetchingAppointments: "உங்கள் தற்போதைய சந்திப்புகளை சரிபார்க்கிறது...",
+      invalidDate: "தயவுசெய்து சரியான தேதியை தேர்ந்தெடுக்கவும்.",
+      noAvailableDates: "அடுத்த 14 நாட்களில் கிடைக்கும் தேதிகள் எதுவும் இல்லை.",
     },
   };
 
@@ -153,6 +174,8 @@ function BookingForm({ onOpenHelp }) {
   const [availableDates, setAvailableDates] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
+  const [existingAppointments, setExistingAppointments] = useState([]);
+  const [isLoadingExisting, setIsLoadingExisting] = useState(false);
 
   // Get token from localStorage
   const token = localStorage.getItem("smartgn_token");
@@ -163,18 +186,15 @@ function BookingForm({ onOpenHelp }) {
   const convertTo24Hour = (timeStr) => {
     if (!timeStr) return "09:00:00";
 
-    // Trim whitespace
     timeStr = timeStr.trim();
 
-    // If already in 24-hour format (HH:MM), return with seconds
     if (timeStr.match(/^\d{1,2}:\d{2}$/)) {
       const [hours, minutes] = timeStr.split(":");
       return `${hours.padStart(2, "0")}:${minutes}:00`;
     }
 
-    // Convert from 12-hour format (e.g., "2:30 PM")
     const parts = timeStr.split(" ");
-    if (parts.length !== 2) return "09:00:00"; // Default if format is wrong
+    if (parts.length !== 2) return "09:00:00";
 
     const [time, period] = parts;
     let [hours, minutes] = time.split(":").map(Number);
@@ -191,39 +211,103 @@ function BookingForm({ onOpenHelp }) {
   };
 
   // ============================================================================
-  // GENERATE AVAILABLE DATES (Today to End of Current Month)
+  // CHECK IF DATE IS ALREADY BOOKED
+  // ============================================================================
+  const isDateAlreadyBooked = (day, month, year) => {
+    return existingAppointments.some((appointment) => {
+      const appDate = new Date(appointment.date);
+      return (
+        appDate.getDate() === day &&
+        appDate.getMonth() === month &&
+        appDate.getFullYear() === year &&
+        (appointment.status === "Pending" || appointment.status === "Approved")
+      );
+    });
+  };
+
+  // ============================================================================
+  // FETCH EXISTING APPOINTMENTS
+  // ============================================================================
+  const fetchExistingAppointments = async () => {
+    if (!token) return;
+
+    setIsLoadingExisting(true);
+    try {
+      const response = await fetch("/api/appointments/rappointments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const appointments = data.appointments || data || [];
+        setExistingAppointments(appointments);
+        console.log("📋 Existing appointments loaded:", appointments.length);
+      }
+    } catch (error) {
+      console.error("Error fetching existing appointments:", error);
+    } finally {
+      setIsLoadingExisting(false);
+    }
+  };
+
+  // ============================================================================
+  // GENERATE AVAILABLE DATES - Next 14 Days
   // ============================================================================
   useEffect(() => {
     const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    const currentDay = today.getDate();
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
     const dates = [];
-    for (let day = currentDay; day <= lastDayOfMonth; day++) {
-      const dateObj = new Date(currentYear, currentMonth, day);
+
+    // Start from tomorrow (today + 1) and go 14 days forward
+    for (let i = 1; i <= 14; i++) {
+      const dateObj = new Date(today);
+      dateObj.setDate(today.getDate() + i);
+
+      const day = dateObj.getDate();
+      const month = dateObj.getMonth();
+      const year = dateObj.getFullYear();
+
+      const isBooked = isDateAlreadyBooked(day, month, year);
+
       dates.push({
         day: day,
-        month: currentMonth,
-        year: currentYear,
+        month: month,
+        year: year,
         monthName: dateObj.toLocaleString("default", { month: "long" }),
         dayName: dateObj.toLocaleString("default", { weekday: "long" }),
-        isToday: day === currentDay,
+        isToday: false,
+        isTomorrow: i === 1,
         isWeekend: dateObj.getDay() === 0 || dateObj.getDay() === 6,
         formatted: dateObj.toLocaleDateString("en-US", {
           month: "long",
           day: "numeric",
           year: "numeric",
         }),
+        isBooked: isBooked,
+        dateObj: dateObj,
       });
     }
+
     setAvailableDates(dates);
 
-    if (dates.length > 0) {
-      setBookDay(currentDay);
+    // Find the first available date
+    const firstAvailable = dates.find((d) => !d.isBooked);
+    if (firstAvailable) {
+      setBookDay(firstAvailable.day);
+    } else {
+      // If all dates are booked, show a message
+      setErrorMessage(t.noAvailableDates);
     }
-  }, []);
+  }, [existingAppointments]);
+
+  // ============================================================================
+  // FETCH EXISTING APPOINTMENTS ON MOUNT
+  // ============================================================================
+  useEffect(() => {
+    fetchExistingAppointments();
+  }, [token]);
 
   // ============================================================================
   // GET MONTH NAME
@@ -259,7 +343,14 @@ function BookingForm({ onOpenHelp }) {
   // ============================================================================
   const handleReset = () => {
     setPurpose("");
-    setBookDay(availableDates.length > 0 ? availableDates[0].day : null);
+    const firstAvailable = availableDates.find((d) => !d.isBooked);
+    setBookDay(
+      firstAvailable
+        ? firstAvailable.day
+        : availableDates.length > 0
+          ? availableDates[0].day
+          : null,
+    );
     setBookTime("9:00 AM");
     setContactNumber("");
     setErrorMessage("");
@@ -269,16 +360,30 @@ function BookingForm({ onOpenHelp }) {
   };
 
   // ============================================================================
-  // HANDLE FORM SUBMISSION - SEND TO BACKEND
+  // HANDLE DATE SELECTION
+  // ============================================================================
+  const handleDateSelect = (e) => {
+    const day = parseInt(e.target.value);
+    setBookDay(day);
+
+    const selectedDate = availableDates.find((d) => d.day === day);
+    if (selectedDate && selectedDate.isBooked) {
+      const formattedDate = `${String(selectedDate.day).padStart(2, "0")}/${String(selectedDate.month + 1).padStart(2, "0")}/${selectedDate.year}`;
+      setErrorMessage(t.alreadyBooked.replace("{date}", formattedDate));
+    } else {
+      setErrorMessage("");
+    }
+  };
+
+  // ============================================================================
+  // HANDLE FORM SUBMISSION
   // ============================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Clear previous messages
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Validate form
     if (!purpose.trim()) {
       setErrorMessage(t.purposeRequired);
       return;
@@ -292,26 +397,32 @@ function BookingForm({ onOpenHelp }) {
       return;
     }
 
-    // Check if user is authenticated
     if (!token) {
       setErrorMessage("Please login to book an appointment.");
       return;
     }
 
-    // Get the selected date object
     const selectedDateObj = availableDates.find((d) => d.day === bookDay);
     if (!selectedDateObj) {
-      setErrorMessage("Invalid date selected.");
+      setErrorMessage(t.invalidDate);
       return;
     }
 
-    // Format date as YYYY-MM-DD
-    const formattedDate = `${selectedDateObj.year}-${String(selectedDateObj.month + 1).padStart(2, "0")}-${String(selectedDateObj.day).padStart(2, "0")}`;
+    if (
+      isDateAlreadyBooked(
+        selectedDateObj.day,
+        selectedDateObj.month,
+        selectedDateObj.year,
+      )
+    ) {
+      const formattedDate = `${String(selectedDateObj.day).padStart(2, "0")}/${String(selectedDateObj.month + 1).padStart(2, "0")}/${selectedDateObj.year}`;
+      setErrorMessage(t.alreadyBooked.replace("{date}", formattedDate));
+      return;
+    }
 
-    // ✅ Convert time to 24-hour format
+    const formattedDate = `${selectedDateObj.year}-${String(selectedDateObj.month + 1).padStart(2, "0")}-${String(selectedDateObj.day).padStart(2, "0")}`;
     const formattedTime = convertTo24Hour(bookTime);
 
-    // Prepare form data
     const formData = {
       purpose: purpose.trim(),
       date: formattedDate,
@@ -336,15 +447,21 @@ function BookingForm({ onOpenHelp }) {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 409) {
+          const formattedDate = `${String(selectedDateObj.day).padStart(2, "0")}/${String(selectedDateObj.month + 1).padStart(2, "0")}/${selectedDateObj.year}`;
+          setErrorMessage(t.alreadyBooked.replace("{date}", formattedDate));
+          fetchExistingAppointments();
+          return;
+        }
         throw new Error(data.error || "Failed to book appointment");
       }
 
-      // Success!
       setSuccessMessage(data.message || t.bookingSuccess);
       setErrorMessage("");
       setBookingComplete(true);
 
-      // Reset form after successful booking
+      fetchExistingAppointments();
+
       setTimeout(() => {
         handleReset();
         navigate("/ResidentDashboard/RAppointment");
@@ -357,6 +474,40 @@ function BookingForm({ onOpenHelp }) {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // ============================================================================
+  // RENDER - DATE OPTIONS
+  // ============================================================================
+  const renderDateOptions = () => {
+    if (availableDates.length === 0) {
+      return <option value="">Loading dates...</option>;
+    }
+
+    return availableDates.map((date) => {
+      const monthName = getMonthName(date.month);
+      const dayName = getDayName(
+        new Date(date.year, date.month, date.day).getDay(),
+      );
+
+      let label = "";
+      if (date.isTomorrow) {
+        label = t.Tomorrow;
+      } else {
+        label = dayName;
+      }
+      label += `, ${monthName} ${date.day < 10 ? `0${date.day}` : date.day}, ${date.year}`;
+
+      if (date.isBooked) {
+        label += " You alreay have booked this day";
+      }
+
+      return (
+        <option key={date.day} value={date.day} disabled={date.isBooked}>
+          {label}
+        </option>
+      );
+    });
   };
 
   return (
@@ -385,6 +536,29 @@ function BookingForm({ onOpenHelp }) {
           <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             {t.Title}
           </div>
+
+          {/* Loading Existing Appointments Indicator */}
+          {isLoadingExisting && (
+            <div className="mx-4 sm:mx-5 md:mx-6 lg:mx-[50px] mt-4 p-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              <span>{t.fetchingAppointments}</span>
+            </div>
+          )}
 
           {/* Success Message */}
           {successMessage && (
@@ -454,7 +628,7 @@ function BookingForm({ onOpenHelp }) {
               </div>
 
               {/* ============================================================ */}
-              {/* DATE SELECTION - Dynamic from Today to End of Month */}
+              {/* DATE SELECTION - Next 14 Days */}
               {/* ============================================================ */}
               <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
                 <label htmlFor="daySelect" className="font-medium">
@@ -464,28 +638,11 @@ function BookingForm({ onOpenHelp }) {
                   id="daySelect"
                   className="w-full bg-[#E2E8F0] border border-[#2D37484D] rounded-[5px] p-2 sm:p-2.5 md:p-3 lg:p-[10px] text-sm sm:text-base cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2c5f8a] disabled:opacity-50 disabled:cursor-not-allowed"
                   value={bookDay || ""}
-                  onChange={(e) => setBookDay(parseInt(e.target.value))}
+                  onChange={handleDateSelect}
                   required
                   disabled={isSubmitting || bookingComplete}
                 >
-                  {availableDates.length === 0 ? (
-                    <option value="">Loading dates...</option>
-                  ) : (
-                    availableDates.map((date) => {
-                      const monthName = getMonthName(date.month);
-                      const dayName = getDayName(
-                        new Date(date.year, date.month, date.day).getDay(),
-                      );
-
-                      return (
-                        <option key={date.day} value={date.day}>
-                          {date.isToday ? t.Today : dayName}, {monthName}{" "}
-                          {date.day < 10 ? `0${date.day}` : date.day},{" "}
-                          {date.year}
-                        </option>
-                      );
-                    })
-                  )}
+                  {renderDateOptions()}
                 </select>
 
                 {bookDay && availableDates.length > 0 && (
