@@ -36,6 +36,9 @@ const registrationTranslations = {
     loginLink: "Login here",
     back: "Back",
     errorAllFields: "Please fill in all fields.",
+    errorInvalidEmail: "Please enter a valid email address.",
+    errorPasswordComplexity:
+      "Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character (!@#$%^&*).",
     errorPasswordMatch: "Passwords do not match.",
     errorRegistrationFailed: "Registration failed. Please verify your details.",
     errorNetwork:
@@ -82,6 +85,9 @@ const registrationTranslations = {
     loginLink: "මෙහි ඇතුල් වන්න",
     back: "ආපසු",
     errorAllFields: "කරුණාකර සියලු ක්ෂේත්‍ර පුරවන්න.",
+    errorInvalidEmail: "කරුණාකර වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න.",
+    errorPasswordComplexity:
+      "මුරපදය අවම වශයෙන් අක්ෂර 8ක් විය යුතු අතර ඉංග්‍රීසි කැපිටල්, සිම්පල් අකුරු, අංකයක් සහ විශේෂ අක්ෂරයක් ඇතුළත් විය යුතුය.",
     errorPasswordMatch: "මුරපද නොගැලපේ.",
     errorRegistrationFailed:
       "ලියාපදිංචි වීම අසාර්ථකයි. කරුණාකර තොරතුරු පරීක්ෂා කරන්න.",
@@ -129,6 +135,9 @@ const registrationTranslations = {
     loginLink: "இங்கே உள்நுழையவும்",
     back: "திரும்புக",
     errorAllFields: "தயவுசெய்து அனைத்து புலங்களையும் நிரப்பவும்.",
+    errorInvalidEmail: "தயவுசெய்து செல்லுபடியாகும் மின்னஞ்சல் முகவரியை உள்ளிடவும்.",
+    errorPasswordComplexity:
+      "கடவுச்சொல் குறைந்தது 8 எழுத்துகளைக் கொண்டிருக்க வேண்டும் மற்றும் பெரிய எழுத்து, சிறிய எழுத்து, எண் மற்றும் சிறப்பு எழுத்துகளைக் கொண்டிருக்க வேண்டும்.",
     errorPasswordMatch: "கடவுச்சொற்கள் பொருந்தவில்லை.",
     errorRegistrationFailed:
       "பதிவு தோல்வியடைந்தது. விவரங்களைச் சரிபார்க்கவும்.",
@@ -248,6 +257,20 @@ function Register() {
       !confirmPassword
     ) {
       setErrorMessage(t.errorAllFields);
+      return;
+    }
+
+    // Validate Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setErrorMessage(t.errorInvalidEmail);
+      return;
+    }
+
+    // Validate Password Complexity (At least 8 chars, uppercase, lowercase, number, special char)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrorMessage(t.errorPasswordComplexity);
       return;
     }
 

@@ -226,7 +226,7 @@ function ResidentProfile({ onOpenHelp }) {
     setProfile(updatedProfile);
     window.dispatchEvent(new Event("profileUpdated"));
 
-    // ✅ Also save to API with correct field names
+    // ✅ Also save to API with correct field names including images
     try {
       const response = await fetch("/api/residents/profile", {
         method: "PUT",
@@ -237,7 +237,10 @@ function ResidentProfile({ onOpenHelp }) {
           fullName: editFullName,
           mobile: editMobile,
           occupation: editOccupation,
-          homeAddress: editHomeAddress, // ✅ Fixed: This is the correct field
+          homeAddress: editHomeAddress,
+          profilePhoto: editProfilePhoto,
+          nicFront: editNicFront,
+          nicBack: editNicBack,
         }),
       });
 
@@ -246,6 +249,21 @@ function ResidentProfile({ onOpenHelp }) {
         console.error("API Error:", errorData);
         alert(errorData.error || "Failed to update profile. Please try again.");
         return;
+      }
+
+      const serverData = await response.json();
+      if (serverData) {
+        const serverMapped = {
+          ...updatedProfile,
+          profilePhoto: serverData.profile_photo_path || updatedProfile.profilePhoto,
+          nicFront: serverData.nic_front_path || updatedProfile.nicFront,
+          nicBack: serverData.nic_back_path || updatedProfile.nicBack,
+        };
+        setProfile(serverMapped);
+        localStorage.setItem(
+          "smartgn_resident_profile",
+          JSON.stringify(serverMapped)
+        );
       }
 
       alert("Profile updated successfully.");

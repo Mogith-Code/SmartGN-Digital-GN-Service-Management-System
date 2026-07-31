@@ -49,6 +49,18 @@ exports.registerResident = async (req, res) => {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Please provide a valid email address.' });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({ 
+            error: 'Password must be at least 8 characters long and contain uppercase, lowercase, a number, and a special character.' 
+        });
+    }
+
     try {
         const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
         if (divisions.length === 0) {
