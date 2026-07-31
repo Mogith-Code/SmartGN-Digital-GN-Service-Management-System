@@ -72,9 +72,9 @@ app.use('/api/residents', residentRoutes);
 const userRoutes = require('./src/routes/officerRoutes');
 app.use('/api/officer', userRoutes);
 
-// // Certificates
-// const certificateRoutes = require('./src/routes/certificateRoutes');
-// app.use('/api/certificates', certificateRoutes);
+// Certificates
+const certificateRoutes = require('./src/routes/certificateRoutes');
+app.use('/api/certificates', certificateRoutes);
 
 // Allowances
 const allowanceRoutes = require('./src/routes/allowanceRoutes');

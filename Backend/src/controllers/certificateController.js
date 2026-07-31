@@ -138,7 +138,6 @@ exports.getResidentCertificates = async (req, res) => {
 
 // OFFICER / ADMIN ENDPOINTS
 
-// GET /api/certificates/officer
 exports.getOfficerCertificates = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
@@ -164,53 +163,100 @@ exports.getOfficerCertificates = async (req, res) => {
             }
         }
 
+        // Build filter conditions
+        let filterConditions = '';
         const filterParams = [];
-        let filterSql = '';
-
+        
         if (gnId || divisionId) {
-            filterSql = 'AND (cp.gn_id = ? OR r.division_id = ? OR cp.gn_id IS NULL)';
+            filterConditions = 'WHERE (cp.gn_id = ? OR r.division_id = ? OR cp.gn_id IS NULL)';
             filterParams.push(gnId, divisionId);
         }
 
+        // Get pending certificates with resident details
         const [pending] = await db.query(`
-            SELECT cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
-                   'PENDING' AS status, cp.details, cp.requested_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            SELECT 
+                cp.request_id, 
+                cp.certificate_number, 
+                cp.certificate_type, 
+                cp.purpose, 
+                cp.request_date,
+                'PENDING' AS status, 
+                cp.details, 
+                cp.requested_at AS created_at,
+                CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                r.r_nic AS resident_nic, 
+                r.home_address AS resident_address, 
+                r.mobile_no,
+                r.email AS resident_email
             FROM certificate_pending cp
             LEFT JOIN resident r ON cp.resident_nic = r.r_nic
-            WHERE 1=1 ${filterSql}
+            ${filterConditions}
             ORDER BY cp.requested_at DESC
         `, filterParams);
 
-        const filterApprovedSql = filterSql.replace(/cp\./g, 'ca.');
+        // Get approved certificates with resident details
         const [approved] = await db.query(`
-            SELECT ca.request_id, ca.certificate_number, ca.certificate_type, ca.purpose, ca.request_date,
-                   'APPROVED' AS status, ca.gn_remarks, ca.issued_date, ca.expiry_date, ca.details, ca.approved_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            SELECT 
+                ca.request_id, 
+                ca.certificate_number, 
+                ca.certificate_type, 
+                ca.purpose, 
+                ca.request_date,
+                'APPROVED' AS status, 
+                ca.gn_remarks, 
+                ca.issued_date, 
+                ca.expiry_date, 
+                ca.details, 
+                ca.approved_at AS created_at,
+                CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                r.r_nic AS resident_nic, 
+                r.home_address AS resident_address, 
+                r.mobile_no,
+                r.email AS resident_email
             FROM certificate_approved ca
             LEFT JOIN resident r ON ca.resident_nic = r.r_nic
-            WHERE 1=1 ${filterApprovedSql}
+            ${filterConditions ? 'WHERE (ca.gn_id = ? OR r.division_id = ? OR ca.gn_id IS NULL)' : ''}
             ORDER BY ca.approved_at DESC
-        `, filterParams);
+        `, filterParams.length > 0 ? filterParams : []);
 
-        const filterRejectedSql = filterSql.replace(/cp\./g, 'cr.');
+        // Get rejected certificates with resident details
         const [rejected] = await db.query(`
-            SELECT cr.request_id, cr.certificate_number, cr.certificate_type, cr.purpose, cr.request_date,
-                   'REJECTED' AS status, cr.gn_remarks, cr.rejection_reason, cr.details, cr.rejected_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+            SELECT 
+                cr.request_id, 
+                cr.certificate_number, 
+                cr.certificate_type, 
+                cr.purpose, 
+                cr.request_date,
+                'REJECTED' AS status, 
+                cr.gn_remarks, 
+                cr.rejection_reason, 
+                cr.details, 
+                cr.rejected_at AS created_at,
+                CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                r.r_nic AS resident_nic, 
+                r.home_address AS resident_address, 
+                r.mobile_no,
+                r.email AS resident_email
             FROM certificate_rejected cr
             LEFT JOIN resident r ON cr.resident_nic = r.r_nic
-            WHERE 1=1 ${filterRejectedSql}
+            ${filterConditions ? 'WHERE (cr.gn_id = ? OR r.division_id = ? OR cr.gn_id IS NULL)' : ''}
             ORDER BY cr.rejected_at DESC
-        `, filterParams);
+        `, filterParams.length > 0 ? filterParams : []);
 
+        // Combine and format results
         const results = [...pending, ...approved, ...rejected].map(item => ({
             ...item,
             id: item.request_id,
-            details: parseDetails(item.details)
+            details: parseDetails(item.details),
+            // Format for frontend display
+            type: item.certificate_type === 'INCOME' ? 'Income Certificate' : 
+                   item.certificate_type === 'CHARACTER' ? 'Character Certificate' : 
+                   'Residence Certificate',
+            submittedDate: item.request_date ? new Date(item.request_date).toISOString().split('T')[0] : '',
+            name: item.resident_name || 'Unknown Resident',
+            division: item.division || 'Not Assigned',
+            nic: item.resident_nic,
+            address: item.resident_address || ''
         }));
 
         return res.json(results);
@@ -390,5 +436,68 @@ exports.handleCertificateAction = async (req, res) => {
     } catch (error) {
         console.error('Error handling certificate action:', error);
         return res.status(500).json({ error: 'Server error handling certificate action.' });
+    }
+};
+
+// GET /api/certificates/officer/stats
+exports.getOfficerStats = async (req, res) => {
+    const user = getUserFromToken(req);
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers/Admins only.' });
+    }
+
+    try {
+        let gnId = user.id || null;
+        let divisionId = user.divisionId || null;
+
+        if (user.role === 'OFFICER') {
+            try {
+                const [officer] = await db.query(
+                    'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                    [user.id, user.email || user.id, user.id]
+                );
+                if (officer && officer.length > 0) {
+                    gnId = officer[0].gn_id || gnId;
+                    divisionId = officer[0].division_id || divisionId;
+                }
+            } catch (err) {
+                console.error('Error finding officer profile:', err);
+            }
+        }
+
+        // Build filter conditions
+        let filterConditions = '';
+        const filterParams = [];
+        
+        if (gnId || divisionId) {
+            filterConditions = 'AND (gn_id = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE division_id = ?) OR gn_id IS NULL)';
+            filterParams.push(gnId, divisionId);
+        }
+
+        // Get counts for each status
+        const [pendingResult] = await db.query(`
+            SELECT COUNT(*) as count FROM certificate_pending cp
+            WHERE 1=1 ${filterConditions}
+        `, filterParams);
+
+        const [approvedResult] = await db.query(`
+            SELECT COUNT(*) as count FROM certificate_approved ca
+            WHERE 1=1 ${filterConditions.replace(/cp\./g, 'ca.')}
+        `, filterParams);
+
+        const [rejectedResult] = await db.query(`
+            SELECT COUNT(*) as count FROM certificate_rejected cr
+            WHERE 1=1 ${filterConditions.replace(/cp\./g, 'cr.')}
+        `, filterParams);
+
+        return res.json({
+            pending: pendingResult[0]?.count || 0,
+            approved: approvedResult[0]?.count || 0,
+            rejected: rejectedResult[0]?.count || 0,
+            total: (pendingResult[0]?.count || 0) + (approvedResult[0]?.count || 0) + (rejectedResult[0]?.count || 0)
+        });
+    } catch (error) {
+        console.error('Error fetching certificate stats:', error);
+        return res.status(500).json({ error: 'Server error fetching certificate statistics.' });
     }
 };
