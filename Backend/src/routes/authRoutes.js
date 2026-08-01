@@ -13,6 +13,7 @@ router.post('/login', authController.login);
 router.post('/verify-2fa', authController.verify2FA);
 router.post('/verify-registration', authController.verifyRegistration);
 router.post('/resend-otp', authController.resendOTP);
+router.post('/forgot-password', authController.forgotPassword);
 
 // ============================================================
 // ADMIN ONLY ROUTES - OFFICER MANAGEMENT
