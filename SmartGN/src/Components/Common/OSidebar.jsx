@@ -188,6 +188,17 @@ function OSidebar() {
             )}
           </NavLink>
         ))}
+
+        <button
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "/login";
+          }}
+          className="flex items-center gap-2.5 w-full border-none bg-red-50 text-red-600 hover:bg-red-100 rounded-r-full py-2.5 px-6 cursor-pointer text-xs sm:text-sm font-semibold transition-all mt-6 shadow-sm text-left"
+        >
+          <span className="text-base">🚪</span>
+          <span>Logout</span>
+        </button>
       </nav>
     </aside>
   );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import OSidebar from "../Components/Common/OSidebar";
 import OfficerDashboardLayout from "../Components/OfficerDashboard.jsx/OfficerDashboardLayout";
 import { getAuthHeaders } from "../utils/api";
@@ -249,14 +250,8 @@ function OfficerDashboard({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Floating Help Trigger */}
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      {/* Floating AI Assistant Chatbot Button */}
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       <Footer />
     </div>

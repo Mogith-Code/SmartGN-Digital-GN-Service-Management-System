@@ -6,6 +6,7 @@ import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import ResidentDashboardLayout from "../Components/ResidentDashboard/ResidentDashboardLayout";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 
 function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -326,17 +327,42 @@ function ResidentDashboard({ onOpenHelp }) {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch("/api/residents/announcements");
+        const token = localStorage.getItem("smartgn_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await fetch("/api/residents/announcements", { headers });
         if (response.ok) {
           const data = await response.json();
-          setAnnouncements(data.slice(0, 5));
+          if (data && data.length > 0) {
+            setAnnouncements(data.slice(0, 5));
+            return;
+          }
         }
       } catch (err) {
-        console.error("Error fetching announcements:", err);
+        console.error("Error fetching announcements API:", err);
+      }
+
+      // Fallback to local synced announcements
+      const localSaved = localStorage.getItem("smartgn_announcements");
+      if (localSaved) {
+        try {
+          const list = JSON.parse(localSaved);
+          setAnnouncements(list.slice(0, 5));
+        } catch (e) {
+          console.error("Error parsing local announcements:", e);
+        }
       }
     };
 
     fetchAnnouncements();
+
+    const handleAnnChange = () => fetchAnnouncements();
+    window.addEventListener("announcementsUpdated", handleAnnChange);
+    window.addEventListener("storage", handleAnnChange);
+
+    return () => {
+      window.removeEventListener("announcementsUpdated", handleAnnChange);
+      window.removeEventListener("storage", handleAnnChange);
+    };
   }, []);
 
   // ============================================================
@@ -410,14 +436,8 @@ function ResidentDashboard({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Floating Help Trigger */}
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      {/* Floating AI Assistant Chatbot Button */}
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* Footer */}
       <Footer />

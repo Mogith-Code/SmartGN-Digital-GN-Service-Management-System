@@ -37,11 +37,44 @@ function Navbar() {
     },
   ];
 
-  // ============================================================================
-  // STATE MANAGEMENT
-  // ============================================================================
+  // State management
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
+
+  // User session state for logged-in status
+  const [userSession, setUserSession] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("smartgn_token");
+    const role = localStorage.getItem("smartgn_user_role");
+    const name = localStorage.getItem("smartgn_user_name") || "User";
+    const division = localStorage.getItem("smartgn_user_division") || "";
+
+    if (token) {
+      let dashboardPath = "/ResidentDashboard";
+      if (role === "OFFICER" || role === "GN") {
+        dashboardPath = "/OfficerDashboard";
+      } else if (role === "ADMIN") {
+        dashboardPath = "/dashboard/admin";
+      }
+
+      setUserSession({
+        token,
+        role,
+        name,
+        division,
+        dashboardPath,
+      });
+    } else {
+      setUserSession(null);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setUserSession(null);
+    navigate("/login");
+  };
 
   // ============================================================================
   // MOBILE MENU HANDLERS
@@ -125,8 +158,62 @@ function Navbar() {
           ))}
         </nav>
 
-        {/* Language Selector Component */}
-        <LanguageSelector />
+        {/* Language & Logged-In User Actions Section */}
+        <div className="flex items-center gap-3">
+          <LanguageSelector />
+
+          {userSession ? (
+            <div className="flex items-center gap-3 bg-white/90 p-1.5 pl-3 pr-2 border border-slate-200 rounded-full shadow-sm">
+              <div 
+                onClick={() => navigate(userSession.dashboardPath)}
+                className="flex items-center gap-2 cursor-pointer"
+                title="Click to go to your dashboard"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#1B365D] text-white font-bold flex items-center justify-center text-xs shadow-inner">
+                  {userSession.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-xs font-bold text-[#1B365D] leading-tight max-w-[120px] truncate">
+                    {userSession.name}
+                  </span>
+                  <span className="text-[10px] text-[#005BBD] font-semibold leading-tight">
+                    {userSession.role === "OFFICER" || userSession.role === "GN" ? "Grama Niladhari" : (userSession.role === "ADMIN" ? "System Admin" : "Resident")}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => navigate(userSession.dashboardPath)}
+                className="px-3 py-1.5 bg-[#1B365D] text-white rounded-full text-xs font-bold hover:bg-[#005BBD] transition-colors border-0 cursor-pointer shadow-sm"
+              >
+                Dashboard ➔
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-full text-xs font-bold transition-colors cursor-pointer"
+                title="Logout"
+              >
+                Logout 🚪
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/login")}
+                className="px-4 py-1.5 bg-[#1B365D] text-white rounded-lg text-xs font-bold hover:bg-[#005BBD] transition-colors border-0 cursor-pointer shadow-sm"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="px-4 py-1.5 bg-[#D69E2E] text-white rounded-lg text-xs font-bold hover:bg-[#B8860B] transition-colors border-0 cursor-pointer shadow-sm"
+              >
+                Register
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ====================================================================== */}
@@ -207,17 +294,51 @@ function Navbar() {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white">
-          <button
-            onClick={() => {
-              closeMobileMenu();
-              // Add logout logic here if needed
-            }}
-            className="flex items-center gap-3 w-full py-3 px-4 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          >
-            <span className="text-xl">🚪</span>
-            <span>Logout</span>
-          </button>
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white flex flex-col gap-2">
+          {userSession ? (
+            <>
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  navigate(userSession.dashboardPath);
+                }}
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#1B365D] text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer border-0"
+              >
+                <span>My Dashboard ➔</span>
+              </button>
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  handleLogout();
+                }}
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors cursor-pointer border-0"
+              >
+                <span className="text-sm">🚪</span>
+                <span>Logout ({userSession.name})</span>
+              </button>
+            </>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  navigate("/login");
+                }}
+                className="flex-1 py-2.5 px-4 bg-[#1B365D] text-white rounded-lg text-xs font-bold cursor-pointer border-0"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  navigate("/register");
+                }}
+                className="flex-1 py-2.5 px-4 bg-[#D69E2E] text-white rounded-lg text-xs font-bold cursor-pointer border-0"
+              >
+                Register
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

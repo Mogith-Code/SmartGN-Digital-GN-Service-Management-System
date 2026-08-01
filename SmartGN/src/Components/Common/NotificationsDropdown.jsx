@@ -11,6 +11,7 @@ import {
   markAsRead,
   markAllAsRead,
   clearNotifications,
+  formatNotificationTime,
 } from "../../utils/notifications";
 
 function NotificationsDropdown({ role = "resident" }) {
@@ -214,7 +215,7 @@ function NotificationsDropdown({ role = "resident" }) {
                         {item.title}
                       </h4>
                       <span className="text-[10px] text-slate-400 font-normal flex-shrink-0">
-                        {item.date}
+                        {formatNotificationTime(item)}
                       </span>
                     </div>
                     <p className="text-[11.5px] text-slate-600 line-clamp-2 m-0 leading-relaxed">

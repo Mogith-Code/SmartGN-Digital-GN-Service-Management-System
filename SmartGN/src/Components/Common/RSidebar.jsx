@@ -1,7 +1,7 @@
 // src/components/Common/RSidebar.jsx
 import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import homeIcon from "../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import dashBoard from "../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -175,6 +175,17 @@ function RSidebar() {
             )}
           </NavLink>
         ))}
+
+        <button
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "/login";
+          }}
+          className="flex items-center gap-2.5 w-full border-none bg-red-50 text-red-600 hover:bg-red-100 rounded-r-full py-2.5 px-6 cursor-pointer text-xs sm:text-sm font-semibold transition-all mt-6 shadow-sm text-left"
+        >
+          <span className="text-base">🚪</span>
+          <span>Logout</span>
+        </button>
       </nav>
     </aside>
   );
