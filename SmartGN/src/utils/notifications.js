@@ -2,6 +2,7 @@
 
 const RESIDENT_NOTIF_KEY = "smartgn_notifications_resident";
 const OFFICER_NOTIF_KEY = "smartgn_notifications_officer";
+const ADMIN_NOTIF_KEY = "smartgn_notifications_admin";
 
 // Default initial notifications for demonstration and usability
 const DEFAULT_RESIDENT_NOTIFS = [
@@ -64,10 +65,35 @@ const DEFAULT_OFFICER_NOTIFS = [
   },
 ];
 
+const DEFAULT_ADMIN_NOTIFS = [
+  {
+    id: "notif-admin-1",
+    type: "user",
+    title: "New Resident Registered",
+    message: "Resident Nimal Perera (NIC: 200324511540) registered under Colombo Borella Division.",
+    date: "10 mins ago",
+    read: false,
+    link: "/dashboard/admin",
+  },
+  {
+    id: "notif-admin-2",
+    type: "security",
+    title: "Password Reset Request",
+    message: "Resident requested password reset for account Nimal.Perera@example.com.",
+    date: "1 hour ago",
+    read: false,
+    link: "/dashboard/admin",
+  },
+];
+
 /**
- * Get storage key based on user role ('resident' | 'officer')
+ * Get storage key based on user role ('resident' | 'officer' | 'admin')
  */
-const getKey = (role) => (role === "officer" ? OFFICER_NOTIF_KEY : RESIDENT_NOTIF_KEY);
+const getKey = (role) => {
+  if (role === "admin") return ADMIN_NOTIF_KEY;
+  if (role === "officer") return OFFICER_NOTIF_KEY;
+  return RESIDENT_NOTIF_KEY;
+};
 
 /**
  * Get all notifications for a role
@@ -77,13 +103,19 @@ export const getNotifications = (role = "resident") => {
     const key = getKey(role);
     const stored = localStorage.getItem(key);
     if (!stored) {
-      const initial = role === "officer" ? DEFAULT_OFFICER_NOTIFS : DEFAULT_RESIDENT_NOTIFS;
+      const initial =
+        role === "admin"
+          ? DEFAULT_ADMIN_NOTIFS
+          : role === "officer"
+          ? DEFAULT_OFFICER_NOTIFS
+          : DEFAULT_RESIDENT_NOTIFS;
       localStorage.setItem(key, JSON.stringify(initial));
       return initial;
     }
     return JSON.parse(stored);
   } catch (error) {
     console.error("Error reading notifications from localStorage:", error);
+    if (role === "admin") return DEFAULT_ADMIN_NOTIFS;
     return role === "officer" ? DEFAULT_OFFICER_NOTIFS : DEFAULT_RESIDENT_NOTIFS;
   }
 };

@@ -105,6 +105,48 @@ function ResidentDashboardLayout({
         />
       </div>
 
+      {/* ── Assigned Grama Niladhari Officer Information Card ── */}
+      <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-6 p-6 bg-gradient-to-r from-[#1B365D] via-[#244778] to-[#005BBD] text-white rounded-2xl shadow-md border border-[#D69E2E]/40 text-left">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-white/10 border-2 border-[#D69E2E] flex items-center justify-center text-[#FFAA00] font-bold text-xl shadow-inner">
+              🏛️
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-[#FFAA00] uppercase tracking-wider bg-[#D69E2E]/20 px-2.5 py-0.5 rounded-full border border-[#D69E2E]/30">
+                  Assigned GN Division
+                </span>
+                <span className="text-xs text-slate-200 font-semibold">
+                  {profile.division || localStorage.getItem("smartgn_user_division") || "Colombo, Borella"}
+                </span>
+              </div>
+              <h3 className="text-lg font-bold text-white mt-1 mb-0">
+                Grama Niladhari - Officer K.A. Jayasekara
+              </h3>
+              <p className="text-xs text-slate-300 m-0 mt-0.5 font-medium">
+                Official Officer in charge of Division: {profile.division || localStorage.getItem("smartgn_user_division") || "Colombo, Borella"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:items-end text-xs text-slate-200 gap-1 bg-white/10 p-3 rounded-xl border border-white/10 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-[#FFAA00]">📞 Office Phone:</span>
+              <span className="font-bold text-white">011-2691234 / 077-1234567</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-[#FFAA00]">📍 Office Location:</span>
+              <span className="text-white">Divisional Secretariat, Main Rd</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-[#FFAA00]">🕒 Public Hours:</span>
+              <span className="text-emerald-300 font-bold">Mon - Fri (8:30 AM - 4:15 PM)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ── Quick Actions ── */}
       <div className="flex mx-[30px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <QuickActions />
