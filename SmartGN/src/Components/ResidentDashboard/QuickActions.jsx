@@ -75,7 +75,7 @@ function QuickActions() {
         {cards.map((card) => (
           <button
             key={card.id}
-            className="bg-[#FFFFFF] flex items-center justify-center p-[15px] rounded-[15px] shadow-[0px_2px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_2px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+            className="bg-[#FFFFFF] flex items-center justify-center p-[15px] rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer"
             onClick={() => {
               navigate(card.route);
             }}

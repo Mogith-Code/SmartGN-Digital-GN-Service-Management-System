@@ -8,7 +8,8 @@ import { useLanguage } from "../utils/translate";
 const certificateSuccessTranslations = {
   EN: {
     title: "Certificate Request Confirmed!",
-    subtitle: "Your certificate application has been successfully validated and submitted to your Grama Niladhari officer.",
+    subtitle:
+      "Your certificate application has been successfully validated and submitted to your Grama Niladhari officer.",
     badgeStatus: "Under Officer Verification",
     refNo: "Reference Number",
     certType: "Certificate Type",
@@ -18,19 +19,23 @@ const certificateSuccessTranslations = {
     purposeLabel: "Purpose",
     timelineTitle: "Application Validation Tracker",
     step1Title: "Application Submitted & Validated",
-    step1Desc: "Your request parameters and details have been recorded in the portal.",
+    step1Desc:
+      "Your request parameters and details have been recorded in the portal.",
     step2Title: "Grama Niladhari Field Verification",
-    step2Desc: "Your GN officer will inspect your details and attached documentation.",
+    step2Desc:
+      "Your GN officer will inspect your details and attached documentation.",
     step3Title: "Approval & Digital Certificate Issuance",
-    step3Desc: "Once approved, your certificate will be generated for download or collection.",
+    step3Desc:
+      "Once approved, your certificate will be generated for download or collection.",
     viewPendingBtn: "View Pending Applications",
     dashboardBtn: "Back to Resident Dashboard",
     defaultCertType: "Grama Niladhari Certificate",
     defaultUser: "Resident Applicant",
-    },
+  },
   SI: {
     title: "සහතික පත්‍ර ඉල්ලීම තහවුරු විය!",
-    subtitle: "ඔබගේ සහතික පත්‍ර ඉල්ලුම්පත්‍රය සාර්ථකව පරීක්ෂා කර ඔබගේ ග්‍රාම නිලධාරී වෙත යොමු කර ඇත.",
+    subtitle:
+      "ඔබගේ සහතික පත්‍ර ඉල්ලුම්පත්‍රය සාර්ථකව පරීක්ෂා කර ඔබගේ ග්‍රාම නිලධාරී වෙත යොමු කර ඇත.",
     badgeStatus: "නිලධාරී පරික්ෂාව යටතේ",
     refNo: "යොමු අංකය",
     certType: "සහතික වර්ගය",
@@ -49,10 +54,11 @@ const certificateSuccessTranslations = {
     dashboardBtn: "නේවාසික පුවරුවට",
     defaultCertType: "ග්‍රාම නිලධාරී සහතිකය",
     defaultUser: "අයදුම්කරු",
-    },
+  },
   TA: {
     title: "சான்றிதழ் கோரிக்கை உறுதி செய்யப்பட்டது!",
-    subtitle: "உங்கள் சான்றிதழ் விண்ணப்பம் சரிபார்க்கப்பட்டு உங்கள் கிராம நிலதாரி அதிகாரிக்கு அனுப்பப்பட்டுள்ளது.",
+    subtitle:
+      "உங்கள் சான்றிதழ் விண்ணப்பம் சரிபார்க்கப்பட்டு உங்கள் கிராம நிலதாரி அதிகாரிக்கு அனுப்பப்பட்டுள்ளது.",
     badgeStatus: "அதிகாரியின் சரிபார்ப்பில்",
     refNo: "குறிப்பு எண்",
     certType: "சான்றிதழ் வகை",
@@ -78,16 +84,26 @@ function CertificateSuccess({ onOpenHelp }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLanguage();
-  const t = certificateSuccessTranslations[lang] || certificateSuccessTranslations.EN;
+  const t =
+    certificateSuccessTranslations[lang] || certificateSuccessTranslations.EN;
 
   // Retrieve details passed from application form
   const stateData = location.state || {};
-  const requestNumber = stateData.requestNumber || `CERT-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const requestNumber =
+    stateData.requestNumber ||
+    `CERT-${new Date().toISOString().split("T")[0].replace(/-/g, "")}-${Math.floor(1000 + Math.random() * 9000)}`;
   const certificateType = stateData.certificateType || t.defaultCertType;
-  const applicantName = stateData.applicantName || localStorage.getItem("smartgn_user_name") || t.defaultUser;
-  const division = stateData.division || localStorage.getItem("smartgn_user_division") || "Grama Niladhari Division";
+  const applicantName =
+    stateData.applicantName ||
+    localStorage.getItem("smartgn_user_name") ||
+    t.defaultUser;
+  const division =
+    stateData.division ||
+    localStorage.getItem("smartgn_user_division") ||
+    "Grama Niladhari Division";
   const purpose = stateData.purpose || "Official Certificate Request";
-  const submittedDate = stateData.submittedDate || new Date().toLocaleDateString();
+  const submittedDate =
+    stateData.submittedDate || new Date().toLocaleDateString();
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
@@ -103,7 +119,6 @@ function CertificateSuccess({ onOpenHelp }) {
         {/* Main Content Area */}
         <main className="flex-1 p-4 sm:p-6 md:p-10 bg-[#F7FAFC] flex flex-col items-center justify-center">
           <div className="w-full max-w-[700px] bg-white rounded-[24px] border border-[#2D37482D] shadow-[0_15px_45px_rgba(0,0,0,0.06)] p-6 sm:p-8 md:p-10 flex flex-col items-center text-center my-6">
-            
             {/* Animated Validation Badge */}
             <div className="mb-6 relative">
               <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-200 shadow-[0_8px_24px_rgba(16,185,129,0.18)]">
@@ -114,7 +129,11 @@ function CertificateSuccess({ onOpenHelp }) {
                   strokeWidth="3"
                   viewBox="0 0 24 24"
                 >
-                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
               <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white animate-ping"></div>
@@ -209,9 +228,7 @@ function CertificateSuccess({ onOpenHelp }) {
                     <h5 className="text-[14px] font-semibold text-[#1e293b]">
                       {t.step1Title}
                     </h5>
-                    <p className="text-xs text-[#64748B]">
-                      {t.step1Desc}
-                    </p>
+                    <p className="text-xs text-[#64748B]">{t.step1Desc}</p>
                   </div>
                 </div>
 
@@ -224,9 +241,7 @@ function CertificateSuccess({ onOpenHelp }) {
                     <h5 className="text-[14px] font-semibold text-[#1e293b]">
                       {t.step2Title}
                     </h5>
-                    <p className="text-xs text-[#64748B]">
-                      {t.step2Desc}
-                    </p>
+                    <p className="text-xs text-[#64748B]">{t.step2Desc}</p>
                   </div>
                 </div>
 
@@ -239,9 +254,7 @@ function CertificateSuccess({ onOpenHelp }) {
                     <h5 className="text-[14px] font-semibold text-slate-500">
                       {t.step3Title}
                     </h5>
-                    <p className="text-xs text-slate-400">
-                      {t.step3Desc}
-                    </p>
+                    <p className="text-xs text-slate-400">{t.step3Desc}</p>
                   </div>
                 </div>
               </div>
@@ -250,7 +263,9 @@ function CertificateSuccess({ onOpenHelp }) {
             {/* Buttons */}
             <div className="w-full flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => navigate("/ResidentDashboard/certificates/pending")}
+                onClick={() =>
+                  navigate("/ResidentDashboard/certificates/pending")
+                }
                 className="flex-1 py-3 px-5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[15px] rounded-xl transition-all duration-200 shadow-md cursor-pointer"
               >
                 {t.viewPendingBtn}
@@ -282,7 +297,3 @@ function CertificateSuccess({ onOpenHelp }) {
 }
 
 export default CertificateSuccess;
-        
-
-        
-

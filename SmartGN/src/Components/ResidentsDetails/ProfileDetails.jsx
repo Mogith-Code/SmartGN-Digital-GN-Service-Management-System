@@ -1,4 +1,3 @@
-// src/Components/ResidentsDetails/ProfileDetails.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import OfficerNavbar from "../Common/OfficerNavbar";
@@ -8,6 +7,7 @@ import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_op
 import { useLanguage } from "../../utils/translate";
 import FamilyMemberTable from "../Family&HouseholdPage/FamilyMemberTable";
 import { decryptId } from "../../utils/encryption";
+import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
 function DetailItem({ label, value, isEmail }) {
   return (
@@ -39,6 +39,7 @@ function ProfileDetails({ onOpenHelp }) {
   const [familyMembers, setFamilyMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
 
   const ProfileTranslations = {
     EN: {
@@ -147,6 +148,49 @@ function ProfileDetails({ onOpenHelp }) {
   };
 
   // ============================================================
+  // GET PROFILE PHOTO URL - FIXED for Vite (no process.env)
+  // ============================================================
+  const getProfilePhotoUrl = (photoPath) => {
+    if (!photoPath) return null;
+
+    console.log("📸 Raw photo path:", photoPath);
+
+    // If it's already a full URL, return as is
+    if (photoPath.startsWith("http://") || photoPath.startsWith("https://")) {
+      console.log("📸 Full URL detected:", photoPath);
+      return photoPath;
+    }
+
+    // Get base URL - use window.location for Vite
+    const baseUrl =
+      import.meta.env?.VITE_API_URL ||
+      window.location.origin ||
+      "http://localhost:5000";
+
+    // Clean the path (remove leading slashes)
+    let cleanPath = photoPath.replace(/^\/+/, "");
+
+    // If it starts with 'uploads/', keep as is
+    if (cleanPath.startsWith("uploads/")) {
+      const fullUrl = `${baseUrl}/${cleanPath}`;
+      console.log("📸 Uploads path detected:", fullUrl);
+      return fullUrl;
+    }
+
+    // If it's just a filename (no slashes), assume it's in profile_photos
+    if (!cleanPath.includes("/")) {
+      const fullUrl = `${baseUrl}/uploads/profile_photos/${cleanPath}`;
+      console.log("📸 Filename only, using profile_photos:", fullUrl);
+      return fullUrl;
+    }
+
+    // For any other case, try to construct the URL
+    const fullUrl = `${baseUrl}/${cleanPath}`;
+    console.log("📸 Constructed URL:", fullUrl);
+    return fullUrl;
+  };
+
+  // ============================================================
   // FETCH DATA (RUNS ON PAGE LOAD OR NIC CHANGE)
   // ============================================================
   useEffect(() => {
@@ -164,9 +208,9 @@ function ProfileDetails({ onOpenHelp }) {
       setError("");
 
       try {
-        // 1. Fetch Profile Info
+        // ✅ Use the officer route to get resident details with photo
         const profileResponse = await authenticatedFetch(
-          `/api/auth/admin/residents/${nic}`,
+          `/api/officer/residents/${nic}`,
         );
 
         console.log("📡 Profile API Response Status:", profileResponse.status);
@@ -180,10 +224,35 @@ function ProfileDetails({ onOpenHelp }) {
         }
 
         const profileData = await profileResponse.json();
-        console.log("📋 Profile data received:", profileData);
+        console.log("📋 Full Profile data received:", profileData);
 
-        const residentData = profileData.data || profileData;
+        // ✅ Get the resident data
+        let residentData = profileData.data || profileData;
         setResident(residentData);
+
+        // Log all fields to see what's available
+        console.log("🔍 Resident data keys:", Object.keys(residentData));
+        console.log("🔍 Resident data:", residentData);
+
+        // ✅ Get the profile photo path - same as ProfileSearchingSection
+        const photoPath =
+          residentData.profile_photo_path ||
+          residentData.profilePhoto ||
+          residentData.profile_photo ||
+          residentData.photo_path ||
+          residentData.photo ||
+          null;
+
+        console.log("📸 Photo path found:", photoPath);
+
+        if (photoPath) {
+          const fullUrl = getProfilePhotoUrl(photoPath);
+          console.log("📸 Full photo URL:", fullUrl);
+          setProfilePhotoUrl(fullUrl);
+        } else {
+          console.log("📸 No profile photo found for this resident");
+          setProfilePhotoUrl(null);
+        }
 
         // 2. Fetch Family Members
         try {
@@ -290,6 +359,9 @@ function ProfileDetails({ onOpenHelp }) {
     );
   }
 
+  // Get the photo URL for display
+  const photoUrl = profilePhotoUrl;
+
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <OfficerNavbar />
@@ -318,13 +390,37 @@ function ProfileDetails({ onOpenHelp }) {
             <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
             <div className="absolute right-10 -top-10 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center text-4xl font-bold uppercase shadow-inner">
-              {resident?.name ? resident.name.charAt(0) : "R"}
+            {/* Profile Photo */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {photoUrl ? (
+                <img
+                  src={photoUrl}
+                  alt={resident?.full_name || resident?.name || "Profile"}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error("❌ Image failed to load:", photoUrl);
+                    // If image fails to load, fallback to profile icon
+                    e.target.style.display = "none";
+                    const parent = e.target.parentElement;
+                    const img = document.createElement("img");
+                    img.src = profileIcon;
+                    img.alt = "Profile";
+                    img.className = "w-full h-full object-cover";
+                    parent.appendChild(img);
+                  }}
+                />
+              ) : (
+                <img
+                  src={profileIcon}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
 
             <div className="flex-1 text-center sm:text-left">
               <h3 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
-                {resident?.name || "N/A"}
+                {resident?.full_name || resident?.name || "N/A"}
               </h3>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 mt-2">
                 <span className="bg-white/15 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
@@ -354,13 +450,18 @@ function ProfileDetails({ onOpenHelp }) {
                 {t.personalInfo}
               </h4>
               <div className="flex flex-col gap-4">
-                <DetailItem label={t.fullName} value={resident?.name} />
+                <DetailItem
+                  label={t.fullName}
+                  value={resident?.full_name || resident?.name}
+                />
                 <DetailItem label={t.nic} value={resident?.nic} />
                 <DetailItem
                   label={t.dob}
                   value={
-                    resident?.dob
-                      ? new Date(resident.dob).toLocaleDateString()
+                    resident?.date_of_birth || resident?.dob
+                      ? new Date(
+                          resident?.date_of_birth || resident?.dob,
+                        ).toLocaleDateString()
                       : "N/A"
                   }
                 />
@@ -382,7 +483,7 @@ function ProfileDetails({ onOpenHelp }) {
                 <DetailItem label={t.email} value={resident?.email} isEmail />
                 <DetailItem
                   label={t.mobile}
-                  value={resident?.mobile_no || "N/A"}
+                  value={resident?.mobile_no || resident?.mobile || "N/A"}
                 />
               </div>
             </div>
@@ -400,7 +501,7 @@ function ProfileDetails({ onOpenHelp }) {
                 />
                 <DetailItem
                   label={t.division}
-                  value={resident?.division_name || "N/A"}
+                  value={resident?.division_name || resident?.division || "N/A"}
                 />
                 <div className="md:col-span-2">
                   <DetailItem

@@ -108,7 +108,10 @@ function AfterlogNavbar() {
             profilePhoto: data.profile_photo_path || null,
           };
           setProfile(mapped);
-          localStorage.setItem("smartgn_resident_profile", JSON.stringify(mapped));
+          localStorage.setItem(
+            "smartgn_resident_profile",
+            JSON.stringify(mapped),
+          );
         }
       } catch (err) {
         // Fallback keep default
@@ -290,7 +293,7 @@ function AfterlogNavbar() {
                 {profile.division || "Colombo, Borella"}
               </span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[46px] xl:h-[46px] rounded-full bg-slate-200 flex items-center justify-center border-[2px] border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[46px] xl:h-[46px] rounded-full bg-slate-200 flex items-center justify-center border border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
               {profile.profilePhoto ? (
                 <img
                   src={profile.profilePhoto}
@@ -350,7 +353,7 @@ function AfterlogNavbar() {
 
           {/* User Avatar (No text on mobile) */}
           <div
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-[#005BBD] overflow-hidden flex-shrink-0 cursor-pointer"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center border border-[#2D3748] overflow-hidden flex-shrink-0 cursor-pointer"
             onClick={() => navigate("/ResidentDashboard/profile")}
             title="Click to view profile"
           >
