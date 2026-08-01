@@ -306,6 +306,19 @@ function AfterlogNavbar() {
               )}
             </div>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = "/login";
+            }}
+            className="py-1.5 px-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors duration-150 flex items-center gap-1 shadow-sm"
+            title="Logout of your account"
+          >
+            <span>🚪</span>
+            <span className="hidden sm:inline">Logout</span>
+          </button>
         </div>
       </div>
 
