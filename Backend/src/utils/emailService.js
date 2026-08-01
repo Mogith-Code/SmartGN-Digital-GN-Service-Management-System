@@ -123,8 +123,8 @@ OTP CODE: [ ${otp} ]
     // 2. Dispatch real email via Nodemailer
     try {
         const transporter = await getTransporter();
+        const senderEmail = process.env.SMTP_USER || 'warapitiyalakshan@gmail.com';
         if (transporter) {
-            const senderEmail = process.env.SMTP_USER || 'no-reply@smartgn.gov.lk';
             const info = await transporter.sendMail({
                 from: `"SmartGN Digital Services" <${senderEmail}>`,
                 to: email,
@@ -133,7 +133,7 @@ OTP CODE: [ ${otp} ]
                 html: htmlMessage
             });
 
-            console.log(`✉️ Email dispatched to ${email} (Message ID: ${info.messageId})`);
+            console.log(`✉️ OTP Email dispatched from ${senderEmail} to ${email} (Message ID: ${info.messageId})`);
 
             if (nodemailer && nodemailer.getTestMessageUrl) {
                 const previewUrl = nodemailer.getTestMessageUrl(info);
@@ -144,6 +144,72 @@ OTP CODE: [ ${otp} ]
         }
     } catch (error) {
         console.error(`❌ Error delivering email to ${email}:`, error.message);
+    }
+
+    return true;
+};
+
+/**
+ * Sends password reset instructions email from warapitiyalakshan@gmail.com
+ */
+exports.sendPasswordResetEmail = async (email, resetToken, userName = 'Resident') => {
+    const subject = `SmartGN - Password Reset Request Instructions`;
+    const senderEmail = process.env.SMTP_USER || 'warapitiyalakshan@gmail.com';
+    
+    const htmlMessage = `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 550px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+            <h1 style="color: #1B365D; margin: 0; font-size: 24px; font-weight: 700;">SmartGN Digital Portal</h1>
+            <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Government Service Management System - Sri Lanka</p>
+        </div>
+        <div style="background-color: #F8FAFC; border-left: 4px solid #D69E2E; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+            <h2 style="color: #1E293B; font-size: 18px; margin-top: 0;">Password Reset Verification</h2>
+            <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+                Hello <strong>${userName}</strong>,<br/>
+                We received a request to reset your SmartGN portal account password. Use the reset verification token below:
+            </p>
+            <div style="text-align: center; margin: 25px 0;">
+                <span style="font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #1B365D; background-color: #FEF3C7; color: #D97706; padding: 14px 28px; border-radius: 10px; display: inline-block; border: 1px solid #FDE68A;">
+                    ${resetToken}
+                </span>
+            </div>
+            <p style="color: #64748b; font-size: 13px; margin-bottom: 0;">
+                ⏰ If you did not request a password reset, please ignore this email or notify your Grama Niladhari officer immediately.
+            </p>
+        </div>
+        <div style="text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+            <p>Sent from Official SmartGN Mailer: <strong>${senderEmail}</strong></p>
+            <p style="margin-top: 4px;">© ${new Date().getFullYear()} SmartGN Digital Services. All rights reserved.</p>
+        </div>
+    </div>
+    `;
+
+    const textMessage = `SmartGN Password Reset for ${userName}: Your reset verification code is ${resetToken}.`;
+
+    const logEntry = `
+=============================================================
+PASSWORD RESET EMAIL TO: ${email}
+FROM: ${senderEmail}
+SUBJECT: ${subject}
+DATE: ${new Date().toLocaleString()}
+RESET CODE: [ ${resetToken} ]
+=============================================================`;
+    console.log(logEntry);
+
+    try {
+        const transporter = await getTransporter();
+        if (transporter) {
+            const info = await transporter.sendMail({
+                from: `"SmartGN Digital Services" <${senderEmail}>`,
+                to: email,
+                subject: subject,
+                text: textMessage,
+                html: htmlMessage
+            });
+            console.log(`✉️ Password reset email dispatched to ${email} (Message ID: ${info.messageId})`);
+        }
+    } catch (error) {
+        console.error(`❌ Error delivering reset email to ${email}:`, error.message);
     }
 
     return true;

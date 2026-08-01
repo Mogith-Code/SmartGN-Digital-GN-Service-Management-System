@@ -5,6 +5,7 @@ import { getAuthHeaders } from '../utils/api'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
+import ChatbotButton from '../Components/Common/ChatbotButton'
 
 function OfficerDisasterReports({ onOpenHelp }) {
   const navigate = useNavigate()
@@ -129,15 +130,16 @@ function OfficerDisasterReports({ onOpenHelp }) {
               </div>
             ) : (
               disasters.map((disaster) => {
-                const cardClass = disaster.severity.includes('high') 
+                const sevLower = (disaster.severity || '').toLowerCase()
+                const cardClass = sevLower.includes('high') || sevLower.includes('critical')
                   ? 'border-rose-300 bg-rose-50/20 hover:border-rose-400' 
-                  : disaster.severity.includes('medium') 
+                  : sevLower.includes('medium') 
                     ? 'border-amber-300 bg-amber-50/20 hover:border-amber-400' 
                     : 'border-gray-200 bg-white hover:border-gray-300'
 
-                const severityBadgeClass = disaster.severity.includes('high')
+                const severityBadgeClass = sevLower.includes('high') || sevLower.includes('critical')
                   ? 'bg-rose-100 text-rose-800'
-                  : disaster.severity.includes('medium')
+                  : sevLower.includes('medium')
                     ? 'bg-amber-100 text-amber-800'
                     : 'bg-slate-100 text-slate-800'
 
@@ -150,8 +152,8 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       <div className="flex justify-between items-start gap-2 mb-3">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-9 h-9 rounded-lg flex items-center justify-center 
-                            ${disaster.severity.includes('high') ? 'bg-rose-100 text-rose-700' : 
-                              disaster.severity.includes('medium') ? 'bg-amber-100 text-amber-700' : 
+                            ${sevLower.includes('high') || sevLower.includes('critical') ? 'bg-rose-100 text-rose-700' : 
+                              sevLower.includes('medium') ? 'bg-amber-100 text-amber-700' : 
                               'bg-slate-100 text-slate-600'}`}
                           >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -369,14 +371,8 @@ function OfficerDisasterReports({ onOpenHelp }) {
         </div>
       )}
 
-      {/* Floating Help Trigger */}
-      <button 
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
-        aria-label="Help Trigger" 
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      {/* Floating AI Assistant Chatbot Button */}
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* Footer */}
       <Footer />

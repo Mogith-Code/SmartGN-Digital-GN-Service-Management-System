@@ -18,13 +18,75 @@ const generateOTP = () => {
 // PUBLIC ROUTES
 // ============================================================
 
-// GET /api/auth/divisions
+// GET /api/auth/divisions - Returns only names for registration
 exports.getDivisions = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching divisions:', error);
+        return res.status(500).json({ error: 'Server error while fetching divisions.' });
+    }
+};
+
+// GET /api/auth/divisions/all - Optimized with pagination and search
+exports.getAllDivisions = async (req, res) => {
+    try {
+        // Get pagination parameters from query string
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20; // Default 20 per page
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+
+        let whereClause = '';
+        let queryParams = [];
+
+        if (search && search.trim() !== '') {
+            whereClause = `WHERE name LIKE ? OR district LIKE ? OR province LIKE ? OR division_code LIKE ?`;
+            const searchTerm = `%${search.trim()}%`;
+            queryParams = [searchTerm, searchTerm, searchTerm, searchTerm];
+        }
+
+        // Get total count for pagination
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM gn_division 
+            ${whereClause}
+        `;
+        const [countResult] = await db.query(countQuery, queryParams);
+        const total = countResult[0]?.total || 0;
+
+        // Get paginated results with proper ordering
+        const [rows] = await db.query(`
+            SELECT 
+                division_id,
+                division_code,
+                name,
+                district,
+                province,
+                divisional_secretariat,
+                population,
+                household_count,
+                is_active,
+                created_at,
+                updated_at
+            FROM gn_division 
+            ${whereClause}
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `, [...queryParams, limit, offset]);
+
+        return res.json({
+            data: rows,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching all divisions:', error);
         return res.status(500).json({ error: 'Server error while fetching divisions.' });
     }
 };
@@ -104,7 +166,7 @@ exports.registerResident = async (req, res) => {
                 r_nic, first_name, last_name, full_name, date_of_birth, 
                 password_hash, gender, mobile_no, email, household_number,
                 division_id, home_address, status, is_2fa_enabled
-            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', FALSE)
+            ) VALUES (?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', FALSE)
         `, [
             nic, 
             firstName,
@@ -119,26 +181,26 @@ exports.registerResident = async (req, res) => {
             homeAddress || null
         ]);
 
-        const otp = generateOTP();
-        const expiresAt = Date.now() + 5 * 60 * 1000;
-
-        otpStore.set(email, {
-            otp,
-            expiresAt,
-            type: 'REGISTRATION',
-            tempUserData: { nic, email }
-        });
-
-        await emailService.sendOTP(email, otp, 'registration');
+        const token = jwt.sign({
+            nic: nic,
+            name: `${firstName} ${lastName}`,
+            role: 'RESIDENT',
+            divisionId: divisionId,
+            divisionName: division
+        }, JWT_SECRET, { expiresIn: '24h' });
 
         return res.status(201).json({
-            message: 'Resident account pre-registered. OTP verification code has been sent to your email.',
-            requiresVerification: true,
+            message: 'Registration successful! Account is active.',
+            requiresVerification: false,
             householdCreated: householdCreated,
-            email: email,
-            nic: nic,
-            divisionId: divisionId,
-            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+            token,
+            role: 'RESIDENT',
+            user: {
+                nic: nic,
+                name: `${firstName} ${lastName}`,
+                division: division,
+                email: email
+            }
         });
     } catch (error) {
         console.error('Error registering resident:', error);
@@ -245,31 +307,24 @@ exports.login = async (req, res) => {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            const otp = generateOTP();
-            const expiresAt = Date.now() + 5 * 60 * 1000;
-
-            otpStore.set(officer.email, {
-                otp,
-                expiresAt,
-                type: 'LOGIN',
-                tempUserData: {
-                    id: officer.gn_id,
-                    name: officer.full_name || `${officer.first_name} ${officer.last_name}`,
-                    role: 'OFFICER',
-                    divisionId: officer.division_id,
-                    divisionName: officer.division_name || 'Not Assigned',
-                    email: officer.email
-                }
-            });
-
-            await emailService.sendOTP(officer.email, otp, 'login');
+            const token = jwt.sign({
+                id: officer.gn_id,
+                name: officer.full_name || `${officer.first_name} ${officer.last_name}`,
+                role: 'OFFICER',
+                divisionId: officer.division_id,
+                divisionName: officer.division_name || 'Not Assigned'
+            }, JWT_SECRET, { expiresIn: '24h' });
 
             return res.json({
-                requires2FA: true,
-                userType: 'OFFICER',
-                email: officer.email,
-                identifier: queryVal,
-                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+                token,
+                role: 'OFFICER',
+                requires2FA: false,
+                user: {
+                    id: officer.gn_id,
+                    name: officer.full_name || `${officer.first_name} ${officer.last_name}`,
+                    division: officer.division_name || 'Not Assigned',
+                    email: officer.email
+                }
             });
         }
 
@@ -294,31 +349,24 @@ exports.login = async (req, res) => {
                 return res.status(401).json({ error: 'Invalid credentials or suspended account.' });
             }
 
-            const otp = generateOTP();
-            const expiresAt = Date.now() + 5 * 60 * 1000;
-
-            otpStore.set(resident.email, {
-                otp,
-                expiresAt,
-                type: 'LOGIN',
-                tempUserData: {
-                    nic: resident.r_nic,
-                    name: `${resident.first_name} ${resident.last_name}`,
-                    role: 'RESIDENT',
-                    divisionId: resident.division_id,
-                    divisionName: resident.division_name,
-                    email: resident.email
-                }
-            });
-
-            await emailService.sendOTP(resident.email, otp, 'login');
+            const token = jwt.sign({
+                nic: resident.r_nic,
+                name: `${resident.first_name} ${resident.last_name}`,
+                role: 'RESIDENT',
+                divisionId: resident.division_id,
+                divisionName: resident.division_name
+            }, JWT_SECRET, { expiresIn: '24h' });
 
             return res.json({
-                requires2FA: true,
-                userType: 'RESIDENT',
-                email: resident.email,
-                identifier: queryVal,
-                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+                token,
+                role: 'RESIDENT',
+                requires2FA: false,
+                user: {
+                    nic: resident.r_nic,
+                    name: `${resident.first_name} ${resident.last_name}`,
+                    division: resident.division_name,
+                    email: resident.email
+                }
             });
         }
 
@@ -449,8 +497,7 @@ exports.resendOTP = async (req, res) => {
 
         return res.json({
             success: true,
-            message: 'A new 6-digit OTP code has been sent to your email.',
-            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+            message: 'A new 6-digit OTP code has been sent to your email.'
         });
     } catch (error) {
         console.error('Error resending OTP:', error);
@@ -958,7 +1005,7 @@ exports.updateHousehold = async (req, res) => {
 // ADMIN ROUTES - GN DIVISION MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/divisions
+// GET /api/auth/admin/divisions - Admin only - returns full details (without pagination)
 exports.getAllDivisionsDetails = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1120,5 +1167,27 @@ exports.deleteDivision = async (req, res) => {
             return res.status(400).json({ error: 'Cannot delete division because it is assigned to officers, households, or residents.' });
         }
         return res.status(500).json({ error: 'Server error deleting GN Division.' });
+    }
+};
+
+// POST /api/auth/forgot-password
+exports.forgotPassword = async (req, res) => {
+    const { emailOrNic } = req.body;
+    if (!emailOrNic) {
+        return res.status(400).json({ error: 'Email or NIC number is required.' });
+    }
+
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const recipientEmail = emailOrNic.includes('@') ? emailOrNic.trim() : `${emailOrNic.trim()}@gmail.com`;
+
+    try {
+        await emailService.sendPasswordResetEmail(recipientEmail, resetToken, 'Resident');
+        return res.json({ 
+            message: 'Password reset instructions dispatched successfully via official SmartGN Mailer (warapitiyalakshan@gmail.com).',
+            resetToken 
+        });
+    } catch (error) {
+        console.error('Forgot password email error:', error);
+        return res.status(500).json({ error: 'Failed to deliver password reset email.' });
     }
 };
