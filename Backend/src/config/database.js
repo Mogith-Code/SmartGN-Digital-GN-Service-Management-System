@@ -29,6 +29,15 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+    // Add performance indexes for division table
+    try {
+        await dbPool.query(`CREATE INDEX idx_gn_division_name ON gn_division(name)`);
+        await dbPool.query(`CREATE INDEX idx_gn_division_created ON gn_division(created_at DESC)`);
+    } catch (e) {
+        // Indexes might already exist
+        console.log('📌 Division indexes already exist or could not be created');
+    }
+
     // ============================================================
     // 2. HOUSEHOLD TABLE
     // ============================================================
