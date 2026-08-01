@@ -96,16 +96,51 @@ const notifyChange = () => {
 };
 
 /**
+ * Format notification timestamp into relative time flow string
+ */
+export const formatNotificationTime = (item) => {
+  if (!item) return "";
+  let timestamp = item.timestamp;
+  if (!timestamp && item.id && item.id.startsWith("notif-")) {
+    const parts = item.id.split("-");
+    if (parts[1] && !isNaN(parseInt(parts[1], 10))) {
+      timestamp = parseInt(parts[1], 10);
+    }
+  }
+  if (!timestamp || isNaN(timestamp)) {
+    return item.date || "Just now";
+  }
+
+  const now = Date.now();
+  const elapsedMs = Math.max(0, now - timestamp);
+  const elapsedSec = Math.floor(elapsedMs / 1000);
+  const elapsedMin = Math.floor(elapsedSec / 60);
+  const elapsedHour = Math.floor(elapsedMin / 60);
+  const elapsedDay = Math.floor(elapsedHour / 24);
+
+  if (elapsedSec < 30) return "Just now";
+  if (elapsedMin < 60) return `${elapsedMin} ${elapsedMin === 1 ? "min" : "mins"} ago`;
+  if (elapsedHour < 24) return `${elapsedHour} ${elapsedHour === 1 ? "hour" : "hours"} ago`;
+  if (elapsedDay === 1) return "Yesterday";
+  if (elapsedDay < 7) return `${elapsedDay} days ago`;
+
+  const dateObj = new Date(timestamp);
+  return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+/**
  * Add a new notification
  */
 export const addNotification = (role = "resident", notification) => {
   try {
     const notifications = getNotifications(role);
+    const nowTs = Date.now();
     const newNotif = {
-      id: `notif-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      id: `notif-${nowTs}-${Math.floor(Math.random() * 1000)}`,
       type: notification.type || "info",
       title: notification.title || "Notification",
       message: notification.message || "",
+      timestamp: nowTs,
       date: "Just now",
       read: false,
       link: notification.link || (role === "officer" ? "/dashboard/officer" : "/ResidentDashboard"),

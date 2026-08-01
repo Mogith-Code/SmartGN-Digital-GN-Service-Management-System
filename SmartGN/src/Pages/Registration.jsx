@@ -172,10 +172,24 @@ function Register() {
   const [gender, setGender] = useState("");
   const [mobile, setMobile] = useState("");
   const [division, setDivision] = useState("");
+  const [divisionSearch, setDivisionSearch] = useState("");
+  const [isDivisionDropdownOpen, setIsDivisionDropdownOpen] = useState(false);
+  const divisionDropdownRef = useRef(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [divisions, setDivisions] = useState([]);
+
+  // Close division dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (divisionDropdownRef.current && !divisionDropdownRef.current.contains(event.target)) {
+        setIsDivisionDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [errorMessage, setErrorMessage] = useState("");
   const [resendSuccessMessage, setResendSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -510,13 +524,10 @@ function Register() {
                 ))}
               </div>
 
-              {/* Dev Mode Assistance */}
-              {devOtpTip && (
-                <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#FFF9E6] border border-[#F5D17E] rounded-[8px] text-[13px] text-[#A76F00] text-center font-medium my-1 animate-pulse">
-                  🔧 Development Notice: Verification code is{" "}
-                  <strong>{devOtpTip}</strong>
-                </div>
-              )}
+              {/* Email Sent Notice */}
+              <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-[8px] text-[13px] text-[#166534] text-center font-medium my-1">
+                📧 The 6-digit OTP code has been sent to <strong>{verificationEmail}</strong>. Check your email inbox.
+              </div>
 
               {/* Messages */}
               {errorMessage && (
@@ -753,8 +764,8 @@ function Register() {
                   />
                 </div>
 
-                {/* Select GN Division */}
-                <div className="flex flex-col gap-2">
+                {/* Searchable GN Division */}
+                <div className="flex flex-col gap-2 relative" ref={divisionDropdownRef}>
                   <label
                     htmlFor="division"
                     className="text-[14px] font-medium text-[#2D3748] text-left"
@@ -762,27 +773,62 @@ function Register() {
                     {t.divisionLabel}
                   </label>
                   <div className="relative">
-                    <select
+                    <input
+                      type="text"
                       id="division"
-                      className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 appearance-none cursor-pointer"
-                      value={division}
-                      onChange={(e) => setDivision(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+                      placeholder="Type to search GN division..."
+                      value={isDivisionDropdownOpen ? divisionSearch : (division || divisionSearch)}
+                      onFocus={() => {
+                        setIsDivisionDropdownOpen(true);
+                        setDivisionSearch("");
+                      }}
+                      onChange={(e) => {
+                        setDivisionSearch(e.target.value);
+                        setDivision(e.target.value);
+                        setIsDivisionDropdownOpen(true);
+                      }}
                       disabled={isSubmitting}
                       required
-                    >
-                      <option value="" disabled hidden>
-                        {t.divisionPlaceholder}
-                      </option>
-                      {divisions.map((divName, index) => (
-                        <option key={index} value={divName}>
-                          {divName}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                      <span className="text-[10px]">▼</span>
+                      autoComplete="off"
+                    />
+                    <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500 text-xs">
+                      🔍
                     </div>
                   </div>
+
+                  {/* Dropdown Options */}
+                  {isDivisionDropdownOpen && (
+                    <div className="absolute top-[100%] left-0 right-0 mt-1 bg-white border border-[#005BBD]/30 rounded-[8px] shadow-lg max-h-48 overflow-y-auto z-50 text-left divide-y divide-gray-100">
+                      {divisions
+                        .filter((divName) =>
+                          divName.toLowerCase().includes(divisionSearch.toLowerCase())
+                        )
+                        .map((divName, index) => (
+                          <div
+                            key={index}
+                            onClick={() => {
+                              setDivision(divName);
+                              setDivisionSearch(divName);
+                              setIsDivisionDropdownOpen(false);
+                            }}
+                            className="px-4 py-2.5 hover:bg-[#EBF1F6] cursor-pointer text-[14px] text-[#2D3748] font-medium transition-colors flex justify-between items-center"
+                          >
+                            <span>{divName}</span>
+                            {division === divName && (
+                              <span className="text-[#005BBD] font-bold text-xs">✓ Selected</span>
+                            )}
+                          </div>
+                        ))}
+                      {divisions.filter((divName) =>
+                        divName.toLowerCase().includes(divisionSearch.toLowerCase())
+                      ).length === 0 && (
+                        <div className="px-4 py-3 text-xs text-gray-400 italic">
+                          No matching GN division found
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Password */}

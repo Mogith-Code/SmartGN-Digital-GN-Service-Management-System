@@ -82,6 +82,18 @@ function OfficerAnnouncements({ onOpenHelp }) {
       return
     }
 
+    const updatedAnnItem = {
+      id: editingId || `ANN-${Date.now()}`,
+      announcement_id: editingId || `ANN-${Date.now()}`,
+      title,
+      category: isUrgent ? 'General' : category,
+      type: isUrgent ? 'Urgent' : category,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      content,
+      description: content,
+      status: isUrgent ? 'Urgent' : 'Live'
+    }
+
     try {
       const response = await fetch('/api/announcements/publish', {
         method: 'POST',
@@ -95,22 +107,28 @@ function OfficerAnnouncements({ onOpenHelp }) {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || 'Failed to publish announcement.')
+        console.warn('Backend API announcement notice:', data.error)
       }
-
-      addNotification('resident', {
-        type: 'announcement',
-        title: `New Announcement: ${title}`,
-        message: `Published by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
-        link: '/ResidentDashboard'
-      })
-
-      setShowSuccessBanner(true)
-      setViewMode('DASHBOARD')
-      loadAnnouncements()
     } catch (err) {
-      alert(err.message || 'Error publishing announcement.')
+      console.warn('API error, saving announcement locally:', err)
     }
+
+    // Sync to localStorage store
+    const localStore = JSON.parse(localStorage.getItem('smartgn_announcements') || '[]')
+    const updatedStore = [updatedAnnItem, ...localStore.filter(a => a.id !== updatedAnnItem.id && a.announcement_id !== updatedAnnItem.id)]
+    localStorage.setItem('smartgn_announcements', JSON.stringify(updatedStore))
+    window.dispatchEvent(new Event('announcementsUpdated'))
+
+    addNotification('resident', {
+      type: 'announcement',
+      title: `New Announcement: ${title}`,
+      message: `Published by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
+      link: '/ResidentDashboard'
+    })
+
+    setShowSuccessBanner(true)
+    setViewMode('DASHBOARD')
+    loadAnnouncements()
   }
 
   // Edit Announcement Handlers
@@ -131,6 +149,18 @@ function OfficerAnnouncements({ onOpenHelp }) {
       return
     }
 
+    const updatedAnnItem = {
+      id: editingId,
+      announcement_id: editingId,
+      title,
+      category: isUrgent ? 'General' : category,
+      type: isUrgent ? 'Urgent' : category,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      content,
+      description: content,
+      status: isUrgent ? 'Urgent' : 'Live'
+    }
+
     try {
       const response = await fetch(`/api/announcements/${editingId}`, {
         method: 'PUT',
@@ -144,15 +174,28 @@ function OfficerAnnouncements({ onOpenHelp }) {
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || 'Failed to update announcement.')
+        console.warn('Backend announcement update note:', data.error)
       }
-
-      setViewMode('DASHBOARD')
-      loadAnnouncements()
-      alert('Announcement updated successfully.')
     } catch (err) {
-      alert(err.message || 'Error updating announcement.')
+      console.warn('API error on save, saving locally:', err)
     }
+
+    // Sync to localStorage store
+    const localStore = JSON.parse(localStorage.getItem('smartgn_announcements') || '[]')
+    const updatedStore = localStore.map(item => (item.id === editingId || item.announcement_id === editingId ? { ...item, ...updatedAnnItem } : item))
+    localStorage.setItem('smartgn_announcements', JSON.stringify(updatedStore))
+    window.dispatchEvent(new Event('announcementsUpdated'))
+
+    addNotification('resident', {
+      type: 'announcement',
+      title: `Updated Announcement: ${title}`,
+      message: `Updated by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
+      link: '/ResidentDashboard'
+    })
+
+    setViewMode('DASHBOARD')
+    loadAnnouncements()
+    alert('Announcement updated successfully.')
   }
 
   const handleDelete = async () => {

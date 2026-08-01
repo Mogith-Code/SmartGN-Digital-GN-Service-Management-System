@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
 import { addNotification } from '../utils/notifications'
+import { encryptId } from '../utils/encryption'
 import Footer from '../Components/Common/Footer'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
@@ -18,6 +19,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   const officerIdVal = location.state?.officerId || localStorage.getItem('smartgn_user_id') || '200324511540'
 
   // States
+  const [docPreviewModal, setDocPreviewModal] = useState({ isOpen: false, title: '', url: '' })
   const [profile, setProfile] = useState({
     firstName: 'Kamal',
     lastName: 'Perera',
@@ -137,7 +139,9 @@ function OfficerCertificateDetails({ onOpenHelp }) {
           hoursWorked: found.hoursWorked || '',
           monthlyIncome: found.monthlyIncome || '',
           laborerAnnualIncome: found.laborerAnnualIncome || '',
-          verifiedAnnualIncome: found.verifiedAnnualIncome || found.annualIncome || ''
+          verifiedAnnualIncome: found.verifiedAnnualIncome || found.annualIncome || '',
+          signatureUrl: found.signatureUrl || found.signature_url || '',
+          birthCertUrl: found.birthCertUrl || found.birth_cert_url || ''
         }
         setCertRequest(formatted)
         
@@ -401,14 +405,30 @@ function OfficerCertificateDetails({ onOpenHelp }) {
             
             {/* Left Card: Applicant Info (Col span 2) */}
             <div className="lg:col-span-2 bg-white border border-[#cbd5e1] rounded-2xl p-8 shadow-sm text-left">
-              <div className="flex items-center gap-3.5 border-b border-[#f1f5f9] pb-4 mb-5">
-                <div className="w-10 h-10 rounded-full bg-[#EBF8FF] flex items-center justify-center text-[#1B365D]">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#f1f5f9] pb-4 mb-5">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    onClick={() => navigate(`/OfficerDashboard/ResidentsDetails/profile/${encryptId(certRequest.nic)}`)}
+                    className="w-12 h-12 rounded-full bg-[#1B365D] text-white flex items-center justify-center font-bold text-lg cursor-pointer hover:opacity-90 shadow transition-all border-2 border-[#005BBD]"
+                    title="Click to view resident profile details"
+                  >
+                    {certRequest.name ? certRequest.name.charAt(0).toUpperCase() : 'R'}
+                  </div>
+                  <div>
+                    <h3 className="text-[17px] font-bold text-[#1B365D] m-0 flex items-center gap-2">
+                      <span>{certRequest.name}</span>
+                    </h3>
+                    <span className="text-xs text-slate-500 font-mono">NIC: {certRequest.nic}</span>
+                  </div>
                 </div>
-                <h3 className="text-[17px] font-bold text-[#1B365D] m-0">Applicant Information Form Details</h3>
+
+                <button
+                  onClick={() => navigate(`/OfficerDashboard/ResidentsDetails/profile/${encryptId(certRequest.nic)}`)}
+                  className="py-2 px-4 bg-[#005BBD] text-white rounded-lg text-xs font-bold hover:bg-[#1B365D] transition-colors cursor-pointer border-0 flex items-center gap-2 shadow-sm"
+                >
+                  <span>👤 View Resident Profile</span>
+                  <span className="text-[10px]">➔</span>
+                </button>
               </div>
 
               {!isCharacterCert ? (
@@ -672,6 +692,76 @@ function OfficerCertificateDetails({ onOpenHelp }) {
 
                 </div>
               )}
+
+              {/* UPLOADED VERIFICATION DOCUMENTS AUDIT CARD */}
+              <div className="mt-8 pt-6 border-t border-slate-200">
+                <h4 className="text-[14px] font-bold text-[#1B365D] uppercase tracking-wider mb-4 bg-blue-50/80 py-2 px-3 rounded flex items-center justify-between">
+                  <span>Section (4) - Uploaded Resident Documents & Signature Verification</span>
+                  <span className="text-[11px] font-normal text-blue-700 bg-white px-2 py-0.5 rounded border border-blue-200">GN Document Audit</span>
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Resident Signature */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                    <div>
+                      <span className="text-slate-500 font-bold text-xs uppercase block mb-1">1. Resident Signature</span>
+                      {certRequest.signatureUrl ? (
+                        <div className="mt-2 bg-white p-2 border border-slate-200 rounded-lg flex items-center justify-between">
+                          <img
+                            src={certRequest.signatureUrl}
+                            alt="Resident Signature"
+                            className="h-14 max-w-[160px] object-contain cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => setDocPreviewModal({ isOpen: true, title: 'Resident Signature Verification', url: certRequest.signatureUrl })}
+                          />
+                          <button
+                            onClick={() => setDocPreviewModal({ isOpen: true, title: 'Resident Signature Verification', url: certRequest.signatureUrl })}
+                            className="text-xs bg-[#1B365D] text-white px-2.5 py-1 rounded font-semibold hover:bg-[#005BBD] cursor-pointer border-0"
+                          >
+                            🔍 Inspect
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-amber-50 text-amber-800 text-xs font-semibold rounded border border-amber-200">
+                          Signature provided via physical registry / profile signature
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Birth Certificate */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col justify-between">
+                    <div>
+                      <span className="text-slate-500 font-bold text-xs uppercase block mb-1">2. Birth Certificate Document</span>
+                      {certRequest.birthCertUrl ? (
+                        <div className="mt-2 bg-white p-2 border border-slate-200 rounded-lg flex items-center justify-between">
+                          {certRequest.birthCertUrl.startsWith("data:image") ? (
+                            <img
+                              src={certRequest.birthCertUrl}
+                              alt="Birth Certificate"
+                              className="h-14 max-w-[160px] object-contain cursor-pointer hover:scale-105 transition-transform"
+                              onClick={() => setDocPreviewModal({ isOpen: true, title: 'Birth Certificate Verification', url: certRequest.birthCertUrl })}
+                            />
+                          ) : (
+                            <div className="h-12 w-12 bg-blue-100 text-blue-800 font-bold text-xs rounded flex items-center justify-center">
+                              PDF
+                            </div>
+                          )}
+                          <button
+                            onClick={() => setDocPreviewModal({ isOpen: true, title: 'Birth Certificate Verification', url: certRequest.birthCertUrl })}
+                            className="text-xs bg-[#1B365D] text-white px-2.5 py-1 rounded font-semibold hover:bg-[#005BBD] cursor-pointer border-0"
+                          >
+                            🔍 Inspect Document
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-[#EBF1F6] text-slate-700 text-xs font-semibold rounded border border-slate-200">
+                          {isCharacterCert ? 'Birth Certificate stored in Household Civil Registry' : 'Not required for this certificate category'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Right Column Checks & History */}
@@ -1098,6 +1188,38 @@ function OfficerCertificateDetails({ onOpenHelp }) {
 
       {/* 3. Footer */}
       <Footer />
+
+      {/* Document Inspection Modal */}
+      {docPreviewModal.isOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative border border-slate-200 text-left animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-3 mb-4">
+              <h3 className="text-lg font-bold text-[#1B365D] m-0">{docPreviewModal.title}</h3>
+              <button
+                onClick={() => setDocPreviewModal({ isOpen: false, title: '', url: '' })}
+                className="text-slate-400 hover:text-slate-700 text-xl font-bold bg-transparent border-0 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 bg-slate-100 rounded-xl flex items-center justify-center max-h-[70vh] overflow-auto">
+              {docPreviewModal.url.startsWith("data:image") || docPreviewModal.url.startsWith("http") ? (
+                <img src={docPreviewModal.url} alt={docPreviewModal.title} className="max-h-[60vh] max-w-full object-contain rounded shadow" />
+              ) : (
+                <iframe src={docPreviewModal.url} title={docPreviewModal.title} className="w-full h-[60vh] rounded border-0" />
+              )}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setDocPreviewModal({ isOpen: false, title: '', url: '' })}
+                className="py-2 px-6 bg-[#1B365D] text-white rounded-lg text-xs font-bold hover:bg-[#005BBD] cursor-pointer border-0"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -25,7 +25,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
 
   // Form Field States
   const [divisionalSecretariat, setDivisionalSecretariat] = useState("");
-  const [gnDivisionNumber, setGnDivisionNumber] = useState("");
+  const [gnDivisionNumber, setGnDivisionNumber] = useState(userDivision);
   const [fullName, setFullName] = useState(successUser);
   const [age, setAge] = useState("");
   const [address, setAddress] = useState("");
@@ -44,6 +44,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const [fatherName, setFatherName] = useState("");
   const [fatherAddress, setFatherAddress] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [signatureUrl, setSignatureUrl] = useState("");
+  const [birthCertUrl, setBirthCertUrl] = useState("");
 
   // Section 1 Additional & Section 3
   const [personalKnown, setPersonalKnown] = useState("No");
@@ -154,6 +156,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       publicActivitiesDetails,
       character,
       remarks,
+      signatureUrl,
+      birthCertUrl,
     };
 
     // ALWAYS add to resident certificates store
@@ -665,6 +669,86 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       onChange={(e) => setPurpose(e.target.value)}
                       required
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 4: VERIFICATION DOCUMENTS UPLOAD */}
+              <div className="bg-[#f8fafc] p-6 border border-[#cbd5e1] rounded-xl text-left">
+                <h3 className="text-[15px] font-bold text-[#1B365D] uppercase tracking-wide border-b border-[#e2e8f0] pb-2.5 mb-5 m-0 flex items-center gap-2">
+                  <span>Section (4) - Upload Verification Documents</span>
+                  <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase font-sans">Required for Grama Niladhari Verification</span>
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Signature Upload */}
+                  <div className="bg-white p-4 border border-slate-200 rounded-xl flex flex-col justify-between shadow-sm">
+                    <div>
+                      <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
+                        1. Upload Resident Signature <span className="text-red-500">*</span>
+                      </label>
+                      <p className="text-[12px] text-slate-500 mb-3">
+                        Please upload a clear image of your signature on white paper.
+                      </p>
+                      
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setSignatureUrl(reader.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                      />
+                    </div>
+
+                    {signatureUrl && (
+                      <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                        <img src={signatureUrl} alt="Signature Preview" className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1" />
+                        <span className="text-xs font-semibold text-emerald-600">✓ Signature Uploaded</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Birth Certificate Upload */}
+                  <div className="bg-white p-4 border border-slate-200 rounded-xl flex flex-col justify-between shadow-sm">
+                    <div>
+                      <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
+                        2. Upload Birth Certificate <span className="text-red-500">*</span>
+                      </label>
+                      <p className="text-[12px] text-slate-500 mb-3">
+                        Upload your Birth Certificate for GN Character & Identity verification.
+                      </p>
+                      
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setBirthCertUrl(reader.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                      />
+                    </div>
+
+                    {birthCertUrl && (
+                      <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                        {birthCertUrl.startsWith("data:image") ? (
+                          <img src={birthCertUrl} alt="Birth Certificate Preview" className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1" />
+                        ) : (
+                          <div className="h-12 w-12 bg-blue-100 text-blue-800 rounded flex items-center justify-center font-bold text-xs">PDF</div>
+                        )}
+                        <span className="text-xs font-semibold text-emerald-600">✓ Birth Certificate Uploaded</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

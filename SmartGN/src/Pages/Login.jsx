@@ -402,13 +402,10 @@ function Login() {
                 ))}
               </div>
 
-              {/* Dev Mode Assistance */}
-              {devOtpTip && (
-                <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#FFF9E6] border border-[#F5D17E] rounded-[8px] text-[13px] text-[#A76F00] text-center font-medium my-1 animate-pulse">
-                  🔧 Development Notice: Verification code is{" "}
-                  <strong>{devOtpTip}</strong>
-                </div>
-              )}
+              {/* Email Sent Notice */}
+              <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-[8px] text-[13px] text-[#166534] text-center font-medium my-1">
+                📧 6-Digit OTP verification code has been sent to <strong>{verificationEmail}</strong>.
+              </div>
 
               {/* Messages */}
               {errorMessage && (

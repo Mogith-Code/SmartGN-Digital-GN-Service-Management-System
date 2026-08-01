@@ -133,14 +133,14 @@ function OfficerNavbar() {
     {
       id: "profile",
       name: t.profile,
-      path: "/dashboard/officer/profile",
+      path: "/OfficerDashboard/profile",
       icon: profileIcon,
       iconActive: profileIconHovered,
     },
     {
       id: "residents' details",
       name: t.resident,
-      path: "/ResidentsDetails",
+      path: "/OfficerDashboard/ResidentsDetails",
       icon: householdIcon,
       iconActive: householdIconHovered,
     },
