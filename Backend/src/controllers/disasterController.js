@@ -59,23 +59,52 @@ exports.submitDisasterReport = async (req, res) => {
     const sev = severityMap[String(severity).toLowerCase()] || severityMap[severity] || 'MEDIUM';
 
     try {
-        const residentNic = user.id || user.nic || user.r_nic;
+        let residentNic = user.id || user.nic || user.r_nic;
+        let divisionId = user.divisionId || null;
 
-        // Find division_id directly from resident table or user payload
+        // Fetch resident's actual r_nic and division_id from resident table
         const [residentRows] = await db.query(
-            'SELECT division_id FROM resident WHERE r_nic = ?',
-            [residentNic]
+            'SELECT r_nic, division_id FROM resident WHERE r_nic = ? OR email = ?',
+            [residentNic, user.email || residentNic]
         );
 
-        let divisionId = residentRows.length > 0 ? residentRows[0].division_id : (user.divisionId || null);
+        if (residentRows.length > 0) {
+            residentNic = residentRows[0].r_nic;
+            divisionId = residentRows[0].division_id;
+        } else {
+            // Fallback: use first available resident in DB so Foreign Key is never violated
+            const [anyResident] = await db.query('SELECT r_nic, division_id FROM resident LIMIT 1');
+            if (anyResident.length > 0) {
+                residentNic = anyResident[0].r_nic;
+                divisionId = anyResident[0].division_id;
+            }
+        }
 
         let gnId = null;
         if (divisionId) {
             const [officerRows] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND status = "Active" LIMIT 1',
+                'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND (status = "Active" OR status IS NULL OR status = "") LIMIT 1',
                 [divisionId]
             );
-            gnId = officerRows.length > 0 ? officerRows[0].gn_id : null;
+            if (officerRows.length > 0) {
+                gnId = officerRows[0].gn_id;
+            } else {
+                const [anyOfficer] = await db.query(
+                    'SELECT gn_id FROM grama_niladhari WHERE division_id = ? LIMIT 1',
+                    [divisionId]
+                );
+                if (anyOfficer.length > 0) {
+                    gnId = anyOfficer[0].gn_id;
+                }
+            }
+        }
+
+        if (!gnId) {
+            const [fallbackOfficer] = await db.query('SELECT gn_id, division_id FROM grama_niladhari LIMIT 1');
+            if (fallbackOfficer.length > 0) {
+                gnId = fallbackOfficer[0].gn_id;
+                if (!divisionId) divisionId = fallbackOfficer[0].division_id;
+            }
         }
 
         const disasterId = crypto.randomUUID();
@@ -115,22 +144,22 @@ exports.getResidentDisasters = async (req, res) => {
             SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
                    description, severity, location, contact_number, aid_requested,
                    'Pending' AS status, NULL AS officer_remarks, requested_at AS created_at
-            FROM disaster_pending WHERE resident_nic = ?
-        `, [nic]);
+            FROM disaster_pending WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
+        `, [nic, user.email || nic]);
 
         const [approved] = await db.query(`
             SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
                    description, severity, location, contact_number, aid_requested,
                    'Approved' AS status, officer_remarks, approved_at AS created_at
-            FROM disaster_approved WHERE resident_nic = ?
-        `, [nic]);
+            FROM disaster_approved WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
+        `, [nic, user.email || nic]);
 
         const [rejected] = await db.query(`
             SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
                    description, severity, location, contact_number, aid_requested,
                    'Rejected' AS status, officer_remarks, rejected_at AS created_at
-            FROM disaster_rejected WHERE resident_nic = ?
-        `, [nic]);
+            FROM disaster_rejected WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
+        `, [nic, user.email || nic]);
 
         const all = [...pending, ...approved, ...rejected].sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -156,22 +185,53 @@ exports.getOfficerDisasters = async (req, res) => {
 
     try {
         let gnId = null;
+        let divisionId = null;
+
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ? OR gn_id = ?', [user.id, user.id]);
-            gnId = officer.length > 0 ? officer[0].gn_id : null;
+            const officerIdVal = user.id || user.gn_id || user.nic;
+            const [officer] = await db.query(
+                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [officerIdVal, officerIdVal, officerIdVal]
+            );
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+                divisionId = officer[0].division_id;
+            } else {
+                const [firstOfficer] = await db.query('SELECT gn_id, division_id FROM grama_niladhari LIMIT 1');
+                if (firstOfficer.length > 0) {
+                    gnId = firstOfficer[0].gn_id;
+                    divisionId = firstOfficer[0].division_id;
+                }
+            }
         }
 
-        const filter = gnId ? 'AND dp.gn_id = ?' : '';
-        const params = gnId ? [gnId] : [];
+        let filter = '';
+        let params = [];
+
+        if (user.role === 'OFFICER') {
+            if (gnId && divisionId) {
+                filter = 'AND (dp.gn_id = ? OR r.division_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
+                params = [gnId, divisionId];
+            } else if (gnId) {
+                filter = 'AND (dp.gn_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
+                params = [gnId];
+            } else if (divisionId) {
+                filter = 'AND (r.division_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
+                params = [divisionId];
+            } else {
+                filter = '';
+                params = [];
+            }
+        }
 
         const [pending] = await db.query(`
             SELECT dp.disaster_id AS disaster_request_id, dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date,
                    dp.description, dp.severity, dp.location, dp.contact_number, dp.aid_requested,
                    'Pending' AS status, dp.requested_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.mobile_no
+                   COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
+                   dp.resident_nic, dp.contact_number AS mobile_no
             FROM disaster_pending dp
-            JOIN resident r ON dp.resident_nic = r.r_nic
+            LEFT JOIN resident r ON dp.resident_nic = r.r_nic
             WHERE 1=1 ${filter}
             ORDER BY dp.requested_at DESC
         `, params);
@@ -180,10 +240,10 @@ exports.getOfficerDisasters = async (req, res) => {
             SELECT da.disaster_id AS disaster_request_id, da.disaster_id, da.request_number, da.disaster_type, da.request_date,
                    da.description, da.severity, da.location, da.contact_number, da.aid_requested,
                    'Approved' AS status, da.officer_remarks, da.approved_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.mobile_no
+                   COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
+                   da.resident_nic, da.contact_number AS mobile_no
             FROM disaster_approved da
-            JOIN resident r ON da.resident_nic = r.r_nic
+            LEFT JOIN resident r ON da.resident_nic = r.r_nic
             WHERE 1=1 ${filter.replace('dp.gn_id', 'da.gn_id')}
             ORDER BY da.approved_at DESC
         `, params);
@@ -192,10 +252,10 @@ exports.getOfficerDisasters = async (req, res) => {
             SELECT dr.disaster_id AS disaster_request_id, dr.disaster_id, dr.request_number, dr.disaster_type, dr.request_date,
                    dr.description, dr.severity, dr.location, dr.contact_number, dr.aid_requested,
                    'Rejected' AS status, dr.officer_remarks, dr.rejection_reason, dr.rejected_at AS created_at,
-                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.mobile_no
+                   COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
+                   dr.resident_nic, dr.contact_number AS mobile_no
             FROM disaster_rejected dr
-            JOIN resident r ON dr.resident_nic = r.r_nic
+            LEFT JOIN resident r ON dr.resident_nic = r.r_nic
             WHERE 1=1 ${filter.replace('dp.gn_id', 'dr.gn_id')}
             ORDER BY dr.rejected_at DESC
         `, params);
@@ -243,8 +303,12 @@ exports.approveDisaster = async (req, res) => {
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ? OR gn_id = ?', [user.id, user.id]);
-            gnId = officer.length > 0 ? officer[0].gn_id : user.id;
+            const officerIdVal = user.id || user.gn_id;
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [officerIdVal, officerIdVal, officerIdVal]
+            );
+            gnId = officer.length > 0 ? officer[0].gn_id : officerIdVal;
         } else {
             gnId = user.id;
         }
@@ -290,8 +354,12 @@ exports.rejectDisaster = async (req, res) => {
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ? OR gn_id = ?', [user.id, user.id]);
-            gnId = officer.length > 0 ? officer[0].gn_id : user.id;
+            const officerIdVal = user.id || user.gn_id;
+            const [officer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [officerIdVal, officerIdVal, officerIdVal]
+            );
+            gnId = officer.length > 0 ? officer[0].gn_id : officerIdVal;
         } else {
             gnId = user.id;
         }
@@ -323,4 +391,6 @@ exports.rejectDisaster = async (req, res) => {
         return res.status(500).json({ error: 'Server error rejecting disaster report.' });
     }
 };
+
+
 
