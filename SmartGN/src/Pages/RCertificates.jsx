@@ -4,6 +4,7 @@ import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import pendingIcon from "../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
@@ -123,9 +124,9 @@ function ResidentCertificates({ onOpenHelp }) {
     loadRequests();
   }, []);
 
-  const pendingCount = requests.filter((r) => r.status === "PENDING").length;
-  const approvedCount = requests.filter((r) => r.status === "APPROVED").length;
-  const rejectedCount = requests.filter((r) => r.status === "REJECTED").length;
+  const pendingCount = requests.filter((r) => (r.status || "").toUpperCase() === "PENDING").length;
+  const approvedCount = requests.filter((r) => (r.status || "").toUpperCase() === "APPROVED").length;
+  const rejectedCount = requests.filter((r) => (r.status || "").toUpperCase() === "REJECTED").length;
 
   const cards = [
     {
@@ -133,7 +134,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: pendingIcon,
       alt: "adultIcon",
       title: " Pending certificate requests",
-      count: 5,
+      count: pendingCount,
       navpath: "/ResidentDashboard/certificates/pending",
     },
     {
@@ -141,7 +142,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: approvedIcon,
       alt: "adultIcon",
       title: "Approved certificate requests",
-      count: 3,
+      count: approvedCount,
       navpath: "/ResidentDashboard/certificates/approved",
     },
     {
@@ -149,7 +150,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: rejectedIcon,
       alt: "Children",
       title: "Rejected certificate requests",
-      count: 2,
+      count: rejectedCount,
       navpath: "/ResidentDashboard/certificates/rejected",
     },
   ];
@@ -403,22 +404,8 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
         </div>
 
-        <button
-          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-          aria-label="Help Trigger"
-          onClick={onOpenHelp}
-        >
-          ?
-        </button>
+        <ChatbotButton onOpenHelp={onOpenHelp} />
       </div>
-
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
 
       {/* 3. Footer */}
       <Footer />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
+import { addNotification } from "../utils/notifications";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
 
@@ -203,7 +204,7 @@ function Register() {
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationNic, setVerificationNic] = useState("");
   const [householdCreatedState, setHouseholdCreatedState] = useState(false);
-  const [devOtpTip, setDevOtpTip] = useState("");
+
 
   // Timer state for OTP Resend
   const [timerCount, setTimerCount] = useState(0);
@@ -332,22 +333,31 @@ function Register() {
       setVerificationNic(nic);
       setHouseholdCreatedState(data.householdCreated || false);
 
-      if (data.requiresVerification) {
-        setShowOtpVerify(true);
-        setTimerCount(60); // 60s cooldown
-        if (data.otpForTesting) {
-          setDevOtpTip(data.otpForTesting);
-        }
-      } else {
-        // Fallback if 2FA disabled backend-side
-        navigate("/success", {
-          state: {
-            successUser: `${firstName} ${lastName} (NIC: ${nic})`,
-            isRegister: true,
-            householdCreated: data.householdCreated || false,
-          },
-        });
+      // Dispatch essential admin notification
+      addNotification("admin", {
+        type: "user",
+        title: "New Resident Registered",
+        message: `New Resident ${firstName} ${lastName} (NIC: ${nic}) registered under GN Division: ${division}.`,
+        link: "/dashboard/admin",
+      });
+
+      // Save user details to localStorage
+      if (data.token) {
+        localStorage.setItem("smartgn_token", data.token);
       }
+      localStorage.setItem("smartgn_user_name", `${firstName} ${lastName}`);
+      localStorage.setItem("smartgn_user_division", division);
+      localStorage.setItem("smartgn_user_role", "RESIDENT");
+      localStorage.setItem("smartgn_user_id", nic);
+
+      // Direct navigation to registration success page
+      navigate("/success", {
+        state: {
+          successUser: `${firstName} ${lastName} (NIC: ${nic})`,
+          isRegister: true,
+          householdCreated: data.householdCreated || false,
+        },
+      });
       setIsSubmitting(false);
     } catch (err) {
       console.error("Registration error:", err);
@@ -465,9 +475,7 @@ function Register() {
       setResendSuccessMessage(t.otpResendSuccess);
       setTimerCount(60); // reset cooldown
       setOtpDigits(["", "", "", "", "", ""]);
-      if (data.otpForTesting) {
-        setDevOtpTip(data.otpForTesting);
-      }
+
       setIsResending(false);
       if (inputRefs[0].current) inputRefs[0].current.focus();
     } catch (err) {
@@ -527,8 +535,13 @@ function Register() {
               </div>
 
               {/* Email Sent Notice */}
-              <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-[8px] text-[13px] text-[#166534] text-center font-medium my-1">
-                📧 The 6-digit OTP code has been sent to <strong>{verificationEmail}</strong>. Check your email inbox.
+              <div className="w-full max-w-[440px] px-4 py-3 bg-[#ECFDF5] border-2 border-[#10B981]/40 rounded-xl shadow-sm my-1 text-left">
+                <div className="flex items-center gap-2 text-[#065F46] font-bold text-xs uppercase tracking-wider mb-1">
+                  <span>📧 Verification Email Sent</span>
+                </div>
+                <p className="text-[13px] text-[#047857] font-medium m-0 leading-relaxed">
+                  A 6-digit OTP has been sent to <strong>{verificationEmail}</strong>. Please check your inbox (and spam folder) and enter the code above.
+                </p>
               </div>
 
               {/* Messages */}

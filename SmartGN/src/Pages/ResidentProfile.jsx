@@ -7,6 +7,7 @@ import logoImage from "../assets/logo.png";
 import profileIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import backIcon from "../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 
@@ -1196,15 +1197,8 @@ function ResidentProfile({ onOpenHelp }) {
       </div>
 
       {/* Floating Help Trigger */}
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={() =>
-          onOpenHelp ? onOpenHelp() : console.log("Help clicked")
-        }
-      >
-        ?
-      </button>
+      {/* Floating AI Assistant Chatbot Button */}
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* 3. Footer */}
       <Footer />

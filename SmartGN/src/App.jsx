@@ -6,6 +6,7 @@ import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
 import Login from "./Pages/Login.jsx";
 import RHousehold from "./Pages/RHousehold.jsx";
 import Register from "./Pages/Registration.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
 import ResidentProfile from "./Pages/ResidentProfile.jsx";
 import OfficerProfile from "./Pages/OfficerProfile.jsx";
 import OfficerCertificates from "./Pages/OfficerCertificates.jsx";
@@ -247,6 +248,10 @@ function App() {
         <Route
           path="/ResidentDashboard/disaster-relief"
           element={<ResidentDisasterReport onOpenHelp={openChatbot} />}
+        />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword onOpenHelp={openChatbot} />}
         />
       </Routes>
       <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />

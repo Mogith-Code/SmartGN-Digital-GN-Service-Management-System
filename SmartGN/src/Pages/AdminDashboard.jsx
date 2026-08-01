@@ -5,6 +5,8 @@ import LanguageSelector from '../Components/Common/LanguageSelector'
 import { authenticatedFetch } from '../utils/api'
 import logoImage from '../assets/logo.png'
 import Footer from '../Components/Common/Footer'
+import ChatbotButton from '../Components/Common/ChatbotButton'
+import NotificationsDropdown from '../Components/Common/NotificationsDropdown'
 import notificationIcon from '../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 import accountIcon from '../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg'
 
@@ -737,17 +739,8 @@ function AdminDashboard({ onOpenHelp }) {
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
             <LanguageSelector />
 
-            {/* Notifications Bell */}
-            <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-              <img
-                src={notificationIcon}
-                alt="Notifications"
-                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
-              />
-              <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
-                3
-              </span>
-            </div>
+            {/* Notifications Dropdown for Admin */}
+            <NotificationsDropdown role="admin" />
 
             {/* User Profile Info */}
             <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
@@ -1276,10 +1269,8 @@ function AdminDashboard({ onOpenHelp }) {
             </div>
           )}
 
-          {/* Floating Help Trigger */}
-          <button className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105" aria-label="Help Trigger" onClick={onOpenHelp}>
-            ?
-          </button>
+          {/* Floating AI Assistant Chatbot Button */}
+          <ChatbotButton onOpenHelp={onOpenHelp} />
         </main>
       </div>
 
