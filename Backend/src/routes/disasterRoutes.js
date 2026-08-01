@@ -12,5 +12,8 @@ router.get('/resident', authenticateToken, disasterController.getResidentDisaste
 router.get('/officer', authenticateToken, disasterController.getOfficerDisasters);
 router.put('/officer/:id/approve', authenticateToken, disasterController.approveDisaster);
 router.put('/officer/:id/reject', authenticateToken, disasterController.rejectDisaster);
+router.put('/officer/:id/action', authenticateToken, disasterController.updateDisasterAction);
+router.put('/:id/action', authenticateToken, disasterController.updateDisasterAction);
 
 module.exports = router;
+

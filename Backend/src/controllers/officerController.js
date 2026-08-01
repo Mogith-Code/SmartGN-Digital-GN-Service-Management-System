@@ -317,7 +317,7 @@ exports.getOfficerDashboardStats = async (req, res) => {
                     FROM disaster_pending dp
                     LEFT JOIN resident r ON dp.resident_nic = r.r_nic
                     LEFT JOIN household h ON r.household_number = h.household_number
-                    WHERE dp.gn_id = ? OR r.division_id = ? OR h.division_id = ?
+                    WHERE dp.gn_id = ? OR r.division_id = ? OR h.division_id = ? OR dp.gn_id IS NULL
                 `, [gnId, divisionId, divisionId]);
                 pendingDisasters = disasterCount[0]?.count || 0;
             } catch (err) {
@@ -356,12 +356,12 @@ exports.getOfficerDashboardStats = async (req, res) => {
                         SELECT disaster_id FROM disaster_pending dp
                         LEFT JOIN resident r ON dp.resident_nic = r.r_nic
                         LEFT JOIN household h ON r.household_number = h.household_number
-                        WHERE dp.gn_id = ? OR r.division_id = ? OR h.division_id = ?
+                        WHERE dp.gn_id = ? OR r.division_id = ? OR h.division_id = ? OR dp.gn_id IS NULL
                         UNION ALL
                         SELECT disaster_id FROM disaster_approved da
                         LEFT JOIN resident r ON da.resident_nic = r.r_nic
                         LEFT JOIN household h ON r.household_number = h.household_number
-                        WHERE da.gn_id = ? OR r.division_id = ? OR h.division_id = ?
+                        WHERE da.gn_id = ? OR r.division_id = ? OR h.division_id = ? OR da.gn_id IS NULL
                     ) AS active_disasters
                 `, [gnId, divisionId, divisionId, gnId, divisionId, divisionId]);
                 activeDisasters = activeCount[0]?.count || 0;
