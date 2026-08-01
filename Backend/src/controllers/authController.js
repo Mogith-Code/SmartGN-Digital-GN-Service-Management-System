@@ -18,13 +18,75 @@ const generateOTP = () => {
 // PUBLIC ROUTES
 // ============================================================
 
-// GET /api/auth/divisions
+// GET /api/auth/divisions - Returns only names for registration
 exports.getDivisions = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching divisions:', error);
+        return res.status(500).json({ error: 'Server error while fetching divisions.' });
+    }
+};
+
+// GET /api/auth/divisions/all - Optimized with pagination and search
+exports.getAllDivisions = async (req, res) => {
+    try {
+        // Get pagination parameters from query string
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20; // Default 20 per page
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+
+        let whereClause = '';
+        let queryParams = [];
+
+        if (search && search.trim() !== '') {
+            whereClause = `WHERE name LIKE ? OR district LIKE ? OR province LIKE ? OR division_code LIKE ?`;
+            const searchTerm = `%${search.trim()}%`;
+            queryParams = [searchTerm, searchTerm, searchTerm, searchTerm];
+        }
+
+        // Get total count for pagination
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM gn_division 
+            ${whereClause}
+        `;
+        const [countResult] = await db.query(countQuery, queryParams);
+        const total = countResult[0]?.total || 0;
+
+        // Get paginated results with proper ordering
+        const [rows] = await db.query(`
+            SELECT 
+                division_id,
+                division_code,
+                name,
+                district,
+                province,
+                divisional_secretariat,
+                population,
+                household_count,
+                is_active,
+                created_at,
+                updated_at
+            FROM gn_division 
+            ${whereClause}
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `, [...queryParams, limit, offset]);
+
+        return res.json({
+            data: rows,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching all divisions:', error);
         return res.status(500).json({ error: 'Server error while fetching divisions.' });
     }
 };
@@ -958,7 +1020,7 @@ exports.updateHousehold = async (req, res) => {
 // ADMIN ROUTES - GN DIVISION MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/divisions
+// GET /api/auth/admin/divisions - Admin only - returns full details (without pagination)
 exports.getAllDivisionsDetails = async (req, res) => {
     try {
         const [rows] = await db.query(`
