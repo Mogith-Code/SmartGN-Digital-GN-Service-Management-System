@@ -396,7 +396,7 @@ exports.getOfficerDashboardStats = async (req, res) => {
 };
 
 // ============================================================
-// GET SINGLE RESIDENT DETAILS WITH PHOTO
+// GET SINGLE RESIDENT DETAILS WITH PHOTO AND NIC IMAGES
 // ============================================================
 exports.getResidentByNic = async (req, res) => {
     const user = req.user;
@@ -423,7 +423,7 @@ exports.getResidentByNic = async (req, res) => {
             divisionId = officer[0].division_id;
         }
 
-        // Get resident details
+        // Get resident details with ALL image fields
         const [rows] = await db.query(`
             SELECT 
                 r.r_nic AS nic,
@@ -436,6 +436,8 @@ exports.getResidentByNic = async (req, res) => {
                 r.household_number,
                 r.home_address AS address,
                 r.profile_photo_path,
+                r.nic_front_path,
+                r.nic_back_path,
                 r.status,
                 r.date_of_birth AS dob,
                 r.gender,
@@ -463,16 +465,28 @@ exports.getResidentByNic = async (req, res) => {
 
         const resident = rows[0];
         
-        // ✅ Ensure profile_photo_path is included
+        // ✅ Log all image paths for debugging
         console.log('📸 Resident photo path:', resident.profile_photo_path);
+        console.log('📸 NIC Front path:', resident.nic_front_path);
+        console.log('📸 NIC Back path:', resident.nic_back_path);
         
         return res.json({
             success: true,
             data: {
                 ...resident,
-                // Make sure photo path is explicitly included
+                // Profile photo
                 profile_photo_path: resident.profile_photo_path || null,
-                profilePhoto: resident.profile_photo_path || null
+                profilePhoto: resident.profile_photo_path || null,
+                // NIC images
+                nic_front_path: resident.nic_front_path || null,
+                nicFront: resident.nic_front_path || null,
+                nic_back_path: resident.nic_back_path || null,
+                nicBack: resident.nic_back_path || null,
+                // Additional aliases for frontend compatibility
+                nic_photo_front: resident.nic_front_path || null,
+                nic_photo_back: resident.nic_back_path || null,
+                front_photo: resident.nic_front_path || null,
+                back_photo: resident.nic_back_path || null
             }
         });
 
