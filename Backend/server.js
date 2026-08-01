@@ -48,7 +48,8 @@ app.get('/', (req, res) => {
         endpoints: [
             '/api/auth', '/api/chat', '/api/residents', '/api/users',
             '/api/certificates', '/api/allowances', '/api/appointments',
-            '/api/disasters', '/api/announcements'
+            '/api/disasters', '/api/announcements',
+            '/api/request-otp', '/api/verify-otp'
         ]
     });
 });
@@ -91,6 +92,10 @@ app.use('/api/disasters', disasterRoutes);
 // Announcements (separate prefix to match frontend fetch calls)
 const announcementRoutes = require('./src/routes/announcementRoutes');
 app.use('/api/announcements', announcementRoutes);
+
+// OTP — Email One-Time Password generation & verification
+const otpRoutes = require('./src/routes/otpRoutes');
+app.use('/api', otpRoutes);
 
 // ============================================================
 // 404 handler for unknown API routes

@@ -20,7 +20,7 @@ function Login() {
   const [showOtpVerify, setShowOtpVerify] = useState(false);
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const [verificationEmail, setVerificationEmail] = useState("");
-  const [devOtpTip, setDevOtpTip] = useState("");
+
   const [timerCount, setTimerCount] = useState(0);
 
   // Focus refs for the 6 inputs
@@ -159,7 +159,6 @@ function Login() {
     if (lowerId === "officer" && password === "officer") {
       setVerificationEmail("officer.email@example.com");
       setShowOtpVerify(true);
-      setDevOtpTip("123456");
       setTimerCount(60);
       return;
     }
@@ -167,7 +166,6 @@ function Login() {
     if (lowerId === "resident" && password === "resident") {
       setVerificationEmail("resident.email@example.com");
       setShowOtpVerify(true);
-      setDevOtpTip("123456");
       setTimerCount(60);
       return;
     }
@@ -196,18 +194,8 @@ function Login() {
         return;
       }
 
-      // Check if 2FA is required
-      if (data.requires2FA) {
-        setVerificationEmail(data.email);
-        setShowOtpVerify(true);
-        setTimerCount(60);
-        if (data.otpForTesting) {
-          setDevOtpTip(data.otpForTesting);
-        }
-      } else {
-        // Direct Login (Admins or if 2FA disabled)
-        processLoginSuccess(data);
-      }
+      // Direct Login (No 2FA)
+      processLoginSuccess(data);
     } catch (err) {
       setIsSubmitting(false);
       setErrorMessage(
@@ -345,9 +333,7 @@ function Login() {
       setResendSuccessMessage(t.otpResendSuccess);
       setTimerCount(60);
       setOtpDigits(["", "", "", "", "", ""]);
-      if (data.otpForTesting) {
-        setDevOtpTip(data.otpForTesting);
-      }
+
       setIsResending(false);
       if (inputRefs[0].current) inputRefs[0].current.focus();
     } catch (err) {
@@ -404,8 +390,13 @@ function Login() {
               </div>
 
               {/* Email Sent Notice */}
-              <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-[8px] text-[13px] text-[#166534] text-center font-medium my-1">
-                📧 6-Digit OTP verification code has been sent to <strong>{verificationEmail}</strong>.
+              <div className="w-full max-w-[440px] px-4 py-3 bg-[#ECFDF5] border-2 border-[#10B981]/40 rounded-xl shadow-sm my-1 text-left">
+                <div className="flex items-center gap-2 text-[#065F46] font-bold text-xs uppercase tracking-wider mb-1">
+                  <span>📧 Verification Email Sent</span>
+                </div>
+                <p className="text-[13px] text-[#047857] font-medium m-0 leading-relaxed">
+                  A 6-digit 2FA code has been sent to <strong>{verificationEmail}</strong>. Please check your inbox (and spam folder) and enter the code above.
+                </p>
               </div>
 
               {/* Messages */}
@@ -533,13 +524,13 @@ function Login() {
               <div className="flex justify-between items-center text-[13.5px] font-semibold text-[#D69E2E] px-1">
                 <span
                   className="hover:text-[#FFAA00] cursor-pointer transition-colors duration-200"
-                  onClick={() => console.log("Forgot password clicked")}
+                  onClick={() => navigate("/forgot-password")}
                 >
                   {t.forgotPassword}
                 </span>
                 <span
                   className="hover:text-[#FFAA00] cursor-pointer transition-colors duration-200"
-                  onClick={() => console.log("Contact support clicked")}
+                  onClick={() => navigate("/forgot-password")}
                 >
                   {t.contactSupport}
                 </span>

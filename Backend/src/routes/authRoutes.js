@@ -28,6 +28,7 @@ router.post('/verify-registration', authController.verifyRegistration);
 
 // Resend OTP code
 router.post('/resend-otp', authController.resendOTP);
+router.post('/forgot-password', authController.forgotPassword);
 
 // ============================================================
 // ADMIN ONLY ROUTES - OFFICER MANAGEMENT
