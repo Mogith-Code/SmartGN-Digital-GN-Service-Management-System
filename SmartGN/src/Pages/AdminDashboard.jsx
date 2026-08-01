@@ -17,7 +17,7 @@ import residentsIconActive from "../assets/home_and_garden_24dp_F7FAFC_FILL0_wgh
 import troubleshootIcon from "../assets/edit_document_24dp_F2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import troubleshootIconActive from "../assets/edit_document_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
-// SearchableDropdown Component - Styled like Register page
+// SearchableDropdown Component - With clear button and better search
 function SearchableDropdown({
   options,
   value,
@@ -60,6 +60,13 @@ function SearchableDropdown({
     return selected ? selected.label : "";
   };
 
+  // Clear selection
+  const clearSelection = () => {
+    onChange("");
+    setSearchTerm("");
+    setIsOpen(false);
+  };
+
   return (
     <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
       {label && (
@@ -68,27 +75,39 @@ function SearchableDropdown({
         </label>
       )}
       <div className="relative">
-        <input
-          type="text"
-          className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-          placeholder={placeholder || "Search GN division name..."}
-          value={isOpen ? searchTerm : value ? getSelectedLabel() : ""}
-          onFocus={() => {
-            setIsOpen(true);
-            setSearchTerm("");
-          }}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setIsOpen(true);
-            if (e.target.value === "") {
-              onChange("");
-            }
-          }}
-          required={required}
-          autoComplete="off"
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400 text-xs">
-          ▼
+        <div className="relative">
+          <input
+            type="text"
+            className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 pr-10"
+            placeholder={placeholder || "Search GN division name..."}
+            value={isOpen ? searchTerm : getSelectedLabel()}
+            onFocus={() => {
+              setIsOpen(true);
+              setSearchTerm("");
+            }}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setIsOpen(true);
+              if (e.target.value === "") {
+                onChange("");
+              }
+            }}
+            required={required}
+            autoComplete="off"
+          />
+          <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400 text-xs">
+            ▼
+          </div>
+          {value && !isOpen && (
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer bg-transparent border-0 p-1"
+              aria-label="Clear selection"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
@@ -113,7 +132,9 @@ function SearchableDropdown({
             ))
           ) : (
             <div className="px-4 py-3 text-xs text-gray-400 italic">
-              No matching GN division found
+              {options.length === 0
+                ? "Loading divisions..."
+                : "No matching GN division found"}
             </div>
           )}
         </div>
@@ -299,6 +320,9 @@ function AdminDashboard({ onOpenHelp }) {
   const [officers, setOfficers] = useState([]);
   const [residents, setResidents] = useState([]);
   const [divisions, setDivisions] = useState([]);
+
+  // All divisions for dropdown (unpaginated)
+  const [allDivisions, setAllDivisions] = useState([]);
 
   // Divisions pagination states
   const [divisionsPage, setDivisionsPage] = useState(1);
@@ -488,11 +512,34 @@ function AdminDashboard({ onOpenHelp }) {
   const [diagnosticProgress, setDiagnosticProgress] = useState(0);
   const [diagnosticLogs, setDiagnosticLogs] = useState([]);
 
-  // Convert divisions to dropdown options
-  const divisionOptions = divisions.map((d) => ({
-    value: d.name,
-    label: `${d.name} (${d.division_code || d.name})`,
-  }));
+  // ============================================================
+  // DEDUPLICATE DIVISIONS - PREVENT DUPLICATES
+  // ============================================================
+  const deduplicateDivisions = (divisions) => {
+    const seen = new Map();
+    return divisions.filter((div) => {
+      const key = div.name || div.division_code || div.division_id;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.set(key, true);
+      return true;
+    });
+  };
+
+  // Convert divisions to dropdown options - with deduplication
+  const divisionOptions = allDivisions
+    .filter(
+      (d, index, self) =>
+        index ===
+        self.findIndex(
+          (t) => t.name === d.name && t.division_code === d.division_code,
+        ),
+    )
+    .map((d) => ({
+      value: d.name,
+      label: `${d.name} (${d.division_code || d.name})`,
+    }));
 
   // ============================================================
   // LOAD FUNCTIONS
@@ -516,6 +563,42 @@ function AdminDashboard({ onOpenHelp }) {
       setDivisions(getStoredDivisions());
     } finally {
       setIsLoadingDivisions(false);
+    }
+  };
+
+  // Load ALL divisions for the dropdown (no pagination)
+  const loadAllDivisions = async () => {
+    try {
+      const res = await authenticatedFetch(
+        "/api/auth/divisions/all?limit=1000",
+      );
+      if (res.ok) {
+        const data = await res.json();
+        // Deduplicate divisions to prevent duplicates
+        const deduped = deduplicateDivisions(data.data || []);
+        setAllDivisions(deduped);
+        // Save to localStorage as backup
+        localStorage.setItem("smartgn_all_divisions", JSON.stringify(deduped));
+      } else {
+        // Try localStorage
+        const saved = localStorage.getItem("smartgn_all_divisions");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setAllDivisions(deduplicateDivisions(parsed));
+        } else {
+          setAllDivisions(getStoredDivisions());
+        }
+      }
+    } catch (err) {
+      console.warn("Error loading all divisions:", err);
+      // Fallback to localStorage
+      const saved = localStorage.getItem("smartgn_all_divisions");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAllDivisions(deduplicateDivisions(parsed));
+      } else {
+        setAllDivisions(getStoredDivisions());
+      }
     }
   };
 
@@ -565,6 +648,7 @@ function AdminDashboard({ onOpenHelp }) {
     loadDivisions(1, "");
     loadOfficers();
     loadResidents();
+    loadAllDivisions(); // Load all divisions for dropdown
   }, []);
 
   // GN Division Handlers
@@ -588,6 +672,7 @@ function AdminDashboard({ onOpenHelp }) {
           household_count: "",
         });
         loadDivisions(1, divisionsSearch);
+        loadAllDivisions(); // Refresh all divisions
         return;
       }
     } catch (error) {
@@ -636,6 +721,7 @@ function AdminDashboard({ onOpenHelp }) {
         alert("GN Division updated successfully.");
         setShowEditDivisionModal(false);
         loadDivisions(divisionsPage, divisionsSearch);
+        loadAllDivisions(); // Refresh all divisions
         return;
       }
     } catch (error) {
@@ -667,6 +753,7 @@ function AdminDashboard({ onOpenHelp }) {
           `GN Division status updated to ${nextActive ? "Active" : "Inactive"}.`,
         );
         loadDivisions(divisionsPage, divisionsSearch);
+        loadAllDivisions(); // Refresh all divisions
         return;
       }
     } catch (error) {
@@ -697,6 +784,7 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert("GN Division deleted successfully.");
         loadDivisions(divisionsPage, divisionsSearch);
+        loadAllDivisions(); // Refresh all divisions
         return;
       } else {
         const errData = await res.json();
@@ -1000,9 +1088,34 @@ function AdminDashboard({ onOpenHelp }) {
     }, 600);
   };
 
+  // Function to open Add Officer modal with divisions loaded
+  const openAddOfficerModal = () => {
+    if (allDivisions.length === 0) {
+      loadAllDivisions();
+    }
+    setShowAddOfficerModal(true);
+  };
+
+  // Function to open Edit Officer modal with divisions loaded
+  const openEditOfficerModal = (officer) => {
+    if (allDivisions.length === 0) {
+      loadAllDivisions();
+    }
+    setEditOfficer({
+      id: officer.gn_id,
+      username: officer.username,
+      name: officer.name,
+      email: officer.email,
+      mobile: officer.mobile,
+      division: officer.division_name || "",
+      status: officer.status,
+    });
+    setShowEditOfficerModal(true);
+  };
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC] text-[#2D3748]">
-      {/* 1. Header */}
+      {/* Header */}
       <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
         <div className="flex w-full justify-between items-center">
           <div
@@ -1049,11 +1162,11 @@ function AdminDashboard({ onOpenHelp }) {
         </div>
       </header>
 
-      {/* 2. Main Layout Container */}
+      {/* Sidebar */}
       <div className="flex flex-1 w-full">
         <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
           <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
-            {/* Tab: Overview */}
+            {/* Overview Tab */}
             <button
               onClick={() => setActiveTab("overview")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
@@ -1072,7 +1185,7 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.overview}</span>
             </button>
 
-            {/* Tab: GN Officer Accounts */}
+            {/* Officers Tab */}
             <button
               onClick={() => setActiveTab("officers")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
@@ -1091,7 +1204,7 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.officers}</span>
             </button>
 
-            {/* Tab: GN Divisions */}
+            {/* Divisions Tab */}
             <button
               onClick={() => setActiveTab("divisions")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
@@ -1106,7 +1219,7 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.divisions}</span>
             </button>
 
-            {/* Tab: Resident Profiles */}
+            {/* Residents Tab */}
             <button
               onClick={() => setActiveTab("residents")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
@@ -1127,7 +1240,7 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.residents}</span>
             </button>
 
-            {/* Tab: Troubleshoot Node */}
+            {/* Troubleshoot Tab */}
             <button
               onClick={() => setActiveTab("troubleshoot")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
@@ -1148,7 +1261,7 @@ function AdminDashboard({ onOpenHelp }) {
               <span className="truncate">{dA.troubleshoot}</span>
             </button>
 
-            {/* Logout Admin */}
+            {/* Logout */}
             <button
               onClick={() => navigate("/login")}
               className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-semibold text-red-600 transition-all duration-200 rounded-r-full hover:translate-x-1 hover:bg-red-50 hover:text-red-700 mt-8"
@@ -1159,7 +1272,7 @@ function AdminDashboard({ onOpenHelp }) {
           </nav>
         </aside>
 
-        {/* Main Content Area */}
+        {/* Main Content */}
         <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
@@ -1167,7 +1280,7 @@ function AdminDashboard({ onOpenHelp }) {
               <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">
                 {dA.systemOverview}
               </h2>
-
+              {/* Overview content... */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
                   <span className="text-sm font-semibold text-gray-500 mb-1">
@@ -1180,7 +1293,6 @@ function AdminDashboard({ onOpenHelp }) {
                     Colombo, Maharagama
                   </span>
                 </div>
-
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
                   <span className="text-sm font-semibold text-gray-500 mb-1">
                     {dA.regResidents}
@@ -1192,7 +1304,6 @@ function AdminDashboard({ onOpenHelp }) {
                     +12 New submissions
                   </span>
                 </div>
-
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
                   <span className="text-sm font-semibold text-gray-500 mb-1">
                     {dA.rtgsTransfers}
@@ -1204,7 +1315,6 @@ function AdminDashboard({ onOpenHelp }) {
                     {dA.cleared}
                   </span>
                 </div>
-
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
                   <span className="text-sm font-semibold text-gray-500 mb-1">
                     {dA.serverNode}
@@ -1217,7 +1327,7 @@ function AdminDashboard({ onOpenHelp }) {
                   </span>
                 </div>
               </div>
-
+              {/* Recent logs */}
               <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 text-left">
                 <h3 className="text-lg font-bold text-[#1B365D] border-b border-[#cbd5e1] pb-3 mb-4">
                   {dA.recentLogs}
@@ -1226,22 +1336,21 @@ function AdminDashboard({ onOpenHelp }) {
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">[INFO]</span>
                     <span>
-                      [2026-06-01 12:44:02] ADMIN logged in successfully from
-                      secure clearing terminal node.
+                      [2026-06-01 12:44:02] ADMIN logged in successfully
                     </span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">[INFO]</span>
                     <span>
-                      [2026-06-01 12:38:15] RTGS clearing gateway disburse
-                      request dished out reference ID TXN-902847120.
+                      [2026-06-01 12:38:15] RTGS clearing gateway disbursed
+                      request TXN-902847120
                     </span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">[INFO]</span>
                     <span>
-                      [2026-06-01 12:35:10] DRP API successfully authenticated
-                      resident Kamala Silva (789456123V) registry checks.
+                      [2026-06-01 12:35:10] DRP API authenticated resident
+                      Kamala Silva
                     </span>
                   </div>
                 </div>
@@ -1249,7 +1358,7 @@ function AdminDashboard({ onOpenHelp }) {
             </div>
           )}
 
-          {/* TAB 2: GN OFFICERS */}
+          {/* TAB 2: OFFICERS */}
           {activeTab === "officers" && (
             <div className="animate-zoom-in">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -1262,13 +1371,13 @@ function AdminDashboard({ onOpenHelp }) {
                   </span>
                 </div>
                 <button
-                  onClick={() => setShowAddOfficerModal(true)}
+                  onClick={openAddOfficerModal}
                   className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
                 >
                   <span>➕</span> Register GN Officer
                 </button>
               </div>
-
+              {/* Officers table */}
               <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left text-sm">
@@ -1309,16 +1418,8 @@ function AdminDashboard({ onOpenHelp }) {
                                 }`}
                               >
                                 {officer.status === "Active"
-                                  ? lang === "EN"
-                                    ? "Active"
-                                    : lang === "SI"
-                                      ? "ක්‍රියාකාරී"
-                                      : "செயலில் உள்ளது"
-                                  : lang === "EN"
-                                    ? "Suspended"
-                                    : lang === "SI"
-                                      ? "අත්හිටුවා ඇත"
-                                      : "இடைநிறுத்தப்பட்டுள்ளது"}
+                                  ? "Active"
+                                  : "Suspended"}
                               </span>
                             </td>
                             <td className="p-4 sm:p-5 text-right">
@@ -1341,18 +1442,7 @@ function AdminDashboard({ onOpenHelp }) {
                                     : "Activate"}
                                 </button>
                                 <button
-                                  onClick={() => {
-                                    setEditOfficer({
-                                      id: officer.gn_id,
-                                      username: officer.username,
-                                      name: officer.name,
-                                      email: officer.email,
-                                      mobile: officer.mobile,
-                                      division: officer.division_name || "",
-                                      status: officer.status,
-                                    });
-                                    setShowEditOfficerModal(true);
-                                  }}
+                                  onClick={() => openEditOfficerModal(officer)}
                                   className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
                                 >
                                   Edit
@@ -1386,7 +1476,7 @@ function AdminDashboard({ onOpenHelp }) {
             </div>
           )}
 
-          {/* TAB: GN DIVISIONS - OPTIMIZED WITH PAGINATION */}
+          {/* TAB: DIVISIONS - OPTIMIZED WITH PAGINATION */}
           {activeTab === "divisions" && (
             <div className="animate-zoom-in">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -1505,17 +1595,7 @@ function AdminDashboard({ onOpenHelp }) {
                                           : "bg-red-100 text-red-800"
                                       }`}
                                     >
-                                      {isActive
-                                        ? lang === "EN"
-                                          ? "Active"
-                                          : lang === "SI"
-                                            ? "ක්‍රියාකාරී"
-                                            : "செயலில் உள்ளது"
-                                        : lang === "EN"
-                                          ? "Inactive"
-                                          : lang === "SI"
-                                            ? "අක්‍රියයි"
-                                            : "செயலற்றது"}
+                                      {isActive ? "Active" : "Inactive"}
                                     </span>
                                   </td>
                                   <td className="p-3 sm:p-4 text-right">
@@ -1589,8 +1669,7 @@ function AdminDashboard({ onOpenHelp }) {
                       </table>
                     </div>
                   </div>
-
-                  {/* Pagination Controls */}
+                  {/* Pagination */}
                   {divisionsTotal > divisionsLimit && (
                     <div className="flex justify-between items-center mt-4 px-2">
                       <span className="text-sm text-gray-500">
@@ -1651,7 +1730,7 @@ function AdminDashboard({ onOpenHelp }) {
                   {dA.residentSub}
                 </span>
               </div>
-
+              {/* Residents table */}
               <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse text-left text-sm">
@@ -1692,16 +1771,8 @@ function AdminDashboard({ onOpenHelp }) {
                                 }`}
                               >
                                 {resident.status === "Active"
-                                  ? lang === "EN"
-                                    ? "Active"
-                                    : lang === "SI"
-                                      ? "ක්‍රියාකාරී"
-                                      : "செயலில் உள்ளது"
-                                  : lang === "EN"
-                                    ? "Suspended"
-                                    : lang === "SI"
-                                      ? "අත්හිටුවා ඇත"
-                                      : "இடைநிறுத்தப்பட்டுள்ளது"}
+                                  ? "Active"
+                                  : "Suspended"}
                               </span>
                             </td>
                             <td className="p-4 sm:p-5 text-right">
@@ -1797,9 +1868,7 @@ function AdminDashboard({ onOpenHelp }) {
                       <span>
                         {lang === "EN"
                           ? "Running Security Diagnostics & Flush cache..."
-                          : lang === "SI"
-                            ? "ආරක්ෂක රෝග විනිශ්චය ධාවනය වේ..."
-                            : "பாதுகாப்பு நோயறிதல் இயங்குகிறது..."}
+                          : "Diagnostics running..."}
                       </span>
                       <span>{diagnosticProgress}%</span>
                     </div>
@@ -1849,10 +1918,10 @@ function AdminDashboard({ onOpenHelp }) {
         </main>
       </div>
 
-      {/* 3. Footer */}
+      {/* Footer */}
       <Footer />
 
-      {/* Modals overlays */}
+      {/* MODALS */}
       {showAddOfficerModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
           <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
