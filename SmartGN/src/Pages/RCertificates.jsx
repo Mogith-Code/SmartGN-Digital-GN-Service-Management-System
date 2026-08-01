@@ -8,6 +8,7 @@ import ChatbotButton from "../Components/Common/ChatbotButton";
 import pendingIcon from "../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { getAuthHeaders } from "../utils/api";
 
 function ResidentCertificates({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ function ResidentCertificates({ onOpenHelp }) {
     firstName: "Nimal",
     lastName: "Perera",
     fullName: "Dissanayake Mudiyanselage Nimal Perera",
-    nic: "200324511540",
+    nic: "",
     occupation: "Farmer",
     email: "Nimal.Perera@example.com",
     mobile: "0703564478",
@@ -66,13 +67,91 @@ function ResidentCertificates({ onOpenHelp }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Check if NIC images are missing - used for alert
+  const areNicImagesMissing = () => {
+    return !profile.nicFront || !profile.nicBack;
+  };
+
+  // ✅ Fetch profile to get NIC images
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/residents/profile", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile((prev) => ({
+            ...prev,
+            nic: data.r_nic || "",
+            nicFront: data.nic_front_path || null,
+            nicBack: data.nic_back_path || null,
+          }));
+
+          // ✅ Auto-hide alert if both NIC images exist
+          if (data.nic_front_path && data.nic_back_path) {
+            setShowAlert(false);
+          } else {
+            setShowAlert(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching profile for NIC images:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // ✅ Listen for profile updates from other components
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      // Re-fetch profile when updated
+      const fetchUpdatedProfile = async () => {
+        try {
+          const res = await fetch("/api/residents/profile", {
+            headers: getAuthHeaders(),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProfile((prev) => ({
+              ...prev,
+              nic: data.r_nic || "",
+              nicFront: data.nic_front_path || null,
+              nicBack: data.nic_back_path || null,
+            }));
+
+            if (data.nic_front_path && data.nic_back_path) {
+              setShowAlert(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error refreshing profile:", error);
+        }
+      };
+
+      fetchUpdatedProfile();
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
+  }, []);
+
+  // Get auth headers helper
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("smartgn_token");
+    return {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    };
+  };
+
   const loadRequests = async () => {
     try {
-      const token = localStorage.getItem("smartgn_token");
-      const headers = {
-        Authorization: token ? `Bearer ${token}` : "",
-        "Content-Type": "application/json",
-      };
+      const headers = getAuthHeaders();
       const response = await fetch("/api/certificates/resident", {
         headers,
       });
@@ -171,9 +250,9 @@ function ResidentCertificates({ onOpenHelp }) {
               Certificates
             </h2>
 
-            {/* NIC upload alert */}
+            {/* ✅ NIC upload alert - Check if NIC images are missing */}
             <div className="flex justify-end -mt-[70px]">
-              {showAlert && profile.nic && (
+              {showAlert && areNicImagesMissing() && (
                 <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <div className="flex items-center gap-2">
                     <span
@@ -227,7 +306,7 @@ function ResidentCertificates({ onOpenHelp }) {
                     {card.title}
                   </span>
                   <span className="text-[20px] font-medium text-[#2D3748]">
-                    {card.count}
+                    {loading ? "..." : card.count}
                   </span>
                 </div>
               </div>

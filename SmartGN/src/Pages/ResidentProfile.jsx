@@ -254,7 +254,10 @@ function ResidentProfile({ onOpenHelp }) {
           const photoUrl = serverData.profile_photo_path || base64;
           const finalProfile = { ...optimisticProfile, profilePhoto: photoUrl };
           setProfile(finalProfile);
-          localStorage.setItem("smartgn_resident_profile", JSON.stringify(finalProfile));
+          localStorage.setItem(
+            "smartgn_resident_profile",
+            JSON.stringify(finalProfile),
+          );
           window.dispatchEvent(new Event("profileUpdated"));
           setSuccessMessage("Profile photo updated successfully!");
           setShowSuccessToast(true);
@@ -377,7 +380,9 @@ function ResidentProfile({ onOpenHelp }) {
           setShowAlert(true);
         }
 
-        setSuccessMessage("Your profile information and photo have been updated successfully!");
+        setSuccessMessage(
+          "Your profile information and photo have been updated successfully!",
+        );
         setShowSuccessToast(true);
         setViewMode("VIEW");
         window.dispatchEvent(new Event("profileUpdated"));
@@ -456,8 +461,12 @@ function ResidentProfile({ onOpenHelp }) {
                       ✓
                     </div>
                     <div>
-                      <p className="font-bold text-[16px] m-0 text-[#065f46]">Profile Updated Successfully!</p>
-                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">{successMessage}</p>
+                      <p className="font-bold text-[16px] m-0 text-[#065f46]">
+                        Profile Updated Successfully!
+                      </p>
+                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">
+                        {successMessage}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -476,7 +485,10 @@ function ResidentProfile({ onOpenHelp }) {
                   {/* Interactive Avatar for direct photo update */}
                   <div
                     className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center relative group cursor-pointer border-2 border-white shadow-sm transition-all duration-200"
-                    onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    onClick={() =>
+                      directPhotoInputRef.current &&
+                      directPhotoInputRef.current.click()
+                    }
                     title="Click to update profile photo"
                   >
                     {profile.profilePhoto ? (
@@ -493,7 +505,14 @@ function ResidentProfile({ onOpenHelp }) {
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[11px] font-medium transition-all duration-200">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                       </svg>
@@ -515,9 +534,12 @@ function ResidentProfile({ onOpenHelp }) {
                     <span className="text-[14px] text-[#64748b] font-medium">
                       {profile.nic}
                     </span>
-                    <span 
+                    <span
                       className="text-[12px] text-[#2563eb] hover:underline cursor-pointer font-medium mt-0.5"
-                      onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                      onClick={() =>
+                        directPhotoInputRef.current &&
+                        directPhotoInputRef.current.click()
+                      }
                     >
                       📷 Change profile photo
                     </span>
@@ -650,19 +672,20 @@ function ResidentProfile({ onOpenHelp }) {
                   </div>
                 </div>
 
-                {/* National Identity Card Display */}
+                {/* National Identity Card Display - FIXED to show full images without cropping */}
                 <div className="border border-[#2D37484D] rounded-2xl p-6 text-left shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     National Identity Card
                   </h3>
 
                   <div className="flex flex-col gap-5">
-                    <div className="h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden">
+                    {/* NIC Front - Using object-contain to show full image */}
+                    <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicFront ? (
                         <img
                           src={profile.nicFront}
                           alt="NIC Front"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-2"
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -671,12 +694,13 @@ function ResidentProfile({ onOpenHelp }) {
                       )}
                     </div>
 
-                    <div className="h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden">
+                    {/* NIC Back - Using object-contain to show full image */}
+                    <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicBack ? (
                         <img
                           src={profile.nicBack}
                           alt="NIC Back"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-2"
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -985,7 +1009,7 @@ function ResidentProfile({ onOpenHelp }) {
                     </div>
                   </div>
 
-                  {/* NIC File Upload Area */}
+                  {/* NIC File Upload Area - FIXED to show full images */}
                   <div className="mt-7 border-t border-[#cbd5e1] pt-5">
                     <p className="font-semibold text-[14px] text-[#1e293b] mb-4 text-left">
                       Upload an image of your National Identity Card :
@@ -996,18 +1020,18 @@ function ResidentProfile({ onOpenHelp }) {
                         <span className="text-[13px] text-[#64748b] font-semibold mb-2 text-left">
                           Front Image :
                         </span>
-                        <div className="relative h-[150px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
+                        <div className="relative h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
                           {editNicFront ? (
                             <>
                               <img
                                 src={editNicFront}
                                 alt="NIC Front Preview"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain p-2"
                               />
                               <button
                                 type="button"
                                 onClick={() => handleRemovePhoto("nicFront")}
-                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white"
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white z-10"
                                 title="Remove image"
                               >
                                 ✕
@@ -1060,18 +1084,18 @@ function ResidentProfile({ onOpenHelp }) {
                         <span className="text-[13px] text-[#64748b] font-semibold mb-2 text-left">
                           Back Image :
                         </span>
-                        <div className="relative h-[150px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
+                        <div className="relative h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
                           {editNicBack ? (
                             <>
                               <img
                                 src={editNicBack}
                                 alt="NIC Back Preview"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain p-2"
                               />
                               <button
                                 type="button"
                                 onClick={() => handleRemovePhoto("nicBack")}
-                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white"
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white z-10"
                                 title="Remove image"
                               >
                                 ✕
