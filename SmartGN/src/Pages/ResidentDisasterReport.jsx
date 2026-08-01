@@ -250,10 +250,12 @@ function ResidentDisasterReport({ onOpenHelp }) {
                       required
                     >
                       <option value="Flood">Flood</option>
-                      <option value="Landslide">Landslide</option>
+                      <option value="Landslide">Landslide / Earth Slip</option>
                       <option value="Fire">Fire</option>
-                      <option value="Storm">Storm / Cyclone</option>
-                      <option value="Earth Slip">Earth Slip</option>
+                      <option value="Cyclone">Cyclone / Storm</option>
+                      <option value="Earthquake">Earthquake</option>
+                      <option value="Drought">Drought</option>
+                      <option value="Pandemic">Pandemic</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>
@@ -415,15 +417,16 @@ function ResidentDisasterReport({ onOpenHelp }) {
                   </div>
                 ) : (
                   myDisasters.map((disaster) => {
-                    const cardClass = disaster.severity.includes("high")
+                    const sevLower = (disaster.severity || "").toLowerCase();
+                    const cardClass = sevLower.includes("high") || sevLower.includes("critical")
                       ? "bg-rose-50 border-rose-200 text-rose-800"
-                      : disaster.severity.includes("medium")
+                      : sevLower.includes("medium")
                         ? "bg-amber-50 border-amber-200 text-amber-800"
                         : "bg-[#F8FAFC] border-gray-200 text-[#1B365D]";
 
-                    const severityTextClass = disaster.severity.includes("high")
+                    const severityTextClass = sevLower.includes("high") || sevLower.includes("critical")
                       ? "bg-rose-100 text-rose-800"
-                      : disaster.severity.includes("medium")
+                      : sevLower.includes("medium")
                         ? "bg-amber-100 text-amber-800"
                         : "bg-slate-100 text-slate-800";
 
