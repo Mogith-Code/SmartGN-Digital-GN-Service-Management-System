@@ -1,5 +1,4 @@
-// src/pages/ResidentProfile.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
@@ -36,7 +35,7 @@ function ResidentProfile({ onOpenHelp }) {
     },
     TA: {
       alert:
-        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிවේற்றவும்",
       title: "என் சுயவிவரம்",
       updateSuccess: "சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
       updateError:
@@ -53,6 +52,13 @@ function ResidentProfile({ onOpenHelp }) {
 
   // State to manage dismissing the alert banner
   const [showAlert, setShowAlert] = useState(true);
+
+  // Success Toast Notification state
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Direct Photo Upload ref for VIEW mode
+  const directPhotoInputRef = useRef(null);
 
   // View modes: 'VIEW' | 'EDIT'
   const [viewMode, setViewMode] = useState("VIEW");
@@ -222,6 +228,47 @@ function ResidentProfile({ onOpenHelp }) {
     }
   };
 
+  // Direct Photo Upload (VIEW mode quick upload)
+  const handleDirectPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      const optimisticProfile = { ...profile, profilePhoto: base64 };
+      setProfile(optimisticProfile);
+
+      try {
+        const response = await fetch("/api/residents/profile", {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            profilePhoto: base64,
+          }),
+        });
+
+        if (response.ok) {
+          const serverData = await response.json();
+          const photoUrl = serverData.profile_photo_path || base64;
+          const finalProfile = { ...optimisticProfile, profilePhoto: photoUrl };
+          setProfile(finalProfile);
+          localStorage.setItem("smartgn_resident_profile", JSON.stringify(finalProfile));
+          window.dispatchEvent(new Event("profileUpdated"));
+          setSuccessMessage("Profile photo updated successfully!");
+          setShowSuccessToast(true);
+        } else {
+          const errData = await response.json();
+          alert(errData.error || "Failed to update profile photo.");
+        }
+      } catch (err) {
+        console.error("Direct photo upload error:", err);
+        alert("Network error updating photo.");
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Remove uploaded photo
   const handleRemovePhoto = (target) => {
     if (target === "profilePhoto") {
@@ -251,6 +298,9 @@ function ResidentProfile({ onOpenHelp }) {
       mobile: editMobile,
       occupation: editOccupation,
       homeAddress: editHomeAddress,
+      dob: editDob,
+      gender: editGender,
+      householdNumber: editHouseholdNumber,
       profilePhoto: editProfilePhoto || null,
       nicFront: editNicFront || null,
       nicBack: editNicBack || null,
@@ -320,18 +370,16 @@ function ResidentProfile({ onOpenHelp }) {
         setEditNicFront(updatedProfile.nicFront);
         setEditNicBack(updatedProfile.nicBack);
 
-        // ✅ Update showAlert based on NIC images
         if (updatedProfile.nicFront && updatedProfile.nicBack) {
           setShowAlert(false);
         } else {
           setShowAlert(true);
         }
 
-        alert(t.updateSuccess);
+        setSuccessMessage("Your profile information and photo have been updated successfully!");
+        setShowSuccessToast(true);
         setViewMode("VIEW");
         window.dispatchEvent(new Event("profileUpdated"));
-      } else {
-        throw new Error(data.error || t.updateError);
       }
     } catch (err) {
       console.error("❌ Error updating profile:", err);
@@ -399,10 +447,37 @@ function ResidentProfile({ onOpenHelp }) {
                 </div>
               </div>
 
+              {/* Profile Update Success Banner / Toast */}
+              {showSuccessToast && (
+                <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 p-4 bg-[#ecfdf5] border border-[#a7f3d0] rounded-2xl flex items-center justify-between text-[#065f46] shadow-sm animate-fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#10b981] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                      ✓
+                    </div>
+                    <div>
+                      <p className="font-bold text-[16px] m-0 text-[#065f46]">Profile Updated Successfully!</p>
+                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">{successMessage}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowSuccessToast(false)}
+                    className="text-[#047857] hover:text-[#065f46] bg-transparent border-0 font-bold text-lg cursor-pointer px-2"
+                    aria-label="Close message"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               {/* Profile Card Header */}
               <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-4">
-                  <div className="h-20 w-20 rounded-full overflow-hidden border border-[#2D3748] flex items-center justify-center bg-[#f8fafc]">
+                  {/* Interactive Avatar for direct photo update */}
+                  <div
+                    className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center relative group cursor-pointer border-2 border-white shadow-sm transition-all duration-200"
+                    onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    title="Click to update profile photo"
+                  >
                     {profile.profilePhoto ? (
                       <img
                         src={profile.profilePhoto}
@@ -416,13 +491,34 @@ function ResidentProfile({ onOpenHelp }) {
                         className="w-full h-full object-cover"
                       />
                     )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[11px] font-medium transition-all duration-200">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                      <span>Update</span>
+                    </div>
                   </div>
+                  <input
+                    type="file"
+                    ref={directPhotoInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleDirectPhotoUpload}
+                  />
+
                   <div className="flex flex-col text-left">
                     <h3 className="m-0 mb-1 text-[20px] font-bold text-[#1B365D]">
                       {profile.firstName} {profile.lastName}
                     </h3>
                     <span className="text-[14px] text-[#64748b] font-medium">
                       {profile.nic}
+                    </span>
+                    <span 
+                      className="text-[12px] text-[#2563eb] hover:underline cursor-pointer font-medium mt-0.5"
+                      onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    >
+                      📷 Change profile photo
                     </span>
                   </div>
                 </div>

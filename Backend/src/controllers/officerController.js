@@ -615,8 +615,7 @@ exports.createAnnouncement = async (req, res) => {
         const annNumber = generateAnnouncementNumber();
         const today = new Date().toISOString().split('T')[0];
 
-        const validTypes = ['HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER'];
-        const annType = validTypes.includes(type.toUpperCase()) ? type.toUpperCase() : 'OTHER';
+        const annType = type ? type.toUpperCase() : 'GENERAL';
         const annPriority = ['LOW', 'MEDIUM', 'HIGH'].includes((priority || '').toUpperCase())
             ? priority.toUpperCase() : 'MEDIUM';
 
@@ -675,8 +674,7 @@ exports.updateAnnouncement = async (req, res) => {
             }
         }
 
-        const validTypes = ['HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER'];
-        const annType = type && validTypes.includes(type.toUpperCase()) ? type.toUpperCase() : null;
+        const annType = type ? type.toUpperCase() : null;
 
         const updates = [];
         const values = [];

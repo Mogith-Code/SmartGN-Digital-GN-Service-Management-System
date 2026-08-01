@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
+import { encryptId } from "../utils/encryption";
 import Footer from "../Components/Common/Footer";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
@@ -379,7 +380,19 @@ function OfficerCertificates({ onOpenHelp }) {
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                           <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        <strong>{item.name}</strong>
+                        <strong
+                          className="cursor-pointer text-[#1B365D] hover:text-[#005BBD] hover:underline flex items-center gap-1.5"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (item.nic || item.resident_nic) {
+                              navigate(`/OfficerDashboard/ResidentsDetails/profile/${encryptId(item.nic || item.resident_nic)}`);
+                            }
+                          }}
+                          title="Click to view resident profile details"
+                        >
+                          {item.name}
+                          <span className="text-[11px] font-normal text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">👤 View Profile</span>
+                        </strong>
                       </span>
                       <span className="flex items-center gap-1.5">
                         <svg

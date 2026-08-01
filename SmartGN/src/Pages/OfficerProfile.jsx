@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import Footer from "../Components/Common/Footer";
@@ -19,6 +19,13 @@ function OfficerProfile({ onOpenHelp }) {
 
   // Banner display toggle
   const [showAlert, setShowAlert] = useState(true);
+
+  // Success Toast Notification state
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Direct Photo Upload ref for VIEW mode
+  const directPhotoInputRef = useRef(null);
 
   // View modes: 'VIEW' | 'EDIT'
   const [viewMode, setViewMode] = useState("VIEW");
@@ -48,6 +55,55 @@ function OfficerProfile({ onOpenHelp }) {
   const [editProfilePhoto, setEditProfilePhoto] = useState(null);
   const [editIdCardFront, setEditIdCardFront] = useState(null);
   const [editIdCardBack, setEditIdCardBack] = useState(null);
+
+  // Direct Photo Upload helper (VIEW mode)
+  const handleDirectPhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      const optimistic = { ...profile, profilePhoto: base64 };
+      setProfile(optimistic);
+
+      try {
+        const token = localStorage.getItem("smartgn_token");
+        const response = await fetch("/api/officer/profile", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName: profile.firstName || "Officer",
+            lastName: profile.lastName || "User",
+            fullName: profile.fullName || "GN Officer",
+            email: profile.email || "officer@example.com",
+            mobile: profile.mobile || "0700000000",
+            profilePhoto: base64,
+          }),
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          const savedPath = resData.profile_photo_path || base64;
+          const finalProfile = { ...optimistic, profilePhoto: savedPath };
+          setProfile(finalProfile);
+          localStorage.setItem("smartgn_officer_profile", JSON.stringify(finalProfile));
+          window.dispatchEvent(new Event("profileUpdated"));
+          setSuccessMessage("Profile photo updated successfully!");
+          setShowSuccessToast(true);
+        } else {
+          const err = await response.json();
+          alert(err.error || "Failed to update profile photo.");
+        }
+      } catch (err) {
+        console.error("Direct photo upload error:", err);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Initialize and load from API
   useEffect(() => {
@@ -243,7 +299,8 @@ function OfficerProfile({ onOpenHelp }) {
         editFullName || `${editFirstName} ${editLastName}`,
       );
 
-      alert(data.message || "Profile updated successfully!");
+      setSuccessMessage("Officer profile information and photos updated successfully!");
+      setShowSuccessToast(true);
     } catch (error) {
       console.error("Error updating profile:", error);
       alert(error.message || "Failed to update profile. Please try again.");
@@ -308,22 +365,36 @@ function OfficerProfile({ onOpenHelp }) {
                 </div>
               </div>
 
+              {/* Profile Update Success Banner / Toast */}
+              {showSuccessToast && (
+                <div className="mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 p-4 bg-[#ecfdf5] border border-[#a7f3d0] rounded-2xl flex items-center justify-between text-[#065f46] shadow-sm animate-fade-in">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#10b981] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                      ✓
+                    </div>
+                    <div>
+                      <p className="font-bold text-[16px] m-0 text-[#065f46]">Profile Updated Successfully!</p>
+                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">{successMessage}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowSuccessToast(false)}
+                    className="text-[#047857] hover:text-[#065f46] bg-transparent border-0 font-bold text-lg cursor-pointer px-2"
+                    aria-label="Close message"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
               <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "20px" }}
                 >
                   <div
-                    style={{
-                      width: "64px",
-                      height: "64px",
-                      borderRadius: "50%",
-                      backgroundColor: "#cbd5e1",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyItems: "center",
-                      overflow: "hidden",
-                      border: "2.5px solid #ffffff",
-                    }}
+                    className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center relative group cursor-pointer border-2 border-white shadow-sm transition-all duration-200"
+                    onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    title="Click to update profile photo"
                   >
                     {profile.profilePhoto ? (
                       <img
@@ -349,7 +420,22 @@ function OfficerProfile({ onOpenHelp }) {
                         <circle cx="12" cy="7" r="4"></circle>
                       </svg>
                     )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-medium transition-all duration-200">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                      <span>Update</span>
+                    </div>
                   </div>
+                  <input
+                    type="file"
+                    ref={directPhotoInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleDirectPhotoUpload}
+                  />
+
                   <div style={{ textAlign: "left" }}>
                     <h3
                       style={{
@@ -371,6 +457,14 @@ function OfficerProfile({ onOpenHelp }) {
                     >
                       {profile.division}
                     </span>
+                    <div>
+                      <span
+                        className="text-[12px] text-[#2563eb] hover:underline cursor-pointer font-medium mt-1 inline-block"
+                        onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                      >
+                        📷 Change profile photo
+                      </span>
+                    </div>
                   </div>
                 </div>
 

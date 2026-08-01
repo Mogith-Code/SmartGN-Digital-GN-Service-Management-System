@@ -6,6 +6,7 @@ import loginIcon from "../../assets/login_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24
 import registerIcon from "../../assets/how_to_reg_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import helpIcon from "../../assets/contact_support_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
+import ChatbotButton from "../Common/ChatbotButton";
 
 function Home({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -77,53 +78,58 @@ function Home({ onOpenHelp }) {
         {/* ================================================================ */}
         {/* BUTTON CONTAINER SECTION */}
         {/* ================================================================ */}
+        {/* Action Buttons */}
         <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-5 mt-2 sm:mt-3 md:mt-4">
-          {/* ============================================================== */}
-          {/* LOGIN BUTTON */}
-          {/* ============================================================== */}
-          <button
-            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
-            onClick={() => navigate("/login")}
-          >
-            <span>{t.login}</span>
-            <img
-              src={loginIcon}
-              alt="Login Icon"
-              className="w-4 h-4 sm:w-5 sm:h-5"
-            />
-          </button>
+          {localStorage.getItem("smartgn_token") ? (
+            <button
+              className="flex items-center justify-center gap-2 px-8 py-3 bg-[#005BBD] text-white font-semibold text-base rounded-2xl hover:bg-[#1B365D] transition-all shadow-md cursor-pointer"
+              onClick={() => {
+                const role = localStorage.getItem("smartgn_user_role");
+                if (role === "OFFICER" || role === "GN") {
+                  navigate("/OfficerDashboard");
+                } else if (role === "ADMIN") {
+                  navigate("/dashboard/admin");
+                } else {
+                  navigate("/ResidentDashboard");
+                }
+              }}
+            >
+              <span>Go to My Dashboard ➔</span>
+            </button>
+          ) : (
+            <>
+              {/* LOGIN BUTTON */}
+              <button
+                className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#1B365D] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#005BBD] transition-all duration-300 cursor-pointer w-full sm:w-auto"
+                onClick={() => navigate("/login")}
+              >
+                <span>{t.login}</span>
+                <img
+                  src={loginIcon}
+                  alt="Login Icon"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                />
+              </button>
 
-          {/* ============================================================== */}
-          {/* REGISTER BUTTON */}
-          {/* ============================================================== */}
-          <button
-            className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
-            onClick={() => navigate("/register")}
-          >
-            <span>{t.register}</span>
-            <img
-              src={registerIcon}
-              alt="Register Icon"
-              className="w-4 h-4 sm:w-5 sm:h-5"
-            />
-          </button>
+              {/* REGISTER BUTTON */}
+              <button
+                className="flex items-center justify-center gap-2 sm:gap-2.5 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-[50px] py-2 sm:py-2.5 bg-[#D69E2E] shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-[#F7FAFC] font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl hover:bg-[#FFAA00] transition-all duration-300 cursor-pointer w-full sm:w-auto"
+                onClick={() => navigate("/register")}
+              >
+                <span>{t.register}</span>
+                <img
+                  src={registerIcon}
+                  alt="Register Icon"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* ================================================================ */}
-      {/* FLOATING HELP BUTTON - Fixed position at bottom right corner */}
-      {/* ================================================================ */}
-      <button
-        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 bg-[#D69E2E] p-2 sm:p-2.5 md:p-3 rounded-full cursor-pointer flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] transition-all duration-200 hover:bg-[#FFAA00] z-50 group"
-        aria-label="Help Center"
-        onClick={handleHelpClick}
-      >
-        <img
-          src={helpIcon}
-          alt="Help Icon"
-          className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-[30px] lg:w-[30px] transition-transform duration-200 group-hover:scale-110"
-        />
-      </button>
+      {/* FLOATING AI ASSISTANT CHATBOT BUTTON */}
+      <ChatbotButton onOpenHelp={handleHelpClick} />
     </section>
   );
 }

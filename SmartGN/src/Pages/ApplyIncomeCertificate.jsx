@@ -25,8 +25,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
 
   // Form Field States
   const [fullName, setFullName] = useState(successUser);
-  const [gnDivisionNumber, setGnDivisionNumber] = useState("");
+  const [gnDivisionNumber, setGnDivisionNumber] = useState(userDivision);
   const [address, setAddress] = useState("");
+  const [signatureUrl, setSignatureUrl] = useState("");
 
   // Income stream
   const [incomeStream, setIncomeStream] = useState("Laborer"); // Paddy, Business, Laborer
@@ -209,6 +210,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         hoursWorked,
         monthlyIncome,
         laborerAnnualIncome,
+        signatureUrl,
       };
 
       // ALWAYS add to resident certificates store
@@ -940,6 +942,37 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                     onChange={(e) => setPurpose(e.target.value)}
                     required
                   />
+                </div>
+
+                {/* Resident Signature Upload Section */}
+                <div className="flex flex-col md:col-span-2 mt-4 p-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-left">
+                  <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
+                    Upload Resident Signature <span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-[12px] text-slate-500 mb-3">
+                    Please upload a clear image of your signature for Grama Niladhari verification.
+                  </p>
+                  
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => setSignatureUrl(reader.result);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                  />
+
+                  {signatureUrl && (
+                    <div className="mt-3 p-2 bg-white border border-slate-200 rounded-lg flex items-center gap-3 w-fit">
+                      <img src={signatureUrl} alt="Signature Preview" className="h-12 max-w-[140px] object-contain border border-slate-300 rounded p-1 bg-slate-50" />
+                      <span className="text-xs font-semibold text-emerald-600">✓ Signature Uploaded</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
