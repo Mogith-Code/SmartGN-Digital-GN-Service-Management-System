@@ -29,4 +29,7 @@ router.get('/resident-stats', officerController.getResidentStats);
 // Get all residents for officer's division
 router.get('/residents', officerController.getResidents);
 
+// ✅ NEW: Get single resident by NIC with photo
+router.get('/residents/:nic', officerController.getResidentByNic);
+
 module.exports = router;

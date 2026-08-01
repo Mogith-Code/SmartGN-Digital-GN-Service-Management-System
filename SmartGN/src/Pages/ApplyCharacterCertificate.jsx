@@ -6,6 +6,7 @@ import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
 import { addNotification } from "../utils/notifications";
 import logo from "../assets/logo.png";
+import backIcon from "../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
 function ApplyCharacterCertificate({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -225,7 +226,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         const resData = await response.json();
         if (resData.certificateNumber || resData.request_id) {
           newRequest.id = resData.request_id || resData.certificateNumber;
-          newRequest.request_id = resData.request_id || resData.certificateNumber;
+          newRequest.request_id =
+            resData.request_id || resData.certificateNumber;
         }
       }
     } catch (err) {
@@ -257,45 +259,35 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         submittedDate: new Date().toLocaleDateString(),
       },
     });
-
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       {/* 1. Header */}
       <AfterlogNavbar />
+      <div className="flex flex-col md:flex-row gap-0 md:gap-[20px] flex-1">
+        <div className="hidden md:block bg-[#FFFFFF]">
+          <RSidebar />
+        </div>
 
-      {/* 2. Main Layout */}
-      <div className="flex flex-1 w-full">
-        {/* Sidebar Nav */}
-        <RSidebar />
+        <div className="w-full bg-[#FFFFFF] border-l-0 md:border-l border-[#2D37482D]">
+          {/* Back Button */}
+          <div
+            className="flex px-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
+            onClick={() => navigate("/ResidentDashboard/certificates")}
+          >
+            <img
+              src={backIcon}
+              alt="backIcon"
+              className="w-[14px] sm:w-[16px]"
+            />
+            back
+          </div>
 
-        {/* Main Panel Content */}
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
-          {/* Back button */}
-          <div className="flex justify-between items-center mb-4">
-            <button
-              className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
-              onClick={() =>
-                navigate("/ResidentDashboard/certificates", {
-                  state: { successUser, division: userDivision },
-                })
-              }
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-              >
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-              Back
-            </button>
-
+          <div className="flex items-center border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] justify-between">
+            <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] ">
+              Application for Character Certificates
+            </div>
             <button
               type="button"
               className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm"
@@ -316,13 +308,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
             </button>
           </div>
 
-          {/* Heading */}
-          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
-            Application for Character Certificates
-          </h2>
-
           {/* Form Container Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-8 flex flex-col">
+          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] m-[30px] flex flex-col">
             {/* Warning block note */}
             <div className="flex items-center justify-between py-4 px-6 bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-semibold text-[14px] mb-6 text-left">
               <span>
@@ -770,7 +757,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               <div className="flex justify-end gap-4 mt-8">
                 <button
                   type="button"
-                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5"
+                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] flex items-center gap-1.5"
                   onClick={handleReset}
                 >
                   Reset
@@ -788,7 +775,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
 
                 <button
                   type="submit"
-                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-md"
+                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-md shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
                 >
                   Submit
                   <svg
@@ -806,18 +793,17 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               </div>
             </form>
           </div>
-
-          {/* Floating Help Trigger */}
-          <button
-            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-            aria-label="Help Trigger"
-            onClick={onOpenHelp}
-          >
-            ?
-          </button>
-        </main>
+        </div>
       </div>
 
+      {/* Floating Help Trigger */}
+      <button
+        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
+        aria-label="Help Trigger"
+        onClick={onOpenHelp}
+      >
+        ?
+      </button>
       {/* 3. Footer */}
       <Footer />
 
@@ -843,30 +829,23 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               {/* Paper Layout representation */}
               <div className="bg-white mx-auto border-2 border-slate-300 shadow-md p-10 max-w-[800px] text-left font-serif text-[#1e293b] leading-relaxed relative min-h-[1050px]">
                 {/* Official Branding Header */}
-                <div className="flex flex-col items-center justify-center mb-6 text-center font-sans">
+                <div className="flex flex-col items-center justify-center pb-[10px] border-b double border-slate-400 mb-[10px] text-center font-sans">
                   <img
                     src={logo}
                     alt="SmartGN Logo"
-                    className="h-14 mb-2 object-contain"
+                    className="h-10 object-contain"
                   />
-                  <h1 className="text-[20px] font-extrabold uppercase text-[#1B365D] tracking-wider m-0">
-                    SmartGN
-                  </h1>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
-                    Digital Grama Niladhari Service Management System
-                  </span>
-                  <div className="w-full border-b-[3px] double border-slate-400 mt-4"></div>
                 </div>
 
-                <div className="text-center mb-8 font-sans">
-                  <h2 className="text-[17px] font-bold text-slate-800 m-0 uppercase tracking-wide">
+                <div className=" mb-[30px] pb-[5px] border-b double border-slate-400 font-sans">
+                  <h2 className=" text-center text-[16px] font-bold text-slate-800 uppercase tracking-wide">
                     Certificate on Residence and Character issued by the Grama
                     Niladhari
                   </h2>
                   <span className="text-[12px] font-medium text-slate-500 block mt-1">
                     Certificate ID: DRAFT-CC-PREVIEW
                   </span>
-                  <p className="text-[11px] italic text-slate-500 max-w-xl mx-auto mt-2 font-serif leading-normal">
+                  <p className="text-[11px] italic text-slate-500 mt-2 font-serif leading-normal">
                     This certificate is issued by the Grama Niladhari of the
                     division in which the applicant resides and is valid only
                     for 06 months from the date of issue.

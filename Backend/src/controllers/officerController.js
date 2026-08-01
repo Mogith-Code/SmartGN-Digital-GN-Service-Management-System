@@ -396,6 +396,111 @@ exports.getOfficerDashboardStats = async (req, res) => {
 };
 
 // ============================================================
+// GET SINGLE RESIDENT DETAILS WITH PHOTO AND NIC IMAGES
+// ============================================================
+exports.getResidentByNic = async (req, res) => {
+    const user = req.user;
+    const { nic } = req.params;
+    
+    if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
+        return res.status(403).json({ error: 'Access denied. Officers/Admins only.' });
+    }
+
+    try {
+        let divisionId = null;
+
+        // Get officer's division ID
+        if (user.role === 'OFFICER') {
+            const [officer] = await db.query(
+                'SELECT division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
+            );
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            
+            divisionId = officer[0].division_id;
+        }
+
+        // Get resident details with ALL image fields
+        const [rows] = await db.query(`
+            SELECT 
+                r.r_nic AS nic,
+                r.first_name,
+                r.last_name,
+                r.full_name AS name,
+                r.email,
+                r.mobile_no,
+                r.occupation,
+                r.household_number,
+                r.home_address AS address,
+                r.profile_photo_path,
+                r.nic_front_path,
+                r.nic_back_path,
+                r.status,
+                r.date_of_birth AS dob,
+                r.gender,
+                r.created_at,
+                d.name AS division_name,
+                d.division_id
+            FROM resident r
+            LEFT JOIN gn_division d ON r.division_id = d.division_id
+            WHERE r.r_nic = ?
+        `, [nic]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Resident not found.' });
+        }
+
+        // If officer, verify the resident belongs to their division
+        if (user.role === 'OFFICER' && divisionId) {
+            const residentDivisionId = rows[0].division_id;
+            if (residentDivisionId && residentDivisionId !== divisionId) {
+                return res.status(403).json({ 
+                    error: 'Access denied. This resident does not belong to your division.' 
+                });
+            }
+        }
+
+        const resident = rows[0];
+        
+        // ✅ Log all image paths for debugging
+        console.log('📸 Resident photo path:', resident.profile_photo_path);
+        console.log('📸 NIC Front path:', resident.nic_front_path);
+        console.log('📸 NIC Back path:', resident.nic_back_path);
+        
+        return res.json({
+            success: true,
+            data: {
+                ...resident,
+                // Profile photo
+                profile_photo_path: resident.profile_photo_path || null,
+                profilePhoto: resident.profile_photo_path || null,
+                // NIC images
+                nic_front_path: resident.nic_front_path || null,
+                nicFront: resident.nic_front_path || null,
+                nic_back_path: resident.nic_back_path || null,
+                nicBack: resident.nic_back_path || null,
+                // Additional aliases for frontend compatibility
+                nic_photo_front: resident.nic_front_path || null,
+                nic_photo_back: resident.nic_back_path || null,
+                front_photo: resident.nic_front_path || null,
+                back_photo: resident.nic_back_path || null
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching resident:', error);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Server error fetching resident details.',
+            details: error.message 
+        });
+    }
+};
+
+// ============================================================
 // ANNOUNCEMENT FUNCTIONS
 // ============================================================
 
@@ -704,7 +809,6 @@ exports.getResidentStats = async (req, res) => {
             totalFamilies = householdCount[0]?.count || 0;
 
             // ✅ 3. Total Beneficiaries - Count from allowance_approved table
-            // All records in allowance_approved are approved by default
             const [beneficiaryCount] = await db.query(`
                 SELECT COUNT(DISTINCT aa.resident_nic) AS count 
                 FROM allowance_approved aa

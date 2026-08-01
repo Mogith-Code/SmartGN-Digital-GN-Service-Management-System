@@ -125,42 +125,36 @@ function Services() {
 
   const t = STranslations[lang] || STranslations.EN;
 
-  // Navigation handler functions
-  const handleRequestCertificates = () => {
-    navigate("/ResidentDashboard/certificates");
-    // navigate("/services/request-certificates");
-  };
-
-  const handleBookAppointments = () => {
-    navigate("/ResidentDashboard/RAppointment");
-    // navigate("/services/book-appointments");
-  };
-
-  const handleTrackRequests = () => {
-    navigate("/ResidentDashboard");
-    // navigate("/services/track-requests");
-  };
-
-  const handleApplyAllowances = () => {
-    navigate("/dashboard/resident/allowances");
-    // navigate("/services/apply-for-allowances");
-  };
-
-  const handleDisasterRelief = () => {
-    console.log("Navigating to Disaster Relief page");
-    // navigate("/services/disaster-relief");
-  };
-
-  const handleAnnouncements = () => {
+  // Unified Navigation Handler for Landing Page Service Cards
+  const navigateService = (targetPath) => {
     const token = localStorage.getItem("smartgn_token");
     const role = localStorage.getItem("smartgn_user_role");
-    if (token && role === "RESIDENT") {
-      navigate("/ResidentDashboard");
+
+    if (!token) {
+      navigate("/login", { state: { redirectReason: "Please log in to access this service." } });
+      return;
+    }
+
+    if (role === "OFFICER" || role === "GN") {
+      if (targetPath.includes("certificates")) navigate("/OfficerDashboard/Certificates");
+      else if (targetPath.includes("Appointment")) navigate("/OfficerDashboard/OfficerAppointment");
+      else if (targetPath.includes("allowances")) navigate("/OfficerDashboard/allowances");
+      else if (targetPath.includes("disaster")) navigate("/OfficerDashboard/disasters");
+      else navigate("/OfficerDashboard");
+    } else if (role === "ADMIN") {
+      navigate("/dashboard/admin");
     } else {
-      alert("Please log in to view announcements.");
-      navigate("/login");
+      // Resident User
+      navigate(targetPath);
     }
   };
+
+  const handleRequestCertificates = () => navigateService("/ResidentDashboard/certificates");
+  const handleBookAppointments = () => navigateService("/ResidentDashboard/RAppointment");
+  const handleTrackRequests = () => navigateService("/ResidentDashboard/certificates/pending");
+  const handleApplyAllowances = () => navigateService("/ResidentDashboard/allowances");
+  const handleDisasterRelief = () => navigateService("/ResidentDashboard/disaster-relief");
+  const handleAnnouncements = () => navigateService("/ResidentDashboard");
 
   const servicesCard = [
     {

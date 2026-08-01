@@ -61,7 +61,7 @@ function ResidentDashboardLayout({
         {/* NIC upload alert */}
         <div className="flex justify-end -mt-[70px]">
           {showAlert && profile.nic && (
-            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
               <div className="flex items-center gap-2">
                 <span
                   className="hover:underline hover:cursor-pointer"
@@ -106,7 +106,7 @@ function ResidentDashboardLayout({
       </div>
 
       {/* ── Quick Actions ── */}
-      <div className="flex mx-[30px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px]">
+      <div className="flex mx-[30px] justify-center border border-[#2D37482D] rounded-[15px] bg-[#FDF5E6] mt-[30px] p-[20px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <QuickActions />
       </div>
 
@@ -142,7 +142,7 @@ function ResidentDashboardLayout({
       )}
 
       {/* ── Announcements ── */}
-      <div className="flex mx-[30px] border border-[#2D37482D] rounded-[15px] my-[30px] p-[20px]">
+      <div className="flex mx-[30px] border border-[#2D37482D] rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] my-[30px] p-[20px]">
         <Announcements announcements={announcements} />
       </div>
     </>

@@ -20,16 +20,27 @@ function ResidentProfile({ onOpenHelp }) {
       alert:
         "Please upload a high-quality image of your National Identity Card",
       title: "My profile",
+      updateSuccess: "Profile updated successfully!",
+      updateError: "Failed to update profile. Please try again.",
+      fillRequired: "Please fill in all required fields.",
     },
     SI: {
       alert:
         "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් කාඩ්පතේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
       title: "මගේ පැතිකඩ",
+      updateSuccess: "පැතිකඩ සාර්ථකව යාවත්කාලීන කරන ලදී!",
+      updateError:
+        "පැතිකඩ යාවත්කාලීන කිරීමට අසමත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+      fillRequired: "කරුණාකර සියලු අවශ්‍ය ක්ෂේත්‍ර පුරවන්න.",
     },
     TA: {
       alert:
         "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிවේற்றவும்",
       title: "என் சுயவிவரம்",
+      updateSuccess: "சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
+      updateError:
+        "சுயவிவரத்தை புதுப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+      fillRequired: "தயவுசெய்து தேவையான அனைத்து புலங்களையும் நிரப்பவும்.",
     },
   };
 
@@ -38,7 +49,6 @@ function ResidentProfile({ onOpenHelp }) {
   // Retrieve default username and division from navigation state if available
   const successUser = location.state?.successUser || "Nimal Perera";
   const userDivision = location.state?.division || "Colombo";
-  const firstNameFromSession = successUser.split(" ")[0];
 
   // State to manage dismissing the alert banner
   const [showAlert, setShowAlert] = useState(true);
@@ -79,15 +89,16 @@ function ResidentProfile({ onOpenHelp }) {
   const [editOccupation, setEditOccupation] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editMobile, setEditMobile] = useState("");
-  const [editHomeAddress, setEditHomeAddress] = useState(""); // ✅ Fixed: Changed from editAddress
+  const [editHomeAddress, setEditHomeAddress] = useState("");
   const [editDob, setEditDob] = useState("");
   const [editGender, setEditGender] = useState("");
   const [editHouseholdNumber, setEditHouseholdNumber] = useState("");
   const [editProfilePhoto, setEditProfilePhoto] = useState(null);
   const [editNicFront, setEditNicFront] = useState(null);
   const [editNicBack, setEditNicBack] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ✅ Family count - Fetch from API instead of localStorage
+  // Family count - Fetch from API instead of localStorage
   const [familyCount, setFamilyCount] = useState(0);
 
   // Load profile from API
@@ -136,7 +147,7 @@ function ResidentProfile({ onOpenHelp }) {
 
     fetchProfile();
 
-    // ✅ Fetch family members count from API
+    // Fetch family members count from API
     const fetchFamilyCount = async () => {
       try {
         const res = await fetch("/api/residents/family", {
@@ -167,6 +178,11 @@ function ResidentProfile({ onOpenHelp }) {
     fetchFamilyCount();
   }, []);
 
+  // ✅ Check if NIC images are missing - used for alert
+  const areNicImagesMissing = () => {
+    return !profile.nicFront || !profile.nicBack;
+  };
+
   // Populate form fields when entering Edit Mode
   const handleEnterEdit = () => {
     setEditFirstName(profile.firstName);
@@ -175,7 +191,7 @@ function ResidentProfile({ onOpenHelp }) {
     setEditOccupation(profile.occupation);
     setEditEmail(profile.email);
     setEditMobile(profile.mobile);
-    setEditHomeAddress(profile.homeAddress); // ✅ Fixed: Using editHomeAddress
+    setEditHomeAddress(profile.homeAddress);
     setEditDob(profile.dob);
     setEditGender(profile.gender);
     setEditHouseholdNumber(profile.householdNumber);
@@ -183,12 +199,21 @@ function ResidentProfile({ onOpenHelp }) {
     setEditNicFront(profile.nicFront);
     setEditNicBack(profile.nicBack);
     setViewMode("EDIT");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Handle Photo File Upload Convert to Base64
   const handlePhotoUpload = (e, target) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size should be less than 5MB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         if (target === "profilePhoto") {
@@ -228,7 +253,10 @@ function ResidentProfile({ onOpenHelp }) {
           const photoUrl = serverData.profile_photo_path || base64;
           const finalProfile = { ...optimisticProfile, profilePhoto: photoUrl };
           setProfile(finalProfile);
-          localStorage.setItem("smartgn_resident_profile", JSON.stringify(finalProfile));
+          localStorage.setItem(
+            "smartgn_resident_profile",
+            JSON.stringify(finalProfile),
+          );
           window.dispatchEvent(new Event("profileUpdated"));
           setSuccessMessage("Profile photo updated successfully!");
           setShowSuccessToast(true);
@@ -244,82 +272,125 @@ function ResidentProfile({ onOpenHelp }) {
     reader.readAsDataURL(file);
   };
 
+  // Remove uploaded photo
+  const handleRemovePhoto = (target) => {
+    if (target === "profilePhoto") {
+      setEditProfilePhoto(null);
+    } else if (target === "nicFront") {
+      setEditNicFront(null);
+    } else if (target === "nicBack") {
+      setEditNicBack(null);
+    }
+  };
+
   // Save changes
   const handleSaveProfile = async (e) => {
     e.preventDefault();
 
-    // ✅ Create updated profile object with correct field names
-    const updatedProfile = {
-      ...profile,
+    if (!editFirstName || !editLastName || !editEmail || !editMobile) {
+      alert(t.fillRequired);
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const updateData = {
       firstName: editFirstName,
       lastName: editLastName,
       fullName: editFullName,
-      occupation: editOccupation,
-      email: editEmail,
       mobile: editMobile,
+      occupation: editOccupation,
       homeAddress: editHomeAddress,
       dob: editDob,
       gender: editGender,
       householdNumber: editHouseholdNumber,
-      profilePhoto: editProfilePhoto,
-      nicFront: editNicFront,
-      nicBack: editNicBack,
+      profilePhoto: editProfilePhoto || null,
+      nicFront: editNicFront || null,
+      nicBack: editNicBack || null,
     };
 
-    // Save to localStorage immediately
-    localStorage.setItem(
-      "smartgn_resident_profile",
-      JSON.stringify(updatedProfile),
-    );
-    setProfile(updatedProfile);
-    window.dispatchEvent(new Event("profileUpdated"));
+    console.log("📤 Updating profile:", {
+      ...updateData,
+      profilePhoto: updateData.profilePhoto
+        ? "✅ Image present"
+        : "❌ Image removed (null)",
+      nicFront: updateData.nicFront
+        ? "✅ Image present"
+        : "❌ Image removed (null)",
+      nicBack: updateData.nicBack
+        ? "✅ Image present"
+        : "❌ Image removed (null)",
+    });
 
-    // ✅ Also save to API with correct field names including images
     try {
       const response = await fetch("/api/residents/profile", {
         method: "PUT",
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-          firstName: editFirstName,
-          lastName: editLastName,
-          fullName: editFullName,
-          mobile: editMobile,
-          occupation: editOccupation,
-          homeAddress: editHomeAddress,
-          profilePhoto: editProfilePhoto,
-          nicFront: editNicFront,
-          nicBack: editNicBack,
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("API Error:", errorData);
-        alert(errorData.error || "Failed to update profile. Please try again.");
+        console.error("❌ API Error:", errorData);
+        alert(errorData.error || t.updateError);
+        setIsSubmitting(false);
         return;
       }
 
-      const serverData = await response.json();
-      if (serverData) {
-        const serverMapped = {
-          ...updatedProfile,
-          profilePhoto: serverData.profile_photo_path || updatedProfile.profilePhoto,
-          nicFront: serverData.nic_front_path || updatedProfile.nicFront,
-          nicBack: serverData.nic_back_path || updatedProfile.nicBack,
+      const data = await response.json();
+      console.log("✅ Profile update response:", data);
+
+      if (data.success) {
+        const updatedProfile = {
+          ...profile,
+          firstName: data.data?.first_name || editFirstName,
+          lastName: data.data?.last_name || editLastName,
+          fullName: data.data?.full_name || editFullName,
+          occupation: data.data?.occupation || editOccupation,
+          email: data.data?.email || editEmail,
+          mobile: data.data?.mobile_no || editMobile,
+          homeAddress: data.data?.home_address || editHomeAddress,
+          dob: data.data?.date_of_birth || editDob || profile.dob,
+          gender: data.data?.gender || editGender || profile.gender,
+          householdNumber:
+            data.data?.household_number ||
+            editHouseholdNumber ||
+            profile.householdNumber,
+          division: data.data?.division_name || profile.division,
+          nic: data.data?.r_nic || profile.nic,
+          profilePhoto: data.data?.profile_photo_path || null,
+          nicFront: data.data?.nic_front_path || null,
+          nicBack: data.data?.nic_back_path || null,
         };
-        setProfile(serverMapped);
+
+        setProfile(updatedProfile);
         localStorage.setItem(
           "smartgn_resident_profile",
-          JSON.stringify(serverMapped)
+          JSON.stringify(updatedProfile),
         );
-      }
 
-      setSuccessMessage("Your profile information and photo have been updated successfully!");
-      setShowSuccessToast(true);
-      setViewMode("VIEW");
+        setEditProfilePhoto(updatedProfile.profilePhoto);
+        setEditNicFront(updatedProfile.nicFront);
+        setEditNicBack(updatedProfile.nicBack);
+
+        if (updatedProfile.nicFront && updatedProfile.nicBack) {
+          setShowAlert(false);
+        } else {
+          setShowAlert(true);
+        }
+
+        setSuccessMessage(
+          "Your profile information and photo have been updated successfully!",
+        );
+        setShowSuccessToast(true);
+        setViewMode("VIEW");
+        window.dispatchEvent(new Event("profileUpdated"));
+      }
     } catch (err) {
-      console.error("Could not sync profile update to API:", err);
-      alert("Network error. Profile saved locally but not synced to server.");
+      console.error("❌ Error updating profile:", err);
+      alert(err.message || t.updateError);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -343,10 +414,10 @@ function ResidentProfile({ onOpenHelp }) {
                   {t.title}
                 </h2>
 
-                {/* NIC upload alert */}
+                {/* ✅ NIC upload alert - Check if NIC images are missing */}
                 <div className="flex justify-end -mt-[70px]">
-                  {showAlert && profile.nic && (
-                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+                  {showAlert && areNicImagesMissing() && (
+                    <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                       <div className="flex items-center gap-2">
                         <span
                           className="hover:underline hover:cursor-pointer"
@@ -389,8 +460,12 @@ function ResidentProfile({ onOpenHelp }) {
                       ✓
                     </div>
                     <div>
-                      <p className="font-bold text-[16px] m-0 text-[#065f46]">Profile Updated Successfully!</p>
-                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">{successMessage}</p>
+                      <p className="font-bold text-[16px] m-0 text-[#065f46]">
+                        Profile Updated Successfully!
+                      </p>
+                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">
+                        {successMessage}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -404,12 +479,15 @@ function ResidentProfile({ onOpenHelp }) {
               )}
 
               {/* Profile Card Header */}
-              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px]">
+              <div className="flex justify-between items-center p-[20px] bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl m-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-4">
                   {/* Interactive Avatar for direct photo update */}
                   <div
                     className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center relative group cursor-pointer border-2 border-white shadow-sm transition-all duration-200"
-                    onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    onClick={() =>
+                      directPhotoInputRef.current &&
+                      directPhotoInputRef.current.click()
+                    }
                     title="Click to update profile photo"
                   >
                     {profile.profilePhoto ? (
@@ -426,7 +504,14 @@ function ResidentProfile({ onOpenHelp }) {
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[11px] font-medium transition-all duration-200">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                       </svg>
@@ -448,16 +533,19 @@ function ResidentProfile({ onOpenHelp }) {
                     <span className="text-[14px] text-[#64748b] font-medium">
                       {profile.nic}
                     </span>
-                    <span 
+                    <span
                       className="text-[12px] text-[#2563eb] hover:underline cursor-pointer font-medium mt-0.5"
-                      onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                      onClick={() =>
+                        directPhotoInputRef.current &&
+                        directPhotoInputRef.current.click()
+                      }
                     >
                       📷 Change profile photo
                     </span>
                   </div>
                 </div>
                 <button
-                  className="flex items-center gap-2 py-2.5 px-5 bg-white border border-[#d97706] rounded-full text-[#d97706] text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#d97706] hover:text-white"
+                  className="flex items-center gap-2 py-2.5 px-5 bg-white border border-[#d97706] rounded-full text-[#d97706] text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#d97706] hover:text-white shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
                   onClick={handleEnterEdit}
                 >
                   <svg
@@ -481,7 +569,7 @@ function ResidentProfile({ onOpenHelp }) {
               {/* Dynamic split panel for details and NIC */}
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 {/* Personal Information */}
-                <div className="border border-[#2D37484D] rounded-2xl p-[20px] text-left">
+                <div className="border border-[#2D37484D] rounded-2xl p-[20px] text-left shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     Personal information
                   </h3>
@@ -498,7 +586,7 @@ function ResidentProfile({ onOpenHelp }) {
                       <span className="text-[12px] text-[#64748b] font-bold uppercase mb-1">
                         Number of Family Members:
                       </span>
-                      <span className="text-[15px] font-semibold text-[#1e293b]">
+                      <span className="text-[15px] font-semibold text-[#1e293b] ">
                         {familyCount}
                         &nbsp; &nbsp;
                         <span
@@ -510,7 +598,7 @@ function ResidentProfile({ onOpenHelp }) {
                               },
                             })
                           }
-                          className="cursor-pointer text-[#d97706] font-bold underline"
+                          className="cursor-pointer text-[#d97706] font-semibold hover:underline hover:font-bold"
                         >
                           View family details
                         </span>
@@ -583,19 +671,20 @@ function ResidentProfile({ onOpenHelp }) {
                   </div>
                 </div>
 
-                {/* National Identity Card Display */}
-                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left">
+                {/* National Identity Card Display - FIXED to show full images without cropping */}
+                <div className="border border-[#2D37484D] rounded-2xl p-6 text-left shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <h3 className="m-0 mb-5 text-[16px] font-bold text-[#1B365D] border-b border-[#f1f5f9] pb-3">
                     National Identity Card
                   </h3>
 
                   <div className="flex flex-col gap-5">
-                    <div className="h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden">
+                    {/* NIC Front - Using object-contain to show full image */}
+                    <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicFront ? (
                         <img
                           src={profile.nicFront}
                           alt="NIC Front"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-2"
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -604,12 +693,13 @@ function ResidentProfile({ onOpenHelp }) {
                       )}
                     </div>
 
-                    <div className="h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden">
+                    {/* NIC Back - Using object-contain to show full image */}
+                    <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicBack ? (
                         <img
                           src={profile.nicBack}
                           alt="NIC Back"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain p-2"
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -628,7 +718,7 @@ function ResidentProfile({ onOpenHelp }) {
             <>
               {/* Back Button */}
               <div
-                className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
+                className="flex px-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
                 onClick={() => setViewMode("VIEW")}
               >
                 <img
@@ -639,35 +729,49 @@ function ResidentProfile({ onOpenHelp }) {
                 back
               </div>
 
-              <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
+              <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
                 Edit your profile
               </div>
 
               {/* Image Upload Zone & Editor Form */}
-              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] mb-[30px]">
+              <div className="border border-[#2D37484D] rounded-2xl p-8 mx-[30px] my-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                 <form onSubmit={handleSaveProfile}>
                   {/* Circular profile image upload widget */}
                   <div className="flex flex-col items-center mb-6">
-                    <div className="w-24 h-24 rounded-full border-2 border-dashed border-[#cbd5e1] flex items-center justify-center overflow-hidden bg-[#f8fafc] relative cursor-pointer">
-                      {editProfilePhoto ? (
-                        <img
-                          src={editProfilePhoto}
-                          alt="Upload profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <svg
-                          width="48"
-                          height="48"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          className="text-[#cbd5e1]"
+                    <div className="relative w-24 h-24">
+                      <div className="w-24 h-24 rounded-full border-2 border-dashed border-[#cbd5e1] flex items-center justify-center overflow-hidden bg-[#f8fafc] hover:border-[#1B365D] transition-colors duration-200">
+                        {editProfilePhoto ? (
+                          <img
+                            src={editProfilePhoto}
+                            alt="Upload profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <svg
+                            width="48"
+                            height="48"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            className="text-[#cbd5e1]"
+                          >
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                          </svg>
+                        )}
+                      </div>
+
+                      {/* Remove button - positioned on top-right of the circle */}
+                      {editProfilePhoto && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePhoto("profilePhoto")}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white z-10"
+                          title="Remove photo"
                         >
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
+                          ✕
+                        </button>
                       )}
 
                       {/* Hidden file input */}
@@ -679,12 +783,20 @@ function ResidentProfile({ onOpenHelp }) {
                         onChange={(e) => handlePhotoUpload(e, "profilePhoto")}
                       />
                     </div>
+
                     <label
                       htmlFor="profilePhotoFile"
-                      className="mt-2 text-[13px] text-[#d97706] font-semibold cursor-pointer"
+                      className="mt-2 text-[13px] text-[#d97706] font-semibold cursor-pointer hover:text-[#b8860b] transition-colors"
                     >
-                      Upload your profile photo here
+                      {editProfilePhoto
+                        ? "Change profile photo"
+                        : "Upload your profile photo here"}
                     </label>
+                    {editProfilePhoto && (
+                      <span className="text-xs text-green-600 mt-1">
+                        ✅ Photo uploaded
+                      </span>
+                    )}
                   </div>
 
                   {/* Inputs Form Grid */}
@@ -703,6 +815,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editFirstName}
                         onChange={(e) => setEditFirstName(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -720,6 +833,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editLastName}
                         onChange={(e) => setEditLastName(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -737,6 +851,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editFullName}
                         onChange={(e) => setEditFullName(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -754,6 +869,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editOccupation}
                         onChange={(e) => setEditOccupation(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -771,6 +887,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -788,6 +905,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editMobile}
                         onChange={(e) => setEditMobile(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -819,9 +937,10 @@ function ResidentProfile({ onOpenHelp }) {
                         type="text"
                         id="address"
                         className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
-                        value={editHomeAddress} // ✅ Fixed: Using editHomeAddress
+                        value={editHomeAddress}
                         onChange={(e) => setEditHomeAddress(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -840,6 +959,7 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editDob}
                         onChange={(e) => setEditDob(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
 
@@ -857,6 +977,7 @@ function ResidentProfile({ onOpenHelp }) {
                           value={editGender}
                           onChange={(e) => setEditGender(e.target.value)}
                           required
+                          disabled={isSubmitting}
                         >
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
@@ -882,11 +1003,12 @@ function ResidentProfile({ onOpenHelp }) {
                         value={editHouseholdNumber}
                         onChange={(e) => setEditHouseholdNumber(e.target.value)}
                         required
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
 
-                  {/* NIC File Upload Area */}
+                  {/* NIC File Upload Area - FIXED to show full images */}
                   <div className="mt-7 border-t border-[#cbd5e1] pt-5">
                     <p className="font-semibold text-[14px] text-[#1e293b] mb-4 text-left">
                       Upload an image of your National Identity Card :
@@ -897,13 +1019,23 @@ function ResidentProfile({ onOpenHelp }) {
                         <span className="text-[13px] text-[#64748b] font-semibold mb-2 text-left">
                           Front Image :
                         </span>
-                        <div className="h-[150px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center relative overflow-hidden p-4">
+                        <div className="relative h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
                           {editNicFront ? (
-                            <img
-                              src={editNicFront}
-                              alt="NIC Front Preview"
-                              className="w-full h-full object-cover"
-                            />
+                            <>
+                              <img
+                                src={editNicFront}
+                                alt="NIC Front Preview"
+                                className="w-full h-full object-contain p-2"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto("nicFront")}
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white z-10"
+                                title="Remove image"
+                              >
+                                ✕
+                              </button>
+                            </>
                           ) : (
                             <svg
                               width="24"
@@ -940,19 +1072,34 @@ function ResidentProfile({ onOpenHelp }) {
                             Choose file
                           </label>
                         </div>
+                        {editNicFront && (
+                          <span className="text-xs text-green-600 mt-1">
+                            ✅ Front image uploaded
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex flex-col">
                         <span className="text-[13px] text-[#64748b] font-semibold mb-2 text-left">
                           Back Image :
                         </span>
-                        <div className="h-[150px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center relative overflow-hidden p-4">
+                        <div className="relative h-[180px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex flex-col items-center justify-center overflow-hidden p-4 hover:border-[#1B365D] transition-colors duration-200">
                           {editNicBack ? (
-                            <img
-                              src={editNicBack}
-                              alt="NIC Back Preview"
-                              className="w-full h-full object-cover"
-                            />
+                            <>
+                              <img
+                                src={editNicBack}
+                                alt="NIC Back Preview"
+                                className="w-full h-full object-contain p-2"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePhoto("nicBack")}
+                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold hover:bg-red-600 transition-colors shadow-md border-2 border-white z-10"
+                                title="Remove image"
+                              >
+                                ✕
+                              </button>
+                            </>
                           ) : (
                             <svg
                               width="24"
@@ -989,6 +1136,11 @@ function ResidentProfile({ onOpenHelp }) {
                             Choose file
                           </label>
                         </div>
+                        {editNicBack && (
+                          <span className="text-xs text-green-600 mt-1">
+                            ✅ Back image uploaded
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -998,7 +1150,8 @@ function ResidentProfile({ onOpenHelp }) {
                     <button
                       type="button"
                       onClick={() => setViewMode("VIEW")}
-                      className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5"
+                      className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:bg-[#dc2626] flex items-center gap-1.5 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSubmitting}
                     >
                       <svg
                         width="14"
@@ -1016,19 +1169,47 @@ function ResidentProfile({ onOpenHelp }) {
 
                     <button
                       type="submit"
-                      className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5"
+                      className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSubmitting}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-                      </svg>
-                      Update
+                      {isSubmitting ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 mr-2"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                          </svg>
+                          Update
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>

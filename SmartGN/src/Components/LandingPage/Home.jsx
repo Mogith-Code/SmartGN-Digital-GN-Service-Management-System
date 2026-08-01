@@ -6,6 +6,7 @@ import loginIcon from "../../assets/login_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24
 import registerIcon from "../../assets/how_to_reg_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import helpIcon from "../../assets/contact_support_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
+import ChatbotButton from "../Common/ChatbotButton";
 
 function Home({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -127,20 +128,8 @@ function Home({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* ================================================================ */}
-      {/* FLOATING HELP BUTTON - Fixed position at bottom right corner */}
-      {/* ================================================================ */}
-      <button
-        className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 md:bottom-6 md:right-6 lg:bottom-8 lg:right-8 bg-[#D69E2E] p-2 sm:p-2.5 md:p-3 rounded-full cursor-pointer flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_10px_rgba(0,0,0,0.6)] transition-all duration-200 hover:bg-[#FFAA00] z-50 group"
-        aria-label="Help Center"
-        onClick={handleHelpClick}
-      >
-        <img
-          src={helpIcon}
-          alt="Help Icon"
-          className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-[30px] lg:w-[30px] transition-transform duration-200 group-hover:scale-110"
-        />
-      </button>
+      {/* FLOATING AI ASSISTANT CHATBOT BUTTON */}
+      <ChatbotButton onOpenHelp={handleHelpClick} />
     </section>
   );
 }

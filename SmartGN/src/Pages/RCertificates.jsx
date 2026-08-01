@@ -7,6 +7,7 @@ import Footer from "../Components/Common/Footer";
 import pendingIcon from "../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
+import { getAuthHeaders } from "../utils/api";
 
 function ResidentCertificates({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ function ResidentCertificates({ onOpenHelp }) {
     firstName: "Nimal",
     lastName: "Perera",
     fullName: "Dissanayake Mudiyanselage Nimal Perera",
-    nic: "200324511540",
+    nic: "",
     occupation: "Farmer",
     email: "Nimal.Perera@example.com",
     mobile: "0703564478",
@@ -65,13 +66,91 @@ function ResidentCertificates({ onOpenHelp }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Check if NIC images are missing - used for alert
+  const areNicImagesMissing = () => {
+    return !profile.nicFront || !profile.nicBack;
+  };
+
+  // ✅ Fetch profile to get NIC images
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/residents/profile", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile((prev) => ({
+            ...prev,
+            nic: data.r_nic || "",
+            nicFront: data.nic_front_path || null,
+            nicBack: data.nic_back_path || null,
+          }));
+
+          // ✅ Auto-hide alert if both NIC images exist
+          if (data.nic_front_path && data.nic_back_path) {
+            setShowAlert(false);
+          } else {
+            setShowAlert(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching profile for NIC images:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // ✅ Listen for profile updates from other components
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      // Re-fetch profile when updated
+      const fetchUpdatedProfile = async () => {
+        try {
+          const res = await fetch("/api/residents/profile", {
+            headers: getAuthHeaders(),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProfile((prev) => ({
+              ...prev,
+              nic: data.r_nic || "",
+              nicFront: data.nic_front_path || null,
+              nicBack: data.nic_back_path || null,
+            }));
+
+            if (data.nic_front_path && data.nic_back_path) {
+              setShowAlert(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error refreshing profile:", error);
+        }
+      };
+
+      fetchUpdatedProfile();
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
+  }, []);
+
+  // Get auth headers helper
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("smartgn_token");
+    return {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    };
+  };
+
   const loadRequests = async () => {
     try {
-      const token = localStorage.getItem("smartgn_token");
-      const headers = {
-        Authorization: token ? `Bearer ${token}` : "",
-        "Content-Type": "application/json",
-      };
+      const headers = getAuthHeaders();
       const response = await fetch("/api/certificates/resident", {
         headers,
       });
@@ -123,6 +202,7 @@ function ResidentCertificates({ onOpenHelp }) {
     loadRequests();
   }, []);
 
+  // Calculate counts from actual data
   const pendingCount = requests.filter((r) => r.status === "PENDING").length;
   const approvedCount = requests.filter((r) => r.status === "APPROVED").length;
   const rejectedCount = requests.filter((r) => r.status === "REJECTED").length;
@@ -133,7 +213,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: pendingIcon,
       alt: "adultIcon",
       title: " Pending certificate requests",
-      count: 5,
+      count: pendingCount,
       navpath: "/ResidentDashboard/certificates/pending",
     },
     {
@@ -141,7 +221,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: approvedIcon,
       alt: "adultIcon",
       title: "Approved certificate requests",
-      count: 3,
+      count: approvedCount,
       navpath: "/ResidentDashboard/certificates/approved",
     },
     {
@@ -149,7 +229,7 @@ function ResidentCertificates({ onOpenHelp }) {
       icon: rejectedIcon,
       alt: "Children",
       title: "Rejected certificate requests",
-      count: 2,
+      count: rejectedCount,
       navpath: "/ResidentDashboard/certificates/rejected",
     },
   ];
@@ -170,10 +250,10 @@ function ResidentCertificates({ onOpenHelp }) {
               Certificates
             </h2>
 
-            {/* NIC upload alert */}
+            {/* ✅ NIC upload alert - Check if NIC images are missing */}
             <div className="flex justify-end -mt-[70px]">
-              {showAlert && profile.nic && (
-                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1">
+              {showAlert && areNicImagesMissing() && (
+                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
                   <div className="flex items-center gap-2">
                     <span
                       className="hover:underline hover:cursor-pointer"
@@ -212,7 +292,7 @@ function ResidentCertificates({ onOpenHelp }) {
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
+                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer"
                 onClick={() =>
                   navigate(card.navpath, {
                     state: { successUser, division: userDivision },
@@ -226,7 +306,7 @@ function ResidentCertificates({ onOpenHelp }) {
                     {card.title}
                   </span>
                   <span className="text-[20px] font-medium text-[#2D3748]">
-                    {card.count}
+                    {loading ? "..." : card.count}
                   </span>
                 </div>
               </div>
@@ -234,14 +314,14 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Request Types Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] flex flex-col mx-[30px]">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-[30px] flex flex-col mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Certificate types you can request
             </h3>
 
             <div className="flex flex-col gap-4">
               {/* Type 1: Character Certificates */}
-              <div className="flex justify-between items-center py-2">
+              <div className="flex justify-between items-center">
                 <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
                   Character certificates
                 </span>
@@ -271,7 +351,7 @@ function ResidentCertificates({ onOpenHelp }) {
               </div>
 
               {/* Type 2: Income Certificates */}
-              <div className="flex justify-between items-center py-4 border-t border-[#fedc9b] mt-2">
+              <div className="flex justify-between items-center">
                 <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
                   Income certificates
                 </span>
@@ -302,7 +382,7 @@ function ResidentCertificates({ onOpenHelp }) {
           </div>
 
           {/* Requested Status Card */}
-          <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
+          <div className="bg-white border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
             <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
               Requested certificates status
             </h3>
