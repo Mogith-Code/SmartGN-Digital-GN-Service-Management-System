@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import OfficerNavbar from "../Common/OfficerNavbar";
 import OSidebar from "../Common/OSidebar";
 import Footer from "../Common/Footer";
+import ChatbotButton from "../Common/ChatbotButton";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../utils/translate";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -534,13 +535,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
       </div>
 
       {/* Floating Help Trigger */}
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       <Footer />
     </div>
