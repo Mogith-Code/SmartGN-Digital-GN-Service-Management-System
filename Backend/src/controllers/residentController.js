@@ -359,7 +359,8 @@ exports.getDashboardStats = async (req, res) => {
     let pendingCerts = 0, approvedCerts = 0;
     let pendingAppts = 0, approvedAppts = 0;
     let pendingAllowances = 0, approvedAllowances = 0;
-    let pendingDisasters = 0, familyCount = 0;
+    let pendingDisasters = 0, approvedDisasters = 0;
+    let familyCount = 0;
     let upcomingAppts = 0;
 
     try {
@@ -446,6 +447,15 @@ exports.getDashboardStats = async (req, res) => {
             pendingDisasters = rows[0]?.count || 0;
         } catch (e) { /* Table might not exist */ }
 
+        // Add disaster approved count
+        try {
+            const [rows] = await db.query(
+                'SELECT COUNT(*) AS count FROM disaster_approved WHERE resident_nic = ?',
+                [nic]
+            );
+            approvedDisasters = rows[0]?.count || 0;
+        } catch (e) { /* Table might not exist */ }
+
         // Family member count
         try {
             const [rows] = await db.query(
@@ -470,7 +480,8 @@ exports.getDashboardStats = async (req, res) => {
                 approved: approvedAllowances
             },
             disasters: {
-                pending: pendingDisasters
+                pending: pendingDisasters,
+                approved: approvedDisasters
             },
             familyMembers: familyCount
         });
