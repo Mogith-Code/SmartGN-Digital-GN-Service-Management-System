@@ -180,10 +180,7 @@ function App() {
           path="/OfficerDashboard/Certificates"
           element={<OfficerCertificates onOpenHelp={openChatbot} />}
         />
-        <Route
-          path="/dashboard/officer/certificates"
-          element={<OfficerCertificates onOpenHelp={openChatbot} />}
-        />
+
         <Route
           path="/OfficerDashboard/certificates/:id"
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}

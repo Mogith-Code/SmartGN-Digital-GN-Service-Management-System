@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { encryptId } from "../utils/encryption";
@@ -12,6 +12,9 @@ function OfficerCertificates({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
   const t = translations[lang];
+
+  // Ref for scrolling to top
+  const topRef = useRef(null);
 
   const officerIdVal =
     location.state?.officerId ||
@@ -32,6 +35,17 @@ function OfficerCertificates({ onOpenHelp }) {
   const [visibleCount, setVisibleCount] = useState(5);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("smartgn_token");
@@ -114,10 +128,16 @@ function OfficerCertificates({ onOpenHelp }) {
     loadCerts();
   }, []);
 
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
   const handleApprove = async (id, e) => {
     e.stopPropagation();
     if (!window.confirm(`Approve certificate request ${id}?`)) return;
 
+    setIsProcessing(true);
     try {
       const response = await fetch(`/api/certificates/${id}/action`, {
         method: "PUT",
@@ -129,10 +149,21 @@ function OfficerCertificates({ onOpenHelp }) {
         throw new Error(data.error || "Failed to approve certificate.");
       }
       await loadCerts();
-      alert(`Certificate request ${id} approved successfully.`);
+
+      // Set success message instead of alert
+      setSuccessMessage(`✅ Certificate request ${id} approved successfully!`);
+      scrollToTop();
+
+      // Redirect after 2.5 seconds
+      setTimeout(() => {
+        navigate("/OfficerDashboard/certificates");
+      }, 2500);
     } catch (err) {
       console.error("Error approving certificate:", err);
-      alert("Failed to approve: " + err.message);
+      setError(err.message);
+      scrollToTop();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -141,6 +172,7 @@ function OfficerCertificates({ onOpenHelp }) {
     const reason = window.prompt(`Enter rejection reason for ${id}:`);
     if (reason === null) return;
 
+    setIsProcessing(true);
     try {
       const response = await fetch(`/api/certificates/${id}/action`, {
         method: "PUT",
@@ -152,10 +184,23 @@ function OfficerCertificates({ onOpenHelp }) {
         throw new Error(data.error || "Failed to reject certificate.");
       }
       await loadCerts();
-      alert(`Certificate request ${id} rejected.`);
+
+      // Set success message instead of alert
+      setSuccessMessage(
+        `❌ Certificate request ${id} rejected. Reason: ${reason}`,
+      );
+      scrollToTop();
+
+      // Redirect after 2.5 seconds
+      setTimeout(() => {
+        navigate("/OfficerDashboard/certificates");
+      }, 2500);
     } catch (err) {
       console.error("Error rejecting certificate:", err);
-      alert("Failed to reject: " + err.message);
+      setError(err.message);
+      scrollToTop();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -184,6 +229,9 @@ function OfficerCertificates({ onOpenHelp }) {
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           <div className="flex justify-between text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px]">
             <span>Certificate Approval</span>
 
@@ -192,10 +240,11 @@ function OfficerCertificates({ onOpenHelp }) {
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-1.5 text-[13px] font-bold rounded-md border-0 cursor-pointer transition-all duration-150 ${filterStatus === status
+                  className={`px-3 py-1.5 text-[13px] font-bold rounded-md border-0 cursor-pointer transition-all duration-150 ${
+                    filterStatus === status
                       ? "bg-white text-[#1B365D] shadow-sm"
                       : "bg-transparent text-[#64748b] hover:text-[#1e293b]"
-                    }`}
+                  }`}
                 >
                   {status}{" "}
                   {status !== "All" &&
@@ -204,6 +253,84 @@ function OfficerCertificates({ onOpenHelp }) {
               ))}
             </div>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{successMessage}</span>
+              </div>
+              <button
+                onClick={closeSuccessMessage}
+                className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-green-200 transition-colors"
+                aria-label="Close success message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && !successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{error}</span>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-700 hover:text-red-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-red-200 transition-colors"
+                aria-label="Close error message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
 
           <div className="m-[30px]">
             <div className="flex items-center gap-4 p-4 bg-white border border-[#cbd5e1] rounded-2xl shadow-sm">
@@ -235,17 +362,13 @@ function OfficerCertificates({ onOpenHelp }) {
             <div className="text-center py-20 text-[#64748b] text-[15px] font-medium">
               Loading certificate requests...
             </div>
-          ) : error ? (
-            <div className="text-center py-20 text-red-500 text-[15px] font-medium">
-              Error: {error}
-            </div>
           ) : (
             <div className="flex flex-col gap-4 mx-[30px]">
               {filteredCerts.slice(0, visibleCount).map((item) => (
                 <div
                   key={item.id}
                   onClick={() =>
-                    navigate(`/dashboard/officer/certificates/${item.id}`, {
+                    navigate(`/OfficerDashboard/Certificates/${item.id}`, {
                       state: {
                         successUser: profile.fullName,
                         officerId: officerIdVal,
@@ -275,12 +398,13 @@ function OfficerCertificates({ onOpenHelp }) {
                           {item.type}
                         </h4>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${item.status === "Approved"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${
+                            item.status === "Approved"
                               ? "bg-green-100 text-green-700"
                               : item.status === "Rejected"
                                 ? "bg-red-100 text-red-700"
                                 : "bg-amber-100 text-amber-700"
-                            }`}
+                          }`}
                         >
                           {item.status}
                         </span>
@@ -362,7 +486,8 @@ function OfficerCertificates({ onOpenHelp }) {
                       <>
                         <button
                           onClick={(e) => handleApprove(item.id, e)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                          disabled={isProcessing}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <svg
                             width="14"
@@ -378,7 +503,8 @@ function OfficerCertificates({ onOpenHelp }) {
                         </button>
                         <button
                           onClick={(e) => handleReject(item.id, e)}
-                          className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                          disabled={isProcessing}
+                          className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-5 py-2.5 rounded-full text-[13.5px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <svg
                             width="14"
@@ -398,7 +524,7 @@ function OfficerCertificates({ onOpenHelp }) {
                       <button
                         onClick={() =>
                           navigate(
-                            `/dashboard/officer/certificates/${item.id}`,
+                            `/OfficerDashboard/certificates/${item.id}`,
                             {
                               state: {
                                 successUser: profile.fullName,
@@ -440,8 +566,8 @@ function OfficerCertificates({ onOpenHelp }) {
       </div>
 
       <ChatbotButton onOpenHelp={onOpenHelp} />
-  <Footer />
-    </div >
+      <Footer />
+    </div>
   );
 }
 
