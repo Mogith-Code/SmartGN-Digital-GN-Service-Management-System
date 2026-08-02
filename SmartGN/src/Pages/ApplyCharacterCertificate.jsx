@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
@@ -14,6 +14,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
   const t = translations[lang];
+
+  // Ref for scrolling to top
+  const topRef = useRef(null);
 
   // Retrieve username and division/ID from navigation state or localStorage (defaults to Nimal Perera)
   const successUser =
@@ -63,7 +66,19 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const [remarks, setRemarks] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionComplete, setSubmissionComplete] = useState(false);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleReset = () => {
     setDivisionalSecretariat("");
@@ -93,6 +108,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
     setCharacter("Good");
     setRemarks("");
     setErrorMessage("");
+    setSuccessMessage("");
+    setSubmissionComplete(false);
+    scrollToTop();
   };
 
   const handleSubmit = async (e) => {
@@ -112,10 +130,14 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       !purpose
     ) {
       setErrorMessage("Please fill in all required fields.");
+      setSuccessMessage("");
+      scrollToTop();
       return;
     }
 
     setErrorMessage("");
+    setSuccessMessage("");
+    setIsSubmitting(true);
 
     const newRequestId = `REQ-CC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const newRequest = {
@@ -249,17 +271,20 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
       link: "/ResidentDashboard/certificates/pending",
     });
 
-    // Navigate to validation success page
-    navigate("/ResidentDashboard/certificates/success", {
-      state: {
-        requestNumber: newRequest.request_id || newRequestId,
-        certificateType: "Character Certificate",
-        applicantName: fullName,
-        division: userDivision,
-        purpose: purpose,
-        submittedDate: new Date().toLocaleDateString(),
-      },
-    });
+    // Set success message and mark completion
+    setSuccessMessage(
+      `Character Certificate application submitted successfully! Request ID: ${newRequest.request_id || newRequestId}`,
+    );
+    setSubmissionComplete(true);
+    setIsSubmitting(false);
+
+    // Scroll to top to show success message
+    scrollToTop();
+
+    // Redirect after 2.5 seconds
+    setTimeout(() => {
+      navigate("/ResidentDashboard/certificates");
+    }, 2500);
   };
 
   return (
@@ -272,6 +297,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
         </div>
 
         <div className="w-full bg-[#FFFFFF] border-l-0 md:border-l border-[#2D37482D]">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           {/* Back Button */}
           <div
             className="flex px-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
@@ -291,8 +319,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
             </div>
             <button
               type="button"
-              className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm"
+              className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => setIsPreviewOpen(true)}
+              disabled={submissionComplete}
             >
               <svg
                 width="16"
@@ -308,6 +337,49 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               Live Certificate Preview
             </button>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{successMessage}</span>
+              </div>
+              <p className="text-sm mt-1">
+                Redirecting to certificates page...
+              </p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && !successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{errorMessage}</span>
+              </div>
+            </div>
+          )}
 
           {/* Form Container Card */}
           <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] m-[30px] flex flex-col">
@@ -339,10 +411,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="divSecretariat"
                       placeholder="e.g. Gampaha, Kelaniya"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={divisionalSecretariat}
                       onChange={(e) => setDivisionalSecretariat(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -358,10 +431,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="gnDivNumber"
                       placeholder="e.g. Hunupitiya North - 258"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={gnDivisionNumber}
                       onChange={(e) => setGnDivisionNumber(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -375,9 +449,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     </label>
                     <select
                       id="personalKnown"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={personalKnown}
                       onChange={(e) => setPersonalKnown(e.target.value)}
+                      disabled={submissionComplete}
                     >
                       <option value="Yes">Yes</option>
                       <option value="No">No</option>
@@ -395,9 +470,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="personalKnownSince"
                       placeholder="Specify duration or leave empty"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={personalKnownSince}
                       onChange={(e) => setPersonalKnownSince(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
                 </div>
@@ -419,10 +495,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="fullName"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -436,10 +513,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="address"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -452,10 +530,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     </label>
                     <select
                       id="sex"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] focus:outline-none focus:border-[#1B365D]"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] focus:outline-none focus:border-[#1B365D] disabled:opacity-50 disabled:cursor-not-allowed"
                       value={sex}
                       onChange={(e) => setSex(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     >
                       <option value="">-- Select Sex --</option>
                       <option value="Male">Male</option>
@@ -474,10 +553,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="number"
                       id="age"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={age}
                       onChange={(e) => setAge(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -490,10 +570,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     </label>
                     <select
                       id="civilStatus"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] focus:outline-none focus:border-[#1B365D]"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] focus:outline-none focus:border-[#1B365D] disabled:opacity-50 disabled:cursor-not-allowed"
                       value={civilStatus}
                       onChange={(e) => setCivilStatus(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     >
                       <option value="">-- Select Status --</option>
                       <option value="Single">Single</option>
@@ -514,10 +595,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="nationality"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={nationality}
                       onChange={(e) => setNationality(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -532,10 +614,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="religion"
                       placeholder="e.g. Buddhist / Christian / Hindu / Islam"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={religion}
                       onChange={(e) => setReligion(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -549,9 +632,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="occupation"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={occupation}
                       onChange={(e) => setOccupation(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -566,9 +650,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="villagePeriod"
                       placeholder="e.g. 15 Years"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={villagePeriod}
                       onChange={(e) => setVillagePeriod(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -583,10 +668,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="nic"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={nicNumber}
                       onChange={(e) => setNicNumber(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -602,9 +688,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="electoral"
                       placeholder="e.g. No: 124/A, Gampaha District, 2024"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={electoralRegister}
                       onChange={(e) => setElectoralRegister(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -618,9 +705,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="fatherName"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={fatherName}
                       onChange={(e) => setFatherName(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -634,9 +722,10 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                     <input
                       type="text"
                       id="fatherAddress"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={fatherAddress}
                       onChange={(e) => setFatherAddress(e.target.value)}
+                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -652,10 +741,11 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       type="text"
                       id="purpose"
                       placeholder="e.g. Visa Application / Private Job Placement"
-                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                      className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                       value={purpose}
                       onChange={(e) => setPurpose(e.target.value)}
                       required
+                      disabled={submissionComplete}
                     />
                   </div>
                 </div>
@@ -665,7 +755,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               <div className="bg-[#f8fafc] p-6 border border-[#cbd5e1] rounded-xl text-left">
                 <h3 className="text-[15px] font-bold text-[#1B365D] uppercase tracking-wide border-b border-[#e2e8f0] pb-2.5 mb-5 m-0 flex items-center gap-2">
                   <span>Section (4) - Upload Verification Documents</span>
-                  <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase font-sans">Required for Grama Niladhari Verification</span>
+                  <span className="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 uppercase font-sans">
+                    Required for Grama Niladhari Verification
+                  </span>
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -673,12 +765,14 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                   <div className="bg-white p-4 border border-slate-200 rounded-xl flex flex-col justify-between shadow-sm">
                     <div>
                       <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
-                        1. Upload Resident Signature <span className="text-red-500">*</span>
+                        1. Upload Resident Signature{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <p className="text-[12px] text-slate-500 mb-3">
-                        Please upload a clear image of your signature on white paper.
+                        Please upload a clear image of your signature on white
+                        paper.
                       </p>
-                      
+
                       <input
                         type="file"
                         accept="image/*,.pdf"
@@ -686,18 +780,26 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           const file = e.target.files[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onloadend = () => setSignatureUrl(reader.result);
+                            reader.onloadend = () =>
+                              setSignatureUrl(reader.result);
                             reader.readAsDataURL(file);
                           }
                         }}
-                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={submissionComplete}
                       />
                     </div>
 
                     {signatureUrl && (
                       <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
-                        <img src={signatureUrl} alt="Signature Preview" className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1" />
-                        <span className="text-xs font-semibold text-emerald-600">✓ Signature Uploaded</span>
+                        <img
+                          src={signatureUrl}
+                          alt="Signature Preview"
+                          className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1"
+                        />
+                        <span className="text-xs font-semibold text-emerald-600">
+                          ✓ Signature Uploaded
+                        </span>
                       </div>
                     )}
                   </div>
@@ -706,12 +808,14 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                   <div className="bg-white p-4 border border-slate-200 rounded-xl flex flex-col justify-between shadow-sm">
                     <div>
                       <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
-                        2. Upload Birth Certificate <span className="text-red-500">*</span>
+                        2. Upload Birth Certificate{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <p className="text-[12px] text-slate-500 mb-3">
-                        Upload your Birth Certificate for GN Character & Identity verification.
+                        Upload your Birth Certificate for GN Character &
+                        Identity verification.
                       </p>
-                      
+
                       <input
                         type="file"
                         accept="image/*,.pdf"
@@ -719,29 +823,39 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           const file = e.target.files[0];
                           if (file) {
                             const reader = new FileReader();
-                            reader.onloadend = () => setBirthCertUrl(reader.result);
+                            reader.onloadend = () =>
+                              setBirthCertUrl(reader.result);
                             reader.readAsDataURL(file);
                           }
                         }}
-                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={submissionComplete}
                       />
                     </div>
 
                     {birthCertUrl && (
                       <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
                         {birthCertUrl.startsWith("data:image") ? (
-                          <img src={birthCertUrl} alt="Birth Certificate Preview" className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1" />
+                          <img
+                            src={birthCertUrl}
+                            alt="Birth Certificate Preview"
+                            className="h-12 max-w-[120px] object-contain border border-slate-300 rounded bg-white p-1"
+                          />
                         ) : (
-                          <div className="h-12 w-12 bg-blue-100 text-blue-800 rounded flex items-center justify-center font-bold text-xs">PDF</div>
+                          <div className="h-12 w-12 bg-blue-100 text-blue-800 rounded flex items-center justify-center font-bold text-xs">
+                            PDF
+                          </div>
                         )}
-                        <span className="text-xs font-semibold text-emerald-600">✓ Birth Certificate Uploaded</span>
+                        <span className="text-xs font-semibold text-emerald-600">
+                          ✓ Birth Certificate Uploaded
+                        </span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {errorMessage && (
+              {errorMessage && !successMessage && (
                 <p
                   style={{
                     color: "#ef4444",
@@ -758,8 +872,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
               <div className="flex justify-end gap-4 mt-8">
                 <button
                   type="button"
-                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] flex items-center gap-1.5"
+                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleReset}
+                  disabled={isSubmitting || submissionComplete}
                 >
                   Reset
                   <svg
@@ -776,22 +891,70 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
 
                 <button
                   type="submit"
-                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-md shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]"
+                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 shadow-md shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting || submissionComplete}
                 >
-                  Submit
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
+                  {isSubmitting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4 mr-2"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
+
+              {/* Submission Complete Indicator */}
+              {submissionComplete && (
+                <div className="flex justify-center mt-4">
+                  <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
+                    <svg
+                      className="w-5 h-5 animate-pulse"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Success! Redirecting...
+                  </div>
+                </div>
+              )}
             </form>
           </div>
         </div>
@@ -903,7 +1066,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       <tr>
                         <td className="w-1/3 py-1.5 font-bold">(a) Name:</td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {fullName || "(Not specified)"}
@@ -912,7 +1075,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                       <tr>
                         <td className="py-1.5 font-bold">(b) Address:</td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {address || "(Not specified)"}
@@ -959,7 +1122,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (i) Residence Period in Village:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {villagePeriod || "(Not specified)"}
@@ -970,7 +1133,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (j) National Identity Card No:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-bold"
                         >
                           {nicNumber || "(Not specified)"}
@@ -981,7 +1144,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (k) Electoral Register Particulars:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {electoralRegister || "Registered"}
@@ -992,7 +1155,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (l) Name of the Father:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {fatherName || "(Not specified)"}
@@ -1003,7 +1166,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (m) Address of the Father:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic"
                         >
                           {fatherAddress || "(Not specified)"}
@@ -1014,7 +1177,7 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
                           (n) Purpose for Certificate:
                         </td>
                         <td
-                          colspan="3"
+                          colSpan="3"
                           className="py-1.5 border-b border-dashed border-slate-400 text-slate-700 font-sans italic font-semibold"
                         >
                           {purpose || "(Not specified)"}
