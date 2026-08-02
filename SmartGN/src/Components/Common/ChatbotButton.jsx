@@ -1,4 +1,5 @@
 import React from "react";
+import ChatbotIcon from "./ChatbotIcon";
 
 function ChatbotButton({ onOpenHelp }) {
   return (
@@ -9,20 +10,12 @@ function ChatbotButton({ onOpenHelp }) {
       title="Click to ask SmartGN Digital Assistant"
     >
       <div className="relative flex items-center justify-center">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#FFAA00"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        <ChatbotIcon
+          size={24}
+          strokeColor="#FFAA00"
+          strokeWidth={2.2}
           className="transition-transform duration-300 group-hover:scale-110"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          <path d="M8 10h.01M12 10h.01M16 10h.01" strokeWidth="3"></path>
-        </svg>
+        />
         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#1B365D] rounded-full animate-ping"></span>
         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#1B365D] rounded-full"></span>
       </div>

@@ -47,8 +47,22 @@ const requireOfficerOrAdmin = (req, res, next) => {
     next();
 };
 
+// Middleware to restrict access to RESIDENT only
+const requireResident = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
+
+    if (req.user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access forbidden. Resident privileges required.' });
+    }
+
+    next();
+};
+
 module.exports = {
     authenticateToken,
     requireAdmin,
-    requireOfficerOrAdmin
+    requireOfficerOrAdmin,
+    requireResident
 };

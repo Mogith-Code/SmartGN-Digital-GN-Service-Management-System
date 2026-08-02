@@ -234,7 +234,7 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
@@ -255,8 +255,8 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        approved_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20) NOT NULL,
+        approved_by VARCHAR(20) NOT NULL,
         requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
         approved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when approved',
         
@@ -280,8 +280,8 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         contact_number VARCHAR(15) NOT NULL COMMENT 'Resident contact number',
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36) NOT NULL,
-        rejected_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20) NOT NULL,
+        rejected_by VARCHAR(20) NOT NULL,
         rejection_reason TEXT,
         requested_at TIMESTAMP NOT NULL COMMENT 'Original request time from pending table',
         rejected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Time when rejected',
@@ -309,7 +309,7 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         request_date DATE NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
+        gn_id VARCHAR(20),
         details JSON COMMENT 'Full certificate application form data',
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -331,8 +331,8 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         request_date DATE NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        approved_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        approved_by VARCHAR(20) NOT NULL,
         gn_remarks TEXT,
         details JSON COMMENT 'Full certificate application form data',
         approved_at DATETIME DEFAULT NULL,
@@ -359,8 +359,8 @@ async function setupTables(dbPool) {
         purpose VARCHAR(255) NOT NULL,
         request_date DATE NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        rejected_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        rejected_by VARCHAR(20) NOT NULL,
         rejection_reason TEXT,
         gn_remarks TEXT,
         details JSON COMMENT 'Full certificate application form data',
@@ -389,7 +389,14 @@ async function setupTables(dbPool) {
         application_date DATE NOT NULL,
         income_details TEXT NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
+        gn_id VARCHAR(20),
+        status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+        cleared_time DATETIME,
+        txn_reference VARCHAR(50),
+        bank_details TEXT,
+        document_path LONGTEXT,
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
@@ -400,6 +407,20 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Ensure columns exist if table was created previously without them
+    const alterCols = [
+        "ALTER TABLE allowance_pending ADD COLUMN status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING'",
+        "ALTER TABLE allowance_pending ADD COLUMN payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID'",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_amount DECIMAL(12,2) DEFAULT 0.00",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_time DATETIME",
+        "ALTER TABLE allowance_pending ADD COLUMN txn_reference VARCHAR(50)",
+        "ALTER TABLE allowance_pending ADD COLUMN bank_details TEXT",
+        "ALTER TABLE allowance_pending ADD COLUMN document_path LONGTEXT"
+    ];
+    for (const q of alterCols) {
+        try { await dbPool.query(q); } catch (e) { /* column exists */ }
+    }
+
     // 9b. APPROVED ALLOWANCES
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS allowance_approved (
@@ -409,8 +430,8 @@ async function setupTables(dbPool) {
         application_date DATE NOT NULL,
         income_details TEXT NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        approved_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        approved_by VARCHAR(20) NOT NULL,
         gn_remarks TEXT,
         approved_at DATETIME DEFAULT NULL,
         payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
@@ -438,8 +459,8 @@ async function setupTables(dbPool) {
         application_date DATE NOT NULL,
         income_details TEXT NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        rejected_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        rejected_by VARCHAR(20) NOT NULL,
         rejection_reason TEXT,
         gn_remarks TEXT,
         rejected_at DATETIME DEFAULT NULL,
@@ -455,7 +476,7 @@ async function setupTables(dbPool) {
     `);
 
     // ============================================================
-    // 10. DISASTER TABLES (Separated)
+    // 10. DISASTER TABLES (Separated) - FIXED
     // ============================================================
     
     // 10a. PENDING DISASTER REQUESTS
@@ -471,15 +492,16 @@ async function setupTables(dbPool) {
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
+        gn_id VARCHAR(20) NOT NULL,
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
         INDEX idx_resident (resident_nic),
         INDEX idx_type (disaster_type),
-        INDEX idx_severity (severity)
+        INDEX idx_severity (severity),
+        INDEX idx_gn (gn_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
@@ -497,8 +519,8 @@ async function setupTables(dbPool) {
         aid_requested TEXT,
         relief_provided TEXT,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        approved_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        approved_by VARCHAR(20) NOT NULL,
         officer_remarks TEXT,
         approved_at DATETIME DEFAULT NULL,
         estimated_damage DECIMAL(15,2),
@@ -526,8 +548,8 @@ async function setupTables(dbPool) {
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
-        rejected_by VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20),
+        rejected_by VARCHAR(20) NOT NULL,
         rejection_reason TEXT,
         officer_remarks TEXT,
         rejected_at DATETIME DEFAULT NULL,
@@ -556,9 +578,9 @@ async function setupTables(dbPool) {
         aid_requested TEXT,
         relief_provided TEXT,
         resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(36),
+        gn_id VARCHAR(20),
         admin_id VARCHAR(36),
-        resolved_by VARCHAR(36) NOT NULL,
+        resolved_by VARCHAR(20) NOT NULL,
         resolved_at DATETIME DEFAULT NULL,
         resolution_notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -566,12 +588,23 @@ async function setupTables(dbPool) {
         FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
         FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
         FOREIGN KEY (admin_id) REFERENCES admin(admin_id) ON DELETE SET NULL,
-        FOREIGN KEY (resolved_by) REFERENCES admin(admin_id) ON DELETE RESTRICT,
+        FOREIGN KEY (resolved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
         INDEX idx_resident (resident_nic),
         INDEX idx_type (disaster_type),
         INDEX idx_resolved_at (resolved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    // Ensure image_path column exists in disaster tables
+    const alterDisasterCols = [
+        "ALTER TABLE disaster_pending ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_approved ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_rejected ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_resolved ADD COLUMN image_path LONGTEXT"
+    ];
+    for (const q of alterDisasterCols) {
+        try { await dbPool.query(q); } catch (e) { /* column exists */ }
+    }
 
     // ============================================================
     // 11. DOCUMENT TABLE
@@ -589,7 +622,7 @@ async function setupTables(dbPool) {
         allowance_id VARCHAR(36),
         request_id VARCHAR(36),
         is_verified BOOLEAN DEFAULT FALSE,
-        verified_by VARCHAR(36),
+        verified_by VARCHAR(20),
         verified_at DATETIME DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -679,7 +712,7 @@ async function setupTables(dbPool) {
         property_type ENUM('Building', 'Land', 'Vehicle', 'Equipment', 'Other') NOT NULL,
         value DECIMAL(15,2),
         acquisition_date DATE,
-        gn_id VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20) NOT NULL,
         notes TEXT,
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -707,7 +740,7 @@ async function setupTables(dbPool) {
         type ENUM('HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER') NOT NULL,
         priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM',
         target_audience TEXT COMMENT 'JSON array of target groups',
-        gn_id VARCHAR(36) NOT NULL,
+        gn_id VARCHAR(20) NOT NULL,
         is_active BOOLEAN DEFAULT TRUE,
         expires_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

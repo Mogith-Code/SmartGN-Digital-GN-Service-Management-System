@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import ChatbotIcon from './Common/ChatbotIcon'
 
 function Chatbot({ isOpen, onClose }) {
   const location = useLocation()
@@ -174,12 +175,12 @@ function Chatbot({ isOpen, onClose }) {
       }
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
-      console.error('Failed to get response from server, using local fallback:', error);
+      console.warn('Network issue or offline mode, displaying local SmartGN Assistant response:', error);
       const responseText = getAssistantResponse(textToSend)
       const assistantMessage = {
         id: Date.now() + 1,
         sender: 'assistant',
-        text: responseText + `\n\n*(Note: Connection to AI service failed. Error details: ${error.message}. Displaying offline guidelines.)*`
+        text: responseText
       }
       setMessages(prev => [...prev, assistantMessage])
     } finally {
@@ -269,13 +270,7 @@ function Chatbot({ isOpen, onClose }) {
       <div className="bg-gradient-to-r from-[#005BBD] to-[#3182CE] text-white p-4 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center relative flex-shrink-0">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-              <circle cx="12" cy="5" r="2"></circle>
-              <path d="M12 7v4"></path>
-              <line x1="8" y1="16" x2="8" y2="16"></line>
-              <line x1="16" y1="16" x2="16" y2="16"></line>
-            </svg>
+            <ChatbotIcon size={22} strokeColor="#ffffff" strokeWidth={2.5} />
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
           </div>
           <div className="text-left">
@@ -305,11 +300,7 @@ function Chatbot({ isOpen, onClose }) {
             
             {msg.sender === 'assistant' && (
               <div className="w-7 h-7 rounded-full bg-[#005BBD] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#005BBD]/10">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-                  <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                  <circle cx="12" cy="5" r="2"></circle>
-                  <path d="M12 7v4"></path>
-                </svg>
+                <ChatbotIcon size={14} strokeColor="#ffffff" strokeWidth={2.5} />
               </div>
             )}
 
@@ -336,11 +327,7 @@ function Chatbot({ isOpen, onClose }) {
         {isTyping && (
           <div className="flex items-start gap-2.5">
             <div className="w-7 h-7 rounded-full bg-[#005BBD] flex items-center justify-center flex-shrink-0 shadow-sm border border-[#005BBD]/10">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-                <circle cx="12" cy="5" r="2"></circle>
-                <path d="M12 7v4"></path>
-              </svg>
+              <ChatbotIcon size={14} strokeColor="#ffffff" strokeWidth={2.5} />
             </div>
             <div className="bg-white text-slate-400 px-3.5 py-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 flex gap-1 items-center">
               <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>

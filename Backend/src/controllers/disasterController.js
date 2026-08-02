@@ -1,4 +1,3 @@
-// disasterController.js — Full implementation
 const db = require('../config/database');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -10,7 +9,12 @@ const getUserFromToken = (req) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return null;
-    try { return jwt.verify(token, JWT_SECRET); } catch { return null; }
+    try { 
+        const decoded = jwt.verify(token, JWT_SECRET);
+        return decoded; 
+    } catch { 
+        return null; 
+    }
 };
 
 const generateRequestNumber = () => {
@@ -30,7 +34,8 @@ exports.submitDisasterReport = async (req, res) => {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
-    let { disasterType, description, severity, location, contact, aidRequested } = req.body;
+    const { disasterType, description, severity, location, contact, aidRequested, imagePath, damageImage, image_path, damage_image } = req.body;
+    const imgData = imagePath || damageImage || image_path || damage_image || null;
 
     if (!disasterType || !description || !location || !contact) {
         return res.status(400).json({ error: 'disasterType, description, location, and contact are required.' });
@@ -59,70 +64,42 @@ exports.submitDisasterReport = async (req, res) => {
     const sev = severityMap[String(severity).toLowerCase()] || severityMap[severity] || 'MEDIUM';
 
     try {
-        let residentNic = user.id || user.nic || user.r_nic;
-        let divisionId = user.divisionId || null;
+        const residentNic = user.id;
 
-        // Fetch resident's actual r_nic and division_id from resident table
-        const [residentRows] = await db.query(
-            'SELECT r_nic, division_id FROM resident WHERE r_nic = ? OR email = ?',
-            [residentNic, user.email || residentNic]
-        );
-
-        if (residentRows.length > 0) {
-            residentNic = residentRows[0].r_nic;
-            divisionId = residentRows[0].division_id;
-        } else {
-            // Fallback: use first available resident in DB so Foreign Key is never violated
-            const [anyResident] = await db.query('SELECT r_nic, division_id FROM resident LIMIT 1');
-            if (anyResident.length > 0) {
-                residentNic = anyResident[0].r_nic;
-                divisionId = anyResident[0].division_id;
-            }
-        }
+        // Get resident's division and find GN officer
+        const [residentRows] = await db.query(`
+            SELECT r.division_id
+            FROM resident r
+            WHERE r.r_nic = ?
+        `, [residentNic]);
 
         let gnId = null;
-        if (divisionId) {
+        if (residentRows.length > 0) {
             const [officerRows] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND (status = "Active" OR status IS NULL OR status = "") LIMIT 1',
-                [divisionId]
+                'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND status = "Active" LIMIT 1',
+                [residentRows[0].division_id]
             );
-            if (officerRows.length > 0) {
-                gnId = officerRows[0].gn_id;
-            } else {
-                const [anyOfficer] = await db.query(
-                    'SELECT gn_id FROM grama_niladhari WHERE division_id = ? LIMIT 1',
-                    [divisionId]
-                );
-                if (anyOfficer.length > 0) {
-                    gnId = anyOfficer[0].gn_id;
-                }
-            }
+            gnId = officerRows.length > 0 ? officerRows[0].gn_id : null;
         }
 
         if (!gnId) {
-            const [fallbackOfficer] = await db.query('SELECT gn_id, division_id FROM grama_niladhari LIMIT 1');
-            if (fallbackOfficer.length > 0) {
-                gnId = fallbackOfficer[0].gn_id;
-                if (!divisionId) divisionId = fallbackOfficer[0].division_id;
-            }
+            return res.status(400).json({ error: 'No GN officer assigned to your division. Please contact your GN office.' });
         }
 
-        const disasterId = crypto.randomUUID();
         const requestNumber = generateRequestNumber();
         const today = new Date().toISOString().split('T')[0];
 
         await db.query(`
             INSERT INTO disaster_pending
-            (disaster_id, request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, resident_nic, gn_id)
+            (request_number, disaster_type, request_date, description, severity,
+             location, contact_number, aid_requested, image_path, resident_nic, gn_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [disasterId, requestNumber, disasterType, today, description, sev,
-            location, contact, aidRequested || null, residentNic, gnId]);
+        `, [requestNumber, disasterType, today, description, sev,
+            location, contact, aidRequested || null, imgData, residentNic, gnId]);
 
         return res.status(201).json({
-            message: 'Disaster report submitted. The Grama Niladhari division has been notified.',
-            requestNumber,
-            disasterId
+            message: 'Disaster report submitted successfully. The Grama Niladhari division has been notified.',
+            requestNumber
         });
     } catch (error) {
         console.error('Error submitting disaster report:', error);
@@ -141,22 +118,22 @@ exports.getResidentDisasters = async (req, res) => {
 
     try {
         const [pending] = await db.query(`
-            SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+            SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Pending' AS status, NULL AS officer_remarks, requested_at AS created_at
             FROM disaster_pending WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
         `, [nic, user.email || nic]);
 
         const [approved] = await db.query(`
-            SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+            SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Approved' AS status, officer_remarks, approved_at AS created_at
             FROM disaster_approved WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
         `, [nic, user.email || nic]);
 
         const [rejected] = await db.query(`
-            SELECT disaster_id AS disaster_request_id, disaster_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+            SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Rejected' AS status, officer_remarks, rejected_at AS created_at
             FROM disaster_rejected WHERE resident_nic = ? OR resident_nic IN (SELECT r_nic FROM resident WHERE email = ?)
         `, [nic, user.email || nic]);
@@ -185,51 +162,33 @@ exports.getOfficerDisasters = async (req, res) => {
 
     try {
         let gnId = null;
-        let divisionId = null;
-
+        
+        // Get the officer's GN ID
         if (user.role === 'OFFICER') {
-            const officerIdVal = user.id || user.gn_id || user.nic;
+            // Try different possible field names from JWT
+            const officerIdentifier = user.gn_id || user.officerId || user.id;
+            
+            // Verify the officer exists and get their gn_id
             const [officer] = await db.query(
-                'SELECT gn_id, division_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
-                [officerIdVal, officerIdVal, officerIdVal]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR username = ?',
+                [officerIdentifier, officerIdentifier]
             );
-            if (officer.length > 0) {
-                gnId = officer[0].gn_id;
-                divisionId = officer[0].division_id;
-            } else {
-                const [firstOfficer] = await db.query('SELECT gn_id, division_id FROM grama_niladhari LIMIT 1');
-                if (firstOfficer.length > 0) {
-                    gnId = firstOfficer[0].gn_id;
-                    divisionId = firstOfficer[0].division_id;
-                }
+            
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found. Please contact support.' });
             }
+            gnId = officer[0].gn_id;
         }
 
-        let filter = '';
-        let params = [];
-
-        if (user.role === 'OFFICER') {
-            if (gnId && divisionId) {
-                filter = 'AND (dp.gn_id = ? OR r.division_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
-                params = [gnId, divisionId];
-            } else if (gnId) {
-                filter = 'AND (dp.gn_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
-                params = [gnId];
-            } else if (divisionId) {
-                filter = 'AND (r.division_id = ? OR dp.gn_id IS NULL OR dp.gn_id = "")';
-                params = [divisionId];
-            } else {
-                filter = '';
-                params = [];
-            }
-        }
+        const filter = gnId ? 'AND dp.gn_id = ?' : '';
+        const params = gnId ? [gnId] : [];
 
         const [pending] = await db.query(`
-            SELECT dp.disaster_id AS disaster_request_id, dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date,
-                   dp.description, dp.severity, dp.location, dp.contact_number, dp.aid_requested,
-                   'Pending' AS status, dp.requested_at AS created_at,
-                   COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
-                   dp.resident_nic, dp.contact_number AS mobile_no
+            SELECT dp.disaster_id AS disaster_request_id, dp.request_number, dp.disaster_type, dp.request_date,
+                   dp.description, dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
+                   'Pending' AS status, NULL AS officer_remarks, dp.requested_at AS created_at,
+                   CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
+                   r.r_nic AS resident_nic, r.mobile_no
             FROM disaster_pending dp
             LEFT JOIN resident r ON dp.resident_nic = r.r_nic
             WHERE 1=1 ${filter}
@@ -237,8 +196,8 @@ exports.getOfficerDisasters = async (req, res) => {
         `, params);
 
         const [approved] = await db.query(`
-            SELECT da.disaster_id AS disaster_request_id, da.disaster_id, da.request_number, da.disaster_type, da.request_date,
-                   da.description, da.severity, da.location, da.contact_number, da.aid_requested,
+            SELECT da.disaster_id AS disaster_request_id, da.request_number, da.disaster_type, da.request_date,
+                   da.description, da.severity, da.location, da.contact_number, da.aid_requested, da.image_path,
                    'Approved' AS status, da.officer_remarks, da.approved_at AS created_at,
                    COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
                    da.resident_nic, da.contact_number AS mobile_no
@@ -249,8 +208,8 @@ exports.getOfficerDisasters = async (req, res) => {
         `, params);
 
         const [rejected] = await db.query(`
-            SELECT dr.disaster_id AS disaster_request_id, dr.disaster_id, dr.request_number, dr.disaster_type, dr.request_date,
-                   dr.description, dr.severity, dr.location, dr.contact_number, dr.aid_requested,
+            SELECT dr.disaster_id AS disaster_request_id, dr.request_number, dr.disaster_type, dr.request_date,
+                   dr.description, dr.severity, dr.location, dr.contact_number, dr.aid_requested, dr.image_path,
                    'Rejected' AS status, dr.officer_remarks, dr.rejection_reason, dr.rejected_at AS created_at,
                    COALESCE(CONCAT(r.first_name, ' ', r.last_name), 'Resident') AS resident_name,
                    dr.resident_nic, dr.contact_number AS mobile_no
@@ -301,18 +260,23 @@ exports.approveDisaster = async (req, res) => {
     const { officerRemarks, reliefProvided, estimatedDamage } = req.body;
 
     try {
+        // Get officer's gn_id
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const officerIdVal = user.id || user.gn_id;
+            const officerIdentifier = user.gn_id || user.officerId || user.id;
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
-                [officerIdVal, officerIdVal, officerIdVal]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR username = ?',
+                [officerIdentifier, officerIdentifier]
             );
-            gnId = officer.length > 0 ? officer[0].gn_id : officerIdVal;
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            gnId = officer[0].gn_id;
         } else {
             gnId = user.id;
         }
 
+        // Get the pending disaster
         const [pending] = await db.query('SELECT * FROM disaster_pending WHERE disaster_id = ?', [id]);
         if (pending.length === 0) {
             return res.status(404).json({ error: 'Disaster report not found in pending queue.' });
@@ -321,20 +285,26 @@ exports.approveDisaster = async (req, res) => {
         const dp = pending[0];
         const now = new Date();
 
+        // Move to approved table
         await db.query(`
             INSERT INTO disaster_approved
             (disaster_id, request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, relief_provided, resident_nic, gn_id,
+             location, contact_number, aid_requested, image_path, relief_provided, resident_nic, gn_id,
              approved_by, officer_remarks, approved_at, estimated_damage)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date, dp.description,
-            dp.severity, dp.location, dp.contact_number, dp.aid_requested,
+            dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
             reliefProvided || null, dp.resident_nic, dp.gn_id, gnId,
             officerRemarks || null, now, estimatedDamage || null]);
 
+        // Delete from pending
         await db.query('DELETE FROM disaster_pending WHERE disaster_id = ?', [id]);
 
-        return res.json({ message: 'Disaster report approved. Relief coordination initiated.' });
+        return res.json({ 
+            message: 'Disaster report approved. Relief coordination initiated.',
+            disasterId: dp.disaster_id,
+            status: 'approved'
+        });
     } catch (error) {
         console.error('Error approving disaster:', error);
         return res.status(500).json({ error: 'Server error approving disaster report.' });
@@ -352,18 +322,23 @@ exports.rejectDisaster = async (req, res) => {
     const { rejectionReason, officerRemarks } = req.body;
 
     try {
+        // Get officer's gn_id
         let gnId = null;
         if (user.role === 'OFFICER') {
-            const officerIdVal = user.id || user.gn_id;
+            const officerIdentifier = user.gn_id || user.officerId || user.id;
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
-                [officerIdVal, officerIdVal, officerIdVal]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR username = ?',
+                [officerIdentifier, officerIdentifier]
             );
-            gnId = officer.length > 0 ? officer[0].gn_id : officerIdVal;
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer not found.' });
+            }
+            gnId = officer[0].gn_id;
         } else {
             gnId = user.id;
         }
 
+        // Get the pending disaster
         const [pending] = await db.query('SELECT * FROM disaster_pending WHERE disaster_id = ?', [id]);
         if (pending.length === 0) {
             return res.status(404).json({ error: 'Disaster report not found in pending queue.' });
@@ -372,25 +347,46 @@ exports.rejectDisaster = async (req, res) => {
         const dp = pending[0];
         const now = new Date();
 
+        // Move to rejected table
         await db.query(`
             INSERT INTO disaster_rejected
             (disaster_id, request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, resident_nic, gn_id,
+             location, contact_number, aid_requested, image_path, resident_nic, gn_id,
              rejected_by, rejection_reason, officer_remarks, rejected_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date, dp.description,
-            dp.severity, dp.location, dp.contact_number, dp.aid_requested,
+            dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
             dp.resident_nic, dp.gn_id, gnId,
             rejectionReason || 'Does not meet disaster relief criteria.', officerRemarks || null, now]);
 
+        // Delete from pending
         await db.query('DELETE FROM disaster_pending WHERE disaster_id = ?', [id]);
 
-        return res.json({ message: 'Disaster report rejected.' });
+        return res.json({ 
+            message: 'Disaster report rejected.',
+            disasterId: dp.disaster_id,
+            status: 'rejected'
+        });
     } catch (error) {
         console.error('Error rejecting disaster:', error);
         return res.status(500).json({ error: 'Server error rejecting disaster report.' });
     }
 };
 
+// Combined action endpoint for frontend compatibility
+exports.handleDisasterAction = async (req, res) => {
+    const { id } = req.params;
+    const { status, severity, officerRemarks } = req.body;
 
-
+    // Map the action to approve or reject based on status
+    if (status === 'Approved' || status === 'Relief Approved' || status === 'Aid Dispatched' || status === 'Resolved') {
+        req.body.officerRemarks = officerRemarks;
+        return exports.approveDisaster(req, res);
+    } else if (status === 'Rejected') {
+        req.body.rejectionReason = officerRemarks || 'Disaster report does not meet relief criteria.';
+        req.body.officerRemarks = officerRemarks;
+        return exports.rejectDisaster(req, res);
+    } else {
+        return res.status(400).json({ error: 'Invalid action status. Use Approved or Rejected.' });
+    }
+};

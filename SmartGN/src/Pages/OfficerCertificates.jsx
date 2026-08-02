@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { encryptId } from "../utils/encryption";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 
@@ -191,11 +192,10 @@ function OfficerCertificates({ onOpenHelp }) {
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-1.5 text-[13px] font-bold rounded-md border-0 cursor-pointer transition-all duration-150 ${
-                    filterStatus === status
+                  className={`px-3 py-1.5 text-[13px] font-bold rounded-md border-0 cursor-pointer transition-all duration-150 ${filterStatus === status
                       ? "bg-white text-[#1B365D] shadow-sm"
                       : "bg-transparent text-[#64748b] hover:text-[#1e293b]"
-                  }`}
+                    }`}
                 >
                   {status}{" "}
                   {status !== "All" &&
@@ -275,13 +275,12 @@ function OfficerCertificates({ onOpenHelp }) {
                           {item.type}
                         </h4>
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${
-                            item.status === "Approved"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${item.status === "Approved"
                               ? "bg-green-100 text-green-700"
                               : item.status === "Rejected"
                                 ? "bg-red-100 text-red-700"
                                 : "bg-amber-100 text-amber-700"
-                          }`}
+                            }`}
                         >
                           {item.status}
                         </span>
@@ -440,14 +439,9 @@ function OfficerCertificates({ onOpenHelp }) {
         </div>
       </div>
 
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
-      <Footer />
-    </div>
+      <ChatbotButton onOpenHelp={onOpenHelp} />
+  <Footer />
+    </div >
   );
 }
 

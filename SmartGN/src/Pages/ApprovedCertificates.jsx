@@ -4,6 +4,7 @@ import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import logo from "../assets/logo.png";
 
 function ApprovedCertificates({ onOpenHelp }) {
@@ -975,63 +976,60 @@ function ApprovedCertificates({ onOpenHelp }) {
             </div>
           )}
 
-          <button
-            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-            onClick={onOpenHelp}
-          >
-            ?
-          </button>
-        </main>
-      </div>
-      <Footer />
+          <ChatbotButton onOpenHelp={onOpenHelp} />
+        </main >
+      </div >
+    <Footer />
 
-      {isPreviewOpen && selectedCert && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-8 border border-slate-200">
-            <div className="bg-[#1B365D] text-white py-4 px-6 flex justify-between items-center font-sans">
-              <span className="font-bold text-[16px] tracking-wide">
-                Approved Official Document
-              </span>
-              <button
-                onClick={() => setIsPreviewOpen(false)}
-                className="text-white/80 hover:text-white bg-transparent border-0 cursor-pointer text-xl font-bold"
+  {
+    isPreviewOpen && selectedCert && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-8 border border-slate-200">
+          <div className="bg-[#1B365D] text-white py-4 px-6 flex justify-between items-center font-sans">
+            <span className="font-bold text-[16px] tracking-wide">
+              Approved Official Document
+            </span>
+            <button
+              onClick={() => setIsPreviewOpen(false)}
+              className="text-white/80 hover:text-white bg-transparent border-0 cursor-pointer text-xl font-bold"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-8 md:p-12 overflow-y-auto bg-slate-100 flex-1 max-h-[70vh]">
+            {renderCertificateContent(selectedCert)}
+          </div>
+          <div className="bg-slate-50 border-t border-slate-200 py-3 px-6 flex justify-end gap-3 font-sans">
+            <button
+              onClick={() => setIsPreviewOpen(false)}
+              className="py-2 px-5 bg-slate-200 hover:bg-slate-300 text-[#475569] border-0 rounded-lg text-[13px] font-bold cursor-pointer"
+            >
+              Close
+            </button>
+            <button
+              onClick={handlePrint}
+              className="py-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-lg text-[13px] font-bold cursor-pointer shadow-sm flex items-center gap-1.5"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
               >
-                ✕
-              </button>
-            </div>
-            <div className="p-8 md:p-12 overflow-y-auto bg-slate-100 flex-1 max-h-[70vh]">
-              {renderCertificateContent(selectedCert)}
-            </div>
-            <div className="bg-slate-50 border-t border-slate-200 py-3 px-6 flex justify-end gap-3 font-sans">
-              <button
-                onClick={() => setIsPreviewOpen(false)}
-                className="py-2 px-5 bg-slate-200 hover:bg-slate-300 text-[#475569] border-0 rounded-lg text-[13px] font-bold cursor-pointer"
-              >
-                Close
-              </button>
-              <button
-                onClick={handlePrint}
-                className="py-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-lg text-[13px] font-bold cursor-pointer shadow-sm flex items-center gap-1.5"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                  <rect x="6" y="14" width="12" height="8"></rect>
-                </svg>
-                Print / Save as PDF
-              </button>
-            </div>
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              Print / Save as PDF
+            </button>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    )
+  }
+    </div >
   );
 }
 

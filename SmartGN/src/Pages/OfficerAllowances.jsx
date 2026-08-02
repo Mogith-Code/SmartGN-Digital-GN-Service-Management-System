@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
 import { getAuthHeaders } from '../utils/api'
+import { addNotification } from '../utils/notifications'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
+import ChatbotButton from '../Components/Common/ChatbotButton'
 
 function OfficerAllowances({ onOpenHelp }) {
   const navigate = useNavigate()
@@ -170,6 +172,22 @@ function OfficerAllowances({ onOpenHelp }) {
             await loadRequests()
             setTransferringId(null)
             setTransferStep(0)
+
+            // Dispatch real-time notifications
+            addNotification('resident', {
+              type: 'allowance',
+              title: 'Allowance Funds Disbursed',
+              message: `Your LKR ${transferAmount} allowance payment for ${item.program} has been processed. (Ref: ${resData.transaction.txnRef})`,
+              link: '/ResidentDashboard/allowances'
+            })
+
+            addNotification('admin', {
+              type: 'allowance',
+              title: 'Allowance Payment Cleared',
+              message: `RTGS funds transfer of LKR ${transferAmount} completed for ${item.program}.`,
+              link: '/admin'
+            })
+
             alert('RTGS Secure Funds Disbursed successfully.')
 
             const completedItem = {
@@ -614,13 +632,7 @@ function OfficerAllowances({ onOpenHelp }) {
       )}
 
       {/* Floating Help Trigger */}
-      <button 
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
-        aria-label="Help Trigger" 
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* Footer */}
       <Footer />

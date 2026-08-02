@@ -6,6 +6,7 @@ import { addNotification } from '../utils/notifications'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
+import ChatbotButton from '../Components/Common/ChatbotButton'
 
 function OfficerAnnouncements({ onOpenHelp }) {
   const navigate = useNavigate()
@@ -124,6 +125,13 @@ function OfficerAnnouncements({ onOpenHelp }) {
       title: `New Announcement: ${title}`,
       message: `Published by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
       link: '/ResidentDashboard'
+    })
+
+    addNotification('admin', {
+      type: 'announcement',
+      title: `Announcement Published`,
+      message: `GN Officer published announcement "${title}".`,
+      link: '/admin'
     })
 
     setShowSuccessBanner(true)
@@ -607,13 +615,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
       </div>
 
       {/* Floating Help Trigger */}
-      <button 
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]" 
-        aria-label="Help Trigger" 
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* Footer */}
       <Footer />

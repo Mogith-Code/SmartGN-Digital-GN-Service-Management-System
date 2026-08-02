@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
+import { addNotification } from "../utils/notifications";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import totalPendingIcon from "../assets/pending_actions_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import totalapprovedIcon from "../assets/assignment_turned_in_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import rejectedIcon from "../assets/cancel_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
@@ -83,6 +85,27 @@ function ResidentAllowances({ onOpenHelp }) {
   const [bankBranch, setBankBranch] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [accountHolder, setAccountHolder] = useState(successUser);
+
+  // Support Document File State
+  const [supportDoc, setSupportDoc] = useState(null);
+  const [supportDocName, setSupportDocName] = useState("");
+
+  const handleSupportDocChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSupportDocName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSupportDoc(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeSupportDoc = () => {
+    setSupportDoc(null);
+    setSupportDocName("");
+  };
 
   // ✅ Check if NIC images are missing - used for alert
   const areNicImagesMissing = () => {
@@ -241,6 +264,8 @@ function ResidentAllowances({ onOpenHelp }) {
     setRemarks("");
     setBankBranch("");
     setBankAccount("");
+    setSupportDoc(null);
+    setSupportDocName("");
     setIsModalOpen(true);
   };
 
@@ -273,6 +298,7 @@ function ResidentAllowances({ onOpenHelp }) {
             accountNumber: bankAccount,
             accountHolderName: accountHolder,
           },
+          supportDoc: supportDoc,
         }),
       });
 
@@ -283,6 +309,29 @@ function ResidentAllowances({ onOpenHelp }) {
 
       const resData = await response.json();
       setIsModalOpen(false);
+
+      // Trigger notifications for all roles
+      addNotification("resident", {
+        type: "allowance",
+        title: "Allowance Application Submitted",
+        message: `Your application for ${selectedProgram} has been submitted successfully.`,
+        link: "/ResidentDashboard/allowances",
+      });
+
+      addNotification("officer", {
+        type: "allowance",
+        title: "New Allowance Application",
+        message: `${applicantName} submitted a new ${selectedProgram} application.`,
+        link: "/OfficerDashboard/OfficerAllowances",
+      });
+
+      addNotification("admin", {
+        type: "allowance",
+        title: "Allowance Request Created",
+        message: `New ${selectedProgram} allowance request logged for resident ${applicantName}.`,
+        link: "/admin",
+      });
+
       loadRequests();
       alert(
         `Application for ${selectedProgram} submitted successfully! Your secure tracking ID is ${resData.allowanceId}.`,
@@ -612,8 +661,8 @@ function ResidentAllowances({ onOpenHelp }) {
 
       {/* Dynamic Popup Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white border border-[#2D37482D] rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl flex flex-col my-8">
+        <div className="fixed inset-x-0 bottom-0 top-[70px] sm:top-[85px] bg-[#0f172a]/65 backdrop-blur-xs z-[90] flex justify-center items-start p-4 sm:p-6 overflow-y-auto">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl flex flex-col relative z-[91] my-2 sm:my-4 max-h-[calc(100vh-120px)] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <h3 className="text-lg font-bold text-[#1B365D]">
                 Apply for {selectedProgram}
@@ -824,30 +873,59 @@ function ResidentAllowances({ onOpenHelp }) {
                   <label className="text-xs font-bold text-[#475569]">
                     Attach Supporting Documents (Income cert/NIC copy)
                   </label>
-                  <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="17 8 12 3 7 8"></polyline>
-                      <line x1="12" y1="3" x2="12" y2="15"></line>
-                    </svg>
-                    <span className="text-xs text-gray-500 font-medium">
-                      Upload supportive document (.pdf, .jpg)
-                    </span>
-                    <input type="file" className="hidden" id="supportDocFile" />
-                    <label
-                      htmlFor="supportDocFile"
-                      className="bg-[#1B365D]/10 hover:bg-[#1B365D]/20 text-[#1B365D] text-xs font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer"
-                    >
-                      Choose file
-                    </label>
-                  </div>
+                  {supportDocName ? (
+                    <div className="border border-green-300 bg-green-50 rounded-xl p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">📄</span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-green-900 truncate max-w-[280px]">
+                            {supportDocName}
+                          </span>
+                          <span className="text-[10px] text-green-700 font-semibold">
+                            Document attached & ready to submit
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeSupportDoc}
+                        className="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-2.5 rounded-lg border-0 cursor-pointer transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span className="text-xs text-gray-500 font-medium">
+                        Upload supportive document (.pdf, .jpg, .png)
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        id="supportDocFile"
+                        onChange={handleSupportDocChange}
+                      />
+                      <label
+                        htmlFor="supportDocFile"
+                        className="bg-[#1B365D]/10 hover:bg-[#1B365D]/20 text-[#1B365D] text-xs font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer"
+                      >
+                        Choose file
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -878,13 +956,7 @@ function ResidentAllowances({ onOpenHelp }) {
       )}
 
       {/* Floating Help Trigger */}
-      <button
-        className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-        aria-label="Help Trigger"
-        onClick={onOpenHelp}
-      >
-        ?
-      </button>
+      <ChatbotButton onOpenHelp={onOpenHelp} />
 
       {/* Footer */}
       <Footer />

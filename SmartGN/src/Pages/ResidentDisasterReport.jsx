@@ -5,6 +5,7 @@ import { getAuthHeaders } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 
 function ResidentDisasterReport({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
   const t = DisasterTranslations[lang] || DisasterTranslations.EN;
 
-  // Retrieve username and division/ID from navigation state or localStorage
   const successUser =
     location.state?.successUser ||
     localStorage.getItem("smartgn_user_name") ||
@@ -38,22 +38,36 @@ function ResidentDisasterReport({ onOpenHelp }) {
     localStorage.getItem("smartgn_user_division") ||
     "Colombo";
 
-  // Form Fields
   const [disasterType, setDisasterType] = useState("Flood");
   const [locationArea, setLocationArea] = useState("");
   const [severity, setSeverity] = useState("low severity");
   const [description, setDescription] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [aidRequested, setAidRequested] = useState("");
+  const [damageImage, setDamageImage] = useState(null);
+  const [damageImageName, setDamageImageName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  // State for tracked disasters
   const [myDisasters, setMyDisasters] = useState([]);
-
-  // State to manage dismissing the alert banner
   const [showAlert, setShowAlert] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Profile data state
+  const handleDamageImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDamageImageName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDamageImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeDamageImage = () => {
+    setDamageImage(null);
+    setDamageImageName("");
+  };
+
   const [profile, setProfile] = useState({
     firstName: "Nimal",
     lastName: "Perera",
@@ -72,12 +86,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
     nicBack: null,
   });
 
-  // ✅ Check if NIC images are missing - used for alert
   const areNicImagesMissing = () => {
     return !profile.nicFront || !profile.nicBack;
   };
 
-  // ✅ Fetch profile to get NIC images
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -93,7 +105,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
             nicBack: data.nic_back_path || null,
           }));
 
-          // ✅ Auto-hide alert if both NIC images exist
           if (data.nic_front_path && data.nic_back_path) {
             setShowAlert(false);
           } else {
@@ -108,10 +119,8 @@ function ResidentDisasterReport({ onOpenHelp }) {
     fetchProfile();
   }, []);
 
-  // ✅ Listen for profile updates from other components
   useEffect(() => {
     const handleProfileUpdate = () => {
-      // Re-fetch profile when updated
       const fetchUpdatedProfile = async () => {
         try {
           const res = await fetch("/api/residents/profile", {
@@ -145,12 +154,12 @@ function ResidentDisasterReport({ onOpenHelp }) {
     };
   }, []);
 
-  // Load disasters on mount
   useEffect(() => {
     loadDisasters();
   }, []);
 
   const loadDisasters = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("/api/disasters/resident", {
         headers: getAuthHeaders(),
@@ -167,25 +176,18 @@ function ResidentDisasterReport({ onOpenHelp }) {
         description: item.description,
         contact: item.contact_number,
         aidRequested: item.aid_requested || "None specified",
+        imagePath: item.image_path || null,
         status: item.status,
         remarks: item.officer_remarks || "",
       }));
       setMyDisasters(formatted);
     } catch (err) {
       console.error(err);
-      // Fallback
-      const saved = localStorage.getItem("smartgn_disaster_reports");
-      if (saved) {
-        const allDisasters = JSON.parse(saved);
-        const filtered = allDisasters.filter(
-          (item) => item.reporter === successUser,
-        );
-        setMyDisasters(filtered);
-      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle form reset
   const handleReset = () => {
     setDisasterType("Flood");
     setLocationArea("");
@@ -193,10 +195,11 @@ function ResidentDisasterReport({ onOpenHelp }) {
     setDescription("");
     setContactNumber("");
     setAidRequested("");
+    setDamageImage(null);
+    setDamageImageName("");
     setErrorMessage("");
   };
 
-  // Handle submit new report
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -206,6 +209,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
     }
 
     setErrorMessage("");
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/disasters/report", {
@@ -218,6 +222,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
           location: locationArea,
           contact: contactNumber,
           aidRequested,
+          imagePath: damageImage,
         }),
       });
 
@@ -233,28 +238,47 @@ function ResidentDisasterReport({ onOpenHelp }) {
       );
     } catch (err) {
       setErrorMessage(err.message || "Error submitting report.");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const getSeverityDisplay = (severity) => {
+    const map = {
+      LOW: "low severity",
+      MEDIUM: "medium severity",
+      HIGH: "high severity",
+      CRITICAL: "critical severity",
+    };
+    return map[severity] || severity?.toLowerCase() || "medium severity";
+  };
+
+  const getStatusBadgeClass = (status) => {
+    if (status === "Resolved" || status === "Approved") {
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    } else if (status === "Pending") {
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    } else if (status === "Rejected") {
+      return "bg-rose-50 text-rose-700 border-rose-200";
+    }
+    return "bg-sky-50 text-sky-700 border-sky-200";
   };
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
-      {/* Navbar */}
       <AfterlogNavbar />
 
       <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
-        {/* Sidebar */}
         <div className="hidden md:block bg-white">
           <RSidebar />
         </div>
 
-        {/* Main Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
           <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-            <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
+            <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
               Disaster Damage Report & Relief Application
             </h2>
 
-            {/* ✅ NIC upload alert - Check if NIC images are missing */}
             <div className="flex justify-end -mt-[70px]">
               {showAlert && areNicImagesMissing() && (
                 <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
@@ -307,7 +331,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Type of Disaster */}
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="disasterSelect"
@@ -333,7 +356,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </select>
                   </div>
 
-                  {/* Severity */}
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="severitySelect"
@@ -354,7 +376,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </select>
                   </div>
 
-                  {/* Location Area */}
                   <div className="flex flex-col gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="locInput"
@@ -373,7 +394,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     />
                   </div>
 
-                  {/* Contact number */}
                   <div className="flex flex-col gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="contactInput"
@@ -392,7 +412,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     />
                   </div>
 
-                  {/* Description */}
                   <div className="flex flex-col gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="descInput"
@@ -411,7 +430,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     ></textarea>
                   </div>
 
-                  {/* Relief aid */}
                   <div className="flex flex-col gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="reliefInput"
@@ -429,6 +447,71 @@ function ResidentDisasterReport({ onOpenHelp }) {
                       onChange={(e) => setAidRequested(e.target.value)}
                     />
                   </div>
+
+                  {/* Damage Photo Upload */}
+                  <div className="flex flex-col gap-1.5 sm:col-span-2 text-left">
+                    <label className="text-xs font-bold text-[#475569]">
+                      Attach Affected Area / Damage Photo (Proof for GN Verification)
+                    </label>
+                    {damageImage ? (
+                      <div className="border border-emerald-300 bg-emerald-50 rounded-xl p-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={damageImage}
+                            alt="Damage preview"
+                            className="w-14 h-14 object-cover rounded-lg border border-emerald-200 shadow-xs"
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-emerald-900 truncate max-w-[220px]">
+                              {damageImageName || "affected_area_photo.jpg"}
+                            </span>
+                            <span className="text-[10px] text-emerald-700 font-semibold">
+                              ✓ Proof photo attached for GN verification
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeDamageImage}
+                          className="text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-colors"
+                        >
+                          Remove Photo
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="text-gray-400"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span className="text-xs text-gray-500 font-medium">
+                          Upload photo of affected house / land / crops (.jpg, .png)
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id="damageImageFile"
+                          onChange={handleDamageImageChange}
+                        />
+                        <label
+                          htmlFor="damageImageFile"
+                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-xs font-bold py-1.5 px-3.5 rounded-lg border-0 cursor-pointer transition-colors"
+                        >
+                          Choose Photo
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {errorMessage && (
@@ -442,6 +525,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     type="button"
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5"
                     onClick={handleReset}
+                    disabled={isLoading}
                   >
                     Reset
                     <svg
@@ -458,9 +542,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
                   <button
                     type="submit"
-                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5"
+                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    disabled={isLoading}
                   >
-                    Submit Report
+                    {isLoading ? "Submitting..." : "Submit Report"}
                     <svg
                       width="14"
                       height="14"
@@ -484,38 +569,48 @@ function ResidentDisasterReport({ onOpenHelp }) {
               </h3>
 
               <div className="flex flex-col gap-4 max-h-[550px] overflow-y-auto pr-1">
-                {myDisasters.length === 0 ? (
+                {isLoading && !myDisasters.length ? (
+                  <div className="py-8 text-center text-gray-500">
+                    Loading...
+                  </div>
+                ) : myDisasters.length === 0 ? (
                   <div className="py-8 text-center text-gray-500 font-medium text-sm border border-dashed border-gray-200 rounded-xl">
                     No reported disasters registered to your account yet.
                   </div>
                 ) : (
                   myDisasters.map((disaster) => {
-                    const sevLower = (disaster.severity || "").toLowerCase();
-                    const cardClass = sevLower.includes("high") || sevLower.includes("critical")
-                      ? "bg-rose-50 border-rose-200 text-rose-800"
-                      : sevLower.includes("medium")
-                        ? "bg-amber-50 border-amber-200 text-amber-800"
-                        : "bg-[#F8FAFC] border-gray-200 text-[#1B365D]";
-
-                    const severityTextClass = sevLower.includes("high") || sevLower.includes("critical")
-                      ? "bg-rose-100 text-rose-800"
-                      : sevLower.includes("medium")
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-slate-100 text-slate-800";
+                    const severityDisplay = getSeverityDisplay(
+                      disaster.severity,
+                    );
+                    const isHigh =
+                      disaster.severity === "HIGH" ||
+                      disaster.severity === "CRITICAL";
 
                     return (
                       <div
                         key={disaster.id}
-                        className="border border-gray-200 rounded-xl p-5 flex flex-col gap-3 transition-shadow hover:shadow-xs bg-white text-left"
+                        className={`border rounded-xl p-5 flex flex-col gap-3 transition-shadow hover:shadow-xs bg-white text-left ${
+                          isHigh
+                            ? "border-rose-200 bg-rose-50/30"
+                            : disaster.severity === "MEDIUM"
+                              ? "border-amber-200 bg-amber-50/30"
+                              : "border-gray-200"
+                        }`}
                       >
                         <div className="flex justify-between items-center gap-2">
                           <span className="font-bold text-[#1B365D] text-base">
                             {disaster.type}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${severityTextClass}`}
+                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                              isHigh
+                                ? "bg-rose-100 text-rose-800"
+                                : disaster.severity === "MEDIUM"
+                                  ? "bg-amber-100 text-amber-800"
+                                  : "bg-slate-100 text-slate-800"
+                            }`}
                           >
-                            {disaster.severity}
+                            {severityDisplay}
                           </span>
                         </div>
 
@@ -540,14 +635,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                             Status Tracking:
                           </span>
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase
-                            ${
-                              disaster.status === "Resolved"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                : disaster.status === "Pending"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : "bg-sky-50 text-sky-700 border-sky-200"
-                            }`}
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase ${getStatusBadgeClass(disaster.status)}`}
                           >
                             {disaster.status || "Pending"}
                           </span>
@@ -573,7 +661,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Floating Help Trigger */}
       <button
         className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
         aria-label="Help Trigger"
@@ -582,7 +669,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
         ?
       </button>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

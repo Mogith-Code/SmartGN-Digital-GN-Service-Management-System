@@ -1,4 +1,3 @@
-// disasterRoutes.js
 const express = require('express');
 const router = express.Router();
 const disasterController = require('../controllers/disasterController');
@@ -12,8 +11,7 @@ router.get('/resident', authenticateToken, disasterController.getResidentDisaste
 router.get('/officer', authenticateToken, disasterController.getOfficerDisasters);
 router.put('/officer/:id/approve', authenticateToken, disasterController.approveDisaster);
 router.put('/officer/:id/reject', authenticateToken, disasterController.rejectDisaster);
-router.put('/officer/:id/action', authenticateToken, disasterController.updateDisasterAction);
-router.put('/:id/action', authenticateToken, disasterController.updateDisasterAction);
+// Combined action endpoint for frontend compatibility
+router.put('/:id/action', authenticateToken, disasterController.handleDisasterAction);
 
 module.exports = router;
-
