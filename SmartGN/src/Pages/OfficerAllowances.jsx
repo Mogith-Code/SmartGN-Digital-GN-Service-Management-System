@@ -1,235 +1,278 @@
-import { useState, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { translations, useLanguage } from '../utils/translate'
-import { getAuthHeaders } from '../utils/api'
-import { addNotification } from '../utils/notifications'
-import OfficerNavbar from '../Components/Common/OfficerNavbar'
-import OSidebar from '../Components/Common/OSidebar'
-import Footer from '../Components/Common/Footer'
-import ChatbotButton from '../Components/Common/ChatbotButton'
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { translations, useLanguage } from "../utils/translate";
+import { getAuthHeaders } from "../utils/api";
+import { addNotification } from "../utils/notifications";
+import OfficerNavbar from "../Components/Common/OfficerNavbar";
+import OSidebar from "../Components/Common/OSidebar";
+import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 
 function OfficerAllowances({ onOpenHelp }) {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { lang } = useLanguage()
-  const t = translations[lang]
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { lang } = useLanguage();
+  const t = translations[lang];
 
   // Session user defaults
-  const successUser = location.state?.successUser || localStorage.getItem('smartgn_user_name') || 'Kamal Perera'
-  const officerIdVal = location.state?.officerId || localStorage.getItem('smartgn_user_id') || '200324511540'
+  const successUser =
+    location.state?.successUser ||
+    localStorage.getItem("smartgn_user_name") ||
+    "Kamal Perera";
+  const officerIdVal =
+    location.state?.officerId ||
+    localStorage.getItem("smartgn_user_id") ||
+    "200324511540";
 
   // States
-  const [requests, setRequests] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState('All')
-  const [expandedId, setExpandedId] = useState(null)
-  
+  const [requests, setRequests] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [expandedId, setExpandedId] = useState(null);
+
   // Bank transfer simulation states
-  const [verifyingBankId, setVerifyingBankId] = useState(null)
-  const [bankVerifiedMap, setBankVerifiedMap] = useState({})
-  const [transferringId, setTransferringId] = useState(null)
-  const [transferStep, setTransferStep] = useState(0) // 0: Idle, 1: Connecting, 2: clearing, 3: Completed
-  const [transferAmount, setTransferAmount] = useState('5000')
+  const [verifyingBankId, setVerifyingBankId] = useState(null);
+  const [bankVerifiedMap, setBankVerifiedMap] = useState({});
+  const [transferringId, setTransferringId] = useState(null);
+  const [transferStep, setTransferStep] = useState(0); // 0: Idle, 1: Connecting, 2: clearing, 3: Completed
+  const [transferAmount, setTransferAmount] = useState("5000");
 
   // Receipt Modal State
-  const [showReceiptId, setShowReceiptId] = useState(null)
-  const [receiptRequest, setReceiptRequest] = useState(null)
+  const [showReceiptId, setShowReceiptId] = useState(null);
+  const [receiptRequest, setReceiptRequest] = useState(null);
+
+  // Map database values to display names
+  const getDisplayAllowanceType = (dbValue) => {
+    const displayMap = {
+      Aswesuma: "Aswesuma",
+      Samurdhi: "Samurdhi",
+      Elderly: "Elderly",
+      Disability: "Disability",
+      Kidney: "Kidney Disease", // Map "Kidney" to "Kidney Disease" for display
+    };
+    return displayMap[dbValue] || dbValue;
+  };
 
   const loadRequests = async () => {
     try {
-      const response = await fetch('/api/allowances/officer', {
-        headers: getAuthHeaders()
-      })
-      if (!response.ok) throw new Error('Failed to load allowance requests queue.')
-      const data = await response.json()
-      const formatted = data.map(item => {
+      const response = await fetch("/api/allowances/officer", {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok)
+        throw new Error("Failed to load allowance requests queue.");
+      const data = await response.json();
+      const formatted = data.map((item) => {
         let bankDetailsObj = null;
         try {
-          bankDetailsObj = typeof item.bank_details === 'string' ? JSON.parse(item.bank_details) : item.bank_details;
+          bankDetailsObj =
+            typeof item.bank_details === "string"
+              ? JSON.parse(item.bank_details)
+              : item.bank_details;
         } catch (e) {
           bankDetailsObj = item.bank_details;
         }
 
         return {
           id: item.allowance_id,
-          program: item.allowance_type,
-          purpose: item.income_details ? item.income_details.substring(0, 100) : '',
-          status: item.status === 'PENDING' ? 'Pending' : item.status === 'APPROVED' ? 'Approved' : 'Rejected',
+          program: getDisplayAllowanceType(item.allowance_type),
+          purpose: item.income_details
+            ? item.income_details.substring(0, 100)
+            : "",
+          status:
+            item.status === "PENDING"
+              ? "Pending"
+              : item.status === "APPROVED"
+                ? "Approved"
+                : "Rejected",
           bankDetails: bankDetailsObj,
-          paymentStatus: item.payment_status === 'PAID' ? 'Paid' : 'Unpaid',
+          paymentStatus: item.payment_status === "PAID" ? "Paid" : "Unpaid",
           paymentAmount: item.cleared_amount,
-          paymentTransferredAt: item.cleared_time ? new Date(item.cleared_time).toLocaleString() : '',
+          paymentTransferredAt: item.cleared_time
+            ? new Date(item.cleared_time).toLocaleString()
+            : "",
           paymentTransactionRef: item.txn_reference,
-          applicantName: item.resident_name || 'Resident',
+          applicantName: item.resident_name || "Resident",
           nic: item.resident_nic,
-          income: item.income_details || '',
-          submittedDate: item.application_date ? new Date(item.application_date).toISOString().split('T')[0] : '2026-05-15'
-        }
-      })
-      setRequests(formatted)
+          income: item.income_details || "",
+          submittedDate: item.application_date
+            ? new Date(item.application_date).toISOString().split("T")[0]
+            : "2026-05-15",
+        };
+      });
+      setRequests(formatted);
     } catch (err) {
-      console.error(err)
-      const saved = localStorage.getItem('smartgn_allowance_requests')
-      if (saved) setRequests(JSON.parse(saved))
+      console.error(err);
+      const saved = localStorage.getItem("smartgn_allowance_requests");
+      if (saved) setRequests(JSON.parse(saved));
     }
-  }
+  };
 
   useEffect(() => {
-    loadRequests()
-  }, [])
+    loadRequests();
+  }, []);
 
   // Approve action
   const handleApprove = async (id, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
       const response = await fetch(`/api/allowances/${id}/status`, {
-        method: 'PUT',
+        method: "PUT",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status: 'APPROVED' })
-      })
+        body: JSON.stringify({ status: "APPROVED" }),
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to approve allowance request.')
+        const data = await response.json();
+        throw new Error(data.error || "Failed to approve allowance request.");
       }
 
-      alert(`Allowance request ${id} has been Approved.`)
-      loadRequests()
+      alert(`Allowance request ${id} has been Approved.`);
+      loadRequests();
     } catch (err) {
-      alert(err.message || 'Error approving allowance request.')
+      alert(err.message || "Error approving allowance request.");
     }
-  }
+  };
 
   // Reject action
   const handleReject = async (id, e) => {
-    e.stopPropagation()
-    const confirmReject = window.confirm("Are you sure you want to reject this allowance request?")
+    e.stopPropagation();
+    const confirmReject = window.confirm(
+      "Are you sure you want to reject this allowance request?",
+    );
     if (confirmReject) {
       try {
         const response = await fetch(`/api/allowances/${id}/status`, {
-          method: 'PUT',
+          method: "PUT",
           headers: getAuthHeaders(),
-          body: JSON.stringify({ status: 'REJECTED' })
-        })
+          body: JSON.stringify({ status: "REJECTED" }),
+        });
 
         if (!response.ok) {
-          const data = await response.json()
-          throw new Error(data.error || 'Failed to reject allowance request.')
+          const data = await response.json();
+          throw new Error(data.error || "Failed to reject allowance request.");
         }
 
-        alert(`Allowance request ${id} has been Rejected.`)
-        loadRequests()
+        alert(`Allowance request ${id} has been Rejected.`);
+        loadRequests();
       } catch (err) {
-        alert(err.message || 'Error rejecting allowance request.')
+        alert(err.message || "Error rejecting allowance request.");
       }
     }
-  }
+  };
 
   // Mock Bank Account Verification
   const handleVerifyBank = (id, applicantName, e) => {
-    e.stopPropagation()
-    setVerifyingBankId(id)
+    e.stopPropagation();
+    setVerifyingBankId(id);
     setTimeout(() => {
-      setBankVerifiedMap(prev => ({ ...prev, [id]: true }))
-      setVerifyingBankId(null)
-      alert(`Bank Account Registry matched and verified successfully for ${applicantName}!`)
-    }, 1000)
-  }
+      setBankVerifiedMap((prev) => ({ ...prev, [id]: true }));
+      setVerifyingBankId(null);
+      alert(
+        `Bank Account Registry matched and verified successfully for ${applicantName}!`,
+      );
+    }, 1000);
+  };
 
   // Secure cleared transfer simulation
   const handleSecureTransfer = (id, item, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (!bankVerifiedMap[id]) {
-      alert("Please verify the bank account registry with the Central Bank registry first.")
-      return
+      alert(
+        "Please verify the bank account registry with the Central Bank registry first.",
+      );
+      return;
     }
 
-    setTransferringId(id)
-    setTransferStep(1) // Connecting
+    setTransferringId(id);
+    setTransferStep(1); // Connecting
 
     setTimeout(() => {
-      setTransferStep(2) // clearing
+      setTransferStep(2); // clearing
 
       setTimeout(() => {
-        setTransferStep(3) // Completed
+        setTransferStep(3); // Completed
 
         setTimeout(async () => {
           try {
             const response = await fetch(`/api/allowances/${id}/disburse`, {
-              method: 'POST',
+              method: "POST",
               headers: getAuthHeaders(),
               body: JSON.stringify({
-                disburseAmount: parseFloat(transferAmount)
-              })
-            })
+                disburseAmount: parseFloat(transferAmount),
+              }),
+            });
 
-             if (!response.ok) {
-              const data = await response.json()
-              throw new Error(data.error || 'Failed to disburse funds.')
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.error || "Failed to disburse funds.");
             }
 
-            const resData = await response.json()
-            await loadRequests()
-            setTransferringId(null)
-            setTransferStep(0)
+            const resData = await response.json();
+            await loadRequests();
+            setTransferringId(null);
+            setTransferStep(0);
 
             // Dispatch real-time notifications
-            addNotification('resident', {
-              type: 'allowance',
-              title: 'Allowance Funds Disbursed',
+            addNotification("resident", {
+              type: "allowance",
+              title: "Allowance Funds Disbursed",
               message: `Your LKR ${transferAmount} allowance payment for ${item.program} has been processed. (Ref: ${resData.transaction.txnRef})`,
-              link: '/ResidentDashboard/allowances'
-            })
+              link: "/ResidentDashboard/allowances",
+            });
 
-            addNotification('admin', {
-              type: 'allowance',
-              title: 'Allowance Payment Cleared',
+            addNotification("admin", {
+              type: "allowance",
+              title: "Allowance Payment Cleared",
               message: `RTGS funds transfer of LKR ${transferAmount} completed for ${item.program}.`,
-              link: '/admin'
-            })
+              link: "/admin",
+            });
 
-            alert('RTGS Secure Funds Disbursed successfully.')
+            alert("RTGS Secure Funds Disbursed successfully.");
 
             const completedItem = {
               id: id,
               program: item.program,
-              status: 'Approved',
-              paymentStatus: 'Paid',
+              status: "Approved",
+              paymentStatus: "Paid",
               paymentAmount: resData.transaction.amount,
-              paymentTransferredAt: new Date(resData.transaction.timestamp).toLocaleString(),
+              paymentTransferredAt: new Date(
+                resData.transaction.timestamp,
+              ).toLocaleString(),
               paymentTransactionRef: resData.transaction.txnRef,
               applicantName: item.applicantName,
-              bankDetails: item.bankDetails
-            }
-            setReceiptRequest(completedItem)
-            setShowReceiptId(id)
+              bankDetails: item.bankDetails,
+            };
+            setReceiptRequest(completedItem);
+            setShowReceiptId(id);
           } catch (err) {
-            alert(err.message || 'Error disbursing allowance funds.')
-            setTransferringId(null)
-            setTransferStep(0)
+            alert(err.message || "Error disbursing allowance funds.");
+            setTransferringId(null);
+            setTransferStep(0);
           }
-        }, 800)
-      }, 1000)
-    }, 800)
-  }
+        }, 800);
+      }, 1000);
+    }, 800);
+  };
 
   // View existing receipt
   const viewReceipt = (item, e) => {
-    e.stopPropagation()
-    setReceiptRequest(item)
-    setShowReceiptId(item.id)
-  }
+    e.stopPropagation();
+    setReceiptRequest(item);
+    setShowReceiptId(item.id);
+  };
 
   // Filter & Search logic
-  const filteredRequests = requests.filter(r => {
-    const applicant = r.applicantName || r.bankDetails?.accountHolderName || 'Resident'
-    const matchesSearch = applicant.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          r.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          String(r.id).includes(searchQuery)
-    
-    if (filterStatus === 'All') return matchesSearch
-    return matchesSearch && r.status === filterStatus
-  })
+  const filteredRequests = requests.filter((r) => {
+    const applicant =
+      r.applicantName || r.bankDetails?.accountHolderName || "Resident";
+    const matchesSearch =
+      applicant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.program.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(r.id).includes(searchQuery);
+
+    if (filterStatus === "All") return matchesSearch;
+    return matchesSearch && r.status === filterStatus;
+  });
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
@@ -244,25 +287,25 @@ function OfficerAllowances({ onOpenHelp }) {
 
         {/* Content Panel */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] p-4 sm:p-6 md:p-8 lg:p-[30px] flex flex-col">
-          
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <div className="text-left">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-bold text-[#1B365D] m-0">
                 Allowance Programs Queue
               </h2>
               <p className="text-sm text-[#64748b] mt-1">
-                Analyze, verify and securely disburse funds to registered allowance applications.
+                Analyze, verify and securely disburse funds to registered
+                allowance applications.
               </p>
             </div>
 
             {/* Filter Buttons */}
             <div className="flex gap-1 bg-[#F1F5F9] p-1 rounded-xl border border-gray-200 self-start md:self-auto">
-              {['All', 'Pending', 'Approved', 'Rejected'].map((status) => (
+              {["All", "Pending", "Approved", "Rejected"].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilterStatus(status)}
                   className={`px-4 py-1.5 text-xs font-bold rounded-lg border-0 cursor-pointer transition-all duration-150
-                    ${filterStatus === status ? 'bg-white text-[#1B365D] shadow-xs' : 'bg-transparent text-gray-500 hover:text-gray-900'}`}
+                    ${filterStatus === status ? "bg-white text-[#1B365D] shadow-xs" : "bg-transparent text-gray-500 hover:text-gray-900"}`}
                 >
                   {status}
                 </button>
@@ -279,7 +322,15 @@ function OfficerAllowances({ onOpenHelp }) {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-11 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
             />
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" className="absolute left-4 top-3.5">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#64748b"
+              strokeWidth="2.5"
+              className="absolute left-4 top-3.5"
+            >
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -288,14 +339,17 @@ function OfficerAllowances({ onOpenHelp }) {
           {/* List of Applications */}
           <div className="flex flex-col gap-4 text-left">
             {filteredRequests.map((item) => {
-              const applicant = item.applicantName || item.bankDetails?.accountHolderName || 'Resident'
-              const isExpanded = expandedId === item.id
+              const applicant =
+                item.applicantName ||
+                item.bankDetails?.accountHolderName ||
+                "Resident";
+              const isExpanded = expandedId === item.id;
 
               return (
                 <div
                   key={item.id}
                   className={`bg-white border rounded-2xl overflow-hidden transition-all duration-200
-                    ${isExpanded ? 'border-[#d97706]/40 shadow-md' : 'border-gray-200 shadow-xs hover:border-gray-300'}`}
+                    ${isExpanded ? "border-[#d97706]/40 shadow-md" : "border-gray-200 shadow-xs hover:border-gray-300"}`}
                 >
                   {/* Collapsed Row Header */}
                   <div
@@ -309,35 +363,58 @@ function OfficerAllowances({ onOpenHelp }) {
                           <h4 className="margin-0 text-base font-bold text-[#1B365D]">
                             {item.program}
                           </h4>
-                          
+
                           {/* Status Badge */}
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
-                            ${item.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
-                              item.status === 'Rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 
-                              'bg-amber-50 text-amber-700 border-amber-200'}`}
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
+                            ${
+                              item.status === "Approved"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : item.status === "Rejected"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                                  : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}
                           >
                             {item.status}
                           </span>
-                          
-                          {item.status === 'Approved' && (
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
-                              ${item.paymentStatus === 'Paid' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-amber-500 text-white border-amber-500'}`}
+
+                          {item.status === "Approved" && (
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border
+                              ${item.paymentStatus === "Paid" ? "bg-emerald-500 text-white border-emerald-500" : "bg-amber-500 text-white border-amber-500"}`}
                             >
-                              {item.paymentStatus === 'Paid' ? 'Paid' : 'Unpaid'}
+                              {item.paymentStatus === "Paid"
+                                ? "Paid"
+                                : "Unpaid"}
                             </span>
                           )}
                         </div>
 
                         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                          <span>Applicant: <strong className="text-gray-700">{applicant}</strong></span>
-                          <span>NIC: <strong className="text-gray-700">{item.nic || '200324511540'}</strong></span>
-                          <span>Submitted: <strong className="text-gray-700">{item.submittedDate}</strong></span>
+                          <span>
+                            Applicant:{" "}
+                            <strong className="text-gray-700">
+                              {applicant}
+                            </strong>
+                          </span>
+                          <span>
+                            NIC:{" "}
+                            <strong className="text-gray-700">
+                              {item.nic || "200324511540"}
+                            </strong>
+                          </span>
+                          <span>
+                            Submitted:{" "}
+                            <strong className="text-gray-700">
+                              {item.submittedDate}
+                            </strong>
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     <span className="text-lg text-gray-400 font-bold transition-transform duration-200">
-                      {isExpanded ? '▲' : '▼'}
+                      {isExpanded ? "▲" : "▼"}
                     </span>
                   </div>
 
@@ -345,45 +422,69 @@ function OfficerAllowances({ onOpenHelp }) {
                   {isExpanded && (
                     <div className="px-5 pb-6 sm:px-8 sm:pb-8 border-t border-gray-100 bg-[#F8FAFC]">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
-                        
                         {/* Left Column details */}
                         <div className="flex flex-col gap-4">
                           <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
                             Application Information
                           </h4>
-                          
+
                           <div className="flex flex-col gap-2.5 text-xs sm:text-sm text-gray-700">
                             <div>
-                              <span className="font-semibold text-gray-400">Purpose:</span> {item.purpose}
+                              <span className="font-semibold text-gray-400">
+                                Purpose:
+                              </span>{" "}
+                              {item.purpose}
                             </div>
                             <div>
-                              <span className="font-semibold text-gray-400">Monthly Household Income:</span> LKR {parseFloat(item.income || '20000').toLocaleString()}.00
+                              <span className="font-semibold text-gray-400">
+                                Monthly Household Income:
+                              </span>{" "}
+                              LKR{" "}
+                              {parseFloat(
+                                item.income || "20000",
+                              ).toLocaleString()}
+                              .00
                             </div>
                             <div>
-                              <span className="font-semibold text-gray-400">Remarks:</span> {item.remarks || 'No remarks provided.'}
+                              <span className="font-semibold text-gray-400">
+                                Remarks:
+                              </span>{" "}
+                              {item.remarks || "No remarks provided."}
                             </div>
-                            
+
                             {/* PDF Document Viewer Card */}
                             <div className="mt-3">
-                              <span className="block text-xs font-bold text-gray-400 mb-2">Supporting PDF Document:</span>
-                              <div 
-                                onClick={() => alert(`Simulating secure document viewer for SmartGN-AL-${item.id}... Verified CBSL Signature.`)}
+                              <span className="block text-xs font-bold text-gray-400 mb-2">
+                                Supporting PDF Document:
+                              </span>
+                              <div
+                                onClick={() =>
+                                  alert(
+                                    `Simulating secure document viewer for SmartGN-AL-${item.id}... Verified CBSL Signature.`,
+                                  )
+                                }
                                 className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-3.5 cursor-pointer hover:border-[#1B365D] transition-colors"
                               >
                                 <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0">
                                   PDF
                                 </div>
                                 <div className="flex-1 text-left">
-                                  <span className="block font-bold text-gray-800 text-xs sm:text-sm truncate">Proof_of_Income_Cert.pdf</span>
-                                  <span className="text-[11px] text-gray-400">1.4 MB • Certified Statement</span>
+                                  <span className="block font-bold text-gray-800 text-xs sm:text-sm truncate">
+                                    Proof_of_Income_Cert.pdf
+                                  </span>
+                                  <span className="text-[11px] text-gray-400">
+                                    1.4 MB • Certified Statement
+                                  </span>
                                 </div>
-                                <span className="text-[#005BBD] font-bold text-xs flex-shrink-0">View PDF ➔</span>
+                                <span className="text-[#005BBD] font-bold text-xs flex-shrink-0">
+                                  View PDF ➔
+                                </span>
                               </div>
                             </div>
                           </div>
 
                           {/* Quick Action Controls */}
-                          {item.status === 'Pending' && (
+                          {item.status === "Pending" && (
                             <div className="flex gap-3 mt-4">
                               <button
                                 onClick={(e) => handleReject(item.id, e)}
@@ -406,44 +507,88 @@ function OfficerAllowances({ onOpenHelp }) {
                           <h4 className="text-sm font-bold text-[#1B365D] border-b border-gray-200 pb-1.5">
                             Payment & Transfer Console
                           </h4>
-                          
+
                           {item.bankDetails ? (
                             /* Premium Bank Card */
                             <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 flex flex-col gap-3 shadow-xs">
                               <div className="flex justify-between items-center">
-                                <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider">Verified Payment Account</span>
-                                <span className="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded">CBSL Registered</span>
+                                <span className="text-[10px] text-emerald-800 font-extrabold uppercase tracking-wider">
+                                  Verified Payment Account
+                                </span>
+                                <span className="bg-emerald-200 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded">
+                                  CBSL Registered
+                                </span>
                               </div>
                               <div className="text-xs sm:text-sm text-gray-700 flex flex-col gap-1.5">
-                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Bank Name:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.bankName}</strong></div>
-                                <div className="flex justify-between"><span className="text-gray-400 font-medium">Branch:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.branch}</strong></div>
-                                <div className="flex justify-between"><span className="text-gray-400 font-medium">A/C Number:</span> <strong className="font-mono text-gray-800">{item.bankDetails.accountNumber}</strong></div>
-                                <div className="flex justify-between border-t border-emerald-100 pt-2 mt-1"><span className="text-gray-400 font-medium">Account Holder:</span> <strong className="font-semibold text-gray-800">{item.bankDetails.accountHolderName}</strong></div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400 font-medium">
+                                    Bank Name:
+                                  </span>{" "}
+                                  <strong className="font-semibold text-gray-800">
+                                    {item.bankDetails.bankName}
+                                  </strong>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400 font-medium">
+                                    Branch:
+                                  </span>{" "}
+                                  <strong className="font-semibold text-gray-800">
+                                    {item.bankDetails.branch}
+                                  </strong>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-400 font-medium">
+                                    A/C Number:
+                                  </span>{" "}
+                                  <strong className="font-mono text-gray-800">
+                                    {item.bankDetails.accountNumber}
+                                  </strong>
+                                </div>
+                                <div className="flex justify-between border-t border-emerald-100 pt-2 mt-1">
+                                  <span className="text-gray-400 font-medium">
+                                    Account Holder:
+                                  </span>{" "}
+                                  <strong className="font-semibold text-gray-800">
+                                    {item.bankDetails.accountHolderName}
+                                  </strong>
+                                </div>
                               </div>
                             </div>
                           ) : (
                             <div className="p-4 text-xs sm:text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-xl">
-                              Resident has not provided bank account details yet. Money cannot be transferred.
+                              Resident has not provided bank account details
+                              yet. Money cannot be transferred.
                             </div>
                           )}
 
                           {/* Bank Actions */}
-                          {item.status === 'Approved' && item.bankDetails && (
+                          {item.status === "Approved" && item.bankDetails && (
                             <div className="flex flex-col gap-3">
-                              {item.paymentStatus === 'Unpaid' ? (
+                              {item.paymentStatus === "Unpaid" ? (
                                 <>
                                   {!bankVerifiedMap[item.id] ? (
                                     <button
-                                      onClick={(e) => handleVerifyBank(item.id, applicant, e)}
+                                      onClick={(e) =>
+                                        handleVerifyBank(item.id, applicant, e)
+                                      }
                                       disabled={verifyingBankId === item.id}
                                       className="w-full bg-[#1B365D] hover:bg-[#005BBD] disabled:bg-gray-400 text-white border-0 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition-colors shadow-xs"
                                     >
-                                      {verifyingBankId === item.id ? 'Connecting Central Registry...' : '🔍 Verify Bank Account Registry'}
+                                      {verifyingBankId === item.id
+                                        ? "Connecting Central Registry..."
+                                        : "🔍 Verify Bank Account Registry"}
                                     </button>
                                   ) : (
                                     <div className="flex flex-col gap-3 text-left">
                                       <div className="text-xs sm:text-sm text-emerald-700 font-bold flex items-center gap-1.5">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                        <svg
+                                          width="14"
+                                          height="14"
+                                          viewBox="0 0 24 24"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth="3"
+                                        >
                                           <polyline points="20 6 9 17 4 12"></polyline>
                                         </svg>
                                         Bank Account Registry Verified
@@ -451,30 +596,42 @@ function OfficerAllowances({ onOpenHelp }) {
 
                                       {/* Amount select input */}
                                       <div className="flex flex-col gap-1.5">
-                                        <label htmlFor={`amount-${item.id}`} className="text-xs font-bold text-gray-500">Transfer Amount (LKR)</label>
+                                        <label
+                                          htmlFor={`amount-${item.id}`}
+                                          className="text-xs font-bold text-gray-500"
+                                        >
+                                          Transfer Amount (LKR)
+                                        </label>
                                         <input
                                           type="number"
                                           id={`amount-${item.id}`}
                                           value={transferAmount}
-                                          onChange={(e) => setTransferAmount(e.target.value)}
+                                          onChange={(e) =>
+                                            setTransferAmount(e.target.value)
+                                          }
                                           className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all w-full bg-white"
                                         />
                                       </div>
 
                                       {/* Secure Disburse button */}
                                       <button
-                                        onClick={(e) => handleSecureTransfer(item.id, item, e)}
+                                        onClick={(e) =>
+                                          handleSecureTransfer(item.id, item, e)
+                                        }
                                         disabled={transferringId === item.id}
                                         className="w-full bg-emerald-600 hover:bg-emerald-750 disabled:bg-gray-400 text-white border-0 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold cursor-pointer shadow-md transition-colors"
                                       >
                                         {transferringId === item.id ? (
                                           <span>
-                                            {transferStep === 1 && 'RTGS: Handshaking clearing gateway...'}
-                                            {transferStep === 2 && 'RTGS: Disbursing secure cleared funds...'}
-                                            {transferStep === 3 && 'RTGS: Finalizing transaction records...'}
+                                            {transferStep === 1 &&
+                                              "RTGS: Handshaking clearing gateway..."}
+                                            {transferStep === 2 &&
+                                              "RTGS: Disbursing secure cleared funds..."}
+                                            {transferStep === 3 &&
+                                              "RTGS: Finalizing transaction records..."}
                                           </span>
                                         ) : (
-                                          '🔒 Securely Transfer Funds via RTGS'
+                                          "🔒 Securely Transfer Funds via RTGS"
                                         )}
                                       </button>
                                     </div>
@@ -484,17 +641,43 @@ function OfficerAllowances({ onOpenHelp }) {
                                 /* Paid state logs & view receipt trigger */
                                 <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 flex flex-col gap-3">
                                   <div className="text-xs sm:text-sm text-emerald-800 font-bold flex items-center gap-1.5">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                    <svg
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="3"
+                                    >
                                       <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                     Funds successfully Disbursed
                                   </div>
                                   <div className="text-xs text-gray-600 flex flex-col gap-1 text-left">
-                                    <div>Transferred: <strong className="text-gray-800">LKR {parseFloat(item.paymentAmount || '5000').toLocaleString()}.00</strong></div>
-                                    <div>Cleared Date: <strong className="text-gray-800">{item.paymentTransferredAt}</strong></div>
-                                    <div>Secure Ref: <code className="bg-emerald-100 text-emerald-900 px-1 rounded font-mono font-bold">{item.paymentTransactionRef}</code></div>
+                                    <div>
+                                      Transferred:{" "}
+                                      <strong className="text-gray-800">
+                                        LKR{" "}
+                                        {parseFloat(
+                                          item.paymentAmount || "5000",
+                                        ).toLocaleString()}
+                                        .00
+                                      </strong>
+                                    </div>
+                                    <div>
+                                      Cleared Date:{" "}
+                                      <strong className="text-gray-800">
+                                        {item.paymentTransferredAt}
+                                      </strong>
+                                    </div>
+                                    <div>
+                                      Secure Ref:{" "}
+                                      <code className="bg-emerald-100 text-emerald-900 px-1 rounded font-mono font-bold">
+                                        {item.paymentTransactionRef}
+                                      </code>
+                                    </div>
                                   </div>
-                                  
+
                                   <button
                                     onClick={(e) => viewReceipt(item, e)}
                                     className="bg-transparent border-0 text-[#005BBD] hover:text-[#1B365D] font-bold text-xs cursor-pointer p-0 self-start flex items-center gap-1"
@@ -506,18 +689,18 @@ function OfficerAllowances({ onOpenHelp }) {
                             </div>
                           )}
 
-                          {item.status !== 'Approved' && (
-                            <span className="text-xs text-gray-400">Approved requests can clearing secure money transfers instantly.</span>
+                          {item.status !== "Approved" && (
+                            <span className="text-xs text-gray-400">
+                              Approved requests can clearing secure money
+                              transfers instantly.
+                            </span>
                           )}
-
                         </div>
-
                       </div>
                     </div>
                   )}
-
                 </div>
-              )
+              );
             })}
 
             {filteredRequests.length === 0 && (
@@ -533,12 +716,11 @@ function OfficerAllowances({ onOpenHelp }) {
       {showReceiptId && receiptRequest && (
         <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-emerald-500 rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl flex flex-col relative text-center">
-            
             {/* Seal */}
             <div className="w-14 h-14 rounded-full border-2 border-amber-600 bg-amber-50/50 flex items-center justify-center mx-auto mb-3 text-2xl font-bold">
               🇱🇰
             </div>
-            
+
             <h3 className="text-sm sm:text-base font-extrabold text-[#1a2e56] uppercase tracking-wider m-0">
               Central Bank of Sri Lanka
             </h3>
@@ -549,57 +731,97 @@ function OfficerAllowances({ onOpenHelp }) {
             {/* Receipt Details */}
             <div className="border-t-2 border-b-2 border-dashed border-gray-300 py-4 my-4 flex flex-col gap-2.5 text-xs text-left">
               <div className="flex justify-between items-center">
-                <span className="text-gray-400 font-semibold">Transaction Status:</span>
-                <span className="text-emerald-700 font-bold flex items-center gap-1">Clearing Settled</span>
-              </div>
-              
-              <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Transaction Ref:</span>
-                <strong className="font-mono text-gray-800 text-[12px]">{receiptRequest.paymentTransactionRef}</strong>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Disbursed Date:</span>
-                <strong className="text-gray-800">{receiptRequest.paymentTransferredAt}</strong>
+                <span className="text-gray-400 font-semibold">
+                  Transaction Status:
+                </span>
+                <span className="text-emerald-700 font-bold flex items-center gap-1">
+                  Clearing Settled
+                </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Allowance Program:</span>
-                <strong className="text-gray-800">{receiptRequest.program}</strong>
+                <span className="text-gray-400 font-semibold">
+                  Transaction Ref:
+                </span>
+                <strong className="font-mono text-gray-800 text-[12px]">
+                  {receiptRequest.paymentTransactionRef}
+                </strong>
               </div>
-              
-               <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Applicant Name:</span>
-                <strong className="text-gray-800">{receiptRequest.applicantName}</strong>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">
+                  Disbursed Date:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.paymentTransferredAt}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">
+                  Allowance Program:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.program}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-400 font-semibold">
+                  Applicant Name:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.applicantName}
+                </strong>
               </div>
 
               <div className="flex justify-between border-t border-gray-100 pt-2.5 mt-0.5">
-                <span className="text-gray-400 font-semibold">Destination Bank:</span>
-                <strong className="text-gray-800">{receiptRequest.bankDetails?.bankName}</strong>
+                <span className="text-gray-400 font-semibold">
+                  Destination Bank:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.bankDetails?.bankName}
+                </strong>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Branch Office:</span>
-                <strong className="text-gray-800">{receiptRequest.bankDetails?.branch}</strong>
+                <span className="text-gray-400 font-semibold">
+                  Branch Office:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.bankDetails?.branch}
+                </strong>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-gray-400 font-semibold">Credit Account:</span>
-                <strong className="text-gray-800">{receiptRequest.bankDetails?.accountNumber}</strong>
+                <span className="text-gray-400 font-semibold">
+                  Credit Account:
+                </span>
+                <strong className="text-gray-800">
+                  {receiptRequest.bankDetails?.accountNumber}
+                </strong>
               </div>
 
               <div className="flex justify-between border-t border-gray-200 pt-3 mt-1.5">
-                <span className="text-sm font-bold text-[#1B365D]">Settled Amount:</span>
+                <span className="text-sm font-bold text-[#1B365D]">
+                  Settled Amount:
+                </span>
                 <strong className="text-[#10b981] text-base font-extrabold">
-                  LKR {parseFloat(receiptRequest.paymentAmount || '5000').toLocaleString()}.00
+                  LKR{" "}
+                  {parseFloat(
+                    receiptRequest.paymentAmount || "5000",
+                  ).toLocaleString()}
+                  .00
                 </strong>
               </div>
             </div>
 
-             {/* Divisional clearances sign */}
+            {/* Divisional clearances sign */}
             <div className="flex justify-between items-center mb-6 text-left opacity-90">
               <div className="text-[9px] text-gray-400 leading-normal">
-                <span className="block font-bold text-gray-600 uppercase">DIVISIONAL CLEARANCE GATEWAY</span>
+                <span className="block font-bold text-gray-600 uppercase">
+                  DIVISIONAL CLEARANCE GATEWAY
+                </span>
                 Colombo Divisional Secretariat, Sri Lanka
               </div>
               <div className="border border-emerald-500 rounded text-emerald-600 text-[9px] font-extrabold px-2 py-0.5 uppercase rotate-[-3deg] tracking-wider flex-shrink-0">
@@ -610,7 +832,9 @@ function OfficerAllowances({ onOpenHelp }) {
             {/* Actions */}
             <div className="flex gap-3">
               <button
-                onClick={() => alert("Downloading secured CBSL digitally signed receipt...")}
+                onClick={() =>
+                  alert("Downloading secured CBSL digitally signed receipt...")
+                }
                 className="flex-1 bg-white hover:bg-gray-50 text-[#1a2e56] border border-[#1a2e56] py-2 px-4 rounded-xl text-xs font-bold cursor-pointer transition-colors"
               >
                 Download PDF
@@ -618,15 +842,14 @@ function OfficerAllowances({ onOpenHelp }) {
 
               <button
                 onClick={() => {
-                  setShowReceiptId(null)
-                  setReceiptRequest(null)
+                  setShowReceiptId(null);
+                  setReceiptRequest(null);
                 }}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white border-0 py-2 px-4 rounded-xl text-xs font-bold cursor-pointer shadow-xs transition-colors"
               >
                 Close Receipt
               </button>
             </div>
-
           </div>
         </div>
       )}
@@ -637,8 +860,7 @@ function OfficerAllowances({ onOpenHelp }) {
       {/* Footer */}
       <Footer />
     </div>
-  )
+  );
 }
 
-export default OfficerAllowances
-
+export default OfficerAllowances;

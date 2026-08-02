@@ -376,104 +376,86 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-    // ============================================================
-    // 9. ALLOWANCE TABLES (Separated)
-    // ============================================================
+// 9a. PENDING ALLOWANCES
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS allowance_pending (
+    allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+    payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+    cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+    cleared_time DATETIME,
+    txn_reference VARCHAR(50),
+    bank_details TEXT,
+    document_path LONGTEXT,
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    // 9a. PENDING ALLOWANCES
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_pending (
-        allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
-        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
-        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
-        cleared_time DATETIME,
-        txn_reference VARCHAR(50),
-        bank_details TEXT,
-        document_path LONGTEXT,
-        requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
-    // Ensure columns exist if table was created previously without them
-    const alterCols = [
-        "ALTER TABLE allowance_pending ADD COLUMN status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING'",
-        "ALTER TABLE allowance_pending ADD COLUMN payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID'",
-        "ALTER TABLE allowance_pending ADD COLUMN cleared_amount DECIMAL(12,2) DEFAULT 0.00",
-        "ALTER TABLE allowance_pending ADD COLUMN cleared_time DATETIME",
-        "ALTER TABLE allowance_pending ADD COLUMN txn_reference VARCHAR(50)",
-        "ALTER TABLE allowance_pending ADD COLUMN bank_details TEXT",
-        "ALTER TABLE allowance_pending ADD COLUMN document_path LONGTEXT"
-    ];
-    for (const q of alterCols) {
-        try { await dbPool.query(q); } catch (e) { /* column exists */ }
-    }
+// 9b. APPROVED ALLOWANCES
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS allowance_approved (
+    allowance_id VARCHAR(36) PRIMARY KEY,
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    approved_by VARCHAR(20) NOT NULL,
+    gn_remarks TEXT,
+    approved_at DATETIME DEFAULT NULL,
+    payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+    cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+    cleared_time DATETIME,
+    txn_reference VARCHAR(50),
+    bank_details TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type),
+    INDEX idx_approved_at (approved_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
-    // 9b. APPROVED ALLOWANCES
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_approved (
-        allowance_id VARCHAR(36) PRIMARY KEY,
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        approved_by VARCHAR(20) NOT NULL,
-        gn_remarks TEXT,
-        approved_at DATETIME DEFAULT NULL,
-        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
-        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
-        cleared_time DATETIME,
-        txn_reference VARCHAR(50),
-        bank_details TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type),
-        INDEX idx_approved_at (approved_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-
-    // 9c. REJECTED ALLOWANCES
-    await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_rejected (
-        allowance_id VARCHAR(36) PRIMARY KEY,
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        rejected_by VARCHAR(20) NOT NULL,
-        rejection_reason TEXT,
-        gn_remarks TEXT,
-        rejected_at DATETIME DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type),
-        INDEX idx_rejected_at (rejected_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
+// 9c. REJECTED ALLOWANCES
+await dbPool.query(`
+CREATE TABLE IF NOT EXISTS allowance_rejected (
+    allowance_id VARCHAR(36) PRIMARY KEY,
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    rejected_by VARCHAR(20) NOT NULL,
+    rejection_reason TEXT,
+    gn_remarks TEXT,
+    rejected_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type),
+    INDEX idx_rejected_at (rejected_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
     // ============================================================
     // 10. DISASTER TABLES (Separated) - FIXED

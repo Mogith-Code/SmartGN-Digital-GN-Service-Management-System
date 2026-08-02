@@ -96,7 +96,6 @@ function ResidentAllowances({ onOpenHelp }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionComplete, setSubmissionComplete] = useState(false);
 
   // Secure Bank Details State
   const [bankName, setBankName] = useState("Bank of Ceylon");
@@ -107,6 +106,30 @@ function ResidentAllowances({ onOpenHelp }) {
   // Support Document File State
   const [supportDoc, setSupportDoc] = useState(null);
   const [supportDocName, setSupportDocName] = useState("");
+
+  // Map display names to database ENUM values
+  const getDatabaseAllowanceType = (displayName) => {
+    const typeMap = {
+      Aswesuma: "Aswesuma",
+      Samurdhi: "Samurdhi",
+      Elderly: "Elderly",
+      Disability: "Disability",
+      "Kidney Disease": "Kidney", // Map "Kidney Disease" to "Kidney" for database
+    };
+    return typeMap[displayName] || displayName;
+  };
+
+  // Map database values to display names
+  const getDisplayAllowanceType = (dbValue) => {
+    const displayMap = {
+      Aswesuma: "Aswesuma",
+      Samurdhi: "Samurdhi",
+      Elderly: "Elderly",
+      Disability: "Disability",
+      Kidney: "Kidney Disease", // Map "Kidney" back to "Kidney Disease" for display
+    };
+    return displayMap[dbValue] || dbValue;
+  };
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -226,7 +249,7 @@ function ResidentAllowances({ onOpenHelp }) {
         }
         return {
           id: item.allowance_id,
-          program: item.allowance_type,
+          program: getDisplayAllowanceType(item.allowance_type), // Convert database value to display name
           purpose: item.income_details
             ? item.income_details.substring(0, 100)
             : "",
@@ -288,7 +311,6 @@ function ResidentAllowances({ onOpenHelp }) {
     setSelectedProgram(programName);
     setErrorMessage("");
     setSuccessMessage("");
-    setSubmissionComplete(false);
     setIncome("");
     setRemarks("");
     setBankBranch("");
@@ -318,12 +340,15 @@ function ResidentAllowances({ onOpenHelp }) {
     setSuccessMessage("");
     setIsSubmitting(true);
 
+    // Convert display name to database ENUM value
+    const dbAllowanceType = getDatabaseAllowanceType(selectedProgram);
+
     try {
       const response = await fetch("/api/allowances/apply", {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          allowanceType: selectedProgram,
+          allowanceType: dbAllowanceType, // Send mapped value to database
           incomeDetails: `Household Monthly Income: LKR ${income}. Purpose: ${purpose}. Remarks: ${remarks}`,
           bankDetails: {
             bankName,
@@ -347,7 +372,6 @@ function ResidentAllowances({ onOpenHelp }) {
 
       // Set success message
       setSuccessMessage(`${t.success} Tracking ID: ${resData.allowanceId}`);
-      setSubmissionComplete(true);
       setIsSubmitting(false);
 
       // Scroll to top to show success message
@@ -387,7 +411,6 @@ function ResidentAllowances({ onOpenHelp }) {
   // Close success message
   const closeSuccessMessage = () => {
     setSuccessMessage("");
-    setSubmissionComplete(false);
   };
 
   const cards = [
@@ -589,17 +612,17 @@ function ResidentAllowances({ onOpenHelp }) {
                   icon: "🌾",
                 },
                 {
-                  name: "Elderly Support",
+                  name: "Elderly",
                   desc: "Financial assistance for senior citizens above the age of 70.",
                   icon: "👵",
                 },
                 {
-                  name: "Disability Allowance",
+                  name: "Disability",
                   desc: "Financial relief support to assist differently-abled citizens.",
                   icon: "♿",
                 },
                 {
-                  name: "Kidney Disease Support",
+                  name: "Kidney Disease",
                   desc: "Welfare fund targeting medical support for kidney patients.",
                   icon: "🩺",
                 },
@@ -623,9 +646,8 @@ function ResidentAllowances({ onOpenHelp }) {
                     </p>
                   </div>
                   <button
-                    className="w-full mt-auto bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center gap-2 border-0 cursor-pointer transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full mt-auto bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2 px-4 rounded-xl flex items-center justify-center gap-2 border-0 cursor-pointer transition-colors text-sm"
                     onClick={() => handleOpenApply(prog.name)}
-                    disabled={submissionComplete}
                   >
                     <svg
                       width="14"
