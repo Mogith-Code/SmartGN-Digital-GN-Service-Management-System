@@ -70,7 +70,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
   const [myDisasters, setMyDisasters] = useState([]);
   const [showAlert, setShowAlert] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [submissionComplete, setSubmissionComplete] = useState(false);
 
   // Map display names to database ENUM values
   const getDatabaseDisasterType = (displayType) => {
@@ -79,7 +78,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
       Landslide: "Landslide",
       Fire: "Fire",
       Cyclone: "Cyclone",
-      "Earth Slip": "Earth_Slip", // Map "Earth Slip" to "Earth_Slip" for database
+      "Earth Slip": "Earth_Slip",
       Other: "Other",
     };
     return typeMap[displayType] || displayType;
@@ -92,7 +91,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
       Landslide: "Landslide",
       Fire: "Fire",
       Cyclone: "Cyclone",
-      Earth_Slip: "Earth Slip", // Map "Earth_Slip" back to "Earth Slip" for display
+      Earth_Slip: "Earth Slip",
       Other: "Other",
     };
     return displayMap[dbValue] || dbValue;
@@ -223,7 +222,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
       if (!response.ok) throw new Error("Failed to load disaster history.");
       const data = await response.json();
 
-      // Ensure data is an array
       const disasterData = Array.isArray(data) ? data : [];
 
       const formatted = disasterData.map((item) => ({
@@ -260,14 +258,12 @@ function ResidentDisasterReport({ onOpenHelp }) {
     setDamageImageName("");
     setErrorMessage("");
     setSuccessMessage("");
-    setSubmissionComplete(false);
     scrollToTop();
   };
 
   // Close success message
   const closeSuccessMessage = () => {
     setSuccessMessage("");
-    setSubmissionComplete(false);
   };
 
   const handleSubmit = async (e) => {
@@ -284,7 +280,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
     setSuccessMessage("");
     setIsLoading(true);
 
-    // Convert display name to database ENUM value
     const dbDisasterType = getDatabaseDisasterType(disasterType);
 
     try {
@@ -292,7 +287,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          disasterType: dbDisasterType, // Send mapped value to database
+          disasterType: dbDisasterType,
           description,
           severity:
             severity === "low severity"
@@ -316,7 +311,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
       setSuccessMessage(
         `${t.success} Report ID: ${data.requestNumber || data.id || "N/A"}`,
       );
-      setSubmissionComplete(true);
       setIsLoading(false);
 
       // Scroll to top to show success message
@@ -337,7 +331,17 @@ function ResidentDisasterReport({ onOpenHelp }) {
         link: "/ResidentDashboard/RDisaster",
       });
 
-      // Reload the list without resetting the form (so success message stays)
+      // Reset form fields (but keep success message)
+      setDisasterType("Flood");
+      setLocationArea("");
+      setSeverity("low severity");
+      setDescription("");
+      setContactNumber("");
+      setAidRequested("");
+      setDamageImage(null);
+      setDamageImageName("");
+
+      // Reload the list
       await loadDisasters();
     } catch (err) {
       setErrorMessage(err.message || "Error submitting report.");
@@ -528,11 +532,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </label>
                     <select
                       id="disasterSelect"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
                       value={disasterType}
                       onChange={(e) => setDisasterType(e.target.value)}
                       required
-                      disabled={submissionComplete}
                     >
                       <option value="Flood">Flood</option>
                       <option value="Landslide">Landslide</option>
@@ -552,11 +555,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </label>
                     <select
                       id="severitySelect"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
                       value={severity}
                       onChange={(e) => setSeverity(e.target.value)}
                       required
-                      disabled={submissionComplete}
                     >
                       <option value="low severity">Low Severity</option>
                       <option value="medium severity">Medium Severity</option>
@@ -574,12 +576,11 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     <input
                       type="text"
                       id="locInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="e.g. 45/2 Main Road Area, Colombo"
                       value={locationArea}
                       onChange={(e) => setLocationArea(e.target.value)}
                       required
-                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -593,12 +594,11 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     <input
                       type="text"
                       id="contactInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="e.g. 077XXXXXXXX"
                       value={contactNumber}
                       onChange={(e) => setContactNumber(e.target.value)}
                       required
-                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -611,13 +611,12 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </label>
                     <textarea
                       id="descInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
                       rows="3"
                       placeholder="Describe crop damage, structural damage, water levels, or loss..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       required
-                      disabled={submissionComplete}
                     ></textarea>
                   </div>
 
@@ -632,11 +631,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     <input
                       type="text"
                       id="reliefInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="Specify emergency items or financial help..."
                       value={aidRequested}
                       onChange={(e) => setAidRequested(e.target.value)}
-                      disabled={submissionComplete}
                     />
                   </div>
 
@@ -666,14 +664,13 @@ function ResidentDisasterReport({ onOpenHelp }) {
                         <button
                           type="button"
                           onClick={removeDamageImage}
-                          className="text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={submissionComplete}
+                          className="text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-colors"
                         >
                           Remove Photo
                         </button>
                       </div>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC] disabled:opacity-50 disabled:cursor-not-allowed">
+                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
                         <svg
                           width="24"
                           height="24"
@@ -703,12 +700,11 @@ function ResidentDisasterReport({ onOpenHelp }) {
                           accept="image/*"
                           className="hidden"
                           id="damageImageFile"
-                          disabled={submissionComplete}
                           onChange={handleDamageImageChange}
                         />
                         <label
                           htmlFor="damageImageFile"
-                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-xs font-bold py-1.5 px-3.5 rounded-lg border-0 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-xs font-bold py-1.5 px-3.5 rounded-lg border-0 cursor-pointer transition-colors"
                         >
                           Choose Photo
                         </label>
@@ -726,7 +722,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                 <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
                   <button
                     type="button"
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5"
                     onClick={handleReset}
                     disabled={isLoading}
                   >
@@ -745,8 +741,8 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
                   <button
                     type="submit"
-                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isLoading || submissionComplete}
+                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
