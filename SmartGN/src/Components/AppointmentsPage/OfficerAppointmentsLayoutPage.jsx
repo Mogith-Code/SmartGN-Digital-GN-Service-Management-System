@@ -7,6 +7,7 @@ import OfficerCardLayout from "./OfficerCardLayout";
 import CalendarLayout from "./CalenderLayout";
 import AppointmentSummary from "./AppointmentSummary";
 import { useNavigate } from "react-router-dom";
+import { encryptId } from "../../utils/encryption"; // ✅ Import encryptId
 
 function OfficerAppointmentsLayoutPage({
   pendingCount = 0,
@@ -127,72 +128,90 @@ function OfficerAppointmentsLayoutPage({
                 Appointment Summary
               </p>
               <div className="flex flex-col gap-[15px] my-[20px] max-h-[400px] overflow-y-auto">
-                {activeAppointment.map((appointment) => (
-                  <div
-                    key={appointment.appointment_id || appointment.id}
-                    className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6] transition-colors"
-                  >
-                    <div className="flex flex-col items-start justify-between">
-                      <div className="flex w-full items-center justify-between border-b border-[#2D37484D] pb-[10px]">
-                        <div className="flex w-[60%] items-center">
-                          <img
-                            src={profileIcon}
-                            alt="Resident Photo"
-                            className="w-[100px] h-[100px] rounded-full"
-                          />
-                          <div className="flex flex-col ml-[10px]">
-                            <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
-                              {appointment.resident?.fullName ||
-                                `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
-                                "Resident"}
-                            </span>
-                            <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
-                              NIC:{" "}
-                              {appointment.resident?.nic ||
-                                appointment.resident_nic ||
-                                "N/A"}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline">
-                          View Profile
-                        </span>
-                      </div>
+                {activeAppointment.map((appointment) => {
+                  // ✅ Get NIC and encrypt it for navigation
+                  const residentNic =
+                    appointment.resident?.nic ||
+                    appointment.resident_nic ||
+                    "N/A";
+                  const encryptedNic = encryptId(residentNic);
 
-                      <div className="flex flex-col w-full justify-between mt-[10px]">
-                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                          <span className="font-medium">Purpose :</span>{" "}
-                          {appointment.purpose || "N/A"}
-                        </p>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                          <span className="font-medium">Date :</span>{" "}
-                          {formatDate(appointment.date)}
-                        </p>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                          <span className="font-medium">Time :</span>{" "}
-                          {formatTime(appointment.time)}
-                        </p>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                          <span className="font-medium">Contact :</span>{" "}
-                          {appointment.contact_number ||
-                            appointment.contact ||
-                            "N/A"}
-                        </p>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
-                          <span className="font-medium">Status :</span>{" "}
-                          <span className="text-green-600 font-medium">
-                            {appointment.status}
+                  return (
+                    <div
+                      key={appointment.appointment_id || appointment.id}
+                      className="flex flex-col gap-[15px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6] transition-colors"
+                    >
+                      <div className="flex flex-col items-start justify-between">
+                        <div className="flex w-full items-center justify-between border-b border-[#2D37484D] pb-[10px]">
+                          <div className="flex w-[60%] items-center">
+                            <img
+                              src={profileIcon}
+                              alt="Resident Photo"
+                              className="w-[100px] h-[100px] rounded-full"
+                            />
+                            <div className="flex flex-col ml-[10px]">
+                              <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] font-medium">
+                                {appointment.resident?.fullName ||
+                                  `${appointment.resident?.firstName || ""} ${appointment.resident?.lastName || ""}` ||
+                                  "Resident"}
+                              </span>
+                              <span className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D3748] font-light">
+                                NIC: {residentNic}
+                              </span>
+                            </div>
+                          </div>
+                          <span
+                            className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline"
+                            onClick={() => {
+                              console.log(
+                                "🔄 Navigating to profile with NIC:",
+                                residentNic,
+                              );
+                              console.log("🔐 Encrypted NIC:", encryptedNic);
+                              navigate(
+                                `/OfficerDashboard/OfficerAppointment/profile/${encryptedNic}`,
+                              );
+                            }}
+                          >
+                            View Profile
                           </span>
-                        </p>
-                        {appointment.appointment_number && (
-                          <p className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D37488D]">
-                            Appointment #: {appointment.appointment_number}
+                        </div>
+
+                        <div className="flex flex-col w-full justify-between mt-[10px]">
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                            <span className="font-medium">Purpose :</span>{" "}
+                            {appointment.purpose || "N/A"}
                           </p>
-                        )}
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                            <span className="font-medium">Date :</span>{" "}
+                            {formatDate(appointment.date)}
+                          </p>
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                            <span className="font-medium">Time :</span>{" "}
+                            {formatTime(appointment.time)}
+                          </p>
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                            <span className="font-medium">Contact :</span>{" "}
+                            {appointment.contact_number ||
+                              appointment.contact ||
+                              "N/A"}
+                          </p>
+                          <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                            <span className="font-medium">Status :</span>{" "}
+                            <span className="text-green-600 font-medium">
+                              {appointment.status}
+                            </span>
+                          </p>
+                          {appointment.appointment_number && (
+                            <p className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#2D37488D]">
+                              Appointment #: {appointment.appointment_number}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="flex justify-center">
                 <button

@@ -413,7 +413,7 @@ function OfficerPendingAppointment({ onOpenHelp }) {
                             className="text-sm sm:text-base md:text-lg lg:text-[12px] text-[#D69E2E] font-medium mt-[10px] hover:cursor-pointer hover:underline"
                             onClick={() => {
                               // ✅ Navigate with encrypted NIC
-                              const path = `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`;
+                              const path = `/OfficerDashboard/OfficerAppointment/OfficerPendingAppointment/profile/${encryptedNic}`;
                               console.log("🔄 Navigating to:", path);
                               navigate(path);
                             }}

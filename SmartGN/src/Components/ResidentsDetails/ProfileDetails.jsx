@@ -328,7 +328,11 @@ function ProfileDetails({ onOpenHelp }) {
           setFamilyMembers([]);
         }
       } catch (err) {
-        console.warn("Using fallback resident profile for NIC:", nic, err.message);
+        console.warn(
+          "Using fallback resident profile for NIC:",
+          nic,
+          err.message,
+        );
         const fallbackResident = {
           r_nic: nic,
           nic: nic,
@@ -336,7 +340,8 @@ function ProfileDetails({ onOpenHelp }) {
           first_name: "Nimal",
           last_name: "Perera",
           household_number: "H-102",
-          division_name: localStorage.getItem("smartgn_user_division") || "Colombo Borella",
+          division_name:
+            localStorage.getItem("smartgn_user_division") || "Colombo Borella",
           email: "nimal.perera@example.com",
           mobile_number: "0771234567",
           dob: "1990-05-15",
@@ -344,11 +349,23 @@ function ProfileDetails({ onOpenHelp }) {
           occupation: "Civil Engineer",
           address: "No. 45/2, Temple Road, Maharagama",
           account_status: "Active",
-          status: "Active"
+          status: "Active",
         };
         const fallbackFamily = [
-          { id: 1, full_name: "Sunethra Perera", relationship: "Spouse", nic: "199256789012", age: 34 },
-          { id: 2, full_name: "Kasun Perera", relationship: "Son", nic: "201589123456", age: 11 }
+          {
+            id: 1,
+            full_name: "Sunethra Perera",
+            relationship: "Spouse",
+            nic: "199256789012",
+            age: 34,
+          },
+          {
+            id: 2,
+            full_name: "Kasun Perera",
+            relationship: "Son",
+            nic: "201589123456",
+            age: 11,
+          },
         ];
 
         setResident(fallbackResident);
@@ -427,7 +444,7 @@ function ProfileDetails({ onOpenHelp }) {
           {/* Back Button */}
           <button
             className="flex w-[75px] p-[5px] text-[15px] items-center gap-[10px] font-regular text-[#1B365D] mt-[20px] cursor-pointer border-0 bg-transparent"
-            onClick={() => navigate("/OfficerDashboard/ResidentsDetails")}
+            onClick={() => window.history.go(-1)}
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
             {t.back}

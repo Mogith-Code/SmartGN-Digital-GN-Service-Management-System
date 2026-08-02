@@ -168,11 +168,22 @@ function App() {
           element={<ProfileDetails onOpenHelp={openChatbot} />}
         />
         <Route
-          path="/ResidentsDetails/profile/:nic"
+          path="/OfficerDashboard/OfficerAppointment/OfficerApprovedAppointment/profile/:nic"
           element={<ProfileDetails onOpenHelp={openChatbot} />}
         />
+
         <Route
-          path="/dashboard/officer/residents/profile/:nic"
+          path="/OfficerDashboard/OfficerAppointment/OfficerPendingAppointment/profile/:nic"
+          element={<ProfileDetails onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerDashboard/OfficerAppointment/RequestsForTomorrow/profile/:nic"
+          element={<ProfileDetails onOpenHelp={openChatbot} />}
+        />
+
+        <Route
+          path="/OfficerDashboard/OfficerAppointment/profile/:nic"
           element={<ProfileDetails onOpenHelp={openChatbot} />}
         />
 
@@ -185,10 +196,7 @@ function App() {
           path="/OfficerDashboard/certificates/:id"
           element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
         />
-        <Route
-          path="/dashboard/officer/certificates/:id"
-          element={<OfficerCertificateDetails onOpenHelp={openChatbot} />}
-        />
+
         <Route
           path="/OfficerDashboard/allowances"
           element={<OfficerAllowances onOpenHelp={openChatbot} />}
