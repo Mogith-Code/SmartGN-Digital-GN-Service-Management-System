@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { addNotification } from "../utils/notifications";
@@ -14,6 +14,9 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   const { id } = useParams();
   const { lang } = useLanguage();
   const t = translations[lang];
+
+  // Ref for scrolling to top
+  const topRef = useRef(null);
 
   const successUser =
     location.state?.successUser ||
@@ -34,6 +37,12 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   const [certRequest, setCertRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+
   const [addressCheck, setAddressCheck] = useState(true);
   const [nicCheck, setNicCheck] = useState(true);
   const [documentAuditCheck, setDocumentAuditCheck] = useState(false);
@@ -57,12 +66,52 @@ function OfficerCertificateDetails({ onOpenHelp }) {
     url: "",
   });
 
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem("smartgn_token");
     return {
       Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "application/json",
     };
+  };
+
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
+  // Close reject modal
+  const handleCloseRejectModal = () => {
+    setShowRejectModal(false);
+    setRejectReason("");
+    setError(null);
+  };
+
+  // Open reject modal
+  const handleOpenRejectModal = () => {
+    setShowRejectModal(true);
+    setRejectReason("");
+  };
+
+  // Close confirm modal
+  const handleCloseConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  // Handle Cancel - navigate back to certificates page with scroll to top
+  const handleCancel = () => {
+    navigate("/OfficerDashboard/certificates");
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
   };
 
   // Load officer profile
@@ -218,15 +267,18 @@ function OfficerCertificateDetails({ onOpenHelp }) {
     loadCertDetails();
   }, [id]);
 
-  const handleApprove = async () => {
+  // Show confirm modal before approving
+  const handleApproveClick = () => {
     if (!signatureMatch || !billsVerified) {
-      if (
-        !window.confirm(
-          "You have not checked all Officer Quick Check items. Continue anyway?",
-        )
-      )
-        return;
+      setShowConfirmModal(true);
+    } else {
+      handleApprove();
     }
+  };
+
+  const handleApprove = async () => {
+    setIsProcessing(true);
+    setShowConfirmModal(false);
 
     const payload = {
       status: "APPROVED",
@@ -257,32 +309,50 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       }
 
       const result = await response.json();
-      alert(
-        result.message || `Certificate request ${id} approved successfully!`,
-      );
+
+      // Set success message
+      setSuccessMessage(`✅ Certificate request ${id} approved successfully!`);
+      scrollToTop();
+
+      // Add notification
+      addNotification("resident", {
+        type: "certificate",
+        title: "Certificate Approved",
+        message: `Your ${certRequest.type} has been approved by ${profile.fullName}.`,
+        link: "/ResidentDashboard/certificates",
+      });
 
       // Refresh the data
       await loadCertDetails();
 
-      // Navigate back to list
-      navigate("/dashboard/officer/certificates");
+      // Redirect after 2.5 seconds
+      setTimeout(() => {
+        navigate("/OfficerDashboard/certificates");
+      }, 2500);
     } catch (err) {
       console.error("Error approving certificate:", err);
-      alert("Failed to approve: " + err.message);
+      setError(err.message);
+      scrollToTop();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const handleReject = async () => {
-    const reason = window.prompt("Please enter the reason for rejection:");
-    if (reason === null) return;
+  const handleConfirmReject = async () => {
+    if (!rejectReason.trim()) {
+      setError("Please enter a rejection reason.");
+      scrollToTop();
+      return;
+    }
 
+    setIsProcessing(true);
     try {
       const response = await fetch(`/api/certificates/${id}/action`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify({
           status: "REJECTED",
-          rejectionReason: reason || "Incomplete supporting documents.",
+          rejectionReason: rejectReason,
           remarks: remarks,
         }),
       });
@@ -293,13 +363,36 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       }
 
       const result = await response.json();
-      alert(result.message || `Certificate request ${id} rejected.`);
+
+      setShowRejectModal(false);
+      setRejectReason("");
+
+      // Set success message
+      setSuccessMessage(
+        `❌ Certificate request ${id} rejected. Reason: ${rejectReason}`,
+      );
+      scrollToTop();
+
+      // Add notification
+      addNotification("resident", {
+        type: "certificate",
+        title: "Certificate Rejected",
+        message: `Your ${certRequest.type} was rejected. Reason: ${rejectReason}`,
+        link: "/ResidentDashboard/certificates",
+      });
 
       await loadCertDetails();
-      navigate("/dashboard/officer/certificates");
+
+      // Redirect after 2.5 seconds
+      setTimeout(() => {
+        navigate("/OfficerDashboard/certificates");
+      }, 2500);
     } catch (err) {
       console.error("Error rejecting certificate:", err);
-      alert("Failed to reject: " + err.message);
+      setError(err.message);
+      scrollToTop();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -311,12 +404,12 @@ function OfficerCertificateDetails({ onOpenHelp }) {
     );
   }
 
-  if (error || !certRequest) {
+  if (error && !successMessage) {
     return (
       <div className="flex items-center justify-center p-20 min-h-screen text-[18px] text-red-500 font-medium bg-[#F7FAFC]">
-        {error || "Certificate request not found."}
+        {error}
         <button
-          onClick={() => navigate("/dashboard/officer/certificates")}
+          onClick={handleCancel}
           className="ml-4 py-2 px-6 bg-[#1B365D] text-white rounded-lg"
         >
           Go Back
@@ -333,17 +426,98 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       <div className="flex flex-1 w-full">
         <OSidebar />
         <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-[13.5px] text-[#64748b] mb-4 font-semibold text-left">
             <span
               className="cursor-pointer hover:underline"
-              onClick={() => navigate("/dashboard/officer/certificates")}
+              onClick={() => navigate("/OfficerDashboard/certificates")}
             >
               Certificates Services
             </span>
             <span>➔</span>
             <span className="text-[#1e293b]">Request Details</span>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{successMessage}</span>
+              </div>
+              <button
+                onClick={closeSuccessMessage}
+                className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-green-200 transition-colors"
+                aria-label="Close success message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && !successMessage && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{error}</span>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-700 hover:text-red-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-red-200 transition-colors"
+                aria-label="Close error message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
 
           <div className="flex justify-between items-center mb-6 text-left">
             <div>
@@ -492,7 +666,7 @@ function OfficerCertificateDetails({ onOpenHelp }) {
           {/* Action Buttons */}
           <div className="flex gap-4 justify-end mb-8 font-sans">
             <button
-              onClick={() => navigate("/dashboard/officer/certificates")}
+              onClick={handleCancel}
               className="bg-transparent hover:bg-gray-100 text-[#475569] border border-[#cbd5e1] px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer"
             >
               Cancel Review
@@ -502,16 +676,18 @@ function OfficerCertificateDetails({ onOpenHelp }) {
               certRequest.status === "PENDING") && (
               <>
                 <button
-                  onClick={handleReject}
-                  className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150"
+                  onClick={handleOpenRejectModal}
+                  disabled={isProcessing}
+                  className="bg-transparent hover:bg-red-50 text-red-600 border border-red-600 px-6 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Reject Application
                 </button>
                 <button
-                  onClick={handleApprove}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-8 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 shadow-md transition-colors duration-150"
+                  onClick={handleApproveClick}
+                  disabled={isProcessing}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white border-0 px-8 py-2.5 rounded-full text-[14px] font-bold cursor-pointer flex items-center gap-1.5 shadow-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Approve Application
+                  {isProcessing ? "Processing..." : "Approve Application"}
                 </button>
               </>
             )}
@@ -522,6 +698,113 @@ function OfficerCertificateDetails({ onOpenHelp }) {
       </div>
 
       <Footer />
+
+      {/* Confirm Modal - Replaces window.confirm */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
+              <h3 className="text-lg font-bold text-[#1B365D]">
+                Confirm Approval
+              </h3>
+              <button
+                onClick={handleCloseConfirmModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer bg-transparent border-0"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <svg
+                  className="w-6 h-6 text-amber-500 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="text-sm font-bold text-amber-700">
+                  Quick Check Items Not Complete
+                </span>
+              </div>
+              <p className="text-sm text-gray-600">
+                You have not checked all Officer Quick Check items. Do you want
+                to continue with the approval anyway?
+              </p>
+            </div>
+
+            <div className="flex gap-3 mt-4 justify-end">
+              <button
+                onClick={handleCloseConfirmModal}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApprove}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold cursor-pointer transition-colors"
+              >
+                Continue Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Reason Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
+              <h3 className="text-lg font-bold text-[#1B365D]">
+                Rejection Reason
+              </h3>
+              <button
+                onClick={handleCloseRejectModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer bg-transparent border-0"
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              Please provide a reason for rejecting this certificate request.
+            </p>
+
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Enter rejection reason..."
+              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent resize-none h-24"
+            />
+
+            {error && !successMessage && (
+              <p className="text-red-500 text-xs mt-2">{error}</p>
+            )}
+
+            <div className="flex gap-3 mt-4 justify-end">
+              <button
+                onClick={handleCloseRejectModal}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold cursor-pointer transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReject}
+                disabled={isProcessing}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {isProcessing ? "Processing..." : "Confirm Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Document Preview Modal */}
       {docPreviewModal.isOpen && (
@@ -571,7 +854,10 @@ function OfficerCertificateDetails({ onOpenHelp }) {
   );
 }
 
-// Sub-components for cleaner code
+// ============================================================
+// SUB-COMPONENTS
+// ============================================================
+
 function CharacterCertificateDetails({ certRequest }) {
   return (
     <div className="flex flex-col gap-6">

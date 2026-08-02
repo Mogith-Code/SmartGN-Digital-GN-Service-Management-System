@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
+import { addNotification } from "../utils/notifications";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
@@ -33,6 +34,8 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const [previewImage, setPreviewImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   const loadDisasters = async () => {
     setIsLoading(true);
@@ -47,7 +50,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
       }
       const data = await response.json();
       const formatted = data.map((item) => ({
-        id: item.disaster_request_id,
+        id: item.disaster_id || item.disaster_request_id,
         type: item.disaster_type,
         severity: item.severity,
         location: item.location,
@@ -76,6 +79,23 @@ function OfficerDisasterReports({ onOpenHelp }) {
     loadDisasters();
   }, []);
 
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
+  };
+
+  // FIXED: Properly close modals and restore scroll
+  const closeAllModals = () => {
+    setIsModalOpen(false);
+    setShowRejectModal(false);
+    setSelectedDisaster(null);
+    setModalRejectionReason("");
+    setPreviewImage(null);
+    // Restore body scroll
+    document.body.style.overflow = "auto";
+    // Scroll to top of the page smoothly
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleOpenActionModal = (disaster) => {
     setSelectedDisaster(disaster);
     setModalSeverity(disaster.severity);
@@ -83,7 +103,25 @@ function OfficerDisasterReports({ onOpenHelp }) {
     setModalRemarks(disaster.remarks || "");
     setModalReliefProvided(disaster.reliefProvided || "");
     setModalRejectionReason(disaster.rejectionReason || "");
+    setShowRejectModal(false);
     setIsModalOpen(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = "hidden";
+  };
+
+  // Close main modal only (keep reject modal if open)
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = "auto";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Close reject modal only
+  const closeRejectModal = () => {
+    setShowRejectModal(false);
+    setModalRejectionReason("");
+    document.body.style.overflow = "auto";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleApprove = async () => {
@@ -110,26 +148,44 @@ function OfficerDisasterReports({ onOpenHelp }) {
         throw new Error(data.error || "Failed to approve disaster report.");
       }
 
-      setIsModalOpen(false);
-      setSelectedDisaster(null);
+      closeAllModals();
       await loadDisasters();
-      alert(
-        "Disaster report approved successfully! Relief coordination initiated.",
+
+      addNotification("resident", {
+        type: "disaster",
+        title: "Disaster Report Approved",
+        message: `Your ${selectedDisaster.type} disaster report has been approved. Relief coordination initiated.`,
+        link: "/ResidentDashboard/RDisaster",
+      });
+
+      setSuccessMessage(
+        `✅ Disaster report ${selectedDisaster.id} approved successfully! Relief coordination initiated.`,
       );
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (err) {
-      alert(err.message || "Error approving report.");
+      setError(err.message || "Error approving report.");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleOpenRejectModal = () => {
+    setShowRejectModal(true);
+  };
+
   const handleReject = async () => {
     if (!selectedDisaster) return;
 
+    if (!modalRejectionReason.trim()) {
+      setError("⚠️ Please enter a rejection reason.");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const rejectionReason =
-        modalRejectionReason || "Does not meet disaster relief criteria.";
+      const rejectionReason = modalRejectionReason;
 
       const response = await fetch(
         `/api/disasters/officer/${selectedDisaster.id}/reject`,
@@ -148,12 +204,23 @@ function OfficerDisasterReports({ onOpenHelp }) {
         throw new Error(data.error || "Failed to reject disaster report.");
       }
 
-      setIsModalOpen(false);
-      setSelectedDisaster(null);
+      closeAllModals();
       await loadDisasters();
-      alert("Disaster report rejected.");
+
+      addNotification("resident", {
+        type: "disaster",
+        title: "Disaster Report Rejected",
+        message: `Your ${selectedDisaster.type} disaster report was rejected. Reason: ${rejectionReason}`,
+        link: "/ResidentDashboard/RDisaster",
+      });
+
+      setSuccessMessage(
+        `❌ Disaster report ${selectedDisaster.id} rejected. Reason: ${rejectionReason}`,
+      );
+      setTimeout(() => setSuccessMessage(""), 5000);
     } catch (err) {
-      alert(err.message || "Error rejecting report.");
+      setError(err.message || "Error rejecting report.");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setIsLoading(false);
     }
@@ -179,11 +246,15 @@ function OfficerDisasterReports({ onOpenHelp }) {
   };
 
   const getStatusBadgeClass = (status) => {
-    if (status === "Resolved" || status === "Approved") {
+    if (
+      status === "Resolved" ||
+      status === "Approved" ||
+      status === "APPROVED"
+    ) {
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    } else if (status === "Pending") {
+    } else if (status === "Pending" || status === "PENDING") {
       return "bg-amber-50 text-amber-700 border-amber-200";
-    } else if (status === "Rejected") {
+    } else if (status === "Rejected" || status === "REJECTED") {
       return "bg-rose-50 text-rose-700 border-rose-200";
     }
     return "bg-sky-50 text-sky-700 border-sky-200";
@@ -207,9 +278,28 @@ function OfficerDisasterReports({ onOpenHelp }) {
               Monitor disaster reports, evaluate damage severity, and dispatch
               emergency relief aid.
             </p>
+
+            {successMessage && (
+              <div className="mt-2 p-3 bg-green-100 border border-green-300 rounded-lg text-green-700 text-sm flex justify-between items-center">
+                <span>{successMessage}</span>
+                <button
+                  onClick={closeSuccessMessage}
+                  className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {error && (
-              <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-sm">
-                {error}
+              <div className="mt-2 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-sm flex justify-between items-center">
+                <span>{error}</span>
+                <button
+                  onClick={() => setError(null)}
+                  className="text-rose-700 hover:text-rose-900 bg-transparent border-0 cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
             )}
           </div>
@@ -392,248 +482,320 @@ function OfficerDisasterReports({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Action Modal */}
+      {/* Main Review Modal */}
       {isModalOpen && selectedDisaster && (
-        <div className="fixed inset-0 bg-[#0f172a]/65 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl p-6 sm:p-8 shadow-2xl flex flex-col my-8 relative text-left">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <h3 className="text-lg font-bold text-[#1B365D]">
-                Disaster Damage Report Review
-              </h3>
-              <button
-                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer"
-                onClick={() => setIsModalOpen(false)}
-                aria-label="Close Modal"
-              >
-                &times;
-              </button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col my-8 relative text-left max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white z-10 rounded-t-2xl">
+              <div className="flex items-center justify-between border-b border-gray-200 p-6">
+                <h3 className="text-lg font-bold text-[#1B365D] flex items-center gap-2">
+                  <span className="text-2xl">📋</span>
+                  Disaster Damage Report Review
+                </h3>
+                <button
+                  className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  onClick={closeModal}
+                  aria-label="Close Modal"
+                >
+                  &times;
+                </button>
+              </div>
             </div>
 
-            <div className="mt-6 flex flex-col gap-5 text-left">
-              {/* Report Information */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Report Information Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Disaster Type
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.type}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Report Date
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.date}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1 col-span-1 sm:col-span-2">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="sm:col-span-2 space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Location / Area
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.location}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Reporter Name
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.reporter}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Contact Number
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.contact}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Resident NIC
                   </span>
-                  <span className="font-semibold text-gray-800">
+                  <p className="font-semibold text-gray-800 text-sm bg-slate-50 p-2 rounded-lg border border-slate-100">
                     {selectedDisaster.residentNic}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Current Severity
                   </span>
-                  <span className="font-semibold text-amber-600 capitalize">
+                  <p className="font-semibold text-amber-600 capitalize text-sm bg-amber-50 p-2 rounded-lg border border-amber-200">
                     {getSeverityDisplay(selectedDisaster.severity)}
-                  </span>
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="sm:col-span-2 space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Damage Description
                   </span>
-                  <span className="bg-[#F8FAFC] border border-gray-200 rounded-xl p-3.5 text-xs text-gray-700 leading-relaxed font-normal">
+                  <div className="bg-[#F8FAFC] border border-gray-200 rounded-xl p-4 text-sm text-gray-700 leading-relaxed">
                     {selectedDisaster.description}
-                  </span>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <span className="text-xs font-bold text-gray-400">
+                <div className="sm:col-span-2 space-y-1">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Relief Assistance Requested
                   </span>
-                  <span className="bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3.5 text-xs font-normal leading-relaxed">
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900 font-medium">
                     {selectedDisaster.aidRequested ||
                       "No specific relief packs requested. Assessment needed."}
-                  </span>
+                  </div>
                 </div>
 
-                {/* Affected Area Proof Photo Verification */}
-                <div className="flex flex-col gap-2 sm:col-span-2 border-t border-b border-gray-100 py-4 my-2">
+                {/* Affected Area Proof Photo */}
+                <div className="sm:col-span-2 space-y-3 border-t border-gray-200 pt-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#1B365D] uppercase tracking-wider">
-                      📸 Affected Area Damage Proof (Resident Verification)
+                    <span className="text-xs font-bold text-[#1B365D] uppercase tracking-wider flex items-center gap-2">
+                      📸 Affected Area Damage Proof
                     </span>
                     {selectedDisaster.imagePath && (
-                      <span className="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
+                      <span className="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200">
                         ✓ Photo Attached
                       </span>
                     )}
                   </div>
 
                   {selectedDisaster.imagePath ? (
-                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F8FAFC] border border-slate-200 rounded-xl p-4">
-                      <img
-                        src={selectedDisaster.imagePath}
-                        alt="Affected area damage proof"
-                        className="w-full sm:w-48 h-36 object-cover rounded-xl border border-slate-300 shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setPreviewImage(selectedDisaster.imagePath)}
-                        title="Click to view full screen"
-                      />
-                      <div className="flex flex-col gap-2 text-left w-full">
-                        <span className="text-xs font-bold text-gray-700">
-                          Inspection Instructions for GN Officer:
-                        </span>
-                        <p className="text-xs text-gray-600 m-0 leading-relaxed">
-                          Inspect the photo to verify damage severity to the resident's house, land, or crops before approving emergency relief.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => setPreviewImage(selectedDisaster.imagePath)}
-                          className="w-fit bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] font-bold text-xs px-3.5 py-1.5 rounded-lg border-0 cursor-pointer transition-colors flex items-center gap-1.5"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                          </svg>
-                          Zoom & Inspect Proof Photo
-                        </button>
+                    <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-4">
+                      <div className="flex flex-col md:flex-row gap-4">
+                        <div className="md:w-48 h-36 flex-shrink-0 overflow-hidden rounded-lg border border-slate-300 bg-white">
+                          <img
+                            src={selectedDisaster.imagePath}
+                            alt="Affected area damage proof"
+                            className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() =>
+                              setPreviewImage(selectedDisaster.imagePath)
+                            }
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <p className="text-xs text-gray-600 leading-relaxed">
+                            <span className="font-bold text-gray-700">
+                              Inspection Instructions:
+                            </span>{" "}
+                            Inspect the photo to verify damage severity to the
+                            resident's house, land, or crops before approving
+                            emergency relief.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPreviewImage(selectedDisaster.imagePath)
+                            }
+                            className="inline-flex items-center gap-1.5 bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] font-bold text-xs px-3.5 py-2 rounded-lg border-0 cursor-pointer transition-colors"
+                          >
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Zoom & Inspect Proof Photo
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-800 font-medium text-left flex items-center gap-2">
-                      <span>⚠️ No affected area photo was uploaded with this report. Physical site inspection recommended.</span>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 font-medium flex items-center gap-2">
+                      <span>⚠️</span> No affected area photo was uploaded with
+                      this report. Physical site inspection recommended.
                     </div>
                   )}
                 </div>
               </div>
 
               {/* GN Officer Action Panel */}
-              <div className="border-t border-gray-100 pt-4 mt-2">
-                <h4 className="text-sm font-bold text-[#1B365D] mb-4">
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="text-sm font-bold text-[#1B365D] mb-4 flex items-center gap-2">
+                  <span className="text-lg">✍️</span>
                   GN Officer Action Panel
                 </h4>
-              </div>
 
-              <div className="grid grid-cols-1 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="modalRemarksInput"
-                    className="text-xs font-bold text-[#475569]"
-                  >
-                    Officer Remarks & Actions Taken
-                  </label>
-                  <textarea
-                    id="modalRemarksInput"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
-                    rows="2"
-                    placeholder="Enter official remarks, dispatch instructions, or relief status details..."
-                    value={modalRemarks}
-                    onChange={(e) => setModalRemarks(e.target.value)}
-                  ></textarea>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="modalReliefInput"
-                    className="text-xs font-bold text-[#475569]"
-                  >
-                    Relief Provided / Aid Dispatched
-                  </label>
-                  <input
-                    id="modalReliefInput"
-                    type="text"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
-                    placeholder="Specify relief items or aid dispatched..."
-                    value={modalReliefProvided}
-                    onChange={(e) => setModalReliefProvided(e.target.value)}
-                  />
-                </div>
-
-                {selectedDisaster.status === "Pending" && (
-                  <div className="flex flex-col gap-1.5">
+                <div className="space-y-4">
+                  <div>
                     <label
-                      htmlFor="modalRejectReason"
-                      className="text-xs font-bold text-[#475569]"
+                      htmlFor="modalRemarksInput"
+                      className="text-xs font-bold text-[#475569] block mb-1.5"
                     >
-                      Rejection Reason (if rejecting)
+                      Officer Remarks & Actions Taken
                     </label>
-                    <input
-                      id="modalRejectReason"
-                      type="text"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
-                      placeholder="e.g., Does not meet criteria, insufficient evidence..."
-                      value={modalRejectionReason}
-                      onChange={(e) => setModalRejectionReason(e.target.value)}
+                    <textarea
+                      id="modalRemarksInput"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
+                      rows="3"
+                      placeholder="Enter official remarks, dispatch instructions, or relief status details..."
+                      value={modalRemarks}
+                      onChange={(e) => setModalRemarks(e.target.value)}
                     />
                   </div>
+
+                  <div>
+                    <label
+                      htmlFor="modalReliefInput"
+                      className="text-xs font-bold text-[#475569] block mb-1.5"
+                    >
+                      Relief Provided / Aid Dispatched
+                    </label>
+                    <input
+                      id="modalReliefInput"
+                      type="text"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                      placeholder="Specify relief items or aid dispatched..."
+                      value={modalReliefProvided}
+                      onChange={(e) => setModalReliefProvided(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 rounded-b-2xl flex justify-end gap-3">
+              <button
+                type="button"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors"
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+
+              {selectedDisaster.status === "Pending" && (
+                <>
+                  <button
+                    onClick={handleOpenRejectModal}
+                    disabled={isLoading}
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Processing..." : "Reject"}
+                  </button>
+                  <button
+                    onClick={handleApprove}
+                    disabled={isLoading}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-8 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Processing..." : "Approve & Dispatch"}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Reason Modal */}
+      {showRejectModal && selectedDisaster && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-rose-600 flex items-center gap-2">
+                <span className="text-2xl">⚠️</span>
+                Confirm Rejection
+              </h3>
+              <button
+                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                onClick={closeRejectModal}
+              >
+                &times;
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              You are about to reject the disaster report from{" "}
+              <span className="font-semibold text-gray-800">
+                {selectedDisaster.reporter}
+              </span>{" "}
+              for{" "}
+              <span className="font-semibold text-gray-800">
+                {selectedDisaster.type}
+              </span>
+              . Please provide a reason for rejection.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-bold text-[#475569] block mb-1.5">
+                  Rejection Reason <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all resize-none"
+                  rows="4"
+                  placeholder="e.g., Does not meet criteria, insufficient evidence, false report, etc..."
+                  value={modalRejectionReason}
+                  onChange={(e) => setModalRejectionReason(e.target.value)}
+                />
+                {error && error.includes("rejection reason") && (
+                  <p className="text-rose-600 text-xs mt-1">{error}</p>
                 )}
               </div>
+            </div>
 
-              <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
-                <button
-                  type="button"
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </button>
-
-                {selectedDisaster.status === "Pending" && (
-                  <>
-                    <button
-                      onClick={handleReject}
-                      disabled={isLoading}
-                      className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs disabled:opacity-50"
-                    >
-                      {isLoading ? "Processing..." : "Reject"}
-                    </button>
-                    <button
-                      onClick={handleApprove}
-                      disabled={isLoading}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs disabled:opacity-50"
-                    >
-                      {isLoading ? "Processing..." : "Approve & Dispatch"}
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors"
+                onClick={closeRejectModal}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={isLoading}
+                className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? "Processing..." : "Yes, Reject Report"}
+              </button>
             </div>
           </div>
         </div>
@@ -642,25 +804,35 @@ function OfficerDisasterReports({ onOpenHelp }) {
       {/* Floating Help Trigger */}
       <ChatbotButton onOpenHelp={onOpenHelp} />
       <Footer />
+
       {/* Fullscreen Photo Inspection Lightbox */}
       {previewImage && (
-        <div 
-          className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4 cursor-pointer"
-          onClick={() => setPreviewImage(null)}
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => {
+            setPreviewImage(null);
+            document.body.style.overflow = "auto";
+          }}
         >
-          <div className="relative max-w-4xl w-full flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setPreviewImage(null)}
-              className="absolute -top-10 right-0 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center border-0 cursor-pointer text-xl transition-colors"
+              onClick={() => {
+                setPreviewImage(null);
+                document.body.style.overflow = "auto";
+              }}
+              className="absolute -top-12 right-0 bg-white/10 hover:bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center border border-white/20 cursor-pointer text-2xl transition-colors"
             >
-              &times;
+              ×
             </button>
             <img
               src={previewImage}
               alt="Full resolution proof photo"
-              className="max-h-[80vh] w-auto object-contain rounded-xl border border-white/20 shadow-2xl"
+              className="max-h-[85vh] w-full object-contain rounded-xl border border-white/10 shadow-2xl"
             />
-            <div className="mt-3 text-white text-xs font-semibold bg-black/60 px-4 py-1.5 rounded-full">
+            <div className="mt-4 text-center text-white text-xs font-medium bg-black/50 px-4 py-2 rounded-full inline-block mx-auto w-full">
               SmartGN Affected Area Verification • Click outside to close
             </div>
           </div>
