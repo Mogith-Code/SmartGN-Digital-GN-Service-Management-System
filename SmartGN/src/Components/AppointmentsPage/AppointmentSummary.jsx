@@ -94,7 +94,7 @@ function AppointmentSummary({ day, month, year }) {
   const formattedDate = `${getMonthName(month)} ${day}, ${year}`;
 
   return (
-    <div className="flex w-full flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0]">
+    <div className="flex w-full flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-[30px] px-4 sm:px-6 md:px-8 text-center text-[#2D37488D] border border-dashed border-[#2D37484D] rounded-xl bg-[#E2E8F0] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] ">
       <img
         className="mb-3 w-10 sm:w-12 md:w-14 lg:w-[50px] opacity-50"
         src={appointmentIcon}

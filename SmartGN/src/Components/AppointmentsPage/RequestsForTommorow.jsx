@@ -445,7 +445,7 @@ function RequestsForTomorrow() {
                             onClick={() => {
                               // ✅ Navigate with encrypted NIC
                               navigate(
-                                `/OfficerDashboard/ResidentsDetails/profile/${encryptedNic}`,
+                                `/OfficerDashboard/OfficerAppointment/RequestsForTomorrow/profile/${encryptedNic}`,
                               );
                             }}
                           >

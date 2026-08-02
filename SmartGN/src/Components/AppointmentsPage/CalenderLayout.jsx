@@ -262,7 +262,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
   const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37484D] rounded-[10px] sm:rounded-[12px] md:rounded-[15px] p-3 sm:p-4 md:p-5 lg:p-6">
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37484D] rounded-[10px] sm:rounded-[12px] md:rounded-[15px] p-3 sm:p-4 md:p-5 lg:p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] ">
       {/* CALENDAR HEADER */}
       <div className="flex justify-between items-center w-full mb-4 sm:mb-5 md:mb-6">
         <button
