@@ -5,6 +5,7 @@ import LanguageSelector from "../Components/Common/LanguageSelector";
 import { authenticatedFetch } from "../utils/api";
 import logoImage from "../assets/logo.png";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import notificationIcon from "../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
@@ -1900,14 +1901,8 @@ function AdminDashboard({ onOpenHelp }) {
   )
 }
 
-{/* Floating Help Trigger */ }
-<button
-  className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105"
-  aria-label="Help Trigger"
-  onClick={onOpenHelp}
->
-  ?
-</button>
+{/* Floating Help Trigger */}
+<ChatbotButton onOpenHelp={onOpenHelp} />
         </main >
       </div >
 
