@@ -29,6 +29,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
   const [modalRemarks, setModalRemarks] = useState("");
   const [modalReliefProvided, setModalReliefProvided] = useState("");
   const [modalRejectionReason, setModalRejectionReason] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -59,6 +60,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
         rejectionReason: item.rejection_reason || "",
         reliefProvided: item.relief_provided || "",
         residentNic: item.resident_nic,
+        imagePath: item.image_path || item.damageImage || null,
       }));
       setDisasters(formatted);
     } catch (err) {
@@ -490,6 +492,55 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       "No specific relief packs requested. Assessment needed."}
                   </span>
                 </div>
+
+                {/* Affected Area Proof Photo Verification */}
+                <div className="flex flex-col gap-2 sm:col-span-2 border-t border-b border-gray-100 py-4 my-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#1B365D] uppercase tracking-wider">
+                      📸 Affected Area Damage Proof (Resident Verification)
+                    </span>
+                    {selectedDisaster.imagePath && (
+                      <span className="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
+                        ✓ Photo Attached
+                      </span>
+                    )}
+                  </div>
+
+                  {selectedDisaster.imagePath ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-[#F8FAFC] border border-slate-200 rounded-xl p-4">
+                      <img
+                        src={selectedDisaster.imagePath}
+                        alt="Affected area damage proof"
+                        className="w-full sm:w-48 h-36 object-cover rounded-xl border border-slate-300 shadow-sm cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setPreviewImage(selectedDisaster.imagePath)}
+                        title="Click to view full screen"
+                      />
+                      <div className="flex flex-col gap-2 text-left w-full">
+                        <span className="text-xs font-bold text-gray-700">
+                          Inspection Instructions for GN Officer:
+                        </span>
+                        <p className="text-xs text-gray-600 m-0 leading-relaxed">
+                          Inspect the photo to verify damage severity to the resident's house, land, or crops before approving emergency relief.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewImage(selectedDisaster.imagePath)}
+                          className="w-fit bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] font-bold text-xs px-3.5 py-1.5 rounded-lg border-0 cursor-pointer transition-colors flex items-center gap-1.5"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                          Zoom & Inspect Proof Photo
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-800 font-medium text-left flex items-center gap-2">
+                      <span>⚠️ No affected area photo was uploaded with this report. Physical site inspection recommended.</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* GN Officer Action Panel */}
@@ -597,6 +648,30 @@ function OfficerDisasterReports({ onOpenHelp }) {
       </button>
 
       <Footer />
+      {/* Fullscreen Photo Inspection Lightbox */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl w-full flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-10 right-0 bg-white/20 hover:bg-white/40 text-white rounded-full w-9 h-9 flex items-center justify-center border-0 cursor-pointer text-xl transition-colors"
+            >
+              &times;
+            </button>
+            <img
+              src={previewImage}
+              alt="Full resolution proof photo"
+              className="max-h-[80vh] w-auto object-contain rounded-xl border border-white/20 shadow-2xl"
+            />
+            <div className="mt-3 text-white text-xs font-semibold bg-black/60 px-4 py-1.5 rounded-full">
+              SmartGN Affected Area Verification • Click outside to close
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

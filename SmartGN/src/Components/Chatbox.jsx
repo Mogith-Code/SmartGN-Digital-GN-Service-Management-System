@@ -175,12 +175,12 @@ function Chatbot({ isOpen, onClose }) {
       }
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
-      console.error('Failed to get response from server, using local fallback:', error);
+      console.warn('Network issue or offline mode, displaying local SmartGN Assistant response:', error);
       const responseText = getAssistantResponse(textToSend)
       const assistantMessage = {
         id: Date.now() + 1,
         sender: 'assistant',
-        text: responseText + `\n\n*(Note: Connection to AI service failed. Error details: ${error.message}. Displaying offline guidelines.)*`
+        text: responseText
       }
       setMessages(prev => [...prev, assistantMessage])
     } finally {

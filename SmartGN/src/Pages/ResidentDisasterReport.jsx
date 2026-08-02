@@ -44,10 +44,29 @@ function ResidentDisasterReport({ onOpenHelp }) {
   const [description, setDescription] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [aidRequested, setAidRequested] = useState("");
+  const [damageImage, setDamageImage] = useState(null);
+  const [damageImageName, setDamageImageName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [myDisasters, setMyDisasters] = useState([]);
   const [showAlert, setShowAlert] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleDamageImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setDamageImageName(file.name);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDamageImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeDamageImage = () => {
+    setDamageImage(null);
+    setDamageImageName("");
+  };
 
   const [profile, setProfile] = useState({
     firstName: "Nimal",
@@ -157,6 +176,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
         description: item.description,
         contact: item.contact_number,
         aidRequested: item.aid_requested || "None specified",
+        imagePath: item.image_path || null,
         status: item.status,
         remarks: item.officer_remarks || "",
       }));
@@ -175,6 +195,8 @@ function ResidentDisasterReport({ onOpenHelp }) {
     setDescription("");
     setContactNumber("");
     setAidRequested("");
+    setDamageImage(null);
+    setDamageImageName("");
     setErrorMessage("");
   };
 
@@ -200,6 +222,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
           location: locationArea,
           contact: contactNumber,
           aidRequested,
+          imagePath: damageImage,
         }),
       });
 
@@ -421,6 +444,71 @@ function ResidentDisasterReport({ onOpenHelp }) {
                       value={aidRequested}
                       onChange={(e) => setAidRequested(e.target.value)}
                     />
+                  </div>
+
+                  {/* Damage Photo Upload */}
+                  <div className="flex flex-col gap-1.5 sm:col-span-2 text-left">
+                    <label className="text-xs font-bold text-[#475569]">
+                      Attach Affected Area / Damage Photo (Proof for GN Verification)
+                    </label>
+                    {damageImage ? (
+                      <div className="border border-emerald-300 bg-emerald-50 rounded-xl p-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={damageImage}
+                            alt="Damage preview"
+                            className="w-14 h-14 object-cover rounded-lg border border-emerald-200 shadow-xs"
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-emerald-900 truncate max-w-[220px]">
+                              {damageImageName || "affected_area_photo.jpg"}
+                            </span>
+                            <span className="text-[10px] text-emerald-700 font-semibold">
+                              ✓ Proof photo attached for GN verification
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeDamageImage}
+                          className="text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-colors"
+                        >
+                          Remove Photo
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="text-gray-400"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span className="text-xs text-gray-500 font-medium">
+                          Upload photo of affected house / land / crops (.jpg, .png)
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          id="damageImageFile"
+                          onChange={handleDamageImageChange}
+                        />
+                        <label
+                          htmlFor="damageImageFile"
+                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-xs font-bold py-1.5 px-3.5 rounded-lg border-0 cursor-pointer transition-colors"
+                        >
+                          Choose Photo
+                        </label>
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
 import { getAuthHeaders } from '../utils/api'
+import { addNotification } from '../utils/notifications'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
 import Footer from '../Components/Common/Footer'
@@ -171,6 +172,22 @@ function OfficerAllowances({ onOpenHelp }) {
             await loadRequests()
             setTransferringId(null)
             setTransferStep(0)
+
+            // Dispatch real-time notifications
+            addNotification('resident', {
+              type: 'allowance',
+              title: 'Allowance Funds Disbursed',
+              message: `Your LKR ${transferAmount} allowance payment for ${item.program} has been processed. (Ref: ${resData.transaction.txnRef})`,
+              link: '/ResidentDashboard/allowances'
+            })
+
+            addNotification('admin', {
+              type: 'allowance',
+              title: 'Allowance Payment Cleared',
+              message: `RTGS funds transfer of LKR ${transferAmount} completed for ${item.program}.`,
+              link: '/admin'
+            })
+
             alert('RTGS Secure Funds Disbursed successfully.')
 
             const completedItem = {
