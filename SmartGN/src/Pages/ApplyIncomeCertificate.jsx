@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
@@ -13,6 +13,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
   const t = translations[lang];
+
+  // Ref for scrolling to top
+  const topRef = useRef(null);
 
   // Retrieve username and division/ID from navigation state or localStorage (defaults to Nimal Perera)
   const successUser =
@@ -67,7 +70,19 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
   const [fileName, setFileName] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionComplete, setSubmissionComplete] = useState(false);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleReset = () => {
     setFullName("");
@@ -104,6 +119,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
     setPurpose("");
     setFileName("");
     setErrorMessage("");
+    setSuccessMessage("");
+    setSubmissionComplete(false);
+    scrollToTop();
   };
 
   const handleSubmit = async (e) => {
@@ -125,6 +143,8 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         !purpose
       ) {
         setErrorMessage("Please fill in all required fields.");
+        setSuccessMessage("");
+        scrollToTop();
         return;
       }
     } else if (incomeStream === "Business") {
@@ -141,6 +161,8 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         !purpose
       ) {
         setErrorMessage("Please fill in all required fields.");
+        setSuccessMessage("");
+        scrollToTop();
         return;
       }
     } else if (incomeStream === "Laborer") {
@@ -155,160 +177,170 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
         !purpose
       ) {
         setErrorMessage("Please fill in all required fields.");
+        setSuccessMessage("");
+        scrollToTop();
         return;
       }
     } else {
       if (!fullName || !gnDivisionNumber || !address || !purpose) {
         setErrorMessage("Please fill in all required fields.");
+        setSuccessMessage("");
+        scrollToTop();
         return;
       }
     }
 
     setErrorMessage("");
+    setSuccessMessage("");
+    setIsSubmitting(true);
 
-      const newRequestId = `REQ-IC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      const resolvedAnnualIncome =
-        incomeStream === "Paddy"
-          ? annualIncome
-          : incomeStream === "Business"
-            ? businessAnnualIncome
-            : laborerAnnualIncome;
+    const newRequestId = `REQ-IC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const resolvedAnnualIncome =
+      incomeStream === "Paddy"
+        ? annualIncome
+        : incomeStream === "Business"
+          ? businessAnnualIncome
+          : laborerAnnualIncome;
 
-      const newRequest = {
-        id: newRequestId,
-        request_id: newRequestId,
-        type: "Income Certificate",
-        certificate_type: "INCOME",
-        status: "PENDING",
-        name: fullName,
-        resident_name: fullName,
-        division: userDivision,
-        submittedDate: new Date().toISOString().split("T")[0],
-        request_date: new Date().toISOString(),
-        purpose: purpose,
+    const newRequest = {
+      id: newRequestId,
+      request_id: newRequestId,
+      type: "Income Certificate",
+      certificate_type: "INCOME",
+      status: "PENDING",
+      name: fullName,
+      resident_name: fullName,
+      division: userDivision,
+      submittedDate: new Date().toISOString().split("T")[0],
+      request_date: new Date().toISOString(),
+      purpose: purpose,
 
-        fullName,
-        gnDivisionNumber,
-        address,
-        incomeStream,
-        landOwnerName,
-        landAmount,
-        grantSheetNumber,
-        ownerIdentity,
-        amountObtained,
-        expenses,
-        pricePerKg,
-        totalIncome,
-        annualIncome: resolvedAnnualIncome,
-        businessName,
-        businessNature,
-        businessFileName,
-        taxReceiptNumber,
-        dailyMonthlyIncome,
-        businessAnnualIncome,
-        netIncome,
-        dailySalary,
-        hoursWorked,
-        monthlyIncome,
-        laborerAnnualIncome,
-        signatureUrl,
+      fullName,
+      gnDivisionNumber,
+      address,
+      incomeStream,
+      landOwnerName,
+      landAmount,
+      grantSheetNumber,
+      ownerIdentity,
+      amountObtained,
+      expenses,
+      pricePerKg,
+      totalIncome,
+      annualIncome: resolvedAnnualIncome,
+      businessName,
+      businessNature,
+      businessFileName,
+      taxReceiptNumber,
+      dailyMonthlyIncome,
+      businessAnnualIncome,
+      netIncome,
+      dailySalary,
+      hoursWorked,
+      monthlyIncome,
+      laborerAnnualIncome,
+      signatureUrl,
+    };
+
+    // ALWAYS add to resident certificates store
+    const resCerts = JSON.parse(
+      localStorage.getItem("smartgn_certificates") || "[]",
+    );
+    resCerts.unshift(newRequest);
+    localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
+
+    // ALWAYS add to officer certificates store
+    const offRequests = JSON.parse(
+      localStorage.getItem("smartgn_certificate_requests") || "[]",
+    );
+    offRequests.unshift(newRequest);
+    localStorage.setItem(
+      "smartgn_certificate_requests",
+      JSON.stringify(offRequests),
+    );
+
+    // Attempt backend API submission
+    try {
+      const token = localStorage.getItem("smartgn_token");
+      const headers = {
+        Authorization: token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json",
       };
-
-      // ALWAYS add to resident certificates store
-      const resCerts = JSON.parse(
-        localStorage.getItem("smartgn_certificates") || "[]",
-      );
-      resCerts.unshift(newRequest);
-      localStorage.setItem("smartgn_certificates", JSON.stringify(resCerts));
-
-      // ALWAYS add to officer certificates store
-      const offRequests = JSON.parse(
-        localStorage.getItem("smartgn_certificate_requests") || "[]",
-      );
-      offRequests.unshift(newRequest);
-      localStorage.setItem(
-        "smartgn_certificate_requests",
-        JSON.stringify(offRequests),
-      );
-
-      // Attempt backend API submission
-      try {
-        const token = localStorage.getItem("smartgn_token");
-        const headers = {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
-        };
-        const response = await fetch("/api/certificates/apply", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            certificateType: "INCOME",
-            purpose: purpose,
-            requestDate: new Date().toISOString().split("T")[0],
-            supportingDocs: [],
-            fullName,
-            gnDivisionNumber,
-            address,
-            incomeStream,
-            landOwnerName,
-            landAmount,
-            grantSheetNumber,
-            ownerIdentity,
-            amountObtained,
-            expenses,
-            pricePerKg,
-            totalIncome,
-            annualIncome,
-            businessName,
-            businessNature,
-            businessFileName,
-            taxReceiptNumber,
-            dailyMonthlyIncome,
-            businessAnnualIncome,
-            netIncome,
-            dailySalary,
-            hoursWorked,
-            monthlyIncome,
-            laborerAnnualIncome,
-          }),
-        });
-
-        if (response.ok) {
-          const resData = await response.json();
-          if (resData.certificateNumber || resData.request_id) {
-            newRequest.id = resData.request_id || resData.certificateNumber;
-            newRequest.request_id = resData.request_id || resData.certificateNumber;
-          }
-        }
-      } catch (err) {
-        console.warn("API submission warning:", err.message);
-      }
-
-      addNotification("officer", {
-        type: "certificate",
-        title: "New Certificate Application",
-        message: `New Income Certificate application received from ${fullName}.`,
-        link: "/dashboard/officer/certificates",
-      });
-
-      addNotification("resident", {
-        type: "certificate",
-        title: "Certificate Application Submitted",
-        message: `Your Income Certificate request (${newRequest.id || newRequestId}) has been submitted for approval.`,
-        link: "/ResidentDashboard/certificates/pending",
-      });
-
-      // Navigate to validation success page
-      navigate("/ResidentDashboard/certificates/success", {
-        state: {
-          requestNumber: newRequest.request_id || newRequestId,
-          certificateType: "Income Certificate",
-          applicantName: fullName,
-          division: userDivision,
+      const response = await fetch("/api/certificates/apply", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          certificateType: "INCOME",
           purpose: purpose,
-          submittedDate: new Date().toLocaleDateString(),
-        },
+          requestDate: new Date().toISOString().split("T")[0],
+          supportingDocs: [],
+          fullName,
+          gnDivisionNumber,
+          address,
+          incomeStream,
+          landOwnerName,
+          landAmount,
+          grantSheetNumber,
+          ownerIdentity,
+          amountObtained,
+          expenses,
+          pricePerKg,
+          totalIncome,
+          annualIncome,
+          businessName,
+          businessNature,
+          businessFileName,
+          taxReceiptNumber,
+          dailyMonthlyIncome,
+          businessAnnualIncome,
+          netIncome,
+          dailySalary,
+          hoursWorked,
+          monthlyIncome,
+          laborerAnnualIncome,
+        }),
       });
+
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.certificateNumber || resData.request_id) {
+          newRequest.id = resData.request_id || resData.certificateNumber;
+          newRequest.request_id =
+            resData.request_id || resData.certificateNumber;
+        }
+      }
+    } catch (err) {
+      console.warn("API submission warning:", err.message);
+    }
+
+    addNotification("officer", {
+      type: "certificate",
+      title: "New Certificate Application",
+      message: `New Income Certificate application received from ${fullName}.`,
+      link: "/dashboard/officer/certificates",
+    });
+
+    addNotification("resident", {
+      type: "certificate",
+      title: "Certificate Application Submitted",
+      message: `Your Income Certificate request (${newRequest.id || newRequestId}) has been submitted for approval.`,
+      link: "/ResidentDashboard/certificates/pending",
+    });
+
+    // Set success message and mark completion
+    setSuccessMessage(
+      `Income Certificate application submitted successfully! Request ID: ${newRequest.request_id || newRequestId}`,
+    );
+    setSubmissionComplete(true);
+    setIsSubmitting(false);
+
+    // Scroll to top to show success message
+    scrollToTop();
+
+    // Redirect after 2.5 seconds
+    setTimeout(() => {
+      navigate("/ResidentDashboard/certificates");
+    }, 2500);
   };
 
   return (
@@ -323,6 +355,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
 
         {/* Main Panel Content */}
         <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           {/* Back button */}
           <div className="flex justify-between items-center mb-4">
             <button
@@ -349,8 +384,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
 
             <button
               type="button"
-              className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm"
+              className="flex items-center gap-2 py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[14px] font-bold cursor-pointer transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => setIsPreviewOpen(true)}
+              disabled={submissionComplete}
             >
               <svg
                 width="16"
@@ -371,6 +407,49 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
           <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
             Application for Income Certificates
           </h2>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{successMessage}</span>
+              </div>
+              <p className="text-sm mt-1">
+                Redirecting to certificates page...
+              </p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && !successMessage && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{errorMessage}</span>
+              </div>
+            </div>
+          )}
 
           {/* Form Container Card */}
           <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-8 flex flex-col">
@@ -395,10 +474,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   <input
                     type="text"
                     id="fullName"
-                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
+                    disabled={submissionComplete}
                   />
                 </div>
 
@@ -412,10 +492,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   <input
                     type="text"
                     id="gnDivNumber"
-                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     value={gnDivisionNumber}
                     onChange={(e) => setGnDivisionNumber(e.target.value)}
                     required
+                    disabled={submissionComplete}
                   />
                 </div>
 
@@ -430,10 +511,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   <input
                     type="text"
                     id="address"
-                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     required
+                    disabled={submissionComplete}
                   />
                 </div>
 
@@ -442,8 +524,8 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   <label className="text-[13px] font-semibold text-[#334155] mb-2">
                     Income stream :
                   </label>
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-[#f8fafc] p-4 rounded-xl border border-[#cbd5e1]">
-                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155]">
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 bg-[#f8fafc] p-4 rounded-xl border border-[#cbd5e1] disabled:opacity-50">
+                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155] disabled:cursor-not-allowed">
                       <input
                         type="radio"
                         name="incomeStream"
@@ -451,11 +533,12 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         checked={incomeStream === "Paddy"}
                         onChange={() => setIncomeStream("Paddy")}
                         className="w-4.5 h-4.5 text-[#1B365D]"
+                        disabled={submissionComplete}
                       />
                       <span>Paddy/ Banana/ Coconut etc.</span>
                     </label>
 
-                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155]">
+                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155] disabled:cursor-not-allowed">
                       <input
                         type="radio"
                         name="incomeStream"
@@ -463,11 +546,12 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         checked={incomeStream === "Business"}
                         onChange={() => setIncomeStream("Business")}
                         className="w-4.5 h-4.5 text-[#1B365D]"
+                        disabled={submissionComplete}
                       />
                       <span>Businesses/ brands</span>
                     </label>
 
-                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155]">
+                    <label className="flex items-center gap-2 cursor-pointer text-[14.5px] text-[#334155] disabled:cursor-not-allowed">
                       <input
                         type="radio"
                         name="incomeStream"
@@ -475,6 +559,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         checked={incomeStream === "Laborer"}
                         onChange={() => setIncomeStream("Laborer")}
                         className="w-4.5 h-4.5 text-[#1B365D]"
+                        disabled={submissionComplete}
                       />
                       <span>Carpenter/ Masonry/ hired laborer/ Other</span>
                     </label>
@@ -494,10 +579,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="landOwnerName"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={landOwnerName}
                         onChange={(e) => setLandOwnerName(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -511,10 +597,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="landAmount"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={landAmount}
                         onChange={(e) => setLandAmount(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -526,11 +613,12 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         License/ Permit/ Grant sheet number (Upload a certified
                         copy) :
                       </label>
-                      <div className="relative border-2 border-dashed border-[#cbd5e1] rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer min-h-[100px]">
+                      <div className="relative border-2 border-dashed border-[#cbd5e1] rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer min-h-[100px] disabled:opacity-50 disabled:cursor-not-allowed">
                         <input
                           type="file"
                           id="uploadSheet"
                           className="hidden"
+                          disabled={submissionComplete}
                           onChange={(e) => {
                             if (e.target.files && e.target.files[0]) {
                               setFileName(e.target.files[0].name);
@@ -540,7 +628,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         />
                         <label
                           htmlFor="uploadSheet"
-                          className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2"
+                          className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2 disabled:cursor-not-allowed"
                         >
                           <svg
                             width="24"
@@ -571,10 +659,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="identityApplicant"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={ownerIdentity}
                         onChange={(e) => setOwnerIdentity(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -595,10 +684,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="amountObtained"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={amountObtained}
                         onChange={(e) => setAmountObtained(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -612,10 +702,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="expenses"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={expenses}
                         onChange={(e) => setExpenses(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -629,10 +720,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="priceKg"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={pricePerKg}
                         onChange={(e) => setPricePerKg(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -648,10 +740,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="totalIncomeVal"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={totalIncome}
                         onChange={(e) => setTotalIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -667,10 +760,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="totalAnnual"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={annualIncome}
                         onChange={(e) => setAnnualIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -691,10 +785,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="businessName"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -708,10 +803,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="businessNature"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={businessNature}
                         onChange={(e) => setBusinessNature(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -722,11 +818,12 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       >
                         Business registration Copy (certified copy) :
                       </label>
-                      <div className="relative border-2 border-dashed border-[#cbd5e1] rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer min-h-[100px]">
+                      <div className="relative border-2 border-dashed border-[#cbd5e1] rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer min-h-[100px] disabled:opacity-50 disabled:cursor-not-allowed">
                         <input
                           type="file"
                           id="uploadReg"
                           className="hidden"
+                          disabled={submissionComplete}
                           onChange={(e) => {
                             if (e.target.files && e.target.files[0]) {
                               setBusinessFileName(e.target.files[0].name);
@@ -735,7 +832,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         />
                         <label
                           htmlFor="uploadReg"
-                          className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2"
+                          className="w-full h-full flex flex-col items-center justify-center cursor-pointer gap-2 disabled:cursor-not-allowed"
                         >
                           <svg
                             width="24"
@@ -768,10 +865,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="taxReceipt"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={taxReceiptNumber}
                         onChange={(e) => setTaxReceiptNumber(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -792,10 +890,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="dailyMonthlyIncome"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={dailyMonthlyIncome}
                         onChange={(e) => setDailyMonthlyIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -811,12 +910,13 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="businessAnnualIncome"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={businessAnnualIncome}
                         onChange={(e) =>
                           setBusinessAnnualIncome(e.target.value)
                         }
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -832,10 +932,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="netIncome"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={netIncome}
                         onChange={(e) => setNetIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -856,10 +957,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="dailySalary"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={dailySalary}
                         onChange={(e) => setDailySalary(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -873,10 +975,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="hoursWorked"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={hoursWorked}
                         onChange={(e) => setHoursWorked(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -897,10 +1000,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="monthlyIncome"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={monthlyIncome}
                         onChange={(e) => setMonthlyIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -916,10 +1020,11 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                       <input
                         type="text"
                         id="laborerAnnualIncome"
-                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                        className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                         value={laborerAnnualIncome}
                         onChange={(e) => setLaborerAnnualIncome(e.target.value)}
                         required
+                        disabled={submissionComplete}
                       />
                     </div>
 
@@ -938,25 +1043,29 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                   <input
                     type="text"
                     id="requireCert"
-                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10"
+                    className="w-full py-2.5 px-3.5 bg-white border border-[#cbd5e1] rounded-lg text-[14.5px] text-[#334155] transition-all duration-200 box-border focus:outline-none focus:border-[#1B365D] focus:ring-2 focus:ring-[#1B365D]/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
                     required
+                    disabled={submissionComplete}
                   />
                 </div>
 
                 {/* Resident Signature Upload Section */}
                 <div className="flex flex-col md:col-span-2 mt-4 p-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-left">
                   <label className="block text-[13.5px] font-bold text-[#1e293b] mb-1">
-                    Upload Resident Signature <span className="text-red-500">*</span>
+                    Upload Resident Signature{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <p className="text-[12px] text-slate-500 mb-3">
-                    Please upload a clear image of your signature for Grama Niladhari verification.
+                    Please upload a clear image of your signature for Grama
+                    Niladhari verification.
                   </p>
-                  
+
                   <input
                     type="file"
                     accept="image/*,.pdf"
+                    disabled={submissionComplete}
                     onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
@@ -965,19 +1074,25 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
                         reader.readAsDataURL(file);
                       }
                     }}
-                    className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer"
+                    className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#1B365D] file:text-white hover:file:bg-[#005BBD] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   />
 
                   {signatureUrl && (
                     <div className="mt-3 p-2 bg-white border border-slate-200 rounded-lg flex items-center gap-3 w-fit">
-                      <img src={signatureUrl} alt="Signature Preview" className="h-12 max-w-[140px] object-contain border border-slate-300 rounded p-1 bg-slate-50" />
-                      <span className="text-xs font-semibold text-emerald-600">✓ Signature Uploaded</span>
+                      <img
+                        src={signatureUrl}
+                        alt="Signature Preview"
+                        className="h-12 max-w-[140px] object-contain border border-slate-300 rounded p-1 bg-slate-50"
+                      />
+                      <span className="text-xs font-semibold text-emerald-600">
+                        ✓ Signature Uploaded
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {errorMessage && (
+              {errorMessage && !successMessage && (
                 <p
                   style={{
                     color: "#ef4444",
@@ -995,8 +1110,9 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
               <div className="flex justify-end gap-4 mt-8">
                 <button
                   type="button"
-                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5"
+                  className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:opacity-100 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={handleReset}
+                  disabled={isSubmitting || submissionComplete}
                 >
                   Reset
                   <svg
@@ -1013,22 +1129,70 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
 
                 <button
                   type="submit"
-                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5"
+                  className="py-2.5 px-6 bg-[#1B365D] text-white border-0 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#005BBD] flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting || submissionComplete}
                 >
-                  Submit
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
+                  {isSubmitting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4 mr-2"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
+
+              {/* Submission Complete Indicator */}
+              {submissionComplete && (
+                <div className="flex justify-center mt-4">
+                  <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
+                    <svg
+                      className="w-5 h-5 animate-pulse"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Success! Redirecting...
+                  </div>
+                </div>
+              )}
             </form>
           </div>
 
