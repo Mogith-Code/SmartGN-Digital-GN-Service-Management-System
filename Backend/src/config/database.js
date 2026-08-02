@@ -595,6 +595,17 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // Ensure image_path column exists in disaster tables
+    const alterDisasterCols = [
+        "ALTER TABLE disaster_pending ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_approved ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_rejected ADD COLUMN image_path LONGTEXT",
+        "ALTER TABLE disaster_resolved ADD COLUMN image_path LONGTEXT"
+    ];
+    for (const q of alterDisasterCols) {
+        try { await dbPool.query(q); } catch (e) { /* column exists */ }
+    }
+
     // ============================================================
     // 11. DOCUMENT TABLE
     // ============================================================
