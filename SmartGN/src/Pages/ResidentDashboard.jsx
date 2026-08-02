@@ -161,7 +161,7 @@ function ResidentDashboard({ onOpenHelp }) {
 
           console.log("Dashboard stats received:", stats); // Debug log
 
-          // ✅ FIX: Include appointments in total counts
+          // ✅ FIX: Include ALL approved counts including disasters
           const pending =
             (stats.certificates?.pending || 0) +
             (stats.appointments?.pending || 0) +
@@ -170,8 +170,9 @@ function ResidentDashboard({ onOpenHelp }) {
 
           const approved =
             (stats.certificates?.approved || 0) +
-            (stats.appointments?.approved || 0) + // ✅ ADDED: Approved appointments
-            (stats.allowances?.approved || 0);
+            (stats.appointments?.approved || 0) +
+            (stats.allowances?.approved || 0) +
+            (stats.disasters?.approved || 0); // ✅ ADDED: Disaster approved count
 
           setTotalPendingCount(pending);
           setTotalApprovedCount(approved);
@@ -227,6 +228,22 @@ function ResidentDashboard({ onOpenHelp }) {
             );
           }
 
+          // ✅ ADDED: Include disaster activities
+          if (stats.disasters?.recent) {
+            activities.push(
+              ...stats.disasters.recent.map((d) => ({
+                id: d.disaster_id || d.id,
+                label: `${d.disaster_type || "Disaster"} - ${d.severity || "Report"}`,
+                status: d.status || "Pending",
+                date:
+                  d.request_date ||
+                  d.created_at ||
+                  new Date().toISOString().split("T")[0],
+                type: "Disaster",
+              })),
+            );
+          }
+
           setRecentActivities(
             activities
               .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -234,29 +251,37 @@ function ResidentDashboard({ onOpenHelp }) {
           );
         } else {
           // Fallback: Fetch individual endpoints
-          const [certRes, allowRes, apptRes] = await Promise.all([
+          const [certRes, allowRes, apptRes, disasterRes] = await Promise.all([
             fetch("/api/certificates/resident", { headers }),
             fetch("/api/allowances/resident", { headers }),
             fetch("/api/appointments/resident", { headers }),
+            fetch("/api/disasters/resident", { headers }).catch(() => ({
+              ok: false,
+            })), // ✅ Added disaster fetch
           ]);
 
           const rawCerts = certRes.ok ? await certRes.json() : [];
           const rawAllows = allowRes.ok ? await allowRes.json() : [];
           const rawAppts = apptRes.ok ? await apptRes.json() : [];
+          const rawDisasters = disasterRes.ok ? await disasterRes.json() : [];
 
           const certs = Array.isArray(rawCerts) ? rawCerts : [];
           const allows = Array.isArray(rawAllows) ? rawAllows : [];
           const appts = Array.isArray(rawAppts) ? rawAppts : [];
+          const disasters = Array.isArray(rawDisasters) ? rawDisasters : [];
 
+          // ✅ FIX: Include disaster counts in totals
           const pending =
             certs.filter((c) => c.status === "Pending").length +
             allows.filter((a) => a.status === "PENDING").length +
-            appts.filter((a) => a.status === "Pending").length;
+            appts.filter((a) => a.status === "Pending").length +
+            disasters.filter((d) => d.status === "Pending").length;
 
           const approved =
             certs.filter((c) => c.status === "Approved").length +
             allows.filter((a) => a.status === "APPROVED").length +
-            appts.filter((a) => a.status === "Approved").length; // ✅ ADDED
+            appts.filter((a) => a.status === "Approved").length +
+            disasters.filter((d) => d.status === "Approved").length; // ✅ ADDED: Disaster approved
 
           const upcoming = appts.filter((a) => a.status === "Approved").length;
 
@@ -296,6 +321,16 @@ function ResidentDashboard({ onOpenHelp }) {
                 new Date().toISOString().split("T")[0],
               type: "Allowance",
             })),
+            ...disasters.slice(0, 2).map((d) => ({
+              id: d.disaster_id || d.id,
+              label: `${d.disaster_type || "Disaster"} - ${d.severity || "Report"}`,
+              status: d.status || "Pending",
+              date:
+                d.request_date ||
+                d.created_at ||
+                new Date().toISOString().split("T")[0],
+              type: "Disaster",
+            })),
           ];
 
           setRecentActivities(
@@ -312,7 +347,7 @@ function ResidentDashboard({ onOpenHelp }) {
     };
 
     fetchDashboardStats();
-  }, [token, refreshKey]); // ✅ Added refreshKey dependency
+  }, [token, refreshKey]);
 
   // ============================================================
   // REFRESH DASHBOARD (Call this when returning from other pages)
@@ -329,7 +364,9 @@ function ResidentDashboard({ onOpenHelp }) {
       try {
         const token = localStorage.getItem("smartgn_token");
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const response = await fetch("/api/residents/announcements", { headers });
+        const response = await fetch("/api/residents/announcements", {
+          headers,
+        });
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {

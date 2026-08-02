@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { translations, useLanguage } from "../utils/translate";
+import { getAuthHeaders } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
@@ -24,6 +25,7 @@ function PendingCertificates({ onOpenHelp }) {
 
   const [pendingList, setPendingList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const localDict = {
     EN: {
@@ -34,6 +36,10 @@ function PendingCertificates({ onOpenHelp }) {
       trackStatus: "Track status",
       back: "Back",
       trackingRequest: "Tracking pending request for",
+      noPending: "No pending certificate requests found.",
+      loading: "Loading pending requests...",
+      error: "Failed to load pending certificate requests. Please try again.",
+      retry: "Retry",
       stages: {
         verification: "Verification in progress",
         signature: "Pending Grama Niladhari Signature",
@@ -48,6 +54,11 @@ function PendingCertificates({ onOpenHelp }) {
       trackStatus: "තත්ත්වය පරීක්ෂා කරන්න",
       back: "ආපසු",
       trackingRequest: "ක්‍රියාත්මක වන සහතිකයේ තත්ත්වය පරීක්ෂා කරමින්",
+      noPending: "ක්‍රියාත්මක වන සහතික ඉල්ලීම් කිසිවක් හමු නොවීය.",
+      loading: "ක්‍රියාත්මක වන ඉල්ලීම් පූරණය වෙමින්...",
+      error:
+        "ක්‍රියාත්මක වන සහතික ඉල්ලීම් පූරණය කිරීමට අසමත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
+      retry: "නැවත උත්සාහ කරන්න",
       stages: {
         verification: "සත්‍යාපනය වෙමින් පවතී",
         signature: "ග්‍රාම නිලධාරී අත්සන සඳහා රැඳී පවතී",
@@ -62,6 +73,11 @@ function PendingCertificates({ onOpenHelp }) {
       trackStatus: "நிலையை கண்காணிக்கவும்",
       back: "திரும்புக",
       trackingRequest: "நிலுவையிலுள்ள கோரிக்கையைக் கண்காணிக்கிறது",
+      noPending: "நிலுவையிலுள்ள சான்றிதழ் கோரிக்கைகள் எதுவும் இல்லை.",
+      loading: "நிலுவையிலுள்ள கோரிக்கைகளை ஏற்றுகிறது...",
+      error:
+        "நிலுவையிலுள்ள சான்றிதழ் கோரிக்கைகளை ஏற்றுவதில் தோல்வி. மீண்டும் முயற்சிக்கவும்.",
+      retry: "மீண்டும் முயற்சிக்கவும்",
       stages: {
         verification: "சரிபார்ப்பு செயல்பாட்டில் உள்ளது",
         signature: "கிராம நிலதாரி கையொப்பத்திற்காக காத்திருக்கிறது",
@@ -72,133 +88,206 @@ function PendingCertificates({ onOpenHelp }) {
 
   const d = localDict[lang] || localDict.EN;
 
+  // Get certificate type display name
+  const getCertificateTypeDisplay = (type) => {
+    const typeMap = {
+      CHARACTER: "Character Certificate",
+      INCOME: "Income Certificate",
+      RESIDENCE: "Residence Certificate",
+      character: "Character Certificate",
+      income: "Income Certificate",
+      residence: "Residence Certificate",
+    };
+    return typeMap[type] || type || "Certificate";
+  };
+
+  // Get stage based on certificate type and request details
+  const getStageKey = (certificate) => {
+    // You can customize this logic based on actual workflow
+    // For now, use deterministic stages based on request_id or creation time
+    const id = certificate.id || certificate.request_id || "";
+    const hash = id
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const stageIndex = hash % 3;
+    const stages = ["verification", "signature", "audit"];
+    return stages[stageIndex];
+  };
+
+  // Load pending certificates from API
   const loadPending = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
       const token = localStorage.getItem("smartgn_token");
-      const headers = {
-        Authorization: token ? `Bearer ${token}` : "",
-        "Content-Type": "application/json",
-      };
-      const response = await fetch("/api/certificates/resident", { headers });
-      if (!response.ok) throw new Error("API failed");
-      const data = await response.json();
-      const localData = JSON.parse(
-        localStorage.getItem("smartgn_certificates") || "[]",
-      );
-      const apiPending = data.filter(
-        (c) => c.status === "PENDING" || c.status === "Pending",
-      );
-      const apiIds = new Set(apiPending.map((c) => String(c.id || c.request_id)));
-      const extraLocalPending = localData.filter(
-        (c) =>
-          (c.status === "PENDING" || c.status === "Pending") &&
-          !apiIds.has(String(c.id || c.request_id)),
-      );
-      const combinedPending = [...apiPending, ...extraLocalPending];
 
-      setPendingList(
-        combinedPending.map((c, index) => ({
-          id: c.id || c.request_id,
-          type:
-            c.type ||
-            (c.certificate_type === "INCOME"
-              ? "Income Certificate"
-              : "Character Certificate"),
-          requestedDate:
-            c.submittedDate ||
-            (c.request_date ? c.request_date.split("T")[0] : ""),
-          purpose: c.purpose,
-          stageKey:
-            index % 3 === 0
-              ? "verification"
-              : index % 3 === 1
-                ? "signature"
-                : "audit",
-          isActive: index === 0,
-        })),
+      if (!token) {
+        setError("Authentication required. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
+      const headers = getAuthHeaders();
+
+      // Fetch certificates from the resident endpoint
+      const response = await fetch("/api/certificates/resident", {
+        headers,
+        cache: "no-cache", // Prevent caching
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError("Session expired. Please log in again.");
+          setLoading(false);
+          return;
+        }
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Filter for PENDING status only
+      const pendingCerts = data.filter(
+        (cert) => cert.status === "PENDING" || cert.status === "Pending",
       );
+
+      // Format the pending certificates
+      const formattedPending = pendingCerts.map((cert) => ({
+        id: cert.id || cert.request_id,
+        requestId: cert.request_id,
+        certificateNumber: cert.certificate_number,
+        type: getCertificateTypeDisplay(cert.certificate_type),
+        certificateType: cert.certificate_type,
+        requestedDate: cert.request_date
+          ? new Date(cert.request_date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+          : new Date(cert.created_at || Date.now()).toLocaleDateString(
+              "en-GB",
+              {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              },
+            ),
+        purpose: cert.purpose || "Not specified",
+        details: cert.details || {},
+        stageKey: getStageKey(cert),
+        isActive: cert.is_active !== false,
+        createdAt: cert.created_at || cert.requested_at,
+        // Store original data for reference
+        _original: cert,
+      }));
+
+      // Sort by created date (newest first)
+      formattedPending.sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0);
+        const dateB = new Date(b.createdAt || 0);
+        return dateB - dateA;
+      });
+
+      setPendingList(formattedPending);
     } catch (err) {
-      console.warn(
-        "API connection offline. Loading pending certificates from local fallback.",
-      );
-      const localData = localStorage.getItem("smartgn_certificates");
-      if (localData) {
-        const allCerts = JSON.parse(localData);
-        const pending = allCerts.filter(
-          (c) => c.status === "PENDING" || c.status === "Pending",
-        );
-        setPendingList(
-          pending.map((c, index) => ({
-            id: c.id || c.request_id,
-            type:
-              c.type ||
-              (c.certificate_type === "INCOME"
-                ? "Income Certificate"
-                : "Character Certificate"),
-            requestedDate:
-              c.submittedDate ||
-              (c.request_date ? c.request_date.split("T")[0] : ""),
-            purpose: c.purpose,
-            stageKey:
-              index % 3 === 0
-                ? "verification"
-                : index % 3 === 1
-                  ? "signature"
-                  : "audit",
-            isActive: index === 0,
-          })),
-        );
-      } else {
-        const defaultPending = [
-          {
-            id: 1,
-            type: "Character Certificate",
-            requestedDate: "15/06/2026",
-            purpose: "For certify residence",
-            stageKey: "verification",
-            isActive: true,
-          },
-          {
-            id: 2,
-            type: "Income Certificate",
-            requestedDate: "18/06/2026",
-            purpose: "Higher Education Scholarship",
-            stageKey: "signature",
-            isActive: false,
-          },
-          {
-            id: 3,
-            type: "Character Certificate",
-            requestedDate: "22/06/2026",
-            purpose: "Visa Application",
-            stageKey: "audit",
-            isActive: false,
-          },
-        ];
-        localStorage.setItem(
-          "smartgn_certificates",
-          JSON.stringify(
-            defaultPending.map((p) => ({
-              ...p,
-              status: "PENDING",
-              certificate_type:
-                p.type === "Income Certificate" ? "INCOME" : "CHARACTER",
-            })),
-          ),
-        );
-        setPendingList(defaultPending);
+      console.error("Error loading pending certificates:", err);
+      setError(err.message || d.error);
+
+      // ✅ Only use fallback if API fails - but from database, not hardcoded
+      // Try to get from localStorage as last resort
+      try {
+        const localData = localStorage.getItem("smartgn_certificates");
+        if (localData) {
+          const allCerts = JSON.parse(localData);
+          const pending = allCerts.filter(
+            (c) => c.status === "PENDING" || c.status === "Pending",
+          );
+
+          if (pending.length > 0) {
+            setPendingList(
+              pending.map((c, index) => ({
+                id: c.id || c.request_id,
+                requestId: c.request_id,
+                certificateNumber: c.certificate_number,
+                type: getCertificateTypeDisplay(c.certificate_type || c.type),
+                certificateType: c.certificate_type || c.type,
+                requestedDate: c.request_date
+                  ? new Date(c.request_date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })
+                  : c.submittedDate || "N/A",
+                purpose: c.purpose || "Not specified",
+                details: c.details || {},
+                stageKey: ["verification", "signature", "audit"][index % 3],
+                isActive: index === 0,
+                _original: c,
+              })),
+            );
+          } else {
+            setPendingList([]);
+          }
+        } else {
+          setPendingList([]);
+        }
+      } catch (localErr) {
+        console.error("Error reading from localStorage:", localErr);
+        setPendingList([]);
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Load pending certificates on mount
   useEffect(() => {
     loadPending();
   }, []);
 
+  // Handle track status click
   const handleTrackStatus = (item) => {
-    alert(`${d.trackingRequest} ${item.type} (ID: ${item.id})...`);
+    // Navigate to certificate details or show detailed view
+    navigate(`/ResidentDashboard/certificate-details/${item.id}`, {
+      state: {
+        certificate: item,
+        successUser,
+        division: userDivision,
+      },
+    });
+  };
+
+  // Handle retry
+  const handleRetry = () => {
+    loadPending();
+  };
+
+  // Render the stage label
+  const renderStageLabel = (stageKey) => {
+    const stageLabels = {
+      verification: {
+        label: d.stages.verification || "Verification in progress",
+        color: "bg-amber-100 text-amber-800",
+      },
+      signature: {
+        label: d.stages.signature || "Pending Grama Niladhari Signature",
+        color: "bg-blue-100 text-blue-800",
+      },
+      audit: {
+        label: d.stages.audit || "Document Audit Stage",
+        color: "bg-purple-100 text-purple-800",
+      },
+    };
+
+    const stage = stageLabels[stageKey] || stageLabels.verification;
+    return (
+      <span
+        className={`${stage.color} font-bold px-2 py-0.5 rounded text-[12.5px]`}
+      >
+        {stage.label}
+      </span>
+    );
   };
 
   return (
@@ -243,31 +332,58 @@ function PendingCertificates({ onOpenHelp }) {
             {d.title}
           </h2>
 
-          {/* Pending Requests List */}
-          {loading ? (
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 text-center">
+              <p className="text-red-600 font-medium mb-3">{error}</p>
+              <button
+                onClick={handleRetry}
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                {d.retry || "Retry"}
+              </button>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
             <div className="text-center py-20 text-[#64748b] text-[15px] font-medium">
-              Loading pending requests...
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B365D] mx-auto mb-4"></div>
+              {d.loading || "Loading pending requests..."}
             </div>
-          ) : pendingList.length === 0 ? (
+          )}
+
+          {/* No Pending Requests */}
+          {!loading && !error && pendingList.length === 0 && (
             <div className="bg-white border border-dashed border-[#cbd5e1] rounded-2xl p-12 text-center text-[#64748b] text-[15px] font-semibold shadow-sm">
-              No pending certificate requests found.
+              {d.noPending || "No pending certificate requests found."}
             </div>
-          ) : (
+          )}
+
+          {/* Pending Requests List */}
+          {!loading && !error && pendingList.length > 0 && (
             <div className="flex flex-col gap-4">
-              {pendingList.map((item) => (
+              {pendingList.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.id || item.requestId || index}
                   className={`rounded-2xl p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-4 ${
-                    item.isActive
+                    item.isActive || index === 0
                       ? "bg-[#fefce8] border-[1.5px] border-[#fef08a]"
                       : "bg-white border border-[#2D37481F]"
                   }`}
                 >
                   {/* Left Area: Certificate Details */}
                   <div className="text-left max-w-full md:max-w-[70%]">
-                    <h4 className="text-[16px] font-bold text-[#1B365D] mb-3">
-                      {item.type}
-                    </h4>
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      <h4 className="text-[16px] font-bold text-[#1B365D]">
+                        {item.type}
+                      </h4>
+                      {item.certificateNumber && (
+                        <span className="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+                          {item.certificateNumber}
+                        </span>
+                      )}
+                    </div>
 
                     <div className="flex flex-col gap-1 text-[13.5px]">
                       <div>
@@ -286,20 +402,19 @@ function PendingCertificates({ onOpenHelp }) {
                           {item.purpose}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center gap-1.5">
+                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                         <span className="text-[#d97706] font-bold text-[13.5px]">
                           {d.currentStage}
                         </span>
-                        <span className="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[12.5px]">
-                          {d.stages[item.stageKey] || item.stageKey}
-                        </span>
+                        {renderStageLabel(item.stageKey)}
                       </div>
                     </div>
                   </div>
 
                   {/* Right Area: Status & Action Button */}
                   <div className="flex flex-col items-start md:items-end gap-3 self-stretch md:self-auto justify-between md:justify-start">
-                    <span className="text-[13px] font-bold text-[#d97706] bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                    <span className="text-[13px] font-bold text-[#d97706] bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                       PENDING
                     </span>
 

@@ -31,13 +31,43 @@ exports.getResidentAllowances = async (req, res) => {
     const residentNic = user.id;
 
     try {
-        const [rows] = await db.query(
+        // Get from pending, approved, and rejected tables
+        const [pendingRows] = await db.query(
             `SELECT * FROM allowance_pending 
              WHERE resident_nic = ?
              ORDER BY application_date DESC`,
             [residentNic]
         );
-        res.status(200).json(rows);
+        
+        const [approvedRows] = await db.query(
+            `SELECT * FROM allowance_approved 
+             WHERE resident_nic = ?
+             ORDER BY approved_at DESC`,
+            [residentNic]
+        );
+        
+        const [rejectedRows] = await db.query(
+            `SELECT * FROM allowance_rejected 
+             WHERE resident_nic = ?
+             ORDER BY rejected_at DESC`,
+            [residentNic]
+        );
+        
+        // Combine all results with status indicator
+        const allRows = [
+            ...pendingRows.map(r => ({ ...r, status: 'PENDING' })),
+            ...approvedRows.map(r => ({ ...r, status: 'APPROVED' })),
+            ...rejectedRows.map(r => ({ ...r, status: 'REJECTED' }))
+        ];
+        
+        // Sort by date (most recent first)
+        allRows.sort((a, b) => {
+            const dateA = a.application_date || a.approved_at || a.rejected_at || a.created_at;
+            const dateB = b.application_date || b.approved_at || b.rejected_at || b.created_at;
+            return new Date(dateB) - new Date(dateA);
+        });
+        
+        res.status(200).json(allRows);
     } catch (error) {
         console.error('Error fetching resident allowances:', error);
         res.status(500).json({ error: error.message });
@@ -57,7 +87,8 @@ exports.getOfficerAllowances = async (req, res) => {
     const gnId = user.id;
 
     try {
-        const [rows] = await db.query(
+        // Get from pending, approved, and rejected tables
+        const [pendingRows] = await db.query(
             `SELECT 
                 ap.*, 
                 r.full_name AS resident_name, 
@@ -70,7 +101,50 @@ exports.getOfficerAllowances = async (req, res) => {
              ORDER BY ap.application_date DESC`,
             [gnId]
         );
-        res.status(200).json(rows);
+        
+        const [approvedRows] = await db.query(
+            `SELECT 
+                aa.*, 
+                r.full_name AS resident_name, 
+                r.email AS resident_email, 
+                h.address AS resident_address
+             FROM allowance_approved aa
+             JOIN resident r ON r.r_nic = aa.resident_nic
+             LEFT JOIN household h ON h.household_number = r.household_number
+             WHERE aa.gn_id = ?
+             ORDER BY aa.approved_at DESC`,
+            [gnId]
+        );
+        
+        const [rejectedRows] = await db.query(
+            `SELECT 
+                ar.*, 
+                r.full_name AS resident_name, 
+                r.email AS resident_email, 
+                h.address AS resident_address
+             FROM allowance_rejected ar
+             JOIN resident r ON r.r_nic = ar.resident_nic
+             LEFT JOIN household h ON h.household_number = r.household_number
+             WHERE ar.gn_id = ?
+             ORDER BY ar.rejected_at DESC`,
+            [gnId]
+        );
+        
+        // Combine all results with status indicator
+        const allRows = [
+            ...pendingRows.map(r => ({ ...r, status: 'PENDING' })),
+            ...approvedRows.map(r => ({ ...r, status: 'APPROVED' })),
+            ...rejectedRows.map(r => ({ ...r, status: 'REJECTED' }))
+        ];
+        
+        // Sort by date (most recent first)
+        allRows.sort((a, b) => {
+            const dateA = a.application_date || a.approved_at || a.rejected_at || a.created_at;
+            const dateB = b.application_date || b.approved_at || b.rejected_at || b.created_at;
+            return new Date(dateB) - new Date(dateA);
+        });
+        
+        res.status(200).json(allRows);
     } catch (error) {
         console.error('Error fetching officer allowances:', error);
         res.status(500).json({ error: error.message });
@@ -91,30 +165,33 @@ exports.disburseAllowance = async (req, res) => {
     const { disburseAmount } = req.body;
 
     try {
-        const [rows] = await db.query(
-            'SELECT * FROM allowance_pending WHERE allowance_id = ?',
+        // Check if in approved table (already moved)
+        const [approvedRows] = await db.query(
+            'SELECT * FROM allowance_approved WHERE allowance_id = ?',
             [id]
         );
         
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Allowance application not found.' });
-        }
-
-        const application = rows[0];
-        
-        // If status is not APPROVED, automatically approve it
-        if (application.status !== 'APPROVED') {
-            await db.query(
-                'UPDATE allowance_pending SET status = "APPROVED" WHERE allowance_id = ?',
+        if (approvedRows.length === 0) {
+            // Check if still in pending
+            const [pendingRows] = await db.query(
+                'SELECT * FROM allowance_pending WHERE allowance_id = ?',
                 [id]
             );
+            
+            if (pendingRows.length === 0) {
+                return res.status(404).json({ error: 'Allowance application not found.' });
+            }
+            
+            // Move from pending to approved first
+            const application = pendingRows[0];
+            await moveToApproved(application, user.id);
         }
 
+        // Now update payment status in approved table
         const txnRef = `TXN-${Math.floor(100000000 + Math.random() * 900000000)}`;
 
-        // Update payment status
         await db.query(
-            `UPDATE allowance_pending 
+            `UPDATE allowance_approved 
              SET payment_status = 'PAID', 
                  cleared_amount = ?, 
                  cleared_time = NOW(), 
@@ -142,6 +219,115 @@ exports.disburseAllowance = async (req, res) => {
 };
 
 // ============================================================
+// Helper: Move pending to approved (FIXED - using db.getPool())
+// ============================================================
+async function moveToApproved(application, approvedBy) {
+    const pool = await db.getPool();
+    const connection = await pool.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+
+        // Insert into approved table
+        await connection.query(
+            `INSERT INTO allowance_approved (
+                allowance_id,
+                allowance_number,
+                allowance_type,
+                application_date,
+                income_details,
+                resident_nic,
+                gn_id,
+                approved_by,
+                approved_at,
+                payment_status,
+                bank_details,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'UNPAID', ?, NOW())`,
+            [
+                application.allowance_id,
+                application.allowance_number,
+                application.allowance_type,
+                application.application_date,
+                application.income_details,
+                application.resident_nic,
+                application.gn_id,
+                approvedBy,
+                application.bank_details
+            ]
+        );
+
+        // Delete from pending
+        await connection.query(
+            'DELETE FROM allowance_pending WHERE allowance_id = ?',
+            [application.allowance_id]
+        );
+
+        await connection.commit();
+        return true;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+// ============================================================
+// Helper: Move pending to rejected (FIXED - using db.getPool())
+// ============================================================
+async function moveToRejected(application, rejectedBy, rejectionReason = null) {
+    const pool = await db.getPool();
+    const connection = await pool.getConnection();
+    
+    try {
+        await connection.beginTransaction();
+
+        // Insert into rejected table
+        await connection.query(
+            `INSERT INTO allowance_rejected (
+                allowance_id,
+                allowance_number,
+                allowance_type,
+                application_date,
+                income_details,
+                resident_nic,
+                gn_id,
+                rejected_by,
+                rejection_reason,
+                rejected_at,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+            [
+                application.allowance_id,
+                application.allowance_number,
+                application.allowance_type,
+                application.application_date,
+                application.income_details,
+                application.resident_nic,
+                application.gn_id,
+                rejectedBy,
+                rejectionReason || 'Application rejected by officer'
+            ]
+        );
+
+        // Delete from pending
+        await connection.query(
+            'DELETE FROM allowance_pending WHERE allowance_id = ?',
+            [application.allowance_id]
+        );
+
+        await connection.commit();
+        return true;
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+// ============================================================
 // UPDATE ALLOWANCE STATUS (Approve/Reject) - Officer
 // ============================================================
 exports.updateAllowanceStatus = async (req, res) => {
@@ -152,13 +338,14 @@ exports.updateAllowanceStatus = async (req, res) => {
     }
 
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, rejectionReason } = req.body;
 
     try {
         if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
             return res.status(400).json({ error: 'Valid status (APPROVED/REJECTED) is required.' });
         }
 
+        // Get the pending application
         const [rows] = await db.query(
             'SELECT * FROM allowance_pending WHERE allowance_id = ?',
             [id]
@@ -168,17 +355,23 @@ exports.updateAllowanceStatus = async (req, res) => {
             return res.status(404).json({ error: 'Allowance application not found.' });
         }
 
-        await db.query(
-            `UPDATE allowance_pending 
-             SET status = ? 
-             WHERE allowance_id = ?`,
-            [status, id]
-        );
+        const application = rows[0];
 
-        res.status(200).json({ 
-            success: true, 
-            message: `Allowance application has been successfully ${status.toLowerCase()}.` 
-        });
+        if (status === 'APPROVED') {
+            // Move to approved table
+            await moveToApproved(application, user.id);
+            res.status(200).json({ 
+                success: true, 
+                message: 'Allowance application has been successfully approved.' 
+            });
+        } else if (status === 'REJECTED') {
+            // Move to rejected table
+            await moveToRejected(application, user.id, rejectionReason);
+            res.status(200).json({ 
+                success: true, 
+                message: 'Allowance application has been successfully rejected.' 
+            });
+        }
     } catch (error) {
         console.error('Error updating allowance status:', error);
         res.status(500).json({ error: error.message });
@@ -198,40 +391,53 @@ exports.getAllowanceStats = async (req, res) => {
     try {
         let pendingCount = 0;
         let approvedCount = 0;
+        let rejectedCount = 0;
         let totalAmount = 0;
 
         if (user.role === 'RESIDENT') {
             const nic = user.id;
             
             const [pendingResult] = await db.query(
-                'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ? AND status = "PENDING"',
+                'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ?',
                 [nic]
             );
             pendingCount = pendingResult[0]?.count || 0;
 
             const [approvedResult] = await db.query(
-                'SELECT COUNT(*) AS count FROM allowance_pending WHERE resident_nic = ? AND status = "APPROVED"',
+                'SELECT COUNT(*) AS count FROM allowance_approved WHERE resident_nic = ?',
                 [nic]
             );
             approvedCount = approvedResult[0]?.count || 0;
+
+            const [rejectedResult] = await db.query(
+                'SELECT COUNT(*) AS count FROM allowance_rejected WHERE resident_nic = ?',
+                [nic]
+            );
+            rejectedCount = rejectedResult[0]?.count || 0;
 
         } else if (user.role === 'OFFICER') {
             const gnId = user.id;
 
             const [pendingResult] = await db.query(
-                'SELECT COUNT(*) AS count FROM allowance_pending WHERE gn_id = ? AND status = "PENDING"',
+                'SELECT COUNT(*) AS count FROM allowance_pending WHERE gn_id = ?',
                 [gnId]
             );
             pendingCount = pendingResult[0]?.count || 0;
 
             const [approvedResult] = await db.query(
-                'SELECT COUNT(*) AS count FROM allowance_pending WHERE gn_id = ? AND status = "APPROVED"',
+                'SELECT COUNT(*) AS count FROM allowance_approved WHERE gn_id = ?',
                 [gnId]
             );
             approvedCount = approvedResult[0]?.count || 0;
 
+            const [rejectedResult] = await db.query(
+                'SELECT COUNT(*) AS count FROM allowance_rejected WHERE gn_id = ?',
+                [gnId]
+            );
+            rejectedCount = rejectedResult[0]?.count || 0;
+
             const [amountResult] = await db.query(
-                'SELECT COALESCE(SUM(cleared_amount), 0) AS total FROM allowance_pending WHERE gn_id = ? AND payment_status = "PAID"',
+                'SELECT COALESCE(SUM(cleared_amount), 0) AS total FROM allowance_approved WHERE gn_id = ? AND payment_status = "PAID"',
                 [gnId]
             );
             totalAmount = amountResult[0]?.total || 0;
@@ -240,6 +446,7 @@ exports.getAllowanceStats = async (req, res) => {
         res.status(200).json({
             pending: pendingCount,
             approved: approvedCount,
+            rejected: rejectedCount,
             totalDisbursed: totalAmount
         });
     } catch (error) {
