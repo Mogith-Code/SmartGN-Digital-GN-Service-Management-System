@@ -223,7 +223,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 7. APPOINTMENT TABLES (Separated)
     // ============================================================
-    
+
     // 7a. PENDING APPOINTMENTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS appointment_pending (
@@ -299,7 +299,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 8. CERTIFICATE TABLES (Separated) - FIXED
     // ============================================================
-    
+
     // 8a. PENDING CERTIFICATES
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS certificate_pending (
@@ -376,8 +376,8 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-// 9a. PENDING ALLOWANCES
-await dbPool.query(`
+    // 9a. PENDING ALLOWANCES
+    await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_pending (
     allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
@@ -403,8 +403,8 @@ CREATE TABLE IF NOT EXISTS allowance_pending (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `);
 
-// 9b. APPROVED ALLOWANCES
-await dbPool.query(`
+    // 9b. APPROVED ALLOWANCES
+    await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_approved (
     allowance_id VARCHAR(36) PRIMARY KEY,
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
@@ -432,8 +432,8 @@ CREATE TABLE IF NOT EXISTS allowance_approved (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `);
 
-// 9c. REJECTED ALLOWANCES
-await dbPool.query(`
+    // 9c. REJECTED ALLOWANCES
+    await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_rejected (
     allowance_id VARCHAR(36) PRIMARY KEY,
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
@@ -460,7 +460,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // ============================================================
     // 10. DISASTER TABLES (Separated) - FIXED
     // ============================================================
-    
+
     // 10a. PENDING DISASTER REQUESTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS disaster_pending (
@@ -621,7 +621,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // ============================================================
     // 12. CHAT TABLES
     // ============================================================
-    
+
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS chat_session (
         session_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -822,13 +822,13 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // SEED GN DIVISIONS FROM PACKAGE - KEEP AS ORIGINAL
     // ============================================================
     let firstDivisionId = null;
-    
+
     try {
         // Check if divisions exist before seeding
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
             console.log('🌱 Seeding GN divisions from package...');
-            
+
             // Use the direct JSON import method
             const seedGnDivisions = require('../seed/seedGnDivisions');
             await seedGnDivisions(dbPool);
@@ -836,14 +836,14 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         } else {
             console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
         }
-        
+
         // Get the first division ID (GN-001A or any division)
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-        
+
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
             console.log(`📍 Using first division ID: ${firstDivisionId}`);
@@ -853,7 +853,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     } catch (error) {
         console.warn('⚠️ Could not seed GN divisions from package:', error.message);
         console.log('📌 Falling back to manual division seeding...');
-        
+
         // Fallback: Seed divisions manually if package fails
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
@@ -871,14 +871,14 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
             }
             console.log('✅ GN divisions seeded manually (fallback)');
         }
-        
+
         // Get the first division ID
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-        
+
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
             console.log(`📍 Using first division ID: ${firstDivisionId}`);
@@ -888,10 +888,10 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // ============================================================
     // SEED HOUSEHOLD, RESIDENT, GN OFFICER, ADMIN
     // ============================================================
-    
+
     if (firstDivisionId) {
         console.log('📌 Seeding related data for the first division...');
-        
+
         // 1. SEED HOUSEHOLD
         const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
         if (householdCount[0].count === 0) {
@@ -910,7 +910,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         if (residentCount[0].count === 0) {
             console.log('📌 Seeding resident...');
             const residentPasswordHash = bcrypt.hashSync('password123', 10);
-            
+
             await dbPool.query(`
                 INSERT INTO resident (
                     r_nic, first_name, last_name, full_name, date_of_birth, gender, mobile_no, email, 
@@ -944,7 +944,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         if (officerCount[0].count === 0) {
             console.log('📌 Seeding GN Officer...');
             const officerPasswordHash = bcrypt.hashSync('password123', 10);
-            
+
             await dbPool.query(`
                 INSERT INTO grama_niladhari (
                     gn_id, username, password_hash, first_name, last_name, full_name,
@@ -974,7 +974,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     if (adminCount[0].count === 0) {
         console.log('📌 Seeding Admin...');
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
-        
+
         await dbPool.query(`
             INSERT INTO admin (full_name, username, password_hash, email, role) 
             VALUES (?, ?, ?, ?, ?)
