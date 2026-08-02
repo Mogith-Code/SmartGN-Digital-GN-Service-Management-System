@@ -455,10 +455,7 @@ function ProfileDetails({ onOpenHelp }) {
           </div>
 
           {/* Header Profile Card */}
-          <div className="bg-gradient-to-r from-[#1B365D] to-[#2B548A] rounded-2xl p-6 md:p-8 text-white shadow-md flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
-            <div className="absolute right-10 -top-10 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
+          <div className="bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] p-6 md:p-8 text-[#2D3748] shadow-md flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
             {/* Profile Photo */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
               {photoUrl ? (
@@ -512,7 +509,7 @@ function ProfileDetails({ onOpenHelp }) {
           {/* Detail Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {/* Personal Details */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.personalInfo}
@@ -547,7 +544,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* NIC Images Section - Increased container sizes */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.nicImages}
@@ -622,7 +619,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* Household & Location Details */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 md:col-span-2">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300 md:col-span-2">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.householdInfo}
@@ -646,7 +643,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* Family Members Table */}
-            <div className="flex flex-col border border-[#2D37482D] p-[20px] rounded-[10px] md:col-span-2">
+            <div className="flex flex-col border border-[#2D37482D] p-[20px] rounded-[10px] md:col-span-2 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
               <div className="flex w-full items-center mb-[15px] font-semibold text-[#1B365D] text-[17px]">
                 {t.familyMembers}
                 {familyMembers.length > 0 && (
