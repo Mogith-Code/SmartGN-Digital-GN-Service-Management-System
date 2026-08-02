@@ -1,4 +1,3 @@
-// certificateController.js — Full implementation
 const db = require('../config/database');
 const jwt = require('jsonwebtoken');
 const CertificateModel = require('../models/Certificate');
@@ -16,13 +15,13 @@ const getUserFromToken = (req) => {
     }
 };
 
-const generateCertificateNumber = () => {
+const generateCertificateNumber = (type) => {
     const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const rand = Math.floor(1000 + Math.random() * 9000);
-    return `CERT-${date}-${rand}`;
+    const prefix = type === 'INCOME' ? 'INC' : type === 'CHARACTER' ? 'CHA' : 'RES';
+    return `${prefix}-${date}-${rand}`;
 };
 
-// Helper function
 const parseDetails = (detailsRaw) => {
     if (!detailsRaw) return {};
     if (typeof detailsRaw === 'object') return detailsRaw;
@@ -33,38 +32,153 @@ const parseDetails = (detailsRaw) => {
     }
 };
 
+// ============================================================
 // RESIDENT ENDPOINTS
+// ============================================================
 
-// POST /api/certificates/apply
 exports.submitCertificateRequest = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
-    const { certificateType, purpose, requestDate, ...extraFields } = req.body;
+    const {
+        certificateType,
+        purpose,
+        requestDate,
+        // Character certificate fields
+        divisionalSecretariat,
+        gnDivisionNumber,
+        fullName,
+        age,
+        address,
+        sex,
+        civilStatus,
+        nationality,
+        religion,
+        occupation,
+        villagePeriod,
+        nicNumber,
+        electoralRegister,
+        fatherName,
+        fatherAddress,
+        personalKnown,
+        personalKnownSince,
+        gnPeriod,
+        natureOfOtherEvidences,
+        convictedByCourt,
+        convictedDetails,
+        publicActivitiesInterest,
+        publicActivitiesDetails,
+        character,
+        remarks,
+        signatureUrl,
+        birthCertUrl,
+        // Income certificate fields
+        incomeStream,
+        landOwnerName,
+        landAmount,
+        grantSheetNumber,
+        ownerIdentity,
+        amountObtained,
+        expenses,
+        pricePerKg,
+        totalIncome,
+        annualIncome,
+        businessName,
+        businessNature,
+        businessFileName,
+        taxReceiptNumber,
+        dailyMonthlyIncome,
+        businessAnnualIncome,
+        netIncome,
+        dailySalary,
+        hoursWorked,
+        monthlyIncome,
+        laborerAnnualIncome,
+        ...extraFields
+    } = req.body;
 
     if (!certificateType || !purpose) {
         return res.status(400).json({ error: 'certificateType and purpose are required.' });
     }
 
-    const normalizedType = String(certificateType).toUpperCase();
-    const validTypes = ['RESIDENCE', 'INCOME', 'CHARACTER'];
-    if (!validTypes.includes(normalizedType)) {
-        return res.status(400).json({ error: 'Invalid certificate type. Allowed: RESIDENCE, INCOME, CHARACTER.' });
+    let normalizedType = String(certificateType).toUpperCase();
+    if (normalizedType === 'CHARACTER' || normalizedType === 'CHARACTER CERTIFICATE') {
+        normalizedType = 'CHARACTER';
+    } else if (normalizedType === 'INCOME' || normalizedType === 'INCOME CERTIFICATE') {
+        normalizedType = 'INCOME';
+    } else if (normalizedType === 'RESIDENCE' || normalizedType === 'RESIDENCE CERTIFICATE') {
+        normalizedType = 'RESIDENCE';
+    } else {
+        return res.status(400).json({ error: 'Invalid certificate type. Allowed: CHARACTER, INCOME, RESIDENCE.' });
     }
 
     try {
         const residentNic = user.id;
         const gnId = await CertificateModel.findOfficerForResident(residentNic);
-        const certNumber = generateCertificateNumber();
+        const certNumber = generateCertificateNumber(normalizedType);
         const reqDate = requestDate || new Date().toISOString().split('T')[0];
 
         const details = {
             purpose,
             requestDate: reqDate,
+            divisionalSecretariat,
+            gnDivisionNumber,
+            fullName,
+            age,
+            address,
+            sex,
+            civilStatus,
+            nationality,
+            religion,
+            occupation,
+            villagePeriod,
+            nicNumber,
+            electoralRegister,
+            fatherName,
+            fatherAddress,
+            personalKnown,
+            personalKnownSince,
+            gnPeriod,
+            natureOfOtherEvidences,
+            convictedByCourt,
+            convictedDetails,
+            publicActivitiesInterest,
+            publicActivitiesDetails,
+            character,
+            remarks,
+            signatureUrl,
+            birthCertUrl,
+            incomeStream,
+            landOwnerName,
+            landAmount,
+            grantSheetNumber,
+            ownerIdentity,
+            amountObtained,
+            expenses,
+            pricePerKg,
+            totalIncome,
+            annualIncome,
+            businessName,
+            businessNature,
+            businessFileName,
+            taxReceiptNumber,
+            dailyMonthlyIncome,
+            businessAnnualIncome,
+            netIncome,
+            dailySalary,
+            hoursWorked,
+            monthlyIncome,
+            laborerAnnualIncome,
             ...extraFields
         };
+
+        Object.keys(details).forEach(key => {
+            if (details[key] === undefined || details[key] === null) {
+                delete details[key];
+            }
+        });
 
         const requestId = await CertificateModel.createPendingRequest({
             certificateNumber: certNumber,
@@ -77,7 +191,7 @@ exports.submitCertificateRequest = async (req, res) => {
         });
 
         return res.status(201).json({
-            message: 'Certificate application submitted successfully. Assigned to your Grama Niladhari division.',
+            message: 'Certificate application submitted successfully.',
             certificateNumber: certNumber,
             request_id: requestId,
             id: requestId,
@@ -89,7 +203,6 @@ exports.submitCertificateRequest = async (req, res) => {
     }
 };
 
-// GET /api/certificates/resident
 exports.getResidentCertificates = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || user.role !== 'RESIDENT') {
@@ -136,9 +249,10 @@ exports.getResidentCertificates = async (req, res) => {
     }
 };
 
+// ============================================================
 // OFFICER / ADMIN ENDPOINTS
+// ============================================================
 
-// GET /api/certificates/officer
 exports.getOfficerCertificates = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
@@ -176,7 +290,8 @@ exports.getOfficerCertificates = async (req, res) => {
             SELECT cp.request_id, cp.certificate_number, cp.certificate_type, cp.purpose, cp.request_date,
                    'PENDING' AS status, cp.details, cp.requested_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no
+                   r.r_nic AS resident_nic, r.home_address AS resident_address, r.mobile_no,
+                   r.division_id, r.household_number
             FROM certificate_pending cp
             LEFT JOIN resident r ON cp.resident_nic = r.r_nic
             WHERE 1=1 ${filterSql}
@@ -220,7 +335,6 @@ exports.getOfficerCertificates = async (req, res) => {
     }
 };
 
-// GET /api/certificates/:id
 exports.getCertificateDetails = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user) {
@@ -233,7 +347,8 @@ exports.getCertificateDetails = async (req, res) => {
         const [pending] = await db.query(`
             SELECT cp.*, 'PENDING' AS status,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email,
+                   r.r_nic AS resident_nic
             FROM certificate_pending cp
             JOIN resident r ON cp.resident_nic = r.r_nic
             WHERE cp.request_id = ? OR cp.certificate_number = ?
@@ -241,13 +356,19 @@ exports.getCertificateDetails = async (req, res) => {
 
         if (pending.length > 0) {
             const item = pending[0];
-            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+            return res.json({ 
+                ...item, 
+                id: item.request_id, 
+                details: parseDetails(item.details),
+                certificate_type: item.certificate_type
+            });
         }
 
         const [approved] = await db.query(`
             SELECT ca.*, 'APPROVED' AS status,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email,
+                   r.r_nic AS resident_nic
             FROM certificate_approved ca
             JOIN resident r ON ca.resident_nic = r.r_nic
             WHERE ca.request_id = ? OR ca.certificate_number = ?
@@ -255,13 +376,19 @@ exports.getCertificateDetails = async (req, res) => {
 
         if (approved.length > 0) {
             const item = approved[0];
-            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+            return res.json({ 
+                ...item, 
+                id: item.request_id, 
+                details: parseDetails(item.details),
+                certificate_type: item.certificate_type
+            });
         }
 
         const [rejected] = await db.query(`
             SELECT cr.*, 'REJECTED' AS status,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
-                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email
+                   r.home_address AS resident_address, r.mobile_no, r.email AS resident_email,
+                   r.r_nic AS resident_nic
             FROM certificate_rejected cr
             JOIN resident r ON cr.resident_nic = r.r_nic
             WHERE cr.request_id = ? OR cr.certificate_number = ?
@@ -269,7 +396,12 @@ exports.getCertificateDetails = async (req, res) => {
 
         if (rejected.length > 0) {
             const item = rejected[0];
-            return res.json({ ...item, id: item.request_id, details: parseDetails(item.details) });
+            return res.json({ 
+                ...item, 
+                id: item.request_id, 
+                details: parseDetails(item.details),
+                certificate_type: item.certificate_type
+            });
         }
 
         return res.status(404).json({ error: 'Certificate request not found.' });
@@ -279,7 +411,6 @@ exports.getCertificateDetails = async (req, res) => {
     }
 };
 
-// PUT /api/certificates/:id/action
 exports.handleCertificateAction = async (req, res) => {
     const user = getUserFromToken(req);
     if (!user || (user.role !== 'OFFICER' && user.role !== 'ADMIN')) {
@@ -287,7 +418,26 @@ exports.handleCertificateAction = async (req, res) => {
     }
 
     const { id } = req.params;
-    const { status, rejectionReason, remarks, gnRemarks, issuedDate, expiryDate, ...otherData } = req.body;
+    const { 
+        status, 
+        rejectionReason, 
+        remarks, 
+        gnRemarks, 
+        issuedDate, 
+        expiryDate,
+        personalKnown,
+        personalKnownSince,
+        natureOfOtherEvidences,
+        convictedByCourt,
+        convictedDetails,
+        publicActivitiesInterest,
+        publicActivitiesDetails,
+        character,
+        certificateNo,
+        verifiedAnnualIncome,
+        officerName,
+        ...otherData 
+    } = req.body;
 
     if (!status) {
         return res.status(400).json({ error: 'Status is required (APPROVED or REJECTED).' });
@@ -297,12 +447,21 @@ exports.handleCertificateAction = async (req, res) => {
 
     try {
         let gnId = null;
+        let officerFullName = officerName || 'Grama Niladhari';
+        
         if (user.role === 'OFFICER') {
-            const [officer] = await db.query('SELECT gn_id FROM grama_niladhari WHERE officer_id = ?', [user.id]);
-            if (officer.length === 0) return res.status(404).json({ error: 'Officer profile not found.' });
+            const [officer] = await db.query(
+                'SELECT gn_id, full_name FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
+            );
+            if (officer.length === 0) {
+                return res.status(404).json({ error: 'Officer profile not found.' });
+            }
             gnId = officer[0].gn_id;
+            officerFullName = officer[0].full_name || officerFullName;
         } else {
             gnId = user.id;
+            officerFullName = user.fullName || 'Admin';
         }
 
         const [pending] = await db.query(
@@ -317,12 +476,27 @@ exports.handleCertificateAction = async (req, res) => {
         const cp = pending[0];
         const now = new Date();
         const remarksContent = remarks || gnRemarks || null;
+        
         const currentDetails = parseDetails(cp.details);
-        const updatedDetails = { ...currentDetails, ...otherData };
+        const updatedDetails = { 
+            ...currentDetails, 
+            ...otherData,
+            personalKnown: personalKnown || currentDetails.personalKnown,
+            personalKnownSince: personalKnownSince || currentDetails.personalKnownSince,
+            natureOfOtherEvidences: natureOfOtherEvidences || currentDetails.natureOfOtherEvidences,
+            convictedByCourt: convictedByCourt || currentDetails.convictedByCourt,
+            convictedDetails: convictedDetails || currentDetails.convictedDetails,
+            publicActivitiesInterest: publicActivitiesInterest || currentDetails.publicActivitiesInterest,
+            publicActivitiesDetails: publicActivitiesDetails || currentDetails.publicActivitiesDetails,
+            character: character || currentDetails.character,
+            certificateNo: certificateNo || currentDetails.certificateNo,
+            verifiedAnnualIncome: verifiedAnnualIncome || currentDetails.verifiedAnnualIncome || currentDetails.annualIncome,
+            officerName: officerFullName,
+            approvedDate: now.toISOString()
+        };
 
         if (actionStatus === 'APPROVED' || actionStatus === 'ACCEPT' || actionStatus === 'ACCEPTED') {
             const issueD = issuedDate || new Date().toISOString().split('T')[0];
-            // Expiry 6 months by default if not set
             const expD = expiryDate || new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
             await db.query(`
@@ -338,12 +512,11 @@ exports.handleCertificateAction = async (req, res) => {
 
             await db.query('DELETE FROM certificate_pending WHERE request_id = ?', [cp.request_id]);
 
-            // Create notification for resident
             try {
                 await db.query(`
                     INSERT INTO notification (recipient_type, recipient_id, title, message, type)
                     VALUES ('RESIDENT', ?, 'Certificate Approved', ?, 'SUCCESS')
-                `, [cp.resident_nic, `Your request for ${cp.certificate_type} certificate (${cp.certificate_number}) has been approved.`]);
+                `, [cp.resident_nic, `Your ${cp.certificate_type} certificate (${cp.certificate_number}) has been approved and issued.`]);
             } catch (notifErr) {
                 console.warn('Failed to insert notification:', notifErr.message);
             }
@@ -351,7 +524,8 @@ exports.handleCertificateAction = async (req, res) => {
             return res.json({
                 message: `Certificate request ${cp.certificate_number} has been approved and issued successfully.`,
                 status: 'APPROVED',
-                request_id: cp.request_id
+                request_id: cp.request_id,
+                certificate_number: cp.certificate_number
             });
         } else if (actionStatus === 'REJECTED') {
             const reason = rejectionReason || 'Certificate application did not meet verification criteria.';
@@ -369,12 +543,11 @@ exports.handleCertificateAction = async (req, res) => {
 
             await db.query('DELETE FROM certificate_pending WHERE request_id = ?', [cp.request_id]);
 
-            // Create notification for resident
             try {
                 await db.query(`
                     INSERT INTO notification (recipient_type, recipient_id, title, message, type)
                     VALUES ('RESIDENT', ?, 'Certificate Rejected', ?, 'ERROR')
-                `, [cp.resident_nic, `Your request for ${cp.certificate_type} certificate (${cp.certificate_number}) was rejected: ${reason}`]);
+                `, [cp.resident_nic, `Your ${cp.certificate_type} certificate (${cp.certificate_number}) was rejected: ${reason}`]);
             } catch (notifErr) {
                 console.warn('Failed to insert notification:', notifErr.message);
             }
