@@ -131,7 +131,7 @@ function OfficerProfile({ onOpenHelp }) {
           window.dispatchEvent(new Event("profileUpdated"));
           setSuccessMessage("Profile photo updated successfully!");
           setShowSuccessToast(true);
-          scrollToTop();
+          scrollToTop(); // ✅ Scroll to top after success
         } else {
           const err = await response.json();
           alert(err.error || "Failed to update profile photo.");
@@ -240,7 +240,7 @@ function OfficerProfile({ onOpenHelp }) {
     setEditIdCardFront(profile.idCardFront);
     setEditIdCardBack(profile.idCardBack);
     setViewMode("EDIT");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToTop(); // ✅ Scroll to top when entering edit mode
   };
 
   // Handle Photo uploads (Base64 uploader)
@@ -372,13 +372,19 @@ function OfficerProfile({ onOpenHelp }) {
       setShowSuccessToast(true);
       setIsSubmitting(false);
 
-      // Scroll to top to show success toast
+      // ✅ Scroll to top to show success toast
       scrollToTop();
     } catch (error) {
       console.error("Error updating profile:", error);
       alert(error.message || "Failed to update profile. Please try again.");
       setIsSubmitting(false);
     }
+  };
+
+  // Handle Cancel - go back to VIEW mode
+  const handleCancel = () => {
+    setViewMode("VIEW");
+    scrollToTop(); // ✅ Scroll to top when cancel is clicked
   };
 
   return (
@@ -815,7 +821,7 @@ function OfficerProfile({ onOpenHelp }) {
               <div className="flex justify-start items-center mb-4">
                 <button
                   className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
-                  onClick={() => setViewMode("VIEW")}
+                  onClick={handleCancel}
                 >
                   <img
                     src={backIcon}
@@ -1419,7 +1425,7 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     <button
                       type="button"
-                      onClick={() => setViewMode("VIEW")}
+                      onClick={handleCancel}
                       style={{
                         display: "flex",
                         alignItems: "center",

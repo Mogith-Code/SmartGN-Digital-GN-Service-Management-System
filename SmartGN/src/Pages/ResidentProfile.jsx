@@ -16,6 +16,9 @@ function ResidentProfile({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
 
+  // Ref for scrolling to top
+  const topRef = useRef(null);
+
   const RprofileTranslations = {
     EN: {
       alert:
@@ -36,7 +39,7 @@ function ResidentProfile({ onOpenHelp }) {
     },
     TA: {
       alert:
-        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிවේற்றவும்",
+        "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
       title: "என் சுயவிவரம்",
       updateSuccess: "சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
       updateError:
@@ -46,6 +49,15 @@ function ResidentProfile({ onOpenHelp }) {
   };
 
   const t = RprofileTranslations[lang] || RprofileTranslations.EN;
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Retrieve default username and division from navigation state if available
   const successUser = location.state?.successUser || "Nimal Perera";
@@ -101,6 +113,12 @@ function ResidentProfile({ onOpenHelp }) {
 
   // Family count - Fetch from API instead of localStorage
   const [familyCount, setFamilyCount] = useState(0);
+
+  // Handle Cancel - go back to VIEW mode
+  const handleCancel = () => {
+    setViewMode("VIEW");
+    scrollToTop(); // ✅ Scroll to top when cancel is clicked
+  };
 
   // Load profile from API
   useEffect(() => {
@@ -200,7 +218,7 @@ function ResidentProfile({ onOpenHelp }) {
     setEditNicFront(profile.nicFront);
     setEditNicBack(profile.nicBack);
     setViewMode("EDIT");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToTop(); // ✅ Scroll to top when entering edit mode
   };
 
   // Handle Photo File Upload Convert to Base64
@@ -261,6 +279,7 @@ function ResidentProfile({ onOpenHelp }) {
           window.dispatchEvent(new Event("profileUpdated"));
           setSuccessMessage("Profile photo updated successfully!");
           setShowSuccessToast(true);
+          scrollToTop(); // ✅ Scroll to top after success
         } else {
           const errData = await response.json();
           alert(errData.error || "Failed to update profile photo.");
@@ -386,6 +405,7 @@ function ResidentProfile({ onOpenHelp }) {
         setShowSuccessToast(true);
         setViewMode("VIEW");
         window.dispatchEvent(new Event("profileUpdated"));
+        scrollToTop(); // ✅ Scroll to top after successful update
       }
     } catch (err) {
       console.error("❌ Error updating profile:", err);
@@ -405,6 +425,9 @@ function ResidentProfile({ onOpenHelp }) {
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           {/* Main Panel Content */}
 
           {/* Sub-view: VIEW (My Profile Dashboard) */}
@@ -720,7 +743,7 @@ function ResidentProfile({ onOpenHelp }) {
               {/* Back Button */}
               <div
                 className="flex px-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
-                onClick={() => setViewMode("VIEW")}
+                onClick={handleCancel}
               >
                 <img
                   src={backIcon}
@@ -1150,7 +1173,7 @@ function ResidentProfile({ onOpenHelp }) {
                   <div className="flex justify-end gap-4 mt-8">
                     <button
                       type="button"
-                      onClick={() => setViewMode("VIEW")}
+                      onClick={handleCancel}
                       className="py-2.5 px-5 rounded-lg border-0 text-[14px] font-semibold cursor-pointer transition-all duration-200 bg-[#ef4444] text-white hover:bg-[#dc2626] flex items-center gap-1.5 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isSubmitting}
                     >
