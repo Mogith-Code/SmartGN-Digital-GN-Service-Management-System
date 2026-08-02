@@ -438,6 +438,23 @@ function AdminDashboard({ onOpenHelp }) {
   const [showAddDivisionModal, setShowAddDivisionModal] = useState(false);
   const [showEditDivisionModal, setShowEditDivisionModal] = useState(false);
 
+  const [showViewOfficerModal, setShowViewOfficerModal] = useState(false);
+  const [viewOfficerData, setViewOfficerData] = useState(null);
+
+  const handleViewOfficer = async (officer) => {
+    setViewOfficerData(officer);
+    setShowViewOfficerModal(true);
+    try {
+      const res = await authenticatedFetch(`/api/auth/admin/officers/${officer.gn_id || officer.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setViewOfficerData((prev) => ({ ...prev, ...data }));
+      }
+    } catch (err) {
+      console.warn("Backend offline or error fetching officer details", err);
+    }
+  };
+
   // Form states
   const [newOfficer, setNewOfficer] = useState({
     username: "",
@@ -557,6 +574,18 @@ function AdminDashboard({ onOpenHelp }) {
   };
 
   // Search handler for divisions with debounce
+  const openAddOfficerModal = () => {
+    setNewOfficer({
+      username: "",
+      name: "",
+      email: "",
+      mobile: "",
+      division: "",
+      password: "",
+    });
+    setShowAddOfficerModal(true);
+  };
+
   const handleDivisionsSearch = (e) => {
     const value = e.target.value;
     setDivisionsSearch(value);
@@ -1292,9 +1321,34 @@ function AdminDashboard({ onOpenHelp }) {
                     className="hover:bg-slate-50 transition-colors"
                   >
                     <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
-                      <div>{officer.name}</div>
-                      <div className="text-xs text-gray-500 font-normal mt-0.5">
-                        {officer.email} | {officer.mobile}
+                      <div
+                        onClick={() => handleViewOfficer(officer)}
+                        className="flex items-center gap-3 cursor-pointer hover:text-[#005BBD] transition-colors group"
+                        title="Click to view officer profile"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center border border-slate-300 overflow-hidden flex-shrink-0 group-hover:border-[#005BBD]">
+                          {officer.profile_photo_path || officer.profilePhoto ? (
+                            <img
+                              src={officer.profile_photo_path || officer.profilePhoto}
+                              alt={officer.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <img
+                              src={accountIcon}
+                              alt={officer.name || "Officer Profile"}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <span className="underline-offset-2 group-hover:underline">
+                            {officer.name || `${officer.first_name || ''} ${officer.last_name || ''}`}
+                          </span>
+                          <div className="text-xs text-gray-500 font-normal mt-0.5">
+                            {officer.email} | {officer.mobile}
+                          </div>
+                        </div>
                       </div>
                     </td>
                     <td className="p-4 sm:p-5 text-gray-600">
@@ -1325,6 +1379,13 @@ function AdminDashboard({ onOpenHelp }) {
                     </td>
                     <td className="p-4 sm:p-5 text-right">
                       <div className="flex justify-end gap-2 items-center flex-wrap">
+                        <button
+                          onClick={() => handleViewOfficer(officer)}
+                          className="bg-transparent border-[1.5px] border-[#005BBD] text-[#005BBD] hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors flex items-center gap-1"
+                          title="View officer full profile details"
+                        >
+                          👁️ View Profile
+                        </button>
                         <button
                           onClick={() =>
                             toggleOfficerStatus(
@@ -2554,6 +2615,146 @@ function AdminDashboard({ onOpenHelp }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+{
+  showViewOfficerModal && viewOfficerData && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4 overflow-y-auto">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in my-8">
+        {/* Modal Header */}
+        <div className="flex justify-between items-start border-b border-gray-100 pb-4 mb-5">
+          <div>
+            <span className="text-xs font-bold text-[#D69E2E] uppercase tracking-wider">
+              Grama Niladhari Profile
+            </span>
+            <h3 className="text-xl font-extrabold text-[#1B365D] m-0">
+              {viewOfficerData.name || `${viewOfficerData.first_name || ""} ${viewOfficerData.last_name || ""}`}
+            </h3>
+          </div>
+          <button
+            onClick={() => setShowViewOfficerModal(false)}
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center font-bold border-0 cursor-pointer text-sm transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Profile Card */}
+        <div className="bg-[#EBF8FF] border border-[#005BBD]/20 rounded-2xl p-5 mb-5 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-white border-2 border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm flex items-center justify-center">
+            {viewOfficerData.profile_photo_path || viewOfficerData.profilePhoto ? (
+              <img
+                src={viewOfficerData.profile_photo_path || viewOfficerData.profilePhoto}
+                alt="Officer Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={accountIcon}
+                alt="Officer Profile"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h4 className="font-bold text-base text-[#1B365D] truncate m-0">
+                {viewOfficerData.name || viewOfficerData.full_name || "GN Officer"}
+              </h4>
+              <span
+                className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                  viewOfficerData.status === "Active"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {viewOfficerData.status || "Active"}
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 m-0">
+              Officer ID: <span className="font-semibold text-slate-800">{viewOfficerData.gn_id || viewOfficerData.id || "GN-OFFICER"}</span>
+            </p>
+            <p className="text-xs text-[#005BBD] font-semibold m-0 mt-0.5">
+              🏛️ {viewOfficerData.division_name || viewOfficerData.division || "Divisional Office"}
+            </p>
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-1">
+            <span className="text-gray-400 font-semibold uppercase text-[10px]">Username</span>
+            <span className="font-bold text-slate-800 text-sm">{viewOfficerData.username || "N/A"}</span>
+          </div>
+
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-1">
+            <span className="text-gray-400 font-semibold uppercase text-[10px]">Mobile Contact</span>
+            <span className="font-bold text-slate-800 text-sm">{viewOfficerData.mobile || "N/A"}</span>
+          </div>
+
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-1 sm:col-span-2">
+            <span className="text-gray-400 font-semibold uppercase text-[10px]">Email Address</span>
+            <span className="font-bold text-slate-800 text-sm break-all">{viewOfficerData.email || "N/A"}</span>
+          </div>
+
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-1">
+            <span className="text-gray-400 font-semibold uppercase text-[10px]">Divisional Office</span>
+            <span className="font-bold text-slate-800 text-sm">{viewOfficerData.division_name || viewOfficerData.division || "Not Assigned"}</span>
+          </div>
+
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col gap-1">
+            <span className="text-gray-400 font-semibold uppercase text-[10px]">Account Registered</span>
+            <span className="font-bold text-slate-800 text-sm">
+              {viewOfficerData.created_at
+                ? new Date(viewOfficerData.created_at).toLocaleDateString()
+                : "Active Record"}
+            </span>
+          </div>
+        </div>
+
+        {/* Verification status */}
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-800">
+            <span className="font-semibold flex items-center gap-1.5">
+              <span>✅</span> Verified Divisional Grama Niladhari Officer
+            </span>
+            <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full font-bold">
+              Verified
+            </span>
+          </div>
+        </div>
+
+        {/* Modal Actions */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            type="button"
+            onClick={() => {
+              setShowViewOfficerModal(false);
+              setEditOfficer({
+                id: viewOfficerData.gn_id || viewOfficerData.id,
+                username: viewOfficerData.username,
+                name: viewOfficerData.name || `${viewOfficerData.first_name || ""} ${viewOfficerData.last_name || ""}`,
+                email: viewOfficerData.email,
+                mobile: viewOfficerData.mobile,
+                division: viewOfficerData.division_name || viewOfficerData.division || "",
+                status: viewOfficerData.status || "Active",
+              });
+              setShowEditOfficerModal(true);
+            }}
+            className="px-5 py-2 rounded-full border border-blue-500 text-blue-600 bg-white hover:bg-blue-50 cursor-pointer font-bold transition-all text-xs"
+          >
+            ✏️ Edit Profile
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowViewOfficerModal(false)}
+            className="px-6 py-2 rounded-full border-none bg-[#1B365D] hover:bg-[#005BBD] text-white cursor-pointer font-bold transition-all text-xs"
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   )
