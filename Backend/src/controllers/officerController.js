@@ -1,7 +1,97 @@
 // Backend/src/controllers/officerController.js
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
-const { saveBase64Image } = require('../utils/fileUpload');
+const fs = require('fs');
+const path = require('path');
+
+// ============================================================
+// HELPER: DELETE IMAGE FILE
+// ============================================================
+const deleteImageFile = (imagePath) => {
+    if (!imagePath) return;
+    try {
+        // Handle both relative paths and full URLs
+        let filePath = imagePath;
+        
+        // If it's a URL with http, extract the path
+        if (imagePath.startsWith('http')) {
+            const url = new URL(imagePath);
+            filePath = url.pathname;
+        }
+        
+        // Remove leading slash if present
+        if (filePath.startsWith('/')) {
+            filePath = filePath.substring(1);
+        }
+        
+        // If path starts with 'uploads/', keep it as is
+        // Otherwise, assume it's just the filename
+        let fullPath;
+        if (filePath.startsWith('uploads/')) {
+            fullPath = path.join(__dirname, '../..', filePath);
+        } else {
+            fullPath = path.join(__dirname, '../../uploads', filePath);
+        }
+        
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            console.log(`✅ Deleted image: ${fullPath}`);
+            return true;
+        } else {
+            console.log(`⚠️ Image not found: ${fullPath}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        return false;
+    }
+};
+
+// ============================================================
+// HELPER: SAVE BASE64 IMAGE
+// ============================================================
+const saveBase64Image = (base64String, folder, identifier) => {
+    if (!base64String) return null;
+    
+    // Check if it's already a URL/path (not base64)
+    if (typeof base64String === 'string' && !base64String.startsWith('data:image/')) {
+        return base64String;
+    }
+    
+    try {
+        // Extract image type and data
+        const matches = base64String.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image format');
+            return null;
+        }
+        
+        const extension = matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Create folder if it doesn't exist
+        const uploadDir = path.join(__dirname, '../../uploads', folder);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
+        const filePath = path.join(uploadDir, filename);
+        
+        // Save file
+        fs.writeFileSync(filePath, buffer);
+        
+        // Return relative path for database storage
+        return `/uploads/${folder}/${filename}`;
+    } catch (error) {
+        console.error('Error saving image:', error);
+        return null;
+    }
+};
 
 // ============================================================
 // GENERATE ANNOUNCEMENT NUMBER
@@ -110,6 +200,12 @@ exports.updateOfficerProfile = async (req, res) => {
     }
 
     try {
+        // First, get current profile to check existing images
+        const [currentProfile] = await db.query(
+            'SELECT profile_photo_path, gn_front_path, gn_back_path FROM grama_niladhari WHERE gn_id = ?',
+            [user.id]
+        );
+
         const [existing] = await db.query(
             'SELECT gn_id FROM grama_niladhari WHERE email = ? AND gn_id != ?',
             [email, user.id]
@@ -121,21 +217,28 @@ exports.updateOfficerProfile = async (req, res) => {
         const updates = [];
         const values = [];
 
-        updates.push('first_name = ?');
-        values.push(firstName);
-
-        updates.push('last_name = ?');
-        values.push(lastName);
-
-        const fullNameToSave = fullName || `${firstName} ${lastName}`;
-        updates.push('full_name = ?');
-        values.push(fullNameToSave);
-
-        updates.push('email = ?');
-        values.push(email);
-
-        updates.push('mobile = ?');
-        values.push(mobile);
+        // Text fields
+        if (firstName !== undefined && firstName !== '') {
+            updates.push('first_name = ?');
+            values.push(firstName);
+        }
+        if (lastName !== undefined && lastName !== '') {
+            updates.push('last_name = ?');
+            values.push(lastName);
+        }
+        if (fullName !== undefined) {
+            const fullNameToSave = fullName || `${firstName} ${lastName}`;
+            updates.push('full_name = ?');
+            values.push(fullNameToSave);
+        }
+        if (email !== undefined && email !== '') {
+            updates.push('email = ?');
+            values.push(email);
+        }
+        if (mobile !== undefined && mobile !== '') {
+            updates.push('mobile = ?');
+            values.push(mobile);
+        }
 
         if (password && password.trim() !== '') {
             if (password.length < 6) {
@@ -146,27 +249,97 @@ exports.updateOfficerProfile = async (req, res) => {
             values.push(hashedPassword);
         }
 
-        const photoVal = profilePhoto;
-        if (photoVal !== undefined && photoVal !== null) {
-            const photoPath = saveBase64Image(photoVal, 'officer_profile', user.id);
-            updates.push('profile_photo_path = ?');
-            values.push(photoPath);
+        // ✅ Profile Photo - Handle remove, update, or keep
+        if (profilePhoto !== undefined) {
+            const currentPhoto = currentProfile.length > 0 ? currentProfile[0].profile_photo_path : null;
+            
+            if (profilePhoto === null || profilePhoto === '') {
+                // User wants to remove the photo
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                updates.push('profile_photo_path = ?');
+                values.push(null);
+            } else if (typeof profilePhoto === 'string' && profilePhoto.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                const photoPath = saveBase64Image(profilePhoto, 'officer_profile', user.id);
+                if (photoPath) {
+                    updates.push('profile_photo_path = ?');
+                    values.push(photoPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('profile_photo_path = ?');
+                values.push(profilePhoto);
+            }
         }
 
-        const frontVal = idCardFront || gnFront;
-        if (frontVal !== undefined && frontVal !== null) {
-            const frontPath = saveBase64Image(frontVal, 'officer_front', user.id);
-            updates.push('gn_front_path = ?');
-            values.push(frontPath);
+        // ✅ GN Front - Handle remove, update, or keep
+        if (idCardFront !== undefined || gnFront !== undefined) {
+            const currentFront = currentProfile.length > 0 ? currentProfile[0].gn_front_path : null;
+            const frontVal = idCardFront !== undefined ? idCardFront : gnFront;
+            
+            if (frontVal === null || frontVal === '') {
+                // User wants to remove the photo
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                updates.push('gn_front_path = ?');
+                values.push(null);
+            } else if (typeof frontVal === 'string' && frontVal.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                const frontPath = saveBase64Image(frontVal, 'officer_front', user.id);
+                if (frontPath) {
+                    updates.push('gn_front_path = ?');
+                    values.push(frontPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('gn_front_path = ?');
+                values.push(frontVal);
+            }
         }
 
-        const backVal = idCardBack || gnBack;
-        if (backVal !== undefined && backVal !== null) {
-            const backPath = saveBase64Image(backVal, 'officer_back', user.id);
-            updates.push('gn_back_path = ?');
-            values.push(backPath);
+        // ✅ GN Back - Handle remove, update, or keep
+        if (idCardBack !== undefined || gnBack !== undefined) {
+            const currentBack = currentProfile.length > 0 ? currentProfile[0].gn_back_path : null;
+            const backVal = idCardBack !== undefined ? idCardBack : gnBack;
+            
+            if (backVal === null || backVal === '') {
+                // User wants to remove the photo
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                updates.push('gn_back_path = ?');
+                values.push(null);
+            } else if (typeof backVal === 'string' && backVal.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                const backPath = saveBase64Image(backVal, 'officer_back', user.id);
+                if (backPath) {
+                    updates.push('gn_back_path = ?');
+                    values.push(backPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('gn_back_path = ?');
+                values.push(backVal);
+            }
         }
 
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update.' });
+        }
+
+        // Execute update
         values.push(user.id);
         const query = `UPDATE grama_niladhari SET ${updates.join(', ')} WHERE gn_id = ?`;
         
@@ -176,6 +349,7 @@ exports.updateOfficerProfile = async (req, res) => {
             return res.status(404).json({ error: 'Officer not found.' });
         }
 
+        // Fetch updated profile
         const [updatedRows] = await db.query(`
             SELECT 
                 g.gn_id,
@@ -203,6 +377,12 @@ exports.updateOfficerProfile = async (req, res) => {
         `, [user.id]);
 
         const updatedData = updatedRows[0] || {};
+        
+        // Ensure image paths are properly formatted
+        updatedData.profile_photo_path = updatedData.profile_photo_path || null;
+        updatedData.gn_front_path = updatedData.gn_front_path || null;
+        updatedData.gn_back_path = updatedData.gn_back_path || null;
+
         return res.json({
             success: true,
             message: 'Officer profile updated successfully.',
@@ -213,7 +393,10 @@ exports.updateOfficerProfile = async (req, res) => {
         });
     } catch (error) {
         console.error('Error updating officer profile:', error);
-        return res.status(500).json({ error: 'Server error updating profile.' });
+        return res.status(500).json({ 
+            error: 'Server error updating profile.',
+            details: error.message 
+        });
     }
 };
 
@@ -465,7 +648,6 @@ exports.getResidentByNic = async (req, res) => {
 
         const resident = rows[0];
         
-        // ✅ Log all image paths for debugging
         console.log('📸 Resident photo path:', resident.profile_photo_path);
         console.log('📸 NIC Front path:', resident.nic_front_path);
         console.log('📸 NIC Back path:', resident.nic_back_path);
@@ -474,15 +656,12 @@ exports.getResidentByNic = async (req, res) => {
             success: true,
             data: {
                 ...resident,
-                // Profile photo
                 profile_photo_path: resident.profile_photo_path || null,
                 profilePhoto: resident.profile_photo_path || null,
-                // NIC images
                 nic_front_path: resident.nic_front_path || null,
                 nicFront: resident.nic_front_path || null,
                 nic_back_path: resident.nic_back_path || null,
                 nicBack: resident.nic_back_path || null,
-                // Additional aliases for frontend compatibility
                 nic_photo_front: resident.nic_front_path || null,
                 nic_photo_back: resident.nic_back_path || null,
                 front_photo: resident.nic_front_path || null,

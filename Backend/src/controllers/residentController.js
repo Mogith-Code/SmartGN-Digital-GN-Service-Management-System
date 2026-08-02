@@ -1,6 +1,5 @@
 // Backend/src/controllers/residentController.js
 const db = require('../config/database');
-const { saveBase64Image } = require('../utils/fileUpload');
 const fs = require('fs');
 const path = require('path');
 
@@ -24,8 +23,7 @@ const deleteImageFile = (imagePath) => {
             filePath = filePath.substring(1);
         }
         
-        // If path starts with 'uploads/', keep it as is
-        // Otherwise, assume it's just the filename
+        // Build full path - images are in subfolders under uploads
         let fullPath;
         if (filePath.startsWith('uploads/')) {
             fullPath = path.join(__dirname, '../..', filePath);
@@ -44,6 +42,52 @@ const deleteImageFile = (imagePath) => {
     } catch (error) {
         console.error('Error deleting image:', error);
         return false;
+    }
+};
+
+// ============================================================
+// HELPER: SAVE BASE64 IMAGE - IN SEPARATE FOLDERS
+// ============================================================
+const saveBase64Image = (base64String, folder, identifier) => {
+    if (!base64String) return null;
+    
+    // Check if it's already a URL/path (not base64)
+    if (typeof base64String === 'string' && !base64String.startsWith('data:image/')) {
+        return base64String;
+    }
+    
+    try {
+        // Extract image type and data
+        const matches = base64String.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image format');
+            return null;
+        }
+        
+        const extension = matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Create folder if it doesn't exist
+        const uploadDir = path.join(__dirname, '../../uploads', folder);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
+        const filePath = path.join(uploadDir, filename);
+        
+        // Save file
+        fs.writeFileSync(filePath, buffer);
+        
+        // Return relative path for database storage
+        return `/uploads/${folder}/${filename}`;
+    } catch (error) {
+        console.error('Error saving image:', error);
+        return null;
     }
 };
 
@@ -179,7 +223,7 @@ exports.updateProfile = async (req, res) => {
             values.push(homeAddress || null);
         }
 
-        // ✅ Profile Photo - Handle remove, update, or keep
+        // ✅ Profile Photo - Handle remove, update, or keep (save in profile folder)
         if (profilePhoto !== undefined) {
             const currentPhoto = currentProfile.length > 0 ? currentProfile[0].profile_photo_path : null;
             
@@ -207,7 +251,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // ✅ NIC Front - Handle remove, update, or keep
+        // ✅ NIC Front - Handle remove, update, or keep (save in nic_front folder)
         if (nicFront !== undefined) {
             const currentFront = currentProfile.length > 0 ? currentProfile[0].nic_front_path : null;
             
@@ -235,7 +279,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // ✅ NIC Back - Handle remove, update, or keep
+        // ✅ NIC Back - Handle remove, update, or keep (save in nic_back folder)
         if (nicBack !== undefined) {
             const currentBack = currentProfile.length > 0 ? currentProfile[0].nic_back_path : null;
             

@@ -39,7 +39,8 @@ exports.submitDisasterReport = async (req, res) => {
         return res.status(400).json({ error: 'disasterType, description, location, and contact are required.' });
     }
 
-    const validTypes = ['Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other'];
+    // ✅ UPDATED: Added 'Storm' and 'Earth Slip' to validTypes
+    const validTypes = ['Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other'];
     if (!validTypes.includes(disasterType)) {
         return res.status(400).json({ error: 'Invalid disaster type.' });
     }
