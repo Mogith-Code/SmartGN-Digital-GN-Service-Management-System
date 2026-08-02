@@ -34,7 +34,7 @@ function Footer() {
               href="tel:+94255731913"
               className="text-xs sm:text-sm md:text-[14px] font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
             >
-              0255731913
+              065 354 6782
             </a>
           </div>
 
@@ -44,10 +44,10 @@ function Footer() {
               Email:
             </span>
             <a
-              href="mailto:warapitiyalakshan@gmail.com"
+              href="mailto:smartgn@gmail.com"
               className="text-xs sm:text-sm md:text-[14px] font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300 break-all sm:break-normal"
             >
-              warapitiyalakshan@gmail.com
+              smartgn@gmail.com
             </a>
           </div>
         </div>

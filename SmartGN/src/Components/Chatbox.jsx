@@ -18,7 +18,113 @@ function Chatbot({ isOpen, onClose }) {
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
 
-  // Scroll to bottom on new message or when typing status changes
+  // Position state for Draggable Chat Window
+  const [boxPosition, setBoxPosition] = useState(() => {
+    try {
+      const saved = localStorage.getItem("smartgn_chatbox_pos");
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return { x: null, y: null };
+  });
+
+  const [isBoxDragging, setIsBoxDragging] = useState(false);
+  const boxDragRef = useRef({ startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
+  const boxWindowRef = useRef(null);
+
+  const startBoxDrag = (clientX, clientY) => {
+    const rect = boxWindowRef.current
+      ? boxWindowRef.current.getBoundingClientRect()
+      : { left: window.innerWidth - 420, top: window.innerHeight - 580 };
+
+    boxDragRef.current = {
+      startX: clientX,
+      startY: clientY,
+      initialLeft: rect.left,
+      initialTop: rect.top,
+    };
+    setIsBoxDragging(true);
+  };
+
+  const handleHeaderMouseDown = (e) => {
+    if (e.button !== 0 || e.target.closest("button")) return;
+    startBoxDrag(e.clientX, e.clientY);
+  };
+
+  const handleHeaderTouchStart = (e) => {
+    if (e.target.closest("button")) return;
+    if (e.touches && e.touches[0]) {
+      startBoxDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  useEffect(() => {
+    const updateBoxDrag = (clientX, clientY) => {
+      const deltaX = clientX - boxDragRef.current.startX;
+      const deltaY = clientY - boxDragRef.current.startY;
+
+      const boxWidth = boxWindowRef.current ? boxWindowRef.current.offsetWidth : 380;
+      const boxHeight = boxWindowRef.current ? boxWindowRef.current.offsetHeight : 540;
+
+      let newX = boxDragRef.current.initialLeft + deltaX;
+      let newY = boxDragRef.current.initialTop + deltaY;
+
+      // Bound position cleanly inside viewport
+      newX = Math.max(10, Math.min(window.innerWidth - boxWidth - 10, newX));
+      newY = Math.max(10, Math.min(window.innerHeight - boxHeight - 10, newY));
+
+      setBoxPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isBoxDragging) return;
+      updateBoxDrag(e.clientX, e.clientY);
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isBoxDragging) return;
+      if (e.touches && e.touches[0]) {
+        updateBoxDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+
+    const handleDragEnd = () => {
+      if (!isBoxDragging) return;
+      setIsBoxDragging(false);
+
+      setBoxPosition((latestPos) => {
+        if (latestPos.x !== null) {
+          try {
+            localStorage.setItem("smartgn_chatbox_pos", JSON.stringify(latestPos));
+          } catch (e) {}
+        }
+        return latestPos;
+      });
+    };
+
+    if (isBoxDragging) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleDragEnd);
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
+      window.addEventListener("touchend", handleDragEnd);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleDragEnd);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleDragEnd);
+    };
+  }, [isBoxDragging]);
+
+  const resetBoxPosition = (e) => {
+    e.stopPropagation();
+    setBoxPosition({ x: null, y: null });
+    try {
+      localStorage.removeItem("smartgn_chatbox_pos");
+    } catch (err) {}
+  };
+
+  // Scroll to bottom on new message or typing status
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
@@ -59,7 +165,6 @@ function Chatbot({ isOpen, onClose }) {
     }
 
     if (pageName && helpMsg) {
-      // Check if we already have this help message in history to avoid duplication
       setMessages(prev => {
         const alreadyHasMsg = prev.some(m => m.text === helpMsg)
         if (alreadyHasMsg) return prev
@@ -122,7 +227,7 @@ function Chatbot({ isOpen, onClose }) {
     }
 
     if (text.includes('disaster') || text.includes('relief')) {
-      return "To report disaster damage:\n\n1. Navigate to the 'Disaster Relief' section in the sidebar.\n2. Specify the disaster type, estimate damage level, and request medical, food, or shelter aid.\n3. Click Submit to alert the emergency team."
+      return "To report disaster damage:\n\n1. Navigate to the 'Disaster Relief' section in the sidebar.\n2. Specify the disaster type, estimate damage level, attach damage photo, and request aid.\n3. Click Submit to alert the emergency team."
     }
 
     if (text.includes('approve') || text.includes('verify') || text.includes('officer')) {
@@ -135,7 +240,6 @@ function Chatbot({ isOpen, onClose }) {
   const handleSendMessage = async (textToSend) => {
     if (!textToSend.trim()) return
 
-    // 1. Add user message
     const userMessage = {
       id: Date.now(),
       sender: 'user',
@@ -146,7 +250,6 @@ function Chatbot({ isOpen, onClose }) {
     setIsTyping(true)
 
     try {
-      // Build conversation history to send to backend
       const history = [...messages, userMessage].map(m => ({
         role: m.sender === 'user' ? 'user' : 'model',
         text: m.text
@@ -194,7 +297,6 @@ function Chatbot({ isOpen, onClose }) {
     }
   }
 
-   // Get prompts dynamically based on active path
   const getQuickPrompts = (pathname) => {
     if (pathname.includes('/certificates/apply-income')) {
       return [
@@ -263,34 +365,67 @@ function Chatbot({ isOpen, onClose }) {
 
   const quickPrompts = getQuickPrompts(path)
 
+  const boxStyle =
+    boxPosition.x !== null && boxPosition.y !== null
+      ? { left: `${boxPosition.x}px`, top: `${boxPosition.y}px`, bottom: "auto", right: "auto" }
+      : {};
+
   return (
-    <div className="fixed bottom-24 right-6 w-[360px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.18)] border border-slate-200/80 flex flex-col z-[9999] overflow-hidden transition-all duration-300 transform scale-100 origin-bottom-right animate-in fade-in slide-in-from-bottom-5">
+    <div
+      ref={boxWindowRef}
+      style={boxStyle}
+      className={`fixed z-[9999] w-[360px] sm:w-[400px] h-[550px] max-h-[80vh] bg-white rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.22)] border border-slate-200/80 flex flex-col overflow-hidden select-none animate-in fade-in slide-in-from-bottom-5 ${
+        boxPosition.x === null ? "bottom-24 right-6" : ""
+      }`}
+    >
       
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#005BBD] to-[#3182CE] text-white p-4 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center relative flex-shrink-0">
-            <ChatbotIcon size={22} strokeColor="#ffffff" strokeWidth={2.5} />
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
+      {/* Header - Drag Handle */}
+      <div
+        onMouseDown={handleHeaderMouseDown}
+        onTouchStart={handleHeaderTouchStart}
+        className="bg-gradient-to-r from-[#005BBD] to-[#3182CE] text-white p-3.5 flex items-center justify-between shadow-md cursor-grab active:cursor-grabbing select-none"
+        title="Drag header to move chat window anywhere on screen"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="text-[#FFAA00] opacity-80 font-bold text-sm">⠿</span>
+          <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center relative flex-shrink-0">
+            <ChatbotIcon size={20} strokeColor="#ffffff" strokeWidth={2.5} />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
           </div>
           <div className="text-left">
-            <h4 className="font-bold text-sm leading-tight text-white m-0">SmartGN Assistant</h4>
-            <span className="flex items-center gap-1 text-[10px] font-bold tracking-wider text-emerald-300">
+            <h4 className="font-bold text-xs sm:text-sm leading-tight text-white m-0 flex items-center gap-1.5">
+              SmartGN Assistant
+            </h4>
+            <span className="flex items-center gap-1 text-[9.5px] font-bold tracking-wider text-emerald-300">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              ONLINE
+              ONLINE • DRAGGABLE
             </span>
           </div>
         </div>
-        <button 
-          className="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/90 hover:text-white transition-all duration-200 cursor-pointer border-0 flex items-center justify-center" 
-          onClick={onClose} 
-          aria-label="Close Chatbot"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+
+        <div className="flex items-center gap-1">
+          {boxPosition.x !== null && (
+            <button
+              type="button"
+              onClick={resetBoxPosition}
+              className="p-1 rounded-md bg-white/10 hover:bg-white/25 text-white/90 text-[10px] font-bold px-2 transition-all cursor-pointer border-0"
+              title="Reset Chat Window Position"
+            >
+              Reset Pos
+            </button>
+          )}
+          <button 
+            type="button"
+            className="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/90 hover:text-white transition-all duration-200 cursor-pointer border-0 flex items-center justify-center" 
+            onClick={onClose} 
+            aria-label="Close Chatbot"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Message Area */}
@@ -344,6 +479,7 @@ function Chatbot({ isOpen, onClose }) {
         {quickPrompts.map((prompt, idx) => (
           <button 
             key={idx} 
+            type="button"
             className="text-[11px] py-1.5 px-3 bg-[#EBF8FF] hover:bg-[#005BBD] text-[#005BBD] hover:text-white font-semibold rounded-full border border-[#005BBD]/15 transition-all duration-200 cursor-pointer shadow-sm active:scale-95 text-left border-none outline-none"
             onClick={() => handleSendMessage(prompt)}
           >
@@ -363,6 +499,7 @@ function Chatbot({ isOpen, onClose }) {
           className="flex-1 py-2.5 px-4 bg-slate-50 border border-slate-200 rounded-full text-[13px] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 text-slate-800 placeholder-slate-400"
         />
         <button 
+          type="button"
           className="w-9 h-9 rounded-full bg-[#005BBD] hover:bg-[#3182CE] flex items-center justify-center text-white transition-all duration-200 shadow-md active:scale-95 border-none cursor-pointer flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed" 
           onClick={() => handleSendMessage(inputValue)}
           disabled={!inputValue.trim()}
@@ -380,4 +517,3 @@ function Chatbot({ isOpen, onClose }) {
 }
 
 export default Chatbot
-
