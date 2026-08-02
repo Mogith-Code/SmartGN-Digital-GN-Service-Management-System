@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
@@ -16,18 +16,33 @@ function ResidentAllowances({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
 
+  // Ref for scrolling to top
+  const topRef = useRef(null);
+
   const AllowanceTranslations = {
     EN: {
       alert:
         "Please upload a high-quality image of your National Identity Card",
+      success: "Allowance Application Submitted Successfully!",
+      submitting: "Submitting...",
+      confirmApplication: "Confirm Application",
+      close: "Close",
     },
     SI: {
       alert:
         "කරුණාකර ඔබේ ජාතික හැඳුනුම්පත් පත්‍රයේ උසස් තත්ත්වයේ රූපයක් උඩුගත කරන්න",
+      success: "ප්‍රතිලාභ ඉල්ලුම සාර්ථකව ඉදිරිපත් කරන ලදී!",
+      submitting: "ඉදිරිපත් කරමින්...",
+      confirmApplication: "ඉල්ලුම තහවුරු කරන්න",
+      close: "වසන්න",
     },
     TA: {
       alert:
         "தயவுசெய்து உங்கள் தேசிய அடையாள அட்டையின் உயர் தரமான படத்தை பதிவேற்றவும்",
+      success: "கொடுப்பனவு விண்ணப்பம் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!",
+      submitting: "சமர்ப்பிக்கிறது...",
+      confirmApplication: "விண்ணப்பத்தை உறுதிப்படுத்தவும்",
+      close: "மூடு",
     },
   };
 
@@ -79,6 +94,8 @@ function ResidentAllowances({ onOpenHelp }) {
   const [income, setIncome] = useState("");
   const [remarks, setRemarks] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Secure Bank Details State
   const [bankName, setBankName] = useState("Bank of Ceylon");
@@ -89,6 +106,39 @@ function ResidentAllowances({ onOpenHelp }) {
   // Support Document File State
   const [supportDoc, setSupportDoc] = useState(null);
   const [supportDocName, setSupportDocName] = useState("");
+
+  // Map display names to database ENUM values
+  const getDatabaseAllowanceType = (displayName) => {
+    const typeMap = {
+      Aswesuma: "Aswesuma",
+      Samurdhi: "Samurdhi",
+      Elderly: "Elderly",
+      Disability: "Disability",
+      "Kidney Disease": "Kidney", // Map "Kidney Disease" to "Kidney" for database
+    };
+    return typeMap[displayName] || displayName;
+  };
+
+  // Map database values to display names
+  const getDisplayAllowanceType = (dbValue) => {
+    const displayMap = {
+      Aswesuma: "Aswesuma",
+      Samurdhi: "Samurdhi",
+      Elderly: "Elderly",
+      Disability: "Disability",
+      Kidney: "Kidney Disease", // Map "Kidney" back to "Kidney Disease" for display
+    };
+    return displayMap[dbValue] || dbValue;
+  };
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleSupportDocChange = (e) => {
     const file = e.target.files[0];
@@ -199,7 +249,7 @@ function ResidentAllowances({ onOpenHelp }) {
         }
         return {
           id: item.allowance_id,
-          program: item.allowance_type,
+          program: getDisplayAllowanceType(item.allowance_type), // Convert database value to display name
           purpose: item.income_details
             ? item.income_details.substring(0, 100)
             : "",
@@ -260,6 +310,7 @@ function ResidentAllowances({ onOpenHelp }) {
   const handleOpenApply = (programName) => {
     setSelectedProgram(programName);
     setErrorMessage("");
+    setSuccessMessage("");
     setIncome("");
     setRemarks("");
     setBankBranch("");
@@ -275,22 +326,29 @@ function ResidentAllowances({ onOpenHelp }) {
 
     if (!income) {
       setErrorMessage("Please enter your estimated monthly household income.");
+      setSuccessMessage("");
       return;
     }
 
     if (!bankBranch || !bankAccount) {
       setErrorMessage("Please enter your complete bank account details.");
+      setSuccessMessage("");
       return;
     }
 
     setErrorMessage("");
+    setSuccessMessage("");
+    setIsSubmitting(true);
+
+    // Convert display name to database ENUM value
+    const dbAllowanceType = getDatabaseAllowanceType(selectedProgram);
 
     try {
       const response = await fetch("/api/allowances/apply", {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          allowanceType: selectedProgram,
+          allowanceType: dbAllowanceType, // Send mapped value to database
           incomeDetails: `Household Monthly Income: LKR ${income}. Purpose: ${purpose}. Remarks: ${remarks}`,
           bankDetails: {
             bankName,
@@ -308,7 +366,16 @@ function ResidentAllowances({ onOpenHelp }) {
       }
 
       const resData = await response.json();
+
+      // Close modal
       setIsModalOpen(false);
+
+      // Set success message
+      setSuccessMessage(`${t.success} Tracking ID: ${resData.allowanceId}`);
+      setIsSubmitting(false);
+
+      // Scroll to top to show success message
+      scrollToTop();
 
       // Trigger notifications for all roles
       addNotification("resident", {
@@ -332,13 +399,18 @@ function ResidentAllowances({ onOpenHelp }) {
         link: "/admin",
       });
 
-      loadRequests();
-      alert(
-        `Application for ${selectedProgram} submitted successfully! Your secure tracking ID is ${resData.allowanceId}.`,
-      );
+      // Refresh the list
+      await loadRequests();
     } catch (err) {
       setErrorMessage(err.message || "Error submitting application.");
+      setSuccessMessage("");
+      setIsSubmitting(false);
     }
+  };
+
+  // Close success message
+  const closeSuccessMessage = () => {
+    setSuccessMessage("");
   };
 
   const cards = [
@@ -375,6 +447,9 @@ function ResidentAllowances({ onOpenHelp }) {
 
         {/* Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
             <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]  ">
               Allowance Programs
@@ -418,6 +493,84 @@ function ResidentAllowances({ onOpenHelp }) {
             </div>
           </div>
 
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{successMessage}</span>
+              </div>
+              <button
+                onClick={closeSuccessMessage}
+                className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-green-200 transition-colors"
+                aria-label="Close success message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && !successMessage && (
+            <div className="mx-[30px] mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="font-medium">{errorMessage}</span>
+              </div>
+              <button
+                onClick={() => setErrorMessage("")}
+                className="text-red-700 hover:text-red-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-red-200 transition-colors"
+                aria-label="Close error message"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          )}
+
           {/* Stats Widgets */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left m-[30px]">
             {cards.map((card) => (
@@ -459,17 +612,17 @@ function ResidentAllowances({ onOpenHelp }) {
                   icon: "🌾",
                 },
                 {
-                  name: "Elderly Support",
+                  name: "Elderly",
                   desc: "Financial assistance for senior citizens above the age of 70.",
                   icon: "👵",
                 },
                 {
-                  name: "Disability Allowance",
+                  name: "Disability",
                   desc: "Financial relief support to assist differently-abled citizens.",
                   icon: "♿",
                 },
                 {
-                  name: "Kidney Disease Support",
+                  name: "Kidney Disease",
                   desc: "Welfare fund targeting medical support for kidney patients.",
                   icon: "🩺",
                 },
@@ -668,9 +821,10 @@ function ResidentAllowances({ onOpenHelp }) {
                 Apply for {selectedProgram}
               </h3>
               <button
-                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer"
+                className="bg-transparent border-0 text-gray-400 hover:text-gray-600 text-2xl cursor-pointer disabled:opacity-50"
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close form"
+                disabled={isSubmitting}
               >
                 &times;
               </button>
@@ -691,10 +845,11 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="text"
                     id="modalApplicantName"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     value={applicantName}
                     onChange={(e) => setApplicantName(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -708,10 +863,11 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="text"
                     id="modalNic"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     value={applicantNicState}
                     onChange={(e) => setApplicantNicState(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -724,10 +880,11 @@ function ResidentAllowances({ onOpenHelp }) {
                   </label>
                   <select
                     id="modalPurpose"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                     value={purpose}
                     onChange={(e) => setPurpose(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   >
                     <option value="For certify residence">
                       For certify residence
@@ -758,11 +915,12 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="number"
                     id="modalIncome"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="e.g. 45000"
                     value={income}
                     onChange={(e) => setIncome(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -776,10 +934,11 @@ function ResidentAllowances({ onOpenHelp }) {
                   <textarea
                     id="modalRemarks"
                     rows="2"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="Briefly state the reason you qualify..."
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -799,10 +958,11 @@ function ResidentAllowances({ onOpenHelp }) {
                   </label>
                   <select
                     id="modalBankName"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                     value={bankName}
                     onChange={(e) => setBankName(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   >
                     <option value="Bank of Ceylon">Bank of Ceylon</option>
                     <option value="People's Bank">People's Bank</option>
@@ -824,11 +984,12 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="text"
                     id="modalBankBranch"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="e.g. Colombo 03"
                     value={bankBranch}
                     onChange={(e) => setBankBranch(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -842,11 +1003,12 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="text"
                     id="modalBankAccount"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="e.g. 1023456789"
                     value={bankAccount}
                     onChange={(e) => setBankAccount(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -860,11 +1022,12 @@ function ResidentAllowances({ onOpenHelp }) {
                   <input
                     type="text"
                     id="modalAccountHolder"
-                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                    className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="e.g. Nimal Perera"
                     value={accountHolder}
                     onChange={(e) => setAccountHolder(e.target.value)}
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -889,13 +1052,14 @@ function ResidentAllowances({ onOpenHelp }) {
                       <button
                         type="button"
                         onClick={removeSupportDoc}
-                        className="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-2.5 rounded-lg border-0 cursor-pointer transition-colors"
+                        className="text-xs bg-red-100 hover:bg-red-200 text-red-700 font-bold py-1 px-2.5 rounded-lg border-0 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSubmitting}
                       >
                         Remove
                       </button>
                     </div>
                   ) : (
-                    <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                    <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC] disabled:opacity-50 disabled:cursor-not-allowed">
                       <svg
                         width="24"
                         height="24"
@@ -916,11 +1080,12 @@ function ResidentAllowances({ onOpenHelp }) {
                         accept=".pdf,.jpg,.jpeg,.png"
                         className="hidden"
                         id="supportDocFile"
+                        disabled={isSubmitting}
                         onChange={handleSupportDocChange}
                       />
                       <label
                         htmlFor="supportDocFile"
-                        className="bg-[#1B365D]/10 hover:bg-[#1B365D]/20 text-[#1B365D] text-xs font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer"
+                        className="bg-[#1B365D]/10 hover:bg-[#1B365D]/20 text-[#1B365D] text-xs font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Choose file
                       </label>
@@ -938,16 +1103,40 @@ function ResidentAllowances({ onOpenHelp }) {
               <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
                 <button
                   type="button"
-                  className="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm"
+                  className="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => setIsModalOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm"
+                  className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  disabled={isSubmitting}
                 >
-                  Confirm Application
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      {t.submitting || "Submitting..."}
+                    </>
+                  ) : (
+                    t.confirmApplication || "Confirm Application"
+                  )}
                 </button>
               </div>
             </form>

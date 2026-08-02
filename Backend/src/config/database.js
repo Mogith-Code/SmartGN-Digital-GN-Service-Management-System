@@ -223,7 +223,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 7. APPOINTMENT TABLES (Separated)
     // ============================================================
-    
+
     // 7a. PENDING APPOINTMENTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS appointment_pending (
@@ -299,7 +299,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 8. CERTIFICATE TABLES (Separated) - FIXED
     // ============================================================
-    
+
     // 8a. PENDING CERTIFICATES
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS certificate_pending (
@@ -376,109 +376,91 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-    // ============================================================
-    // 9. ALLOWANCE TABLES (Separated)
-    // ============================================================
-    
     // 9a. PENDING ALLOWANCES
     await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_pending (
-        allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
-        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
-        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
-        cleared_time DATETIME,
-        txn_reference VARCHAR(50),
-        bank_details TEXT,
-        document_path LONGTEXT,
-        requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
-
-    // Ensure columns exist if table was created previously without them
-    const alterCols = [
-        "ALTER TABLE allowance_pending ADD COLUMN status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING'",
-        "ALTER TABLE allowance_pending ADD COLUMN payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID'",
-        "ALTER TABLE allowance_pending ADD COLUMN cleared_amount DECIMAL(12,2) DEFAULT 0.00",
-        "ALTER TABLE allowance_pending ADD COLUMN cleared_time DATETIME",
-        "ALTER TABLE allowance_pending ADD COLUMN txn_reference VARCHAR(50)",
-        "ALTER TABLE allowance_pending ADD COLUMN bank_details TEXT",
-        "ALTER TABLE allowance_pending ADD COLUMN document_path LONGTEXT"
-    ];
-    for (const q of alterCols) {
-        try { await dbPool.query(q); } catch (e) { /* column exists */ }
-    }
+CREATE TABLE IF NOT EXISTS allowance_pending (
+    allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+    payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+    cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+    cleared_time DATETIME,
+    txn_reference VARCHAR(50),
+    bank_details TEXT,
+    document_path LONGTEXT,
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
     // 9b. APPROVED ALLOWANCES
     await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_approved (
-        allowance_id VARCHAR(36) PRIMARY KEY,
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        approved_by VARCHAR(20) NOT NULL,
-        gn_remarks TEXT,
-        approved_at DATETIME DEFAULT NULL,
-        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
-        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
-        cleared_time DATETIME,
-        txn_reference VARCHAR(50),
-        bank_details TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type),
-        INDEX idx_approved_at (approved_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
+CREATE TABLE IF NOT EXISTS allowance_approved (
+    allowance_id VARCHAR(36) PRIMARY KEY,
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    approved_by VARCHAR(20) NOT NULL,
+    gn_remarks TEXT,
+    approved_at DATETIME DEFAULT NULL,
+    payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+    cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+    cleared_time DATETIME,
+    txn_reference VARCHAR(50),
+    bank_details TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    FOREIGN KEY (approved_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type),
+    INDEX idx_approved_at (approved_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
     // 9c. REJECTED ALLOWANCES
     await dbPool.query(`
-    CREATE TABLE IF NOT EXISTS allowance_rejected (
-        allowance_id VARCHAR(36) PRIMARY KEY,
-        allowance_number VARCHAR(50) UNIQUE NOT NULL,
-        allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Widow', 'Other') NOT NULL,
-        application_date DATE NOT NULL,
-        income_details TEXT NOT NULL,
-        resident_nic VARCHAR(12) NOT NULL,
-        gn_id VARCHAR(20),
-        rejected_by VARCHAR(20) NOT NULL,
-        rejection_reason TEXT,
-        gn_remarks TEXT,
-        rejected_at DATETIME DEFAULT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        
-        FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
-        FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
-        FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
-        INDEX idx_resident (resident_nic),
-        INDEX idx_type (allowance_type),
-        INDEX idx_rejected_at (rejected_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    `);
+CREATE TABLE IF NOT EXISTS allowance_rejected (
+    allowance_id VARCHAR(36) PRIMARY KEY,
+    allowance_number VARCHAR(50) UNIQUE NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
+    application_date DATE NOT NULL,
+    income_details TEXT NOT NULL,
+    resident_nic VARCHAR(12) NOT NULL,
+    gn_id VARCHAR(20),
+    rejected_by VARCHAR(20) NOT NULL,
+    rejection_reason TEXT,
+    gn_remarks TEXT,
+    rejected_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (resident_nic) REFERENCES resident(r_nic) ON DELETE CASCADE,
+    FOREIGN KEY (gn_id) REFERENCES grama_niladhari(gn_id) ON DELETE SET NULL,
+    FOREIGN KEY (rejected_by) REFERENCES grama_niladhari(gn_id) ON DELETE RESTRICT,
+    INDEX idx_resident (resident_nic),
+    INDEX idx_type (allowance_type),
+    INDEX idx_rejected_at (rejected_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`);
 
     // ============================================================
     // 10. DISASTER TABLES (Separated) - FIXED
     // ============================================================
-    
+
     // 10a. PENDING DISASTER REQUESTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS disaster_pending (
@@ -639,7 +621,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 12. CHAT TABLES
     // ============================================================
-    
+
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS chat_session (
         session_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -840,13 +822,13 @@ async function setupTables(dbPool) {
     // SEED GN DIVISIONS FROM PACKAGE - KEEP AS ORIGINAL
     // ============================================================
     let firstDivisionId = null;
-    
+
     try {
         // Check if divisions exist before seeding
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
             console.log('🌱 Seeding GN divisions from package...');
-            
+
             // Use the direct JSON import method
             const seedGnDivisions = require('../seed/seedGnDivisions');
             await seedGnDivisions(dbPool);
@@ -854,14 +836,14 @@ async function setupTables(dbPool) {
         } else {
             console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
         }
-        
+
         // Get the first division ID (GN-001A or any division)
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-        
+
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
             console.log(`📍 Using first division ID: ${firstDivisionId}`);
@@ -871,7 +853,7 @@ async function setupTables(dbPool) {
     } catch (error) {
         console.warn('⚠️ Could not seed GN divisions from package:', error.message);
         console.log('📌 Falling back to manual division seeding...');
-        
+
         // Fallback: Seed divisions manually if package fails
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
@@ -889,14 +871,14 @@ async function setupTables(dbPool) {
             }
             console.log('✅ GN divisions seeded manually (fallback)');
         }
-        
+
         // Get the first division ID
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-        
+
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
             console.log(`📍 Using first division ID: ${firstDivisionId}`);
@@ -906,10 +888,10 @@ async function setupTables(dbPool) {
     // ============================================================
     // SEED HOUSEHOLD, RESIDENT, GN OFFICER, ADMIN
     // ============================================================
-    
+
     if (firstDivisionId) {
         console.log('📌 Seeding related data for the first division...');
-        
+
         // 1. SEED HOUSEHOLD
         const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
         if (householdCount[0].count === 0) {
@@ -928,7 +910,7 @@ async function setupTables(dbPool) {
         if (residentCount[0].count === 0) {
             console.log('📌 Seeding resident...');
             const residentPasswordHash = bcrypt.hashSync('password123', 10);
-            
+
             await dbPool.query(`
                 INSERT INTO resident (
                     r_nic, first_name, last_name, full_name, date_of_birth, gender, mobile_no, email, 
@@ -962,7 +944,7 @@ async function setupTables(dbPool) {
         if (officerCount[0].count === 0) {
             console.log('📌 Seeding GN Officer...');
             const officerPasswordHash = bcrypt.hashSync('password123', 10);
-            
+
             await dbPool.query(`
                 INSERT INTO grama_niladhari (
                     gn_id, username, password_hash, first_name, last_name, full_name,
@@ -992,7 +974,7 @@ async function setupTables(dbPool) {
     if (adminCount[0].count === 0) {
         console.log('📌 Seeding Admin...');
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
-        
+
         await dbPool.query(`
             INSERT INTO admin (full_name, username, password_hash, email, role) 
             VALUES (?, ?, ?, ?, ?)
