@@ -127,6 +127,13 @@ function OfficerAnnouncements({ onOpenHelp }) {
       link: '/ResidentDashboard'
     })
 
+    addNotification('admin', {
+      type: 'announcement',
+      title: `Announcement Published`,
+      message: `GN Officer published announcement "${title}".`,
+      link: '/admin'
+    })
+
     setShowSuccessBanner(true)
     setViewMode('DASHBOARD')
     loadAnnouncements()

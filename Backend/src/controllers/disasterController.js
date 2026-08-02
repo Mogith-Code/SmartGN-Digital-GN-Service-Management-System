@@ -32,7 +32,8 @@ exports.submitDisasterReport = async (req, res) => {
         return res.status(403).json({ error: 'Access denied. Residents only.' });
     }
 
-    const { disasterType, description, severity, location, contact, aidRequested } = req.body;
+    const { disasterType, description, severity, location, contact, aidRequested, imagePath, damageImage, image_path, damage_image } = req.body;
+    const imgData = imagePath || damageImage || image_path || damage_image || null;
 
     if (!disasterType || !description || !location || !contact) {
         return res.status(400).json({ error: 'disasterType, description, location, and contact are required.' });
@@ -79,10 +80,10 @@ exports.submitDisasterReport = async (req, res) => {
         await db.query(`
             INSERT INTO disaster_pending
             (request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, resident_nic, gn_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             location, contact_number, aid_requested, image_path, resident_nic, gn_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [requestNumber, disasterType, today, description, sev,
-            location, contact, aidRequested || null, residentNic, gnId]);
+            location, contact, aidRequested || null, imgData, residentNic, gnId]);
 
         return res.status(201).json({
             message: 'Disaster report submitted successfully. The Grama Niladhari division has been notified.',
@@ -106,21 +107,21 @@ exports.getResidentDisasters = async (req, res) => {
     try {
         const [pending] = await db.query(`
             SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Pending' AS status, NULL AS officer_remarks, requested_at AS created_at
             FROM disaster_pending WHERE resident_nic = ?
         `, [nic]);
 
         const [approved] = await db.query(`
             SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Approved' AS status, officer_remarks, approved_at AS created_at
             FROM disaster_approved WHERE resident_nic = ?
         `, [nic]);
 
         const [rejected] = await db.query(`
             SELECT disaster_id AS disaster_request_id, request_number, disaster_type, request_date,
-                   description, severity, location, contact_number, aid_requested,
+                   description, severity, location, contact_number, aid_requested, image_path,
                    'Rejected' AS status, officer_remarks, rejected_at AS created_at
             FROM disaster_rejected WHERE resident_nic = ?
         `, [nic]);
@@ -172,7 +173,7 @@ exports.getOfficerDisasters = async (req, res) => {
 
         const [pending] = await db.query(`
             SELECT dp.disaster_id AS disaster_request_id, dp.request_number, dp.disaster_type, dp.request_date,
-                   dp.description, dp.severity, dp.location, dp.contact_number, dp.aid_requested,
+                   dp.description, dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
                    'Pending' AS status, NULL AS officer_remarks, dp.requested_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.mobile_no
@@ -184,7 +185,7 @@ exports.getOfficerDisasters = async (req, res) => {
 
         const [approved] = await db.query(`
             SELECT da.disaster_id AS disaster_request_id, da.request_number, da.disaster_type, da.request_date,
-                   da.description, da.severity, da.location, da.contact_number, da.aid_requested,
+                   da.description, da.severity, da.location, da.contact_number, da.aid_requested, da.image_path,
                    'Approved' AS status, da.officer_remarks, da.approved_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.mobile_no
@@ -196,7 +197,7 @@ exports.getOfficerDisasters = async (req, res) => {
 
         const [rejected] = await db.query(`
             SELECT dr.disaster_id AS disaster_request_id, dr.request_number, dr.disaster_type, dr.request_date,
-                   dr.description, dr.severity, dr.location, dr.contact_number, dr.aid_requested,
+                   dr.description, dr.severity, dr.location, dr.contact_number, dr.aid_requested, dr.image_path,
                    'Rejected' AS status, dr.officer_remarks, dr.rejection_reason, dr.rejected_at AS created_at,
                    CONCAT(r.first_name, ' ', r.last_name) AS resident_name,
                    r.r_nic AS resident_nic, r.mobile_no
@@ -253,11 +254,11 @@ exports.approveDisaster = async (req, res) => {
         await db.query(`
             INSERT INTO disaster_approved
             (disaster_id, request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, relief_provided, resident_nic, gn_id,
+             location, contact_number, aid_requested, image_path, relief_provided, resident_nic, gn_id,
              approved_by, officer_remarks, approved_at, estimated_damage)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date, dp.description,
-            dp.severity, dp.location, dp.contact_number, dp.aid_requested,
+            dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
             reliefProvided || null, dp.resident_nic, dp.gn_id, gnId,
             officerRemarks || null, now, estimatedDamage || null]);
 
@@ -315,11 +316,11 @@ exports.rejectDisaster = async (req, res) => {
         await db.query(`
             INSERT INTO disaster_rejected
             (disaster_id, request_number, disaster_type, request_date, description, severity,
-             location, contact_number, aid_requested, resident_nic, gn_id,
+             location, contact_number, aid_requested, image_path, resident_nic, gn_id,
              rejected_by, rejection_reason, officer_remarks, rejected_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [dp.disaster_id, dp.request_number, dp.disaster_type, dp.request_date, dp.description,
-            dp.severity, dp.location, dp.contact_number, dp.aid_requested,
+            dp.severity, dp.location, dp.contact_number, dp.aid_requested, dp.image_path,
             dp.resident_nic, dp.gn_id, gnId,
             rejectionReason || 'Does not meet disaster relief criteria.', officerRemarks || null, now]);
 

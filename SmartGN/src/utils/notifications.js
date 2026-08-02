@@ -2,6 +2,7 @@
 
 const RESIDENT_NOTIF_KEY = "smartgn_notifications_resident";
 const OFFICER_NOTIF_KEY = "smartgn_notifications_officer";
+const ADMIN_NOTIF_KEY = "smartgn_notifications_admin";
 
 // Default initial notifications for demonstration and usability
 const DEFAULT_RESIDENT_NOTIFS = [
@@ -10,6 +11,7 @@ const DEFAULT_RESIDENT_NOTIFS = [
     type: "certificate",
     title: "Certificate Approved",
     message: "Your Character Certificate request (#CERT-102) has been approved by Grama Niladhari.",
+    timestamp: Date.now() - 10 * 60 * 1000,
     date: "10 mins ago",
     read: false,
     link: "/ResidentDashboard/certificates/approved",
@@ -19,6 +21,7 @@ const DEFAULT_RESIDENT_NOTIFS = [
     type: "announcement",
     title: "New Announcement",
     message: "Community Health Program notice published by Grama Niladhari Office.",
+    timestamp: Date.now() - 2 * 3600 * 1000,
     date: "2 hours ago",
     read: false,
     link: "/ResidentDashboard",
@@ -28,6 +31,7 @@ const DEFAULT_RESIDENT_NOTIFS = [
     type: "appointment",
     title: "Appointment Confirmed",
     message: "Your appointment request for identity verification has been confirmed for tomorrow at 10:00 AM.",
+    timestamp: Date.now() - 24 * 3600 * 1000,
     date: "Yesterday",
     read: true,
     link: "/ResidentDashboard/RAppointment/ApprovedAppointmentRequests",
@@ -40,6 +44,7 @@ const DEFAULT_OFFICER_NOTIFS = [
     type: "certificate",
     title: "New Certificate Application",
     message: "Nimal Perera submitted a new Income Certificate application.",
+    timestamp: Date.now() - 15 * 60 * 1000,
     date: "15 mins ago",
     read: false,
     link: "/dashboard/officer/certificates",
@@ -49,6 +54,7 @@ const DEFAULT_OFFICER_NOTIFS = [
     type: "appointment",
     title: "Appointment Request",
     message: "Resident Sunethra Silva requested an appointment for tomorrow at 10:30 AM.",
+    timestamp: Date.now() - 60 * 60 * 1000,
     date: "1 hour ago",
     read: false,
     link: "/OfficerDashboard/OfficerAppointment/OfficerPendingAppointment",
@@ -58,16 +64,63 @@ const DEFAULT_OFFICER_NOTIFS = [
     type: "disaster",
     title: "Disaster Relief Incident Report",
     message: "Flood damage report submitted in Ward 4 by resident Kamal Jayasinghe.",
+    timestamp: Date.now() - 3 * 3600 * 1000,
     date: "3 hours ago",
     read: true,
     link: "/dashboard/officer/disasters",
   },
 ];
 
+const DEFAULT_ADMIN_NOTIFS = [
+  {
+    id: "notif-adm-1",
+    type: "officer",
+    title: "GN Officer Account Registered",
+    message: "New GN Officer account registered for Colombo GN Division.",
+    timestamp: Date.now() - 10 * 60 * 1000,
+    date: "10 mins ago",
+    read: false,
+    link: "/admin",
+  },
+  {
+    id: "notif-adm-2",
+    type: "system",
+    title: "System Latency Normal",
+    message: "RTGS banking clearing node and DRP registry checks passed with 2ms latency.",
+    timestamp: Date.now() - 45 * 60 * 1000,
+    date: "45 mins ago",
+    read: false,
+    link: "/admin",
+  },
+  {
+    id: "notif-adm-3",
+    type: "disaster",
+    title: "Disaster Relief Audit",
+    message: "Emergency disaster relief requests synchronized across all 341 GN divisions.",
+    timestamp: Date.now() - 3 * 3600 * 1000,
+    date: "3 hours ago",
+    read: true,
+    link: "/admin",
+  },
+];
+
 /**
- * Get storage key based on user role ('resident' | 'officer')
+ * Get storage key based on user role ('resident' | 'officer' | 'admin')
  */
-const getKey = (role) => (role === "officer" ? OFFICER_NOTIF_KEY : RESIDENT_NOTIF_KEY);
+const getKey = (role) => {
+  if (role === "officer") return OFFICER_NOTIF_KEY;
+  if (role === "admin") return ADMIN_NOTIF_KEY;
+  return RESIDENT_NOTIF_KEY;
+};
+
+/**
+ * Get default notifications based on role
+ */
+const getDefaultNotifs = (role) => {
+  if (role === "officer") return DEFAULT_OFFICER_NOTIFS;
+  if (role === "admin") return DEFAULT_ADMIN_NOTIFS;
+  return DEFAULT_RESIDENT_NOTIFS;
+};
 
 /**
  * Get all notifications for a role
@@ -77,14 +130,14 @@ export const getNotifications = (role = "resident") => {
     const key = getKey(role);
     const stored = localStorage.getItem(key);
     if (!stored) {
-      const initial = role === "officer" ? DEFAULT_OFFICER_NOTIFS : DEFAULT_RESIDENT_NOTIFS;
+      const initial = getDefaultNotifs(role);
       localStorage.setItem(key, JSON.stringify(initial));
       return initial;
     }
     return JSON.parse(stored);
   } catch (error) {
     console.error("Error reading notifications from localStorage:", error);
-    return role === "officer" ? DEFAULT_OFFICER_NOTIFS : DEFAULT_RESIDENT_NOTIFS;
+    return getDefaultNotifs(role);
   }
 };
 
@@ -107,6 +160,14 @@ export const formatNotificationTime = (item) => {
       timestamp = parseInt(parts[1], 10);
     }
   }
+
+  if (!timestamp && item.date) {
+    const parsed = new Date(item.date).getTime();
+    if (!isNaN(parsed)) {
+      timestamp = parsed;
+    }
+  }
+
   if (!timestamp || isNaN(timestamp)) {
     return item.date || "Just now";
   }
@@ -125,7 +186,7 @@ export const formatNotificationTime = (item) => {
   if (elapsedDay < 7) return `${elapsedDay} days ago`;
 
   const dateObj = new Date(timestamp);
-  return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 };
 
 /**
@@ -143,7 +204,7 @@ export const addNotification = (role = "resident", notification) => {
       timestamp: nowTs,
       date: "Just now",
       read: false,
-      link: notification.link || (role === "officer" ? "/dashboard/officer" : "/ResidentDashboard"),
+      link: notification.link || (role === "officer" ? "/dashboard/officer" : role === "admin" ? "/admin" : "/ResidentDashboard"),
     };
 
     const updated = [newNotif, ...notifications];

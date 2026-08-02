@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
+import { addNotification } from "../utils/notifications";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
@@ -308,6 +309,29 @@ function ResidentAllowances({ onOpenHelp }) {
 
       const resData = await response.json();
       setIsModalOpen(false);
+
+      // Trigger notifications for all roles
+      addNotification("resident", {
+        type: "allowance",
+        title: "Allowance Application Submitted",
+        message: `Your application for ${selectedProgram} has been submitted successfully.`,
+        link: "/ResidentDashboard/allowances",
+      });
+
+      addNotification("officer", {
+        type: "allowance",
+        title: "New Allowance Application",
+        message: `${applicantName} submitted a new ${selectedProgram} application.`,
+        link: "/OfficerDashboard/OfficerAllowances",
+      });
+
+      addNotification("admin", {
+        type: "allowance",
+        title: "Allowance Request Created",
+        message: `New ${selectedProgram} allowance request logged for resident ${applicantName}.`,
+        link: "/admin",
+      });
+
       loadRequests();
       alert(
         `Application for ${selectedProgram} submitted successfully! Your secure tracking ID is ${resData.allowanceId}.`,

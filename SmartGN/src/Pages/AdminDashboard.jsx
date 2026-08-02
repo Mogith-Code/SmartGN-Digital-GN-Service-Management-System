@@ -3,9 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import { authenticatedFetch } from "../utils/api";
+import { addNotification } from "../utils/notifications";
 import logoImage from "../assets/logo.png";
 import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
+import NotificationsDropdown from "../Components/Common/NotificationsDropdown";
 import notificationIcon from "../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 
@@ -886,6 +888,19 @@ function AdminDashboard({ onOpenHelp }) {
         body: JSON.stringify(newOfficer),
       });
       if (res.ok) {
+        addNotification("admin", {
+          type: "officer",
+          title: "GN Officer Registered",
+          message: `Officer ${newOfficer.name} registered for ${newOfficer.division || 'system division'}.`,
+          link: "/admin",
+        });
+        addNotification("officer", {
+          type: "officer",
+          title: "Welcome to SmartGN Portal",
+          message: `Your GN Officer account (${newOfficer.username}) is active for ${newOfficer.division || 'assigned division'}.`,
+          link: "/dashboard/officer",
+        });
+
         alert("GN Officer account registered successfully.");
         setShowAddOfficerModal(false);
         setNewOfficer({
@@ -1057,16 +1072,7 @@ function AdminDashboard({ onOpenHelp }) {
 
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
               <LanguageSelector />
-              <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-                <img
-                  src={notificationIcon}
-                  alt="Notifications"
-                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
-                />
-                <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </div>
+              <NotificationsDropdown role="admin" />
               <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
                 <div className="hidden xs:flex flex-col text-right">
                   <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#D69E2E] uppercase">
