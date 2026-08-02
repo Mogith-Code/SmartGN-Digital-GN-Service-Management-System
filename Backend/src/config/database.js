@@ -381,7 +381,7 @@ await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_pending (
     allowance_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
-    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
     application_date DATE NOT NULL,
     income_details TEXT NOT NULL,
     resident_nic VARCHAR(12) NOT NULL,
@@ -408,7 +408,7 @@ await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_approved (
     allowance_id VARCHAR(36) PRIMARY KEY,
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
-    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
     application_date DATE NOT NULL,
     income_details TEXT NOT NULL,
     resident_nic VARCHAR(12) NOT NULL,
@@ -437,7 +437,7 @@ await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_rejected (
     allowance_id VARCHAR(36) PRIMARY KEY,
     allowance_number VARCHAR(50) UNIQUE NOT NULL,
-    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney_Disease', 'Other') NOT NULL,
+    allowance_type ENUM('Aswesuma', 'Samurdhi', 'Disability', 'Elderly', 'Kidney', 'Other') NOT NULL,
     application_date DATE NOT NULL,
     income_details TEXT NOT NULL,
     resident_nic VARCHAR(12) NOT NULL,
