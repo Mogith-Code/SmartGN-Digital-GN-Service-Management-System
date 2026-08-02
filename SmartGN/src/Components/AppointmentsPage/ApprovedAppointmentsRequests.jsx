@@ -262,7 +262,7 @@ function ApprovedAppointmentsRequests() {
               {approvedAppointments.map((appointment) => (
                 <div
                   key={appointment.appointment_id || appointment.id}
-                  className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6]"
+                  className="mx-[50px] my-[30px] flex flex-col gap-[5px] border border-[#2D37484D] rounded-[15px] p-[20px] hover:bg-[#FDF5E6] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] "
                 >
                   <div className="flex gap-[20px] items-center">
                     <img

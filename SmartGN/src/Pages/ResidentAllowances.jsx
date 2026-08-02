@@ -114,7 +114,7 @@ function ResidentAllowances({ onOpenHelp }) {
       Samurdhi: "Samurdhi",
       Elderly: "Elderly",
       Disability: "Disability",
-      "Kidney Disease": "Kidney", // Map "Kidney Disease" to "Kidney" for database
+      "Kidney Disease": "Kidney",
     };
     return typeMap[displayName] || displayName;
   };
@@ -126,7 +126,7 @@ function ResidentAllowances({ onOpenHelp }) {
       Samurdhi: "Samurdhi",
       Elderly: "Elderly",
       Disability: "Disability",
-      Kidney: "Kidney Disease", // Map "Kidney" back to "Kidney Disease" for display
+      Kidney: "Kidney Disease",
     };
     return displayMap[dbValue] || dbValue;
   };
@@ -157,12 +157,12 @@ function ResidentAllowances({ onOpenHelp }) {
     setSupportDocName("");
   };
 
-  // ✅ Check if NIC images are missing - used for alert
+  // Check if NIC images are missing - used for alert
   const areNicImagesMissing = () => {
     return !profile.nicFront || !profile.nicBack;
   };
 
-  // ✅ Fetch profile to get NIC images
+  // Fetch profile to get NIC images
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -178,7 +178,6 @@ function ResidentAllowances({ onOpenHelp }) {
             nicBack: data.nic_back_path || null,
           }));
 
-          // ✅ Auto-hide alert if both NIC images exist
           if (data.nic_front_path && data.nic_back_path) {
             setShowAlert(false);
           } else {
@@ -193,10 +192,9 @@ function ResidentAllowances({ onOpenHelp }) {
     fetchProfile();
   }, []);
 
-  // ✅ Listen for profile updates from other components
+  // Listen for profile updates from other components
   useEffect(() => {
     const handleProfileUpdate = () => {
-      // Re-fetch profile when updated
       const fetchUpdatedProfile = async () => {
         try {
           const res = await fetch("/api/residents/profile", {
@@ -249,7 +247,7 @@ function ResidentAllowances({ onOpenHelp }) {
         }
         return {
           id: item.allowance_id,
-          program: getDisplayAllowanceType(item.allowance_type), // Convert database value to display name
+          program: getDisplayAllowanceType(item.allowance_type),
           purpose: item.income_details
             ? item.income_details.substring(0, 100)
             : "",
@@ -280,7 +278,6 @@ function ResidentAllowances({ onOpenHelp }) {
 
   // Load requests on mount
   useEffect(() => {
-    // Attempt to load from profile for names/NIC pre-fill
     const savedProfile = localStorage.getItem("smartgn_resident_profile");
     if (savedProfile) {
       const parsed = JSON.parse(savedProfile);
@@ -340,7 +337,6 @@ function ResidentAllowances({ onOpenHelp }) {
     setSuccessMessage("");
     setIsSubmitting(true);
 
-    // Convert display name to database ENUM value
     const dbAllowanceType = getDatabaseAllowanceType(selectedProgram);
 
     try {
@@ -348,7 +344,7 @@ function ResidentAllowances({ onOpenHelp }) {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          allowanceType: dbAllowanceType, // Send mapped value to database
+          allowanceType: dbAllowanceType,
           incomeDetails: `Household Monthly Income: LKR ${income}. Purpose: ${purpose}. Remarks: ${remarks}`,
           bankDetails: {
             bankName,
@@ -367,17 +363,11 @@ function ResidentAllowances({ onOpenHelp }) {
 
       const resData = await response.json();
 
-      // Close modal
       setIsModalOpen(false);
-
-      // Set success message
       setSuccessMessage(`${t.success} Tracking ID: ${resData.allowanceId}`);
       setIsSubmitting(false);
-
-      // Scroll to top to show success message
       scrollToTop();
 
-      // Trigger notifications for all roles
       addNotification("resident", {
         type: "allowance",
         title: "Allowance Application Submitted",
@@ -399,7 +389,6 @@ function ResidentAllowances({ onOpenHelp }) {
         link: "/admin",
       });
 
-      // Refresh the list
       await loadRequests();
     } catch (err) {
       setErrorMessage(err.message || "Error submitting application.");
@@ -446,7 +435,7 @@ function ResidentAllowances({ onOpenHelp }) {
         </div>
 
         {/* Content */}
-        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D] ">
           {/* Top Ref for Scrolling */}
           <div ref={topRef}></div>
 
@@ -455,7 +444,7 @@ function ResidentAllowances({ onOpenHelp }) {
               Allowance Programs
             </h2>
 
-            {/* ✅ NIC upload alert - Check if NIC images are missing */}
+            {/* NIC upload alert - Check if NIC images are missing */}
             <div className="flex justify-end -mt-[70px]">
               {showAlert && areNicImagesMissing() && (
                 <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
@@ -594,7 +583,7 @@ function ResidentAllowances({ onOpenHelp }) {
           </div>
 
           {/* Program Request list */}
-          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left mx-[30px]">
+          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] ">
             <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
               Available Allowance Programs
             </h3>
@@ -629,7 +618,7 @@ function ResidentAllowances({ onOpenHelp }) {
               ].map((prog) => (
                 <div
                   key={prog.name}
-                  className="flex flex-col justify-between p-5 bg-[#F8FAFC] border border-gray-200 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all"
+                  className="flex flex-col justify-between p-5 bg-[#F8FAFC] border border-gray-200 rounded-xl hover:border-gray-300 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-all "
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
@@ -667,7 +656,7 @@ function ResidentAllowances({ onOpenHelp }) {
             </div>
           </div>
 
-          {/* History tracking status */}
+          {/* History tracking status - WITH SCROLLBAR */}
           <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 text-left m-[30px]">
             <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-6">
               Application & Payment History
@@ -678,134 +667,140 @@ function ResidentAllowances({ onOpenHelp }) {
                 No allowance applications submitted yet.
               </div>
             ) : (
-              <div className="flex flex-col gap-6">
-                {requests.map((item) => (
-                  <div
-                    key={item.id}
-                    className="border-b border-gray-100 last:border-b-0 pb-6 last:pb-0 flex flex-col gap-4"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-[#005BBD] text-lg mt-0.5">★</span>
-                        <div className="flex flex-col text-left">
-                          <span className="font-bold text-[#1a2e56] text-base">
-                            {item.program}
+              /* ✅ Scrollable container with max height */
+              <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-[10px]">
+                  {requests.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border-b border-gray-100 last:border-b-0 pb-6 flex flex-col gap-4"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <span className="text-[#005BBD] text-lg mt-0.5">
+                            ★
                           </span>
-                          <span className="text-xs text-[#64748b] mt-1">
-                            Purpose: {item.purpose}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 self-start sm:self-auto">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1 border
-                          ${
-                            item.status === "Approved"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : item.status === "Rejected"
-                                ? "bg-rose-50 text-rose-700 border-rose-200"
-                                : "bg-amber-50 text-amber-700 border-amber-200"
-                          }`}
-                        >
-                          {item.status === "Approved" && (
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                            >
-                              <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                          )}
-                          {item.status === "Rejected" && (
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                            >
-                              <line x1="18" y1="6" x2="6" y2="18"></line>
-                              <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                          )}
-                          {item.status === "Pending" && (
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                            >
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <polyline points="12 6 12 12 14 12"></polyline>
-                            </svg>
-                          )}
-                          {item.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    {item.status === "Approved" &&
-                      item.paymentStatus === "Paid" && (
-                        <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 flex items-start gap-4 text-left transition-all">
-                          <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.5"
-                            >
-                              <rect
-                                x="3"
-                                y="11"
-                                width="18"
-                                height="11"
-                                rx="2"
-                                ry="2"
-                              ></rect>
-                              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                            </svg>
-                          </div>
-                          <div className="text-xs sm:text-sm text-[#065f46] leading-relaxed">
-                            <strong className="block text-emerald-800 font-bold mb-1">
-                              Secure Allowance Funds Disbursed
-                            </strong>
-                            Your Grama Niladhari office has securely transferred{" "}
-                            <strong className="font-bold">
-                              Rs.{" "}
-                              {item.paymentAmount
-                                ? parseFloat(
-                                    item.paymentAmount,
-                                  ).toLocaleString()
-                                : "5,000"}
-                              .00
-                            </strong>{" "}
-                            to your verified{" "}
-                            <strong className="font-bold">
-                              {item.bankDetails?.bankName} (
-                              {item.bankDetails?.accountNumber})
-                            </strong>{" "}
-                            account on{" "}
-                            <span className="font-medium">
-                              {item.paymentTransferredAt}
+                          <div className="flex flex-col text-left">
+                            <span className="font-bold text-[#1a2e56] text-base">
+                              {item.program}
                             </span>
-                            . Transaction Reference:{" "}
-                            <code className="bg-emerald-100/80 px-1.5 py-0.5 rounded font-mono font-bold text-xs">
-                              {item.paymentTransactionRef}
-                            </code>
+                            <span className="text-xs text-[#64748b] mt-1">
+                              Purpose: {item.purpose}
+                            </span>
                           </div>
                         </div>
-                      )}
-                  </div>
-                ))}
+
+                        <div className="flex items-center gap-2 self-start sm:self-auto">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1 border
+                            ${
+                              item.status === "Approved"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : item.status === "Rejected"
+                                  ? "bg-rose-50 text-rose-700 border-rose-200"
+                                  : "bg-amber-50 text-amber-700 border-amber-200"
+                            }`}
+                          >
+                            {item.status === "Approved" && (
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                              >
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            )}
+                            {item.status === "Rejected" && (
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                              >
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                            )}
+                            {item.status === "Pending" && (
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                              >
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 14 12"></polyline>
+                              </svg>
+                            )}
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      {item.status === "Approved" &&
+                        item.paymentStatus === "Paid" && (
+                          <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4 flex items-start gap-4 text-left transition-all">
+                            <div className="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0">
+                              <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                              >
+                                <rect
+                                  x="3"
+                                  y="11"
+                                  width="18"
+                                  height="11"
+                                  rx="2"
+                                  ry="2"
+                                ></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                              </svg>
+                            </div>
+                            <div className="text-xs sm:text-sm text-[#065f46] leading-relaxed">
+                              <strong className="block text-emerald-800 font-bold mb-1">
+                                Secure Allowance Funds Disbursed
+                              </strong>
+                              Your Grama Niladhari office has securely
+                              transferred{" "}
+                              <strong className="font-bold">
+                                Rs.{" "}
+                                {item.paymentAmount
+                                  ? parseFloat(
+                                      item.paymentAmount,
+                                    ).toLocaleString()
+                                  : "5,000"}
+                                .00
+                              </strong>{" "}
+                              to your verified{" "}
+                              <strong className="font-bold">
+                                {item.bankDetails?.bankName} (
+                                {item.bankDetails?.accountNumber})
+                              </strong>{" "}
+                              account on{" "}
+                              <span className="font-medium">
+                                {item.paymentTransferredAt}
+                              </span>
+                              . Transaction Reference:{" "}
+                              <code className="bg-emerald-100/80 px-1.5 py-0.5 rounded font-mono font-bold text-xs">
+                                {item.paymentTransactionRef}
+                              </code>
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
