@@ -390,6 +390,13 @@ async function setupTables(dbPool) {
         income_details TEXT NOT NULL,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(20),
+        status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+        payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID',
+        cleared_amount DECIMAL(12,2) DEFAULT 0.00,
+        cleared_time DATETIME,
+        txn_reference VARCHAR(50),
+        bank_details TEXT,
+        document_path LONGTEXT,
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
@@ -399,6 +406,20 @@ async function setupTables(dbPool) {
         INDEX idx_type (allowance_type)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    // Ensure columns exist if table was created previously without them
+    const alterCols = [
+        "ALTER TABLE allowance_pending ADD COLUMN status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING'",
+        "ALTER TABLE allowance_pending ADD COLUMN payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID'",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_amount DECIMAL(12,2) DEFAULT 0.00",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_time DATETIME",
+        "ALTER TABLE allowance_pending ADD COLUMN txn_reference VARCHAR(50)",
+        "ALTER TABLE allowance_pending ADD COLUMN bank_details TEXT",
+        "ALTER TABLE allowance_pending ADD COLUMN document_path LONGTEXT"
+    ];
+    for (const q of alterCols) {
+        try { await dbPool.query(q); } catch (e) { /* column exists */ }
+    }
 
     // 9b. APPROVED ALLOWANCES
     await dbPool.query(`

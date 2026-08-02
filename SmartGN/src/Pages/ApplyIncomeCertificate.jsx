@@ -4,6 +4,7 @@ import { translations, useLanguage } from "../utils/translate";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
+import ChatbotButton from "../Components/Common/ChatbotButton";
 import { addNotification } from "../utils/notifications";
 import logo from "../assets/logo.png";
 
@@ -1032,13 +1033,7 @@ function ApplyIncomeCertificate({ onOpenHelp }) {
           </div>
 
           {/* Floating Help Trigger */}
-          <button
-            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-[#D69E2E] text-white border-0 text-[20px] font-bold cursor-pointer shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-110 hover:bg-[#FFAA00]"
-            aria-label="Help Trigger"
-            onClick={onOpenHelp}
-          >
-            ?
-          </button>
+          <ChatbotButton onOpenHelp={onOpenHelp} />
         </main>
       </div>
 
