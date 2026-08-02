@@ -60,6 +60,7 @@ function SearchableDropdown({
     return selected ? selected.label : "";
   };
 
+
   return (
     <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
       {label && (
@@ -69,56 +70,58 @@ function SearchableDropdown({
       )}
       <div className="relative">
         <input
-          type="text"
-          className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
-          placeholder={placeholder || "Search GN division name..."}
-          value={isOpen ? searchTerm : value ? getSelectedLabel() : ""}
-          onFocus={() => {
-            setIsOpen(true);
-            setSearchTerm("");
-          }}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setIsOpen(true);
-            if (e.target.value === "") {
-              onChange("");
-            }
-          }}
-          required={required}
-          autoComplete="off"
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400 text-xs">
-          ▼
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className="absolute top-[100%] left-0 right-0 mt-1 bg-white border border-[#005BBD]/30 rounded-[8px] shadow-lg max-h-48 overflow-y-auto z-50 text-left divide-y divide-gray-100">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => (
-              <div
-                key={option.value}
-                className={`px-4 py-2.5 hover:bg-[#EBF1F6] cursor-pointer text-[14px] text-[#2D3748] font-medium transition-colors flex justify-between items-center ${
-                  option.value === value ? "bg-[#EBF1F6]" : ""
-                }`}
-                onClick={() => handleSelect(option)}
-              >
-                <span>{option.label}</span>
-                {option.value === value && (
-                  <span className="text-[#005BBD] font-bold text-xs">
-                    ✓ Selected
-                  </span>
-                )}
-              </div>
-            ))
-          ) : (
-            <div className="px-4 py-3 text-xs text-gray-400 italic">
-              No matching GN division found
-            </div>
-          )}
-        </div>
-      )}
+      type="text"
+      className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
+      placeholder={placeholder || "Search GN division name..."}
+      value={isOpen ? searchTerm : value ? getSelectedLabel() : ""}
+      onFocus={() => {
+        setIsOpen(true);
+        setSearchTerm("");
+      }}
+      onChange={(e) => {
+        setSearchTerm(e.target.value);
+        setIsOpen(true);
+        if (e.target.value === "") {
+          onChange("");
+        }
+      }}
+      required={required}
+      autoComplete="off"
+    />
+    <div className="absolute inset-y-0 right-0 flex items-center px-3.5 pointer-events-none text-gray-400 text-xs">
+      ▼
     </div>
+  </div>
+
+  {
+    isOpen && (
+      <div className="absolute top-[100%] left-0 right-0 mt-1 bg-white border border-[#005BBD]/30 rounded-[8px] shadow-lg max-h-48 overflow-y-auto z-50 text-left divide-y divide-gray-100">
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map((option) => (
+            <div
+              key={option.value}
+              className={`px-4 py-2.5 hover:bg-[#EBF1F6] cursor-pointer text-[14px] text-[#2D3748] font-medium transition-colors flex justify-between items-center ${option.value === value ? "bg-[#EBF1F6]" : ""
+                }`}
+              onClick={() => handleSelect(option)}
+            >
+              <span>{option.label}</span>
+              {option.value === value && (
+                <span className="text-[#005BBD] font-bold text-xs">
+                  ✓ Selected
+                </span>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="px-4 py-3 text-xs text-gray-400 italic">
+              No matching GN division found
+            </div >
+          )
+  }
+        </div >
+      )
+}
+    </div >
   );
 }
 
@@ -299,6 +302,7 @@ function AdminDashboard({ onOpenHelp }) {
   const [officers, setOfficers] = useState([]);
   const [residents, setResidents] = useState([]);
   const [divisions, setDivisions] = useState([]);
+
 
   // Divisions pagination states
   const [divisionsPage, setDivisionsPage] = useState(1);
@@ -519,6 +523,7 @@ function AdminDashboard({ onOpenHelp }) {
     }
   };
 
+
   const loadOfficers = async () => {
     try {
       const res = await authenticatedFetch("/api/auth/admin/officers");
@@ -565,6 +570,7 @@ function AdminDashboard({ onOpenHelp }) {
     loadDivisions(1, "");
     loadOfficers();
     loadResidents();
+
   }, []);
 
   // GN Division Handlers
@@ -588,6 +594,7 @@ function AdminDashboard({ onOpenHelp }) {
           household_count: "",
         });
         loadDivisions(1, divisionsSearch);
+
         return;
       }
     } catch (error) {
@@ -636,6 +643,7 @@ function AdminDashboard({ onOpenHelp }) {
         alert("GN Division updated successfully.");
         setShowEditDivisionModal(false);
         loadDivisions(divisionsPage, divisionsSearch);
+
         return;
       }
     } catch (error) {
@@ -667,6 +675,7 @@ function AdminDashboard({ onOpenHelp }) {
           `GN Division status updated to ${nextActive ? "Active" : "Inactive"}.`,
         );
         loadDivisions(divisionsPage, divisionsSearch);
+
         return;
       }
     } catch (error) {
@@ -697,6 +706,7 @@ function AdminDashboard({ onOpenHelp }) {
       if (res.ok) {
         alert("GN Division deleted successfully.");
         loadDivisions(divisionsPage, divisionsSearch);
+
         return;
       } else {
         const errData = await res.json();
@@ -913,14 +923,14 @@ function AdminDashboard({ onOpenHelp }) {
     const updated = list.map((o) =>
       o.gn_id === editOfficer.id
         ? {
-            ...o,
-            username: editOfficer.username,
-            name: editOfficer.name,
-            email: editOfficer.email,
-            mobile: editOfficer.mobile,
-            division_name: editOfficer.division,
-            status: editOfficer.status,
-          }
+          ...o,
+          username: editOfficer.username,
+          name: editOfficer.name,
+          email: editOfficer.email,
+          mobile: editOfficer.mobile,
+          division_name: editOfficer.division,
+          status: editOfficer.status,
+        }
         : o,
     );
     saveStoredOfficers(updated);
@@ -954,14 +964,14 @@ function AdminDashboard({ onOpenHelp }) {
     const updated = list.map((r) =>
       r.r_nic === editResident.nic
         ? {
-            ...r,
-            name: editResident.name,
-            email: editResident.email,
-            mobile_no: editResident.mobile_no,
-            status: editResident.status,
-            occupation: editResident.occupation,
-            household_number: editResident.household_number,
-          }
+          ...r,
+          name: editResident.name,
+          email: editResident.email,
+          mobile_no: editResident.mobile_no,
+          status: editResident.status,
+          occupation: editResident.occupation,
+          household_number: editResident.household_number,
+        }
         : r,
     );
     saveStoredResidents(updated);
@@ -999,316 +1009,308 @@ function AdminDashboard({ onOpenHelp }) {
       }
     }, 600);
   };
-
   return (
     <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC] text-[#2D3748]">
-      {/* 1. Header */}
-      <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
-        <div className="flex w-full justify-between items-center">
-          <div
-            className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
-            onClick={() => navigate("/")}
-          >
-            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
-          </div>
-
-          <div className="hidden md:block bg-[#1B365D]/10 text-[#1B365D] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
-            {dA.consoleTitle} - ROOT Mode
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
-            <LanguageSelector />
-            <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
-              <img
-                src={notificationIcon}
-                alt="Notifications"
-                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
-              />
-              <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
-                3
-              </span>
+        {/* 1. Header */}
+        <header className="flex justify-between items-center py-3 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.12)]">
+          <div className="flex w-full justify-between items-center">
+            <div
+              className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
+              onClick={() => navigate("/")}
+            >
+              <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
-              <div className="hidden xs:flex flex-col text-right">
-                <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#D69E2E] uppercase">
-                  ADMIN
-                </span>
-                <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748]">
-                  {successUser}
-                </span>
-              </div>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+
+            <div className="hidden md:block bg-[#1B365D]/10 text-[#1B365D] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider">
+              {dA.consoleTitle} - ROOT Mode
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
+              <LanguageSelector />
+              <div className="relative cursor-pointer flex items-center justify-center transition-colors duration-200 hover:opacity-80">
                 <img
-                  src={accountIcon}
-                  alt="User Profile"
-                  className="w-full h-full object-cover"
+                  src={notificationIcon}
+                  alt="Notifications"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[30px] lg:h-[30px] object-contain"
                 />
+                <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 bg-[#D69E2E] text-[#F7FAFC] text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] lg:w-[20px] lg:h-[20px] rounded-full flex items-center justify-center">
+                  3
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px]">
+                <div className="hidden xs:flex flex-col text-right">
+                  <span className="text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-semibold text-[#D69E2E] uppercase">
+                    ADMIN
+                  </span>
+                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-medium text-[#2D3748]">
+                    {successUser}
+                  </span>
+                </div>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-slate-300 overflow-hidden flex-shrink-0">
+                  <img
+                    src={accountIcon}
+                    alt="User Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* 2. Main Layout Container */}
-      <div className="flex flex-1 w-full">
-        <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
-          <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
-            {/* Tab: Overview */}
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === "overview"
-                  ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
-                  : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <img
-                src={
-                  activeTab === "overview" ? dashboardIconActive : dashboardIcon
-                }
-                alt="Overview Icon"
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
-              />
-              <span className="truncate">{dA.overview}</span>
-            </button>
+  <div className="flex flex-1 w-full">
+    <aside className="w-56 sm:w-60 md:w-68 lg:w-72 xl:w-[280px] bg-white border-r border-[#2D37482D] pt-10 pr-2 h-[calc(100vh-80px)] sticky top-[80px] overflow-y-auto flex-shrink-0">
+      <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
+        {/* Overview Tab */}
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === "overview"
+              ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
+              : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+          <img
+            src={
+              activeTab === "overview" ? dashboardIconActive : dashboardIcon
+            }
+            alt="Overview Icon"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+          />
+          <span className="truncate">{dA.overview}</span>
+        </button>
 
-            {/* Tab: GN Officer Accounts */}
-            <button
-              onClick={() => setActiveTab("officers")}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === "officers"
-                  ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
-                  : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <img
-                src={
-                  activeTab === "officers" ? officersIconActive : officersIcon
-                }
-                alt="Officers Icon"
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
-              />
-              <span className="truncate">{dA.officers}</span>
-            </button>
+        {/* Officers Tab */}
+        <button
+          onClick={() => setActiveTab("officers")}
+          className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === "officers"
+              ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
+              : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+          <img
+            src={
+              activeTab === "officers" ? officersIconActive : officersIcon
+            }
+            alt="Officers Icon"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+          />
+          <span className="truncate">{dA.officers}</span>
+        </button>
 
-            {/* Tab: GN Divisions */}
-            <button
-              onClick={() => setActiveTab("divisions")}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === "divisions"
-                  ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
-                  : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <span className="w-4 sm:w-4.5 md:w-5 lg:w-[18px] xl:w-[20px] text-center flex-shrink-0 font-bold">
-                🏛️
-              </span>
-              <span className="truncate">{dA.divisions}</span>
-            </button>
+        {/* Divisions Tab */}
+        <button
+          onClick={() => setActiveTab("divisions")}
+          className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === "divisions"
+              ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
+              : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+          <span className="w-4 sm:w-4.5 md:w-5 lg:w-[18px] xl:w-[20px] text-center flex-shrink-0 font-bold">
+            🏛️
+          </span>
+          <span className="truncate">{dA.divisions}</span>
+        </button>
 
-            {/* Tab: Resident Profiles */}
-            <button
-              onClick={() => setActiveTab("residents")}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === "residents"
-                  ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
-                  : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <img
-                src={
-                  activeTab === "residents"
-                    ? residentsIconActive
-                    : residentsIcon
-                }
-                alt="Residents Icon"
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
-              />
-              <span className="truncate">{dA.residents}</span>
-            </button>
+        {/* Residents Tab */}
+        <button
+          onClick={() => setActiveTab("residents")}
+          className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === "residents"
+              ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
+              : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+          <img
+            src={
+              activeTab === "residents"
+                ? residentsIconActive
+                : residentsIcon
+            }
+            alt="Residents Icon"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+          />
+          <span className="truncate">{dA.residents}</span>
+        </button>
 
-            {/* Tab: Troubleshoot Node */}
-            <button
-              onClick={() => setActiveTab("troubleshoot")}
-              className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
-                activeTab === "troubleshoot"
-                  ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
-                  : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <img
-                src={
-                  activeTab === "troubleshoot"
-                    ? troubleshootIconActive
-                    : troubleshootIcon
-                }
-                alt="Troubleshoot Icon"
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
-              />
-              <span className="truncate">{dA.troubleshoot}</span>
-            </button>
+        {/* Troubleshoot Tab */}
+        <button
+          onClick={() => setActiveTab("troubleshoot")}
+          className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${activeTab === "troubleshoot"
+              ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
+              : "bg-transparent text-[#2D3748] hover:bg-gray-50 hover:text-gray-900"
+            }`}
+        >
+          <img
+            src={
+              activeTab === "troubleshoot"
+                ? troubleshootIconActive
+                : troubleshootIcon
+            }
+            alt="Troubleshoot Icon"
+            className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-[18px] lg:h-[18px] xl:w-[20px] xl:h-[20px] object-contain flex-shrink-0"
+          />
+          <span className="truncate">{dA.troubleshoot}</span>
+        </button>
 
-            {/* Logout Admin */}
-            <button
-              onClick={() => navigate("/login")}
-              className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-semibold text-red-600 transition-all duration-200 rounded-r-full hover:translate-x-1 hover:bg-red-50 hover:text-red-700 mt-8"
-            >
-              <span className="w-5 text-center flex-shrink-0">➔</span>
-              <span className="truncate">{dA.logout}</span>
-            </button>
-          </nav>
-        </aside>
+        {/* Logout */}
+        <button
+          onClick={() => navigate("/login")}
+          className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-semibold text-red-600 transition-all duration-200 rounded-r-full hover:translate-x-1 hover:bg-red-50 hover:text-red-700 mt-8"
+        >
+          <span className="w-5 text-center flex-shrink-0">➔</span>
+          <span className="truncate">{dA.logout}</span>
+        </button>
+      </nav>
+    </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
-          {/* TAB 1: OVERVIEW */}
-          {activeTab === "overview" && (
-            <div className="animate-zoom-in">
-              <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">
-                {dA.systemOverview}
-              </h2>
+    {/* Main Content */}
+    <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto">
+      {/* TAB 1: OVERVIEW */}
+      {activeTab === "overview" && (
+        <div className="animate-zoom-in">
+          <h2 className="text-[24px] font-bold text-[#1B365D] text-left mb-6">
+            {dA.systemOverview}
+          </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
-                  <span className="text-sm font-semibold text-gray-500 mb-1">
-                    {dA.totalGN}
-                  </span>
-                  <span className="text-3xl font-extrabold text-[#1B365D]">
-                    2 Active
-                  </span>
-                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
-                    Colombo, Maharagama
-                  </span>
-                </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+      <span className="text-sm font-semibold text-gray-500 mb-1">
+        {dA.totalGN}
+      </span>
+      <span className="text-3xl font-extrabold text-[#1B365D]">
+        2 Active
+      </span>
+      <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
+        Colombo, Maharagama
+      </span>
+    </div>
+    <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+      <span className="text-sm font-semibold text-gray-500 mb-1">
+        {dA.regResidents}
+      </span>
+      <span className="text-3xl font-extrabold text-[#1B365D]">
+        1,240
+      </span>
+      <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
+        +12 New submissions
+      </span>
+    </div>
+    <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+      <span className="text-sm font-semibold text-gray-500 mb-1">
+        {dA.rtgsTransfers}
+      </span>
+      <span className="text-3xl font-extrabold text-[#1B365D]">
+        Rs. 17,500
+      </span>
+      <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
+        {dA.cleared}
+      </span>
+    </div>
+    <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
+      <span className="text-sm font-semibold text-gray-500 mb-1">
+        {dA.serverNode}
+      </span>
+      <span className="text-3xl font-extrabold text-green-600">
+        {dA.healthy}
+      </span>
+      <span className="text-xs text-gray-500 font-semibold mt-2 bg-gray-50 px-2.5 py-1 rounded-full">
+        DB latency: 2ms
+      </span>
+    </div>
+  </div>
 
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
-                  <span className="text-sm font-semibold text-gray-500 mb-1">
-                    {dA.regResidents}
-                  </span>
-                  <span className="text-3xl font-extrabold text-[#1B365D]">
-                    1,240
-                  </span>
-                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
-                    +12 New submissions
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
-                  <span className="text-sm font-semibold text-gray-500 mb-1">
-                    {dA.rtgsTransfers}
-                  </span>
-                  <span className="text-3xl font-extrabold text-[#1B365D]">
-                    Rs. 17,500
-                  </span>
-                  <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
-                    {dA.cleared}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
-                  <span className="text-sm font-semibold text-gray-500 mb-1">
-                    {dA.serverNode}
-                  </span>
-                  <span className="text-3xl font-extrabold text-green-600">
-                    {dA.healthy}
-                  </span>
-                  <span className="text-xs text-gray-500 font-semibold mt-2 bg-gray-50 px-2.5 py-1 rounded-full">
-                    DB latency: 2ms
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 text-left">
-                <h3 className="text-lg font-bold text-[#1B365D] border-b border-[#cbd5e1] pb-3 mb-4">
-                  {dA.recentLogs}
-                </h3>
-                <div className="font-mono text-sm text-gray-600 flex flex-col gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">[INFO]</span>
-                    <span>
+  <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 text-left">
+    <h3 className="text-lg font-bold text-[#1B365D] border-b border-[#cbd5e1] pb-3 mb-4">
+      {dA.recentLogs}
+    </h3>
+    <div className="font-mono text-sm text-gray-600 flex flex-col gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+      <div className="flex items-start gap-2">
+        <span className="text-green-600 font-bold">[INFO]</span>
+        <span>
                       [2026-06-01 12:44:02] ADMIN logged in successfully from
                       secure clearing terminal node.
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">[INFO]</span>
-                    <span>
+                    </span >
+                  </div >
+    <div className="flex items-start gap-2">
+      <span className="text-green-600 font-bold">[INFO]</span>
+      <span>
                       [2026-06-01 12:38:15] RTGS clearing gateway disburse
                       request dished out reference ID TXN-902847120.
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">[INFO]</span>
-                    <span>
+                    </span >
+                  </div >
+    <div className="flex items-start gap-2">
+      <span className="text-green-600 font-bold">[INFO]</span>
+      <span>
                       [2026-06-01 12:35:10] DRP API successfully authenticated
                       resident Kamala Silva (789456123V) registry checks.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+                    </span >
+                  </div >
+                </div >
+              </div >
+            </div >
+          )
+}
 
           {/* TAB 2: GN OFFICERS */}
-          {activeTab === "officers" && (
-            <div className="animate-zoom-in">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <div className="text-left">
-                  <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
-                    {dA.officerRegistry}
-                  </h2>
-                  <span className="text-sm text-gray-500 mt-1 block">
-                    {dA.officerSub}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setShowAddOfficerModal(true)}
-                  className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
-                >
-                  <span>➕</span> Register GN Officer
-                </button>
-              </div>
-
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
-                        <th className="p-4 sm:p-5">{dA.thName}</th>
-                        <th className="p-4 sm:p-5">Username</th>
-                        <th className="p-4 sm:p-5">{dA.thOffice}</th>
-                        <th className="p-4 sm:p-5">{dA.thStatus}</th>
-                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#cbd5e1]">
-                      {officers.length > 0 ? (
-                        officers.map((officer, idx) => (
-                          <tr
-                            key={officer.gn_id || idx}
-                            className="hover:bg-slate-50 transition-colors"
-                          >
-                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
-                              <div>{officer.name}</div>
-                              <div className="text-xs text-gray-500 font-normal mt-0.5">
-                                {officer.email} | {officer.mobile}
-                              </div>
-                            </td>
-                            <td className="p-4 sm:p-5 text-gray-600">
-                              {officer.username}
-                            </td>
-                            <td className="p-4 sm:p-5 text-[#2D3748]">
-                              {officer.division_name || "Not Assigned"}
-                            </td>
-                            <td className="p-4 sm:p-5">
-                              <span
-                                className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
-                                  officer.status === "Active"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                {officer.status === "Active"
+{
+  activeTab === "officers" && (
+    <div className="animate-zoom-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="text-left">
+          <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
+            {dA.officerRegistry}
+          </h2>
+          <span className="text-sm text-gray-500 mt-1 block">
+            {dA.officerSub}
+          </span>
+        </div>
+        <button
+          onClick={openAddOfficerModal}
+          className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5"
+        >
+          <span>➕</span> Register GN Officer
+        </button>
+      </div>
+      {/* Officers table */}
+      <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                <th className="p-4 sm:p-5">{dA.thName}</th>
+                <th className="p-4 sm:p-5">Username</th>
+                <th className="p-4 sm:p-5">{dA.thOffice}</th>
+                <th className="p-4 sm:p-5">{dA.thStatus}</th>
+                <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#cbd5e1]">
+              {officers.length > 0 ? (
+                officers.map((officer, idx) => (
+                  <tr
+                    key={officer.gn_id || idx}
+                    className="hover:bg-slate-50 transition-colors"
+                  >
+                    <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                      <div>{officer.name}</div>
+                      <div className="text-xs text-gray-500 font-normal mt-0.5">
+                        {officer.email} | {officer.mobile}
+                      </div>
+                    </td>
+                    <td className="p-4 sm:p-5 text-gray-600">
+                      {officer.username}
+                    </td>
+                    <td className="p-4 sm:p-5 text-[#2D3748]">
+                      {officer.division_name || "Not Assigned"}
+                    </td>
+                    <td className="p-4 sm:p-5">
+                      <span
+                        className={`text-xs font-bold px-3 py-1 rounded-full text-center ${officer.status === "Active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {officer.status === "Active"
                                   ? lang === "EN"
                                     ? "Active"
                                     : lang === "SI"
@@ -1319,28 +1321,27 @@ function AdminDashboard({ onOpenHelp }) {
                                     : lang === "SI"
                                       ? "අත්හිටුවා ඇත"
                                       : "இடைநிறுத்தப்பட்டுள்ளது"}
-                              </span>
-                            </td>
-                            <td className="p-4 sm:p-5 text-right">
-                              <div className="flex justify-end gap-2 items-center flex-wrap">
-                                <button
-                                  onClick={() =>
-                                    toggleOfficerStatus(
-                                      officer.gn_id,
-                                      officer.status,
-                                    )
-                                  }
-                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                                    officer.status === "Active"
-                                      ? "border-red-500 text-red-500 hover:bg-red-50"
-                                      : "border-green-600 text-green-600 hover:bg-green-50"
-                                  }`}
-                                >
-                                  {officer.status === "Active"
-                                    ? "Suspend"
-                                    : "Activate"}
-                                </button>
-                                <button
+                      </span>
+                    </td>
+                    <td className="p-4 sm:p-5 text-right">
+                      <div className="flex justify-end gap-2 items-center flex-wrap">
+                        <button
+                          onClick={() =>
+                            toggleOfficerStatus(
+                              officer.gn_id,
+                              officer.status,
+                            )
+                          }
+                          className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${officer.status === "Active"
+                              ? "border-red-500 text-red-500 hover:bg-red-50"
+                              : "border-green-600 text-green-600 hover:bg-green-50"
+                            }`}
+                        >
+                          {officer.status === "Active"
+                            ? "Suspend"
+                            : "Activate"}
+                        </button>
+                        <button
                                   onClick={() => {
                                     setEditOfficer({
                                       id: officer.gn_id,
@@ -1353,158 +1354,159 @@ function AdminDashboard({ onOpenHelp }) {
                                     });
                                     setShowEditOfficerModal(true);
                                   }}
-                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteOfficer(officer.gn_id)
-                                  }
-                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan="5"
-                            className="p-8 text-center text-gray-500"
-                          >
-                            No Grama Niladhari Officers found in the system.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
+                          className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteOfficer(officer.gn_id)
+                          }
+                          className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="p-8 text-center text-gray-500"
+                  >
+                    No Grama Niladhari Officers found in the system.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
 
           {/* TAB: GN DIVISIONS - OPTIMIZED WITH PAGINATION */}
-          {activeTab === "divisions" && (
-            <div className="animate-zoom-in">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <div className="text-left">
-                  <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
-                    {dA.divisionRegistry}
-                  </h2>
-                  <span className="text-sm text-gray-500 mt-1 block">
-                    {dA.divisionSub} ({divisionsTotal} total)
-                  </span>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                  <div className="relative w-full sm:w-64">
-                    <input
-                      type="text"
-                      placeholder="Search divisions..."
-                      value={divisionsSearch}
-                      onChange={handleDivisionsSearch}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 text-sm"
-                    />
-                    <svg
-                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <button
-                    onClick={() => setShowAddDivisionModal(true)}
-                    className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5 whitespace-nowrap"
-                  >
-                    <span>➕</span> {dA.addDivision}
-                  </button>
-                </div>
-              </div>
+{
+  activeTab === "divisions" && (
+    <div className="animate-zoom-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="text-left">
+          <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
+            {dA.divisionRegistry}
+          </h2>
+          <span className="text-sm text-gray-500 mt-1 block">
+            {dA.divisionSub} ({divisionsTotal} total)
+          </span>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Search divisions..."
+              value={divisionsSearch}
+              onChange={handleDivisionsSearch}
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 text-sm"
+            />
+            <svg
+              className="absolute right-3 top-2.5 w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <button
+            onClick={() => setShowAddDivisionModal(true)}
+            className="bg-[#D69E2E] hover:bg-[#b88523] text-white border-none py-2.5 px-6 rounded-full text-sm font-bold cursor-pointer transition-all shadow-md flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <span>➕</span> {dA.addDivision}
+          </button>
+        </div>
+      </div>
 
-              {isLoadingDivisions ? (
-                <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D69E2E]"></div>
-                  <span className="ml-3 text-gray-500">
-                    Loading divisions...
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse text-left text-sm">
-                        <thead>
-                          <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
-                            <th className="p-3 sm:p-4">{dA.thDivCode}</th>
-                            <th className="p-3 sm:p-4">{dA.thDivName}</th>
-                            <th className="p-3 sm:p-4 hidden md:table-cell">
-                              {dA.thDistrict}
-                            </th>
-                            <th className="p-3 sm:p-4 hidden lg:table-cell">
-                              {dA.thProvince}
-                            </th>
-                            <th className="p-3 sm:p-4 hidden xl:table-cell">
-                              {dA.thDS}
-                            </th>
-                            <th className="p-3 sm:p-4">{dA.thPopulation}</th>
-                            <th className="p-3 sm:p-4">{dA.thStatus}</th>
-                            <th className="p-3 sm:p-4 text-right">
-                              {dA.thAction}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#cbd5e1]">
-                          {divisions.length > 0 ? (
-                            divisions.map((div, idx) => {
-                              const isActive =
-                                div.is_active === true ||
-                                div.is_active === 1 ||
-                                div.is_active === "1" ||
-                                div.status === "Active";
-                              return (
-                                <tr
-                                  key={
-                                    div.division_id || div.division_code || idx
-                                  }
-                                  className="hover:bg-slate-50 transition-colors"
-                                >
-                                  <td className="p-3 sm:p-4 font-mono font-bold text-[#005BBD] text-sm">
-                                    {div.division_code}
-                                  </td>
-                                  <td className="p-3 sm:p-4 font-bold text-[#1B365D] text-sm">
-                                    {div.name}
-                                  </td>
-                                  <td className="p-3 sm:p-4 text-gray-700 text-sm hidden md:table-cell">
-                                    {div.district}
-                                  </td>
-                                  <td className="p-3 sm:p-4 text-gray-700 text-sm hidden lg:table-cell">
-                                    {div.province}
-                                  </td>
-                                  <td className="p-3 sm:p-4 text-gray-700 text-sm hidden xl:table-cell">
-                                    {div.divisional_secretariat}
-                                  </td>
-                                  <td className="p-3 sm:p-4 text-gray-700 font-medium text-sm">
-                                    {Number(
-                                      div.population || 0,
-                                    ).toLocaleString()}
-                                  </td>
-                                  <td className="p-3 sm:p-4">
-                                    <span
-                                      className={`text-xs font-bold px-2 py-1 rounded-full text-center ${
-                                        isActive
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-red-100 text-red-800"
-                                      }`}
-                                    >
+      {isLoadingDivisions ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D69E2E]"></div>
+          <span className="ml-3 text-gray-500">
+            Loading divisions...
+          </span>
+        </div>
+      ) : (
+        <>
+          <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm">
+                <thead>
+                  <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                    <th className="p-3 sm:p-4">{dA.thDivCode}</th>
+                    <th className="p-3 sm:p-4">{dA.thDivName}</th>
+                    <th className="p-3 sm:p-4 hidden md:table-cell">
+                      {dA.thDistrict}
+                    </th>
+                    <th className="p-3 sm:p-4 hidden lg:table-cell">
+                      {dA.thProvince}
+                    </th>
+                    <th className="p-3 sm:p-4 hidden xl:table-cell">
+                      {dA.thDS}
+                    </th>
+                    <th className="p-3 sm:p-4">{dA.thPopulation}</th>
+                    <th className="p-3 sm:p-4">{dA.thStatus}</th>
+                    <th className="p-3 sm:p-4 text-right">
+                      {dA.thAction}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#cbd5e1]">
+                  {divisions.length > 0 ? (
+                    divisions.map((div, idx) => {
+                      const isActive =
+                        div.is_active === true ||
+                        div.is_active === 1 ||
+                        div.is_active === "1" ||
+                        div.status === "Active";
+                      return (
+                        <tr
+                          key={
+                            div.division_id || div.division_code || idx
+                          }
+                          className="hover:bg-slate-50 transition-colors"
+                        >
+                          <td className="p-3 sm:p-4 font-mono font-bold text-[#005BBD] text-sm">
+                            {div.division_code}
+                          </td>
+                          <td className="p-3 sm:p-4 font-bold text-[#1B365D] text-sm">
+                            {div.name}
+                          </td>
+                          <td className="p-3 sm:p-4 text-gray-700 text-sm hidden md:table-cell">
+                            {div.district}
+                          </td>
+                          <td className="p-3 sm:p-4 text-gray-700 text-sm hidden lg:table-cell">
+                            {div.province}
+                          </td>
+                          <td className="p-3 sm:p-4 text-gray-700 text-sm hidden xl:table-cell">
+                            {div.divisional_secretariat}
+                          </td>
+                          <td className="p-3 sm:p-4 text-gray-700 font-medium text-sm">
+                            {Number(
+                              div.population || 0,
+                            ).toLocaleString()}
+                          </td>
+                          <td className="p-3 sm:p-4">
+                            <span
+                              className={`text-xs font-bold px-2 py-1 rounded-full text-center ${isActive
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                                }`}
+                            >
                                       {isActive
                                         ? lang === "EN"
                                           ? "Active"
@@ -1516,182 +1518,180 @@ function AdminDashboard({ onOpenHelp }) {
                                           : lang === "SI"
                                             ? "අක්‍රියයි"
                                             : "செயலற்றது"}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 sm:p-4 text-right">
-                                    <div className="flex justify-end gap-1.5 items-center flex-wrap">
-                                      <button
-                                        onClick={() =>
-                                          toggleDivisionStatus(
-                                            div.division_id ||
-                                              div.division_code,
-                                            isActive,
-                                          )
-                                        }
-                                        className={`bg-transparent border-[1.5px] py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                                          isActive
-                                            ? "border-red-500 text-red-500 hover:bg-red-50"
-                                            : "border-green-600 text-green-600 hover:bg-green-50"
-                                        }`}
-                                      >
-                                        {isActive ? "Deactivate" : "Activate"}
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          setEditDivision({
-                                            division_id: div.division_id,
-                                            division_code: div.division_code,
-                                            name: div.name,
-                                            district: div.district,
-                                            province: div.province,
-                                            divisional_secretariat:
-                                              div.divisional_secretariat,
-                                            population: div.population || "",
-                                            household_count:
-                                              div.household_count || "",
-                                            is_active: isActive,
-                                          });
-                                          setShowEditDivisionModal(true);
-                                        }}
-                                        className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                      >
-                                        Edit
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          handleDeleteDivision(
-                                            div.division_id ||
-                                              div.division_code,
-                                          )
-                                        }
-                                        className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                      >
-                                        Delete
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
+                                    </span >
+                                  </td >
+    <td className="p-3 sm:p-4 text-right">
+      <div className="flex justify-end gap-1.5 items-center flex-wrap">
+        <button
+          onClick={() =>
+            toggleDivisionStatus(
+              div.division_id ||
+              div.division_code,
+              isActive,
+            )
+          }
+          className={`bg-transparent border-[1.5px] py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors ${isActive
+              ? "border-red-500 text-red-500 hover:bg-red-50"
+              : "border-green-600 text-green-600 hover:bg-green-50"
+            }`}
+        >
+          {isActive ? "Deactivate" : "Activate"}
+        </button>
+        <button
+          onClick={() => {
+            setEditDivision({
+              division_id: div.division_id,
+              division_code: div.division_code,
+              name: div.name,
+              district: div.district,
+              province: div.province,
+              divisional_secretariat:
+                div.divisional_secretariat,
+              population: div.population || "",
+              household_count:
+                div.household_count || "",
+              is_active: isActive,
+            });
+            setShowEditDivisionModal(true);
+          }}
+          className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() =>
+            handleDeleteDivision(
+              div.division_id ||
+              div.division_code,
+            )
+          }
+          className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1 px-3 rounded-full text-xs font-bold cursor-pointer transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    </td>
+                                </tr >
                               );
-                            })
+})
                           ) : (
-                            <tr>
-                              <td
-                                colSpan="8"
-                                className="p-8 text-center text-gray-500"
-                              >
-                                {divisionsSearch
-                                  ? "No GN Divisions match your search."
-                                  : "No GN Divisions configured in the system."}
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
+  <tr>
+    <td
+      colSpan="8"
+      className="p-8 text-center text-gray-500"
+    >
+      {divisionsSearch
+        ? "No GN Divisions match your search."
+        : "No GN Divisions configured in the system."}
+    </td>
+  </tr>
+)}
+                        </tbody >
+                      </table >
+                    </div >
+                  </div >
                   {/* Pagination Controls */}
-                  {divisionsTotal > divisionsLimit && (
-                    <div className="flex justify-between items-center mt-4 px-2">
-                      <span className="text-sm text-gray-500">
-                        Showing {(divisionsPage - 1) * divisionsLimit + 1} -{" "}
-                        {Math.min(
-                          divisionsPage * divisionsLimit,
-                          divisionsTotal,
-                        )}{" "}
-                        of {divisionsTotal}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() =>
-                            loadDivisions(divisionsPage - 1, divisionsSearch)
-                          }
-                          disabled={divisionsPage <= 1}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            divisionsPage <= 1
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          Previous
-                        </button>
-                        <button
-                          onClick={() =>
-                            loadDivisions(divisionsPage + 1, divisionsSearch)
-                          }
-                          disabled={
-                            divisionsPage >=
-                            Math.ceil(divisionsTotal / divisionsLimit)
-                          }
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                            divisionsPage >=
-                            Math.ceil(divisionsTotal / divisionsLimit)
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
-                  )}
+{
+  divisionsTotal > divisionsLimit && (
+    <div className="flex justify-between items-center mt-4 px-2">
+      <span className="text-sm text-gray-500">
+        Showing {(divisionsPage - 1) * divisionsLimit + 1} -{" "}
+        {Math.min(
+          divisionsPage * divisionsLimit,
+          divisionsTotal,
+        )}{" "}
+        of {divisionsTotal}
+      </span>
+      <div className="flex gap-2">
+        <button
+          onClick={() =>
+            loadDivisions(divisionsPage - 1, divisionsSearch)
+          }
+          disabled={divisionsPage <= 1}
+          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${divisionsPage <= 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+        >
+          Previous
+        </button>
+        <button
+          onClick={() =>
+            loadDivisions(divisionsPage + 1, divisionsSearch)
+          }
+          disabled={
+            divisionsPage >=
+            Math.ceil(divisionsTotal / divisionsLimit)
+          }
+          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${divisionsPage >=
+              Math.ceil(divisionsTotal / divisionsLimit)
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+            }`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  )
+}
                 </>
               )}
-            </div>
+            </div >
           )}
 
-          {/* TAB 3: RESIDENTS */}
-          {activeTab === "residents" && (
-            <div className="animate-zoom-in">
-              <div className="text-left mb-6">
-                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
-                  {dA.residentRegistry}
-                </h2>
-                <span className="text-sm text-gray-500 mt-1 block">
-                  {dA.residentSub}
-                </span>
-              </div>
-
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
-                        <th className="p-4 sm:p-5">{dA.thResName}</th>
-                        <th className="p-4 sm:p-5">{dA.thNIC}</th>
-                        <th className="p-4 sm:p-5">{dA.thResOffice}</th>
-                        <th className="p-4 sm:p-5">{dA.thResStatus}</th>
-                        <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#cbd5e1]">
-                      {residents.length > 0 ? (
-                        residents.map((resident, idx) => (
-                          <tr
-                            key={resident.r_nic || idx}
-                            className="hover:bg-slate-50 transition-colors"
-                          >
-                            <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
-                              <div>{resident.name}</div>
-                              <div className="text-xs text-gray-500 font-normal mt-0.5">
-                                {resident.email} | {resident.mobile_no}
-                              </div>
-                            </td>
-                            <td className="p-4 sm:p-5 text-gray-600">
-                              {resident.r_nic}
-                            </td>
-                            <td className="p-4 sm:p-5 text-[#2D3748]">
-                              {resident.division_name || "Not Specified"}
-                            </td>
-                            <td className="p-4 sm:p-5">
-                              <span
-                                className={`text-xs font-bold px-3 py-1 rounded-full text-center ${
-                                  resident.status === "Active"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                {resident.status === "Active"
+{/* TAB 3: RESIDENTS */ }
+{
+  activeTab === "residents" && (
+    <div className="animate-zoom-in">
+      <div className="text-left mb-6">
+        <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
+          {dA.residentRegistry}
+        </h2>
+        <span className="text-sm text-gray-500 mt-1 block">
+          {dA.residentSub}
+        </span>
+      </div>
+      {/* Residents table */}
+      <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr className="bg-[#EBF8FF] border-b border-[#cbd5e1] text-[#1B365D] font-bold">
+                <th className="p-4 sm:p-5">{dA.thResName}</th>
+                <th className="p-4 sm:p-5">{dA.thNIC}</th>
+                <th className="p-4 sm:p-5">{dA.thResOffice}</th>
+                <th className="p-4 sm:p-5">{dA.thResStatus}</th>
+                <th className="p-4 sm:p-5 text-right">{dA.thAction}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#cbd5e1]">
+              {residents.length > 0 ? (
+                residents.map((resident, idx) => (
+                  <tr
+                    key={resident.r_nic || idx}
+                    className="hover:bg-slate-50 transition-colors"
+                  >
+                    <td className="p-4 sm:p-5 font-bold text-[#1B365D]">
+                      <div>{resident.name}</div>
+                      <div className="text-xs text-gray-500 font-normal mt-0.5">
+                        {resident.email} | {resident.mobile_no}
+                      </div>
+                    </td>
+                    <td className="p-4 sm:p-5 text-gray-600">
+                      {resident.r_nic}
+                    </td>
+                    <td className="p-4 sm:p-5 text-[#2D3748]">
+                      {resident.division_name || "Not Specified"}
+                    </td>
+                    <td className="p-4 sm:p-5">
+                      <span
+                        className={`text-xs font-bold px-3 py-1 rounded-full text-center ${resident.status === "Active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {resident.status === "Active"
                                   ? lang === "EN"
                                     ? "Active"
                                     : lang === "SI"
@@ -1702,852 +1702,863 @@ function AdminDashboard({ onOpenHelp }) {
                                     : lang === "SI"
                                       ? "අත්හිටුවා ඇත"
                                       : "இடைநிறுத்தப்பட்டுள்ளது"}
-                              </span>
-                            </td>
-                            <td className="p-4 sm:p-5 text-right">
-                              <div className="flex justify-end gap-2 items-center flex-wrap">
-                                <button
-                                  onClick={() =>
-                                    toggleResidentStatus(
-                                      resident.r_nic,
-                                      resident.status,
-                                    )
-                                  }
-                                  className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${
-                                    resident.status === "Active"
-                                      ? "border-red-500 text-red-500 hover:bg-red-50"
-                                      : "border-green-600 text-green-600 hover:bg-green-50"
-                                  }`}
-                                >
-                                  {resident.status === "Active"
-                                    ? "Suspend"
-                                    : "Activate"}
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    setEditResident({
-                                      nic: resident.r_nic,
-                                      name: resident.name,
-                                      email: resident.email,
-                                      mobile_no: resident.mobile_no,
-                                      status: resident.status,
-                                      occupation: resident.occupation || "",
-                                      household_number:
-                                        resident.household_number || "",
-                                    });
-                                    setShowEditResidentModal(true);
-                                  }}
-                                  className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteResident(resident.r_nic)
-                                  }
-                                  className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan="5"
-                            className="p-8 text-center text-gray-500"
-                          >
-                            No Registered Residents found in the system.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
+                      </span>
+                    </td>
+                    <td className="p-4 sm:p-5 text-right">
+                      <div className="flex justify-end gap-2 items-center flex-wrap">
+                        <button
+                          onClick={() =>
+                            toggleResidentStatus(
+                              resident.r_nic,
+                              resident.status,
+                            )
+                          }
+                          className={`bg-transparent border-[1.5px] py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors ${resident.status === "Active"
+                              ? "border-red-500 text-red-500 hover:bg-red-50"
+                              : "border-green-600 text-green-600 hover:bg-green-50"
+                            }`}
+                        >
+                          {resident.status === "Active"
+                            ? "Suspend"
+                            : "Activate"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditResident({
+                              nic: resident.r_nic,
+                              name: resident.name,
+                              email: resident.email,
+                              mobile_no: resident.mobile_no,
+                              status: resident.status,
+                              occupation: resident.occupation || "",
+                              household_number:
+                                resident.household_number || "",
+                            });
+                            setShowEditResidentModal(true);
+                          }}
+                          className="bg-transparent border-[1.5px] border-blue-500 text-blue-500 hover:bg-blue-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteResident(resident.r_nic)
+                          }
+                          className="bg-transparent border-[1.5px] border-red-600 text-red-600 hover:bg-red-50 py-1.5 px-4 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="p-8 text-center text-gray-500"
+                  >
+                    No Registered Residents found in the system.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
 
-          {/* TAB 4: TROUBLESHOOT */}
-          {activeTab === "troubleshoot" && (
-            <div className="animate-zoom-in">
-              <div className="text-left mb-6">
-                <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
-                  {dA.troubleshoot}
-                </h2>
-                <span className="text-sm text-gray-500 mt-1 block">
-                  {dA.troubleshootSub}
-                </span>
-              </div>
+{/* TAB 4: TROUBLESHOOT */ }
+{
+  activeTab === "troubleshoot" && (
+    <div className="animate-zoom-in">
+      <div className="text-left mb-6">
+        <h2 className="text-[24px] font-bold text-[#1B365D] m-0">
+          {dA.troubleshoot}
+        </h2>
+        <span className="text-sm text-gray-500 mt-1 block">
+          {dA.troubleshootSub}
+        </span>
+      </div>
 
-              <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-8 text-left">
-                <h3 className="text-lg font-bold text-[#1B365D] mb-3">
-                  {dA.diagnosticCenter}
-                </h3>
+      <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-8 text-left">
+        <h3 className="text-lg font-bold text-[#1B365D] mb-3">
+          {dA.diagnosticCenter}
+        </h3>
 
-                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                  {dA.diagnosticDesc}
-                </p>
+        <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+          {dA.diagnosticDesc}
+        </p>
 
-                {runningDiagnostic && (
-                  <div className="mb-6">
-                    <div className="flex justify-between text-sm text-[#D69E2E] font-bold mb-2">
-                      <span>
-                        {lang === "EN"
-                          ? "Running Security Diagnostics & Flush cache..."
+        {runningDiagnostic && (
+          <div className="mb-6">
+            <div className="flex justify-between text-sm text-[#D69E2E] font-bold mb-2">
+              <span>
+                {lang === "EN"
+                  ? "Running Security Diagnostics & Flush cache..."
                           : lang === "SI"
                             ? "ආරක්ෂක රෝග විනිශ්චය ධාවනය වේ..."
                             : "பாதுகாப்பு நோயறிதல் இயங்குகிறது..."}
-                      </span>
-                      <span>{diagnosticProgress}%</span>
-                    </div>
-                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                      <div
-                        className="h-full bg-[#D69E2E] transition-all duration-300 rounded-full"
-                        style={{ width: `${diagnosticProgress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
+              </span>
+              <span>{diagnosticProgress}%</span>
+            </div>
+            <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
+              <div
+                className="h-full bg-[#D69E2E] transition-all duration-300 rounded-full"
+                style={{ width: `${diagnosticProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
 
-                {diagnosticLogs.length > 0 && (
-                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 font-mono text-xs text-sky-400 h-44 overflow-y-auto mb-6 flex flex-col gap-1.5 shadow-inner">
-                    {diagnosticLogs.map((log, idx) => (
-                      <div key={idx} className="flex gap-2">
-                        <span className="text-slate-500">[{idx + 1}]</span>
-                        <span>{log}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+        {diagnosticLogs.length > 0 && (
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 font-mono text-xs text-sky-400 h-44 overflow-y-auto mb-6 flex flex-col gap-1.5 shadow-inner">
+            {diagnosticLogs.map((log, idx) => (
+              <div key={idx} className="flex gap-2">
+                <span className="text-slate-500">[{idx + 1}]</span>
+                <span>{log}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
-                <button
-                  onClick={startTroubleshoot}
-                  disabled={runningDiagnostic}
-                  className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${
-                    runningDiagnostic
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#D69E2E] hover:bg-[#b88523] cursor-pointer"
-                  }`}
-                >
-                  {runningDiagnostic ? dA.optimizing : `🔧 ${dA.runDiagnostic}`}
-                </button>
+        <button
+          onClick={startTroubleshoot}
+          disabled={runningDiagnostic}
+          className={`border-none py-3 px-8 rounded-full text-sm font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${runningDiagnostic
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-[#D69E2E] hover:bg-[#b88523] cursor-pointer"
+            }`}
+        >
+          {runningDiagnostic ? dA.optimizing : `🔧 ${dA.runDiagnostic}`}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+{/* Floating Help Trigger */ }
+<button
+  className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105"
+  aria-label="Help Trigger"
+  onClick={onOpenHelp}
+>
+  ?
+</button>
+        </main >
+      </div >
+
+  {/* Footer */ }
+  < Footer />
+
+  {/* MODALS */ }
+{
+  showAddOfficerModal && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+        <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
+          Register GN Officer
+        </h3>
+        <form onSubmit={handleCreateOfficer}>
+          <div className="flex flex-col gap-4 text-left">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Username
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newOfficer.username}
+                onChange={(e) =>
+                  setNewOfficer({ ...newOfficer, username: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Name
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newOfficer.name}
+                onChange={(e) =>
+                  setNewOfficer({ ...newOfficer, name: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newOfficer.email}
+                onChange={(e) =>
+                  setNewOfficer({ ...newOfficer, email: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Mobile
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newOfficer.mobile}
+                onChange={(e) =>
+                  setNewOfficer({ ...newOfficer, mobile: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[14px] font-medium text-[#2D3748] text-left">
+                GN Division
+              </label>
+              <SearchableDropdown
+                options={divisionOptions}
+                value={newOfficer.division}
+                onChange={(value) =>
+                  setNewOfficer({ ...newOfficer, division: value })
+                }
+                placeholder="Search GN division name..."
+                required={true}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newOfficer.password}
+                onChange={(e) =>
+                  setNewOfficer({ ...newOfficer, password: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowAddOfficerModal(false)}
+              className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{
+  showEditOfficerModal && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+        <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
+          Edit GN Officer
+        </h3>
+        <form onSubmit={handleUpdateOfficer}>
+          <div className="flex flex-col gap-4 text-left">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Username
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editOfficer.username}
+                onChange={(e) =>
+                  setEditOfficer({
+                    ...editOfficer,
+                    username: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Name
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editOfficer.name}
+                onChange={(e) =>
+                  setEditOfficer({ ...editOfficer, name: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editOfficer.email}
+                onChange={(e) =>
+                  setEditOfficer({ ...editOfficer, email: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Mobile
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editOfficer.mobile}
+                onChange={(e) =>
+                  setEditOfficer({ ...editOfficer, mobile: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[14px] font-medium text-[#2D3748] text-left">
+                GN Division
+              </label>
+              <SearchableDropdown
+                options={divisionOptions}
+                value={editOfficer.division}
+                onChange={(value) =>
+                  setEditOfficer({ ...editOfficer, division: value })
+                }
+                placeholder="Search GN division name..."
+                required={true}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Status
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                value={editOfficer.status}
+                onChange={(e) =>
+                  setEditOfficer({ ...editOfficer, status: e.target.value })
+                }
+              >
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowEditOfficerModal(false)}
+              className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{/* REGISTER GN DIVISION MODAL */ }
+{
+  showAddDivisionModal && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+        <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
+          Register GN Division
+        </h3>
+        <form onSubmit={handleCreateDivision}>
+          <div className="flex flex-col gap-4 text-left">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Division Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. GN-003C"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.division_code}
+                  onChange={(e) =>
+                    setNewDivision({
+                      ...newDivision,
+                      division_code: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Division Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Dehiwala North"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.name}
+                  onChange={(e) =>
+                    setNewDivision({ ...newDivision, name: e.target.value })
+                  }
+                />
               </div>
             </div>
-          )}
-
-          {/* Floating Help Trigger */}
-          <button
-            className="fixed bottom-6 right-6 w-12 h-12 bg-[#1B365D] hover:bg-[#005BBD] text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg cursor-pointer transition-all duration-200 border-none z-50 hover:scale-105"
-            aria-label="Help Trigger"
-            onClick={onOpenHelp}
-          >
-            ?
-          </button>
-        </main>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  District
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.district}
+                  onChange={(e) =>
+                    setNewDivision({
+                      ...newDivision,
+                      district: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Province
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.province}
+                  onChange={(e) =>
+                    setNewDivision({
+                      ...newDivision,
+                      province: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Divisional Secretariat (DS Division)
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Dehiwala DS Office"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={newDivision.divisional_secretariat}
+                onChange={(e) =>
+                  setNewDivision({
+                    ...newDivision,
+                    divisional_secretariat: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Est. Population
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 12500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.population}
+                  onChange={(e) =>
+                    setNewDivision({
+                      ...newDivision,
+                      population: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Household Count
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g. 3100"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={newDivision.household_count}
+                  onChange={(e) =>
+                    setNewDivision({
+                      ...newDivision,
+                      household_count: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowAddDivisionModal(false)}
+              className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       </div>
-
-      {/* 3. Footer */}
-      <Footer />
-
-      {/* Modals overlays */}
-      {showAddOfficerModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
-          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
-            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
-              Register GN Officer
-            </h3>
-            <form onSubmit={handleCreateOfficer}>
-              <div className="flex flex-col gap-4 text-left">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newOfficer.username}
-                    onChange={(e) =>
-                      setNewOfficer({ ...newOfficer, username: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newOfficer.name}
-                    onChange={(e) =>
-                      setNewOfficer({ ...newOfficer, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newOfficer.email}
-                    onChange={(e) =>
-                      setNewOfficer({ ...newOfficer, email: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Mobile
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newOfficer.mobile}
-                    onChange={(e) =>
-                      setNewOfficer({ ...newOfficer, mobile: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] font-medium text-[#2D3748] text-left">
-                    GN Division
-                  </label>
-                  <SearchableDropdown
-                    options={divisionOptions}
-                    value={newOfficer.division}
-                    onChange={(value) =>
-                      setNewOfficer({ ...newOfficer, division: value })
-                    }
-                    placeholder="Search GN division name..."
-                    required={true}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newOfficer.password}
-                    onChange={(e) =>
-                      setNewOfficer({ ...newOfficer, password: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddOfficerModal(false)}
-                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showEditOfficerModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
-          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
-            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
-              Edit GN Officer
-            </h3>
-            <form onSubmit={handleUpdateOfficer}>
-              <div className="flex flex-col gap-4 text-left">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editOfficer.username}
-                    onChange={(e) =>
-                      setEditOfficer({
-                        ...editOfficer,
-                        username: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editOfficer.name}
-                    onChange={(e) =>
-                      setEditOfficer({ ...editOfficer, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editOfficer.email}
-                    onChange={(e) =>
-                      setEditOfficer({ ...editOfficer, email: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Mobile
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editOfficer.mobile}
-                    onChange={(e) =>
-                      setEditOfficer({ ...editOfficer, mobile: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-[14px] font-medium text-[#2D3748] text-left">
-                    GN Division
-                  </label>
-                  <SearchableDropdown
-                    options={divisionOptions}
-                    value={editOfficer.division}
-                    onChange={(value) =>
-                      setEditOfficer({ ...editOfficer, division: value })
-                    }
-                    placeholder="Search GN division name..."
-                    required={true}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Status
-                  </label>
-                  <select
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
-                    value={editOfficer.status}
-                    onChange={(e) =>
-                      setEditOfficer({ ...editOfficer, status: e.target.value })
-                    }
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowEditOfficerModal(false)}
-                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* REGISTER GN DIVISION MODAL */}
-      {showAddDivisionModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
-          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
-            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
-              Register GN Division
-            </h3>
-            <form onSubmit={handleCreateDivision}>
-              <div className="flex flex-col gap-4 text-left">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Division Code
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. GN-003C"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.division_code}
-                      onChange={(e) =>
-                        setNewDivision({
-                          ...newDivision,
-                          division_code: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Division Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Dehiwala North"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.name}
-                      onChange={(e) =>
-                        setNewDivision({ ...newDivision, name: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      District
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.district}
-                      onChange={(e) =>
-                        setNewDivision({
-                          ...newDivision,
-                          district: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Province
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.province}
-                      onChange={(e) =>
-                        setNewDivision({
-                          ...newDivision,
-                          province: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Divisional Secretariat (DS Division)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Dehiwala DS Office"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={newDivision.divisional_secretariat}
-                    onChange={(e) =>
-                      setNewDivision({
-                        ...newDivision,
-                        divisional_secretariat: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Est. Population
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 12500"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.population}
-                      onChange={(e) =>
-                        setNewDivision({
-                          ...newDivision,
-                          population: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Household Count
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 3100"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={newDivision.household_count}
-                      onChange={(e) =>
-                        setNewDivision({
-                          ...newDivision,
-                          household_count: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddDivisionModal(false)}
-                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
-                >
-                  Submit
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* EDIT GN DIVISION MODAL */}
-      {showEditDivisionModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
-          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
-            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
-              Edit GN Division
-            </h3>
-            <form onSubmit={handleUpdateDivision}>
-              <div className="flex flex-col gap-4 text-left">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Division Code
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.division_code}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          division_code: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Division Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.name}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      District
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.district}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          district: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Province
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.province}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          province: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Divisional Secretariat (DS Division)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editDivision.divisional_secretariat}
-                    onChange={(e) =>
-                      setEditDivision({
-                        ...editDivision,
-                        divisional_secretariat: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Est. Population
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.population}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          population: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-semibold text-gray-500">
-                      Household Count
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                      value={editDivision.household_count}
-                      onChange={(e) =>
-                        setEditDivision({
-                          ...editDivision,
-                          household_count: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Status
-                  </label>
-                  <select
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
-                    value={editDivision.is_active ? "Active" : "Inactive"}
-                    onChange={(e) =>
-                      setEditDivision({
-                        ...editDivision,
-                        is_active: e.target.value === "Active",
-                      })
-                    }
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowEditDivisionModal(false)}
-                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showEditResidentModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
-          <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
-            <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
-              Edit Resident Account
-            </h3>
-            <form onSubmit={handleUpdateResident}>
-              <div className="flex flex-col gap-4 text-left">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    NIC Number (ReadOnly)
-                  </label>
-                  <input
-                    type="text"
-                    disabled
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
-                    value={editResident.nic}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editResident.name}
-                    onChange={(e) =>
-                      setEditResident({ ...editResident, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editResident.email}
-                    onChange={(e) =>
-                      setEditResident({
-                        ...editResident,
-                        email: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Mobile
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editResident.mobile_no}
-                    onChange={(e) =>
-                      setEditResident({
-                        ...editResident,
-                        mobile_no: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Occupation
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editResident.occupation}
-                    onChange={(e) =>
-                      setEditResident({
-                        ...editResident,
-                        occupation: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Household Number
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
-                    value={editResident.household_number}
-                    onChange={(e) =>
-                      setEditResident({
-                        ...editResident,
-                        household_number: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500">
-                    Status
-                  </label>
-                  <select
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
-                    value={editResident.status}
-                    onChange={(e) =>
-                      setEditResident({
-                        ...editResident,
-                        status: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowEditResidentModal(false)}
-                  className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
+  )
+}
+
+{/* EDIT GN DIVISION MODAL */ }
+{
+  showEditDivisionModal && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+        <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
+          Edit GN Division
+        </h3>
+        <form onSubmit={handleUpdateDivision}>
+          <div className="flex flex-col gap-4 text-left">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Division Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.division_code}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      division_code: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Division Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.name}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  District
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.district}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      district: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Province
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.province}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      province: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Divisional Secretariat (DS Division)
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editDivision.divisional_secretariat}
+                onChange={(e) =>
+                  setEditDivision({
+                    ...editDivision,
+                    divisional_secretariat: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Est. Population
+                </label>
+                <input
+                  type="number"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.population}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      population: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-semibold text-gray-500">
+                  Household Count
+                </label>
+                <input
+                  type="number"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                  value={editDivision.household_count}
+                  onChange={(e) =>
+                    setEditDivision({
+                      ...editDivision,
+                      household_count: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Status
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                value={editDivision.is_active ? "Active" : "Inactive"}
+                onChange={(e) =>
+                  setEditDivision({
+                    ...editDivision,
+                    is_active: e.target.value === "Active",
+                  })
+                }
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowEditDivisionModal(false)}
+              className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+{
+  showEditResidentModal && (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex justify-center items-center p-4">
+      <div className="bg-white border border-[#cbd5e1] rounded-3xl p-8 max-w-lg w-full shadow-2xl text-left animate-zoom-in">
+        <h3 className="margin-0 text-xl font-bold text-[#1B365D] mb-4">
+          Edit Resident Account
+        </h3>
+        <form onSubmit={handleUpdateResident}>
+          <div className="flex flex-col gap-4 text-left">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                NIC Number (ReadOnly)
+              </label>
+              <input
+                type="text"
+                disabled
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed"
+                value={editResident.nic}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Name
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editResident.name}
+                onChange={(e) =>
+                  setEditResident({ ...editResident, name: e.target.value })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editResident.email}
+                onChange={(e) =>
+                  setEditResident({
+                    ...editResident,
+                    email: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Mobile
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editResident.mobile_no}
+                onChange={(e) =>
+                  setEditResident({
+                    ...editResident,
+                    mobile_no: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Occupation
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editResident.occupation}
+                onChange={(e) =>
+                  setEditResident({
+                    ...editResident,
+                    occupation: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Household Number
+              </label>
+              <input
+                type="text"
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800"
+                value={editResident.household_number}
+                onChange={(e) =>
+                  setEditResident({
+                    ...editResident,
+                    household_number: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Status
+              </label>
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005BBD] bg-white text-gray-800 h-10"
+                value={editResident.status}
+                onChange={(e) =>
+                  setEditResident({
+                    ...editResident,
+                    status: e.target.value,
+                  })
+                }
+              >
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setShowEditResidentModal(false)}
+              className="px-5 py-2 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 cursor-pointer font-bold transition-all text-xs"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-full border-none bg-[#D69E2E] hover:bg-[#b88523] text-white cursor-pointer font-bold transition-all text-xs"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+    </div >
   );
 }
 
