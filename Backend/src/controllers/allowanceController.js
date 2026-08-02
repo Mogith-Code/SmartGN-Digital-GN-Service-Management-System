@@ -259,7 +259,8 @@ exports.createAllowanceApplication = async (req, res) => {
     }
 
     const residentNic = user.id;
-    const { allowanceType, incomeDetails, applicationDate } = req.body;
+    const { allowanceType, incomeDetails, applicationDate, bankDetails, supportDoc, documentPath, document_path } = req.body;
+    const docData = supportDoc || documentPath || document_path || null;
 
     if (!allowanceType || !incomeDetails) {
         return res.status(400).json({ error: 'Allowance type and income details are required.' });
@@ -272,24 +273,32 @@ exports.createAllowanceApplication = async (req, res) => {
             [residentNic]
         );
 
-        if (residentRows.length === 0) {
-            return res.status(404).json({ error: 'Resident not found.' });
+        let divisionId = residentRows.length > 0 ? residentRows[0].division_id : null;
+        let gnId = null;
+
+        if (divisionId) {
+            const [officerRows] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND status = "Active" LIMIT 1',
+                [divisionId]
+            );
+            if (officerRows.length > 0) {
+                gnId = officerRows[0].gn_id;
+            }
         }
 
-        const divisionId = residentRows[0].division_id;
-
-        const [officerRows] = await db.query(
-            'SELECT gn_id FROM grama_niladhari WHERE division_id = ? AND status = "Active" LIMIT 1',
-            [divisionId]
-        );
-
-        if (officerRows.length === 0) {
-            return res.status(404).json({ error: 'No GN Officer found for your division.' });
+        // Fallback: If no GN officer matched for division, assign any active officer
+        if (!gnId) {
+            const [anyOfficer] = await db.query(
+                'SELECT gn_id FROM grama_niladhari WHERE status = "Active" LIMIT 1'
+            );
+            if (anyOfficer.length > 0) {
+                gnId = anyOfficer[0].gn_id;
+            }
         }
 
-        const gnId = officerRows[0].gn_id;
         const allowanceId = generateUUID();
         const allowanceNumber = `ALW-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+        const bankDetailsStr = bankDetails ? (typeof bankDetails === 'string' ? bankDetails : JSON.stringify(bankDetails)) : null;
 
         await db.query(
             `INSERT INTO allowance_pending (
@@ -298,17 +307,21 @@ exports.createAllowanceApplication = async (req, res) => {
                 allowance_type,
                 application_date,
                 income_details,
+                bank_details,
+                document_path,
                 resident_nic,
                 gn_id,
                 status,
                 payment_status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING', 'UNPAID')`,
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', 'UNPAID')`,
             [
                 allowanceId,
                 allowanceNumber,
                 allowanceType,
                 applicationDate || new Date().toISOString().split('T')[0],
                 incomeDetails,
+                bankDetailsStr,
+                docData,
                 residentNic,
                 gnId
             ]
@@ -317,6 +330,8 @@ exports.createAllowanceApplication = async (req, res) => {
         res.status(201).json({
             success: true,
             message: 'Allowance application submitted successfully!',
+            allowanceId,
+            allowanceNumber,
             data: {
                 allowanceId,
                 allowanceNumber,
