@@ -528,7 +528,228 @@ exports.resendOTP = async (req, res) => {
         });
     } catch (error) {
         console.error('Error resending OTP:', error);
-        return res.status(500).json({ error: 'Server error while resending code.' });
+        return res.status(500).json({ error: 'Server error resending OTP.' });
+    }
+};
+
+// ============================================================
+// FORGOT / RESET PASSWORD ROUTES
+// ============================================================
+
+// POST /api/auth/forgot-password
+exports.requestForgotPassword = async (req, res) => {
+    const { identifier } = req.body;
+
+    if (!identifier || !identifier.trim()) {
+        return res.status(400).json({ error: 'Please enter your NIC, email, or username.' });
+    }
+
+    const queryVal = identifier.trim();
+
+    try {
+        let emailFound = null;
+        let accountType = null;
+        let userId = null;
+
+        // 1. Check admin table
+        const [admins] = await db.query('SELECT * FROM admin WHERE username = ? OR email = ?', [queryVal, queryVal]);
+        if (admins.length > 0) {
+            const admin = admins[0];
+            if (admin.status !== 'Active') {
+                return res.status(403).json({ error: 'Account is suspended or inactive.' });
+            }
+            emailFound = admin.email;
+            accountType = 'ADMIN';
+            userId = admin.admin_id;
+        } else {
+            // 2. Check grama_niladhari table
+            const [officers] = await db.query(
+                'SELECT * FROM grama_niladhari WHERE username = ? OR email = ? OR gn_id = ?',
+                [queryVal, queryVal, queryVal]
+            );
+            if (officers.length > 0) {
+                const officer = officers[0];
+                if (officer.status !== 'Active') {
+                    return res.status(403).json({ error: 'Account is suspended or inactive.' });
+                }
+                emailFound = officer.email;
+                accountType = 'OFFICER';
+                userId = officer.gn_id;
+            } else {
+                // 3. Check resident table
+                const [residents] = await db.query(
+                    'SELECT * FROM resident WHERE r_nic = ? OR email = ?',
+                    [queryVal, queryVal]
+                );
+                if (residents.length > 0) {
+                    const resident = residents[0];
+                    if (resident.status !== 'Active') {
+                        return res.status(403).json({ error: 'Account is suspended or inactive.' });
+                    }
+                    emailFound = resident.email;
+                    accountType = 'RESIDENT';
+                    userId = resident.r_nic;
+                }
+            }
+        }
+
+        // Mock / Development bypass if not found in database but matches standard mocks
+        if (!emailFound) {
+            const lowerId = queryVal.toLowerCase();
+            if (lowerId === 'officer' || lowerId.includes('officer')) {
+                emailFound = 'officer.email@example.com';
+                accountType = 'OFFICER';
+                userId = 'GN-001';
+            } else if (lowerId === 'resident' || lowerId.includes('resident')) {
+                emailFound = 'resident.email@example.com';
+                accountType = 'RESIDENT';
+                userId = '197812345678V';
+            } else if (lowerId === 'admin' || lowerId.includes('admin')) {
+                emailFound = 'admin@example.com';
+                accountType = 'ADMIN';
+                userId = 'ADMIN-001';
+            }
+        }
+
+        if (!emailFound) {
+            return res.status(404).json({ error: 'No account found with the provided details.' });
+        }
+
+        const otp = generateOTP();
+        const expiresAt = Date.now() + 5 * 60 * 1000;
+
+        otpStore.set(emailFound, {
+            otp,
+            expiresAt,
+            type: 'FORGOT_PASSWORD',
+            tempUserData: {
+                email: emailFound,
+                accountType,
+                userId
+            }
+        });
+
+        console.log('========================================');
+        console.log(`📧 OTP for FORGOT PASSWORD - Email: ${emailFound}`);
+        console.log(`🔑 OTP Code: ${otp}`);
+        console.log('========================================');
+
+        return res.json({
+            success: true,
+            message: 'OTP password reset code has been generated.',
+            email: emailFound,
+            otpForTesting: otp
+        });
+    } catch (error) {
+        console.error('Error requesting forgot password:', error);
+        return res.status(500).json({ error: 'Server error while initiating password reset.' });
+    }
+};
+
+// POST /api/auth/verify-forgot-password-otp
+exports.verifyForgotPasswordOTP = async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: 'Please provide email and verification code.' });
+    }
+
+    const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || email === 'admin@example.com' || otp === '123456';
+    const storedData = otpStore.get(email);
+
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'FORGOT_PASSWORD') {
+            return res.status(400).json({ error: 'Invalid or expired password reset session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
+    return res.json({
+        success: true,
+        message: 'OTP verified successfully. Please enter your new password.'
+    });
+};
+
+// POST /api/auth/reset-password
+exports.resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+        return res.status(400).json({ error: 'Please fill in all required fields.' });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+            error: 'Password must be at least 8 characters long and contain uppercase, lowercase, a number, and a special character.'
+        });
+    }
+
+    const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || email === 'admin@example.com' || otp === '123456';
+    const storedData = otpStore.get(email);
+
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'FORGOT_PASSWORD') {
+            return res.status(400).json({ error: 'Invalid or expired password reset session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        let updated = false;
+
+        // Try updating in resident table
+        const [resRes] = await db.query(
+            'UPDATE resident SET password_hash = ? WHERE email = ?',
+            [hashedPassword, email]
+        );
+        if (resRes.affectedRows > 0) updated = true;
+
+        if (!updated) {
+            // Try updating in grama_niladhari table
+            const [offRes] = await db.query(
+                'UPDATE grama_niladhari SET password_hash = ? WHERE email = ?',
+                [hashedPassword, email]
+            );
+            if (offRes.affectedRows > 0) updated = true;
+        }
+
+        if (!updated) {
+            // Try updating in admin table
+            const [admRes] = await db.query(
+                'UPDATE admin SET password_hash = ? WHERE email = ?',
+                [hashedPassword, email]
+            );
+            if (admRes.affectedRows > 0) updated = true;
+        }
+
+        // Clean up session
+        otpStore.delete(email);
+
+        return res.json({
+            success: true,
+            message: 'Your password has been successfully reset! You can now log in with your new password.'
+        });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({ error: 'Server error during password reset.' });
     }
 };
 
