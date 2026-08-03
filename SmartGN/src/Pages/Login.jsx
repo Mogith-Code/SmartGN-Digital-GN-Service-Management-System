@@ -531,7 +531,7 @@ function Login() {
               <div className="flex justify-between items-center text-[13.5px] font-semibold text-[#D69E2E] px-1">
                 <span
                   className="hover:text-[#FFAA00] cursor-pointer transition-colors duration-200"
-                  onClick={() => console.log("Forgot password clicked")}
+                  onClick={() => navigate("/forgot-password")}
                 >
                   {t.forgotPassword}
                 </span>
