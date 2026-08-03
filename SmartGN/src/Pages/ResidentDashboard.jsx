@@ -1,6 +1,7 @@
 // src/pages/ResidentDashboard.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import auth context
 import { getAuthHeaders } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
@@ -10,6 +11,7 @@ import ChatbotButton from "../Components/Common/ChatbotButton";
 
 function ResidentDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
+  const { user, role, isAuthenticated, loading: authLoading } = useAuth(); // Use auth context
 
   // ============================================================
   // STATE DECLARATIONS
@@ -50,12 +52,46 @@ function ResidentDashboard({ onOpenHelp }) {
   const token = localStorage.getItem("smartgn_token");
 
   // ============================================================
+  // AUTHENTICATION CHECK - Redirect if not authenticated or wrong role
+  // ============================================================
+  useEffect(() => {
+    // If auth is still loading, wait
+    if (authLoading) return;
+
+    // If not authenticated, redirect to login
+    if (!isAuthenticated) {
+      navigate("/login", {
+        state: { from: { pathname: "/ResidentDashboard" } },
+      });
+      return;
+    }
+
+    // If authenticated but not a RESIDENT, redirect to appropriate dashboard
+    if (role !== "RESIDENT") {
+      if (role === "ADMIN") {
+        navigate("/dashboard/admin");
+      } else if (role === "OFFICER") {
+        navigate("/OfficerDashboard");
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    // If no token, redirect to login
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+  }, [isAuthenticated, role, authLoading, navigate, token]);
+
+  // ============================================================
   // FETCH PROFILE DATA
   // ============================================================
   useEffect(() => {
     const fetchResidentProfile = async () => {
-      if (!token) {
-        navigate("/login");
+      // Skip if not authenticated or not a resident
+      if (!isAuthenticated || role !== "RESIDENT" || !token) {
         return;
       }
 
@@ -69,6 +105,7 @@ function ResidentDashboard({ onOpenHelp }) {
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Token expired or invalid - logout
             localStorage.removeItem("smartgn_token");
             localStorage.removeItem("smartgn_user_id");
             localStorage.removeItem("smartgn_user_role");
@@ -136,14 +173,15 @@ function ResidentDashboard({ onOpenHelp }) {
     };
 
     fetchResidentProfile();
-  }, [residentNic, token]);
+  }, [residentNic, token, isAuthenticated, role, navigate]);
 
   // ============================================================
   // FETCH DASHBOARD STATS
   // ============================================================
   useEffect(() => {
     const fetchDashboardStats = async () => {
-      if (!token) {
+      // Skip if not authenticated or not a resident
+      if (!isAuthenticated || role !== "RESIDENT" || !token) {
         setLoading(false);
         return;
       }
@@ -159,9 +197,8 @@ function ResidentDashboard({ onOpenHelp }) {
         if (statsRes.ok) {
           const stats = await statsRes.json();
 
-          console.log("Dashboard stats received:", stats); // Debug log
+          console.log("Dashboard stats received:", stats);
 
-          // ✅ FIX: Include ALL approved counts including disasters
           const pending =
             (stats.certificates?.pending || 0) +
             (stats.appointments?.pending || 0) +
@@ -172,7 +209,7 @@ function ResidentDashboard({ onOpenHelp }) {
             (stats.certificates?.approved || 0) +
             (stats.appointments?.approved || 0) +
             (stats.allowances?.approved || 0) +
-            (stats.disasters?.approved || 0); // ✅ ADDED: Disaster approved count
+            (stats.disasters?.approved || 0);
 
           setTotalPendingCount(pending);
           setTotalApprovedCount(approved);
@@ -228,7 +265,6 @@ function ResidentDashboard({ onOpenHelp }) {
             );
           }
 
-          // ✅ ADDED: Include disaster activities
           if (stats.disasters?.recent) {
             activities.push(
               ...stats.disasters.recent.map((d) => ({
@@ -257,7 +293,7 @@ function ResidentDashboard({ onOpenHelp }) {
             fetch("/api/appointments/resident", { headers }),
             fetch("/api/disasters/resident", { headers }).catch(() => ({
               ok: false,
-            })), // ✅ Added disaster fetch
+            })),
           ]);
 
           const rawCerts = certRes.ok ? await certRes.json() : [];
@@ -270,7 +306,6 @@ function ResidentDashboard({ onOpenHelp }) {
           const appts = Array.isArray(rawAppts) ? rawAppts : [];
           const disasters = Array.isArray(rawDisasters) ? rawDisasters : [];
 
-          // ✅ FIX: Include disaster counts in totals
           const pending =
             certs.filter((c) => c.status === "Pending").length +
             allows.filter((a) => a.status === "PENDING").length +
@@ -281,7 +316,7 @@ function ResidentDashboard({ onOpenHelp }) {
             certs.filter((c) => c.status === "Approved").length +
             allows.filter((a) => a.status === "APPROVED").length +
             appts.filter((a) => a.status === "Approved").length +
-            disasters.filter((d) => d.status === "Approved").length; // ✅ ADDED: Disaster approved
+            disasters.filter((d) => d.status === "Approved").length;
 
           const upcoming = appts.filter((a) => a.status === "Approved").length;
 
@@ -347,10 +382,10 @@ function ResidentDashboard({ onOpenHelp }) {
     };
 
     fetchDashboardStats();
-  }, [token, refreshKey]);
+  }, [token, refreshKey, isAuthenticated, role]);
 
   // ============================================================
-  // REFRESH DASHBOARD (Call this when returning from other pages)
+  // REFRESH DASHBOARD
   // ============================================================
   const refreshDashboard = () => {
     setRefreshKey((prev) => prev + 1);
@@ -361,8 +396,10 @@ function ResidentDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     const fetchAnnouncements = async () => {
+      // Skip if not authenticated
+      if (!isAuthenticated || !token) return;
+
       try {
-        const token = localStorage.getItem("smartgn_token");
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const response = await fetch("/api/residents/announcements", {
           headers,
@@ -400,12 +437,61 @@ function ResidentDashboard({ onOpenHelp }) {
       window.removeEventListener("announcementsUpdated", handleAnnChange);
       window.removeEventListener("storage", handleAnnChange);
     };
-  }, []);
+  }, [isAuthenticated, token]);
+
+  // ============================================================
+  // CHECK SESSION EXPIRATION
+  // ============================================================
+  useEffect(() => {
+    // Check if token is about to expire (if JWT has expiration)
+    const checkTokenExpiration = () => {
+      const token = localStorage.getItem("smartgn_token");
+      if (!token) return;
+
+      try {
+        // Decode JWT token to check expiration
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.exp) {
+          const expirationTime = payload.exp * 1000;
+          const currentTime = Date.now();
+          const timeLeft = expirationTime - currentTime;
+
+          // If token expires in less than 5 minutes, refresh or logout
+          if (timeLeft < 300000 && timeLeft > 0) {
+            console.warn("Token expiring soon. Consider refreshing.");
+            // You could trigger a token refresh here
+          }
+
+          // If token is expired, logout
+          if (timeLeft <= 0) {
+            console.warn("Token expired. Logging out.");
+            localStorage.removeItem("smartgn_token");
+            localStorage.removeItem("smartgn_user_role");
+            localStorage.removeItem("smartgn_user_id");
+            localStorage.removeItem("smartgn_user_name");
+            localStorage.removeItem("smartgn_user_division");
+            navigate("/login");
+          }
+        }
+      } catch (e) {
+        // Invalid token format, ignore
+        console.warn("Invalid token format");
+      }
+    };
+
+    // Check immediately
+    checkTokenExpiration();
+
+    // Check every minute
+    const interval = setInterval(checkTokenExpiration, 60000);
+
+    return () => clearInterval(interval);
+  }, [navigate]);
 
   // ============================================================
   // LOADING STATE
   // ============================================================
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
         <AfterlogNavbar />
@@ -457,7 +543,7 @@ function ResidentDashboard({ onOpenHelp }) {
           <RSidebar />
         </div>
 
-        {/* Main Content - Pass all data as props to ResidentDashboardLayout */}
+        {/* Main Content */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
           <ResidentDashboardLayout
             profile={profile}

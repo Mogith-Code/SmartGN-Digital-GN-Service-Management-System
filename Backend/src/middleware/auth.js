@@ -1,9 +1,9 @@
+// Backend/src/middleware/auth.js
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
-// Verify token and append user info to req
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -21,7 +21,6 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-// Middleware to restrict access to ADMIN only
 const requireAdmin = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized.' });
@@ -34,7 +33,6 @@ const requireAdmin = (req, res, next) => {
     next();
 };
 
-// Middleware to restrict access to ADMIN or OFFICER
 const requireOfficerOrAdmin = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized.' });
@@ -47,7 +45,6 @@ const requireOfficerOrAdmin = (req, res, next) => {
     next();
 };
 
-// Middleware to restrict access to RESIDENT only
 const requireResident = (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized.' });
