@@ -53,6 +53,7 @@ const registrationTranslations = {
     otpBackToRegister: "Back to Register",
     otpErrorInvalid: "Please enter a valid 6-digit code.",
     otpResendSuccess: "Verification code resent successfully!",
+    otpConsoleMessage: "📧 OTP has been sent to console. Check your terminal!",
   },
   SI: {
     title: "නේවාසික ගිණුමක් සාදන්න",
@@ -103,6 +104,8 @@ const registrationTranslations = {
     otpBackToRegister: "ලියාපදිංචියට ආපසු යන්න",
     otpErrorInvalid: "කරුණාකර වලංගු ඉලක්කම් 6ක කේතයක් ඇතුළත් කරන්න.",
     otpResendSuccess: "තහවුරු කිරීමේ කේතය සාර්ථකව නැවත එවන ලදී!",
+    otpConsoleMessage:
+      "📧 OTP කේතය console එකට යවා ඇත. ඔබගේ ටර්මිනලය පරීක්ෂා කරන්න!",
   },
   TA: {
     title: "குடியுரிமை கணக்கை உருவாக்கவும்",
@@ -135,7 +138,8 @@ const registrationTranslations = {
     loginLink: "இங்கே உள்நுழையவும்",
     back: "திரும்புக",
     errorAllFields: "தயவுசெய்து அனைத்து புலங்களையும் நிரப்பவும்.",
-    errorInvalidEmail: "தயவுசெய்து செல்லுபடியாகும் மின்னஞ்சல் முகவரியை உள்ளிடவும்.",
+    errorInvalidEmail:
+      "தயவுசெய்து செல்லுபடியாகும் மின்னஞ்சல் முகவரியை உள்ளிடவும்.",
     errorPasswordComplexity:
       "கடவுச்சொல் குறைந்தது 8 எழுத்துகளைக் கொண்டிருக்க வேண்டும் மற்றும் பெரிய எழுத்து, சிறிய எழுத்து, எண் மற்றும் சிறப்பு எழுத்துகளைக் கொண்டிருக்க வேண்டும்.",
     errorPasswordMatch: "கடவுச்சொற்கள் பொருந்தவில்லை.",
@@ -154,6 +158,8 @@ const registrationTranslations = {
     otpErrorInvalid: "தயவுசெய்து சரியான 6 இலக்க குறியீட்டை உள்ளிடவும்.",
     otpResendSuccess:
       "சரிபார்ப்புக் குறியீடு வெற்றிகரமாக மீண்டும் அனுப்பப்பட்டது!",
+    otpConsoleMessage:
+      "📧 OTP குறியீடு console-க்கு அனுப்பப்பட்டது. உங்கள் டெர்மினலைச் சரிபார்க்கவும்!",
   },
 };
 
@@ -181,17 +187,6 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [divisions, setDivisions] = useState([]);
-
-  // Close division dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (divisionDropdownRef.current && !divisionDropdownRef.current.contains(event.target)) {
-        setIsDivisionDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
   const [errorMessage, setErrorMessage] = useState("");
   const [resendSuccessMessage, setResendSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -203,7 +198,6 @@ function Register() {
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationNic, setVerificationNic] = useState("");
   const [householdCreatedState, setHouseholdCreatedState] = useState(false);
-  const [devOtpTip, setDevOtpTip] = useState("");
 
   // Timer state for OTP Resend
   const [timerCount, setTimerCount] = useState(0);
@@ -217,6 +211,20 @@ function Register() {
     useRef(null),
     useRef(null),
   ];
+
+  // Close division dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        divisionDropdownRef.current &&
+        !divisionDropdownRef.current.contains(event.target)
+      ) {
+        setIsDivisionDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Fetch divisions
   useEffect(() => {
@@ -258,7 +266,6 @@ function Register() {
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate all fields
     if (
       !nic ||
       !household ||
@@ -276,15 +283,14 @@ function Register() {
       return;
     }
 
-    // Validate Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setErrorMessage(t.errorInvalidEmail);
       return;
     }
 
-    // Validate Password Complexity (At least 8 chars, uppercase, lowercase, number, special char)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
       setErrorMessage(t.errorPasswordComplexity);
       return;
@@ -334,12 +340,8 @@ function Register() {
 
       if (data.requiresVerification) {
         setShowOtpVerify(true);
-        setTimerCount(60); // 60s cooldown
-        if (data.otpForTesting) {
-          setDevOtpTip(data.otpForTesting);
-        }
+        setTimerCount(60);
       } else {
-        // Fallback if 2FA disabled backend-side
         navigate("/success", {
           state: {
             successUser: `${firstName} ${lastName} (NIC: ${nic})`,
@@ -357,12 +359,11 @@ function Register() {
   };
 
   const handleOtpDigitChange = (value, index) => {
-    if (!/^\d*$/.test(value)) return; // numbers only
+    if (!/^\d*$/.test(value)) return;
     const newDigits = [...otpDigits];
     newDigits[index] = value.substring(value.length - 1);
     setOtpDigits(newDigits);
 
-    // Shift focus right
     if (value && index < 5) {
       inputRefs[index + 1].current.focus();
     }
@@ -380,7 +381,7 @@ function Register() {
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pasteData = e.clipboardData.getData("text").trim();
-    if (!/^\d{6}$/.test(pasteData)) return; // must be exactly 6 digits
+    if (!/^\d{6}$/.test(pasteData)) return;
 
     const chars = pasteData.split("");
     setOtpDigits(chars);
@@ -420,7 +421,6 @@ function Register() {
       setErrorMessage("");
       setIsSubmitting(false);
 
-      // Navigate to success
       navigate("/success", {
         state: {
           successUser: `${firstName} ${lastName} (NIC: ${nic})`,
@@ -463,11 +463,8 @@ function Register() {
       }
 
       setResendSuccessMessage(t.otpResendSuccess);
-      setTimerCount(60); // reset cooldown
+      setTimerCount(60);
       setOtpDigits(["", "", "", "", "", ""]);
-      if (data.otpForTesting) {
-        setDevOtpTip(data.otpForTesting);
-      }
       setIsResending(false);
       if (inputRefs[0].current) inputRefs[0].current.focus();
     } catch (err) {
@@ -479,14 +476,11 @@ function Register() {
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center items-center py-12 px-4 relative">
-      {/* Language Selector */}
       <div className="absolute top-6 right-8">
         <LanguageSelector />
       </div>
 
-      {/* Registration / OTP Card */}
       <div className="w-full max-w-[700px] bg-white rounded-[32px] border border-[#2D37482D] shadow-[0_20px_50px_rgba(0,0,0,0.1)] p-8 md:p-12 flex flex-col transition-all duration-300">
-        {/* VIEW 1: OTP VERIFICATION SCREEN */}
         {showOtpVerify ? (
           <>
             <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-4 tracking-tight">
@@ -497,6 +491,13 @@ function Register() {
               <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
 
+            {/* Console message - No OTP displayed */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-center">
+              <span className="text-sm text-blue-800 font-medium">
+                {t.otpConsoleMessage}
+              </span>
+            </div>
+
             <form
               onSubmit={handleOtpVerifySubmit}
               className="flex flex-col gap-6 items-center"
@@ -505,7 +506,6 @@ function Register() {
                 {t.otpLabel}
               </label>
 
-              {/* 6 Digit Inputs */}
               <div
                 className="flex gap-2 md:gap-4 my-2 justify-center"
                 onPaste={handleOtpPaste}
@@ -526,12 +526,6 @@ function Register() {
                 ))}
               </div>
 
-              {/* Email Sent Notice */}
-              <div className="w-full max-w-[400px] px-4 py-2.5 bg-[#f0fdf4] border border-[#bbf7d0] rounded-[8px] text-[13px] text-[#166534] text-center font-medium my-1">
-                📧 The 6-digit OTP code has been sent to <strong>{verificationEmail}</strong>. Check your email inbox.
-              </div>
-
-              {/* Messages */}
               {errorMessage && (
                 <p className="text-[#ef4444] text-[13.5px] text-center mt-1">
                   {errorMessage}
@@ -543,7 +537,6 @@ function Register() {
                 </p>
               )}
 
-              {/* Action Buttons */}
               <button
                 type="submit"
                 className={`w-full max-w-[400px] py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-4 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
@@ -553,7 +546,6 @@ function Register() {
               </button>
             </form>
 
-            {/* Resend & Back actions */}
             <div className="flex flex-col items-center gap-4 mt-8 border-t border-[#2D37481F] pt-6 w-full">
               <button
                 onClick={handleResendOtp}
@@ -586,7 +578,6 @@ function Register() {
             </div>
           </>
         ) : (
-          /* VIEW 2: NORMAL SIGNUP FORM */
           <>
             <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-8 tracking-tight">
               {t.title}
@@ -767,7 +758,10 @@ function Register() {
                 </div>
 
                 {/* Searchable GN Division */}
-                <div className="flex flex-col gap-2 relative" ref={divisionDropdownRef}>
+                <div
+                  className="flex flex-col gap-2 relative"
+                  ref={divisionDropdownRef}
+                >
                   <label
                     htmlFor="division"
                     className="text-[14px] font-medium text-[#2D3748] text-left"
@@ -780,7 +774,11 @@ function Register() {
                       id="division"
                       className="w-full px-4 py-3 bg-[#EBF1F6] border border-[#2D37482D] rounded-[8px] text-[15px] text-[#2D3748] placeholder-gray-400 focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200"
                       placeholder="Search GN division name..."
-                      value={isDivisionDropdownOpen ? divisionSearch : (division || divisionSearch)}
+                      value={
+                        isDivisionDropdownOpen
+                          ? divisionSearch
+                          : division || divisionSearch
+                      }
                       onFocus={() => {
                         setIsDivisionDropdownOpen(true);
                         setDivisionSearch("");
@@ -799,12 +797,13 @@ function Register() {
                     </div>
                   </div>
 
-                  {/* Dropdown Options */}
                   {isDivisionDropdownOpen && (
                     <div className="absolute top-[100%] left-0 right-0 mt-1 bg-white border border-[#005BBD]/30 rounded-[8px] shadow-lg max-h-48 overflow-y-auto z-50 text-left divide-y divide-gray-100">
                       {divisions
                         .filter((divName) =>
-                          divName.toLowerCase().includes(divisionSearch.toLowerCase())
+                          divName
+                            .toLowerCase()
+                            .includes(divisionSearch.toLowerCase()),
                         )
                         .map((divName, index) => (
                           <div
@@ -818,12 +817,16 @@ function Register() {
                           >
                             <span>{divName}</span>
                             {division === divName && (
-                              <span className="text-[#005BBD] font-bold text-xs">✓ Selected</span>
+                              <span className="text-[#005BBD] font-bold text-xs">
+                                ✓ Selected
+                              </span>
                             )}
                           </div>
                         ))}
                       {divisions.filter((divName) =>
-                        divName.toLowerCase().includes(divisionSearch.toLowerCase())
+                        divName
+                          .toLowerCase()
+                          .includes(divisionSearch.toLowerCase()),
                       ).length === 0 && (
                         <div className="px-4 py-3 text-xs text-gray-400 italic">
                           No matching GN division found
@@ -859,12 +862,30 @@ function Register() {
                       title={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                           <line x1="1" y1="1" x2="23" y2="23"></line>
                         </svg>
                       ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                           <circle cx="12" cy="12" r="3"></circle>
                         </svg>
@@ -894,17 +915,41 @@ function Register() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-500 hover:text-[#1B365D] cursor-pointer bg-transparent border-none outline-none"
-                      title={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                      title={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
                     >
                       {showConfirmPassword ? (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
                           <line x1="1" y1="1" x2="23" y2="23"></line>
                         </svg>
                       ) : (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                           <circle cx="12" cy="12" r="3"></circle>
                         </svg>
@@ -914,14 +959,12 @@ function Register() {
                 </div>
               </div>
 
-              {/* Error Message */}
               {errorMessage && (
                 <p className="text-[#ef4444] text-[13px] text-left mt-1">
                   {errorMessage}
                 </p>
               )}
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 className={`w-full py-3.5 bg-[#1B365D] hover:bg-[#005BBD] text-white font-medium text-[16px] rounded-full shadow-[0_4px_12px_rgba(27,54,93,0.3)] hover:shadow-[0_6px_20px_rgba(27,54,93,0.4)] transition-all duration-300 cursor-pointer mt-2 ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
@@ -931,7 +974,6 @@ function Register() {
               </button>
             </form>
 
-            {/* Already have an account link */}
             <div className="text-[14px] text-gray-500 text-center mt-6">
               {t.alreadyAccount}{" "}
               <span
@@ -942,7 +984,6 @@ function Register() {
               </span>
             </div>
 
-            {/* Bottom Row: Back & Logo */}
             <div className="flex justify-between items-center mt-8 border-t border-[#2D37481F] pt-6">
               <button
                 className="flex items-center gap-1.5 text-gray-500 hover:text-[#2D3748] text-[14px] font-medium transition-colors duration-200 cursor-pointer"
