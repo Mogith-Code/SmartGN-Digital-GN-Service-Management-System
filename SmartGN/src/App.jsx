@@ -9,6 +9,7 @@ import LandingPage from "./Pages/LandingPage.jsx";
 import RAppointment from "./Pages/RAppointment.jsx";
 import BookingForm from "./Components/AppointmentsPage/BookingForm.jsx";
 import Login from "./Pages/Login.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
 import RHousehold from "./Pages/RHousehold.jsx";
 import Register from "./Pages/Registration.jsx";
 import ResidentProfile from "./Pages/ResidentProfile.jsx";
@@ -55,6 +56,7 @@ function App() {
           {/* Public Routes - No authentication required */}
           <Route path="/" element={<LandingPage onOpenHelp={openChatbot} />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/success" element={<Success />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
