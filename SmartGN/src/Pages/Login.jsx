@@ -365,13 +365,6 @@ function Login() {
               <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
 
-            {/* Console message - No OTP displayed */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-center">
-              <span className="text-sm text-blue-800 font-medium">
-                {t.otpConsoleMessage}
-              </span>
-            </div>
-
             <form
               onSubmit={handleOtpVerifySubmit}
               className="flex flex-col gap-6 items-center"

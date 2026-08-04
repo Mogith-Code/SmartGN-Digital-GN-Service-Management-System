@@ -77,23 +77,23 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
     try {
-        console.log('🔌 Connecting to database...');
+        console.log('Connecting to database...');
         await db.getPool();
-        console.log('✅ Database connected and schemas verified.');
+        console.log('Database connected and schemas verified.'); 
 
         app.listen(PORT, () => {
             console.log('');
-            console.log('🚀 SmartGN Backend Server is running!');
-            console.log(`📍 Local: http://localhost:${PORT}`);
+            console.log('SmartGN Backend Server is running!');
+            console.log(`Local: http://localhost:${PORT}`);
             console.log('');
-            console.log('📋 Default Credentials (Dev Mode):');
+            console.log('Default Credentials (Dev Mode):');
             console.log('   Admin    : admin / admin123');
             console.log('   Officer  : kamal_gn / password123');
             console.log('   Resident : nimal@example.com / password123');
             console.log('');
         });
     } catch (error) {
-        console.error('❌ Server startup failed:', error.message);
+        console.error('Server startup failed:', error.message);
         process.exit(1);
     }
 }
