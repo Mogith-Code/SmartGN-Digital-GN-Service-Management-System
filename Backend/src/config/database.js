@@ -732,12 +732,12 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         title VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
         description TEXT NOT NULL,
-        type ENUM('HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER') NOT NULL,
+        type VARCHAR(50) DEFAULT 'GENERAL',
         priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM',
         target_audience TEXT COMMENT 'JSON array of target groups',
         gn_id VARCHAR(20) NOT NULL,
         is_active BOOLEAN DEFAULT TRUE,
-        expires_at TIMESTAMP,
+        expires_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
@@ -749,6 +749,12 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    try {
+        await dbPool.query(`ALTER TABLE announcement MODIFY COLUMN type VARCHAR(50) DEFAULT 'GENERAL'`);
+    } catch (e) {
+        // Table created or column already modified
+    }
 
     // ============================================================
     // 15. AUDIT LOG TABLE

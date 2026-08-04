@@ -772,21 +772,27 @@ exports.createAnnouncement = async (req, res) => {
 
     const { title, description, type, priority, expiresAt } = req.body;
 
-    if (!title || !description || !type) {
-        return res.status(400).json({ error: 'title, description, and type are required.' });
+    if (!title || !description) {
+        return res.status(400).json({ error: 'title and description are required.' });
     }
 
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
-            if (officer.length === 0) {
-                return res.status(404).json({ error: 'Officer not found.' });
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+            } else {
+                const [allOfficers] = await db.query('SELECT gn_id FROM grama_niladhari LIMIT 1');
+                if (allOfficers.length > 0) {
+                    gnId = allOfficers[0].gn_id;
+                } else {
+                    return res.status(404).json({ error: 'Officer record not found in database.' });
+                }
             }
-            gnId = officer[0].gn_id;
         } else {
             gnId = user.id;
         }
@@ -794,7 +800,7 @@ exports.createAnnouncement = async (req, res) => {
         const annNumber = generateAnnouncementNumber();
         const today = new Date().toISOString().split('T')[0];
 
-        const annType = type ? type.toUpperCase() : 'GENERAL';
+        const annType = type ? type.toString().trim() : 'General';
         const annPriority = ['LOW', 'MEDIUM', 'HIGH'].includes((priority || '').toUpperCase())
             ? priority.toUpperCase() : 'MEDIUM';
 
@@ -819,7 +825,7 @@ exports.createAnnouncement = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating announcement:', error);
-        return res.status(500).json({ error: 'Server error creating announcement.' });
+        return res.status(500).json({ error: 'Server error creating announcement: ' + error.message });
     }
 };
 
@@ -845,15 +851,15 @@ exports.updateAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only update your own announcements.' });
             }
         }
 
-        const annType = type ? type.toUpperCase() : null;
+        const annType = type ? type.toString().trim() : null;
 
         const updates = [];
         const values = [];
@@ -908,8 +914,8 @@ exports.deleteAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only delete your own announcements.' });

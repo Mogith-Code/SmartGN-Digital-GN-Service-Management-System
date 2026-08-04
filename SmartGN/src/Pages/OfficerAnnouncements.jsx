@@ -102,7 +102,8 @@ function OfficerAnnouncements({ onOpenHelp }) {
         body: JSON.stringify({
           title,
           description: content,
-          type: isUrgent ? 'Urgent' : category
+          type: isUrgent ? 'Urgent' : category,
+          priority: isUrgent ? 'HIGH' : 'MEDIUM'
         })
       })
 
@@ -173,7 +174,8 @@ function OfficerAnnouncements({ onOpenHelp }) {
         body: JSON.stringify({
           title,
           description: content,
-          type: isUrgent ? 'Urgent' : category
+          type: isUrgent ? 'Urgent' : category,
+          priority: isUrgent ? 'HIGH' : 'MEDIUM'
         })
       })
 
