@@ -111,6 +111,22 @@ function App() {
             }
           />
           <Route
+            path="/ResidentDashboard/Bookingform"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <BookingForm onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ResidentDashboard/BookingForm"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <BookingForm onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ResidentDashboard/RAppointment/BookingForm"
             element={
               <ProtectedRoute allowedRoles={["RESIDENT"]}>

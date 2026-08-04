@@ -316,15 +316,15 @@ function ProfileSearchingSection() {
                     </span>
                   </div>
                 </div>
-                <div className="flex w-[40%] items-center justify-between">
-                  <div className="ml-[55px] sm:ml-[70px] md:ml-0">
-                    <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                <div className="flex flex-col sm:flex-row w-full md:w-auto items-start sm:items-center justify-between gap-2 sm:gap-6 ml-[55px] sm:ml-[70px] md:ml-0">
+                  <div>
+                    <span className="text-sm sm:text-base lg:text-[16px] text-[#2D3748]">
                       Household No: {displayHousehold}
                     </span>
                   </div>
-                  <div className="ml-[55px] sm:ml-[70px] md:ml-0">
+                  <div>
                     <span
-                      className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
+                      className="text-sm sm:text-base lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
                       onClick={() => {
                         // ✅ Navigate with encrypted NIC
                         navigate(

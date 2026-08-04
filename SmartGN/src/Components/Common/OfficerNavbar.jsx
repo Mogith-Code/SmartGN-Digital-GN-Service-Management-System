@@ -92,7 +92,7 @@ function OfficerNavbar() {
     localStorage.getItem("smartgn_user_id") ||
     "200324511540";
 
-  const loadOfficerProfile = () => {
+  const loadOfficerProfile = async () => {
     const saved = localStorage.getItem("smartgn_officer_profile");
     if (saved) {
       try {
@@ -100,6 +100,27 @@ function OfficerNavbar() {
       } catch (e) {
         console.error("Error loading officer profile:", e);
       }
+    }
+    try {
+      const res = await fetch(getApiUrl("/api/officer/profile"), {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = {
+          firstName: data.firstName || data.first_name || "Kamal",
+          lastName: data.lastName || data.last_name || "Perera",
+          division: data.divisionName || data.division_name || "Colombo, Borella",
+          profilePhoto: data.profilePhoto || data.profile_photo_path || null,
+        };
+        setProfile(mapped);
+        localStorage.setItem(
+          "smartgn_officer_profile",
+          JSON.stringify(mapped),
+        );
+      }
+    } catch (err) {
+      // Keep cached fallback
     }
   };
 

@@ -5,9 +5,58 @@ import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz
 import updateIcon from "../../assets/update_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 import { useNavigate } from "react-router-dom";
 import { getAuthHeaders } from "../../utils/api";
+import { useLanguage } from "../../utils/translate";
 
 function EditHouseholdDetailsLayout() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  const editHouseholdTranslations = {
+    EN: {
+      back: "back",
+      title: "Edit your Household details",
+      householdNo: "Household Number :",
+      address: "Address :",
+      addressPlaceholder: "Enter household address",
+      landSize: "Size of the land :",
+      landSizePlaceholder: "e.g., 10 perches, 20 acres",
+      landOwner: "Land Owner :",
+      landOwnerPlaceholder: "Enter land owner name",
+      reset: "Reset",
+      update: "Update",
+      updating: "Updating...",
+    },
+    SI: {
+      back: "ආපසු",
+      title: "ඔබගේ ගෘහස්ථ විස්තර සංස්කරණය කරන්න",
+      householdNo: "ගෘහ අංකය :",
+      address: "ලිපිනය :",
+      addressPlaceholder: "ගෘහස්ථ ලිපිනය ඇතුළත් කරන්න",
+      landSize: "ඉඩමේ ප්‍රමාණය :",
+      landSizePlaceholder: "උදා: පර්චස් 10, අක්කර 20",
+      landOwner: "ඉඩම් හිමියා :",
+      landOwnerPlaceholder: "ඉඩම් හිමියාගේ නම ඇතුළත් කරන්න",
+      reset: "නැවත සකසන්න",
+      update: "යාවත්කාලීන කරන්න",
+      updating: "යාවත්කාලීන වෙමින්...",
+    },
+    TA: {
+      back: "பின்னால்",
+      title: "உங்கள் வீட்டு விவரங்களை திருத்தவும்",
+      householdNo: "வீட்டு අංකය :",
+      address: "முகவரி :",
+      addressPlaceholder: "வீட்டு முகவரியை உள்ளிடவும்",
+      landSize: "நிலத்தின் அளவு :",
+      landSizePlaceholder: "உதா: 10 பேர்ச்சஸ், 20 ஏக்கර්",
+      landOwner: "நிலத்தின் உரிமையாளர் :",
+      landOwnerPlaceholder: "நில உரிமையாளரின் பெயரை உள்ளிடவும்",
+      reset: "மீட்டமை",
+      update: "புதுப்பிக்கவும்",
+      updating: "புதுப்பிக்கிறது...",
+    },
+  };
+
+  const t = editHouseholdTranslations[lang] || editHouseholdTranslations.EN;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -150,12 +199,12 @@ function EditHouseholdDetailsLayout() {
         onClick={() => navigate("/ResidentDashboard/RHousehold")}
       >
         <img src={backIcon} alt="backIcon" className="w-[14px] sm:w-[16px]" />
-        back
+        {t.back}
       </div>
 
       {/* Page Title */}
       <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
-        Edit your Household details
+        {t.title}
       </div>
 
       {/* Success/Error Messages */}
@@ -176,7 +225,7 @@ function EditHouseholdDetailsLayout() {
           <div className="flex flex-col gap-4 sm:gap-5">
             {/* Household Number (Read Only) */}
             <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
-              <label className="font-medium">Household Number :</label>
+              <label className="font-medium">{t.householdNo}</label>
               <span className="text-[16px] font-semibold text-[#1B365D]">
                 {household.household_number || "-"}
               </span>
@@ -185,7 +234,7 @@ function EditHouseholdDetailsLayout() {
             {/* Address (Editable) */}
             <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
               <label htmlFor="addressInput" className="font-medium">
-                Address :
+                {t.address}
               </label>
               <input
                 type="text"
@@ -193,7 +242,7 @@ function EditHouseholdDetailsLayout() {
                 value={editHousehold.address}
                 onChange={(e) => handleInputChange("address", e.target.value)}
                 className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
-                placeholder="Enter household address"
+                placeholder={t.addressPlaceholder}
               />
             </div>
 
@@ -201,7 +250,7 @@ function EditHouseholdDetailsLayout() {
             <div className="flex w-full flex-col sm:flex-row justify-between gap-4">
               <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
                 <label htmlFor="landSizeInput" className="font-medium">
-                  Size of the land :
+                  {t.landSize}
                 </label>
                 <input
                   type="text"
@@ -211,13 +260,13 @@ function EditHouseholdDetailsLayout() {
                     handleInputChange("land_size", e.target.value)
                   }
                   className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
-                  placeholder="e.g., 10 perches, 20 acres"
+                  placeholder={t.landSizePlaceholder}
                 />
               </div>
 
               <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
                 <label htmlFor="landOwnerInput" className="font-medium">
-                  Land Owner :
+                  {t.landOwner}
                 </label>
                 <input
                   type="text"
@@ -227,7 +276,7 @@ function EditHouseholdDetailsLayout() {
                     handleInputChange("land_owner", e.target.value)
                   }
                   className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
-                  placeholder="Enter land owner name"
+                  placeholder={t.landOwnerPlaceholder}
                 />
               </div>
             </div>
@@ -239,7 +288,7 @@ function EditHouseholdDetailsLayout() {
                 onClick={handleReset}
                 className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200"
               >
-                <span>Reset</span>
+                <span>{t.reset}</span>
                 <img
                   src={resetIcon}
                   alt="resetIcon"
@@ -252,7 +301,7 @@ function EditHouseholdDetailsLayout() {
                 disabled={loading}
                 className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>{loading ? "Updating..." : "Update"}</span>
+                <span>{loading ? t.updating : t.update}</span>
                 <img
                   src={updateIcon}
                   alt="updateIcon"

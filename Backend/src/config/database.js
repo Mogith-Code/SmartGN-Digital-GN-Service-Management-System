@@ -84,9 +84,9 @@ async function setupTables(dbPool) {
         home_address TEXT,
         
         -- Images
-        profile_photo_path VARCHAR(255),
-        nic_front_path VARCHAR(255),
-        nic_back_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
+        nic_front_path LONGTEXT,
+        nic_back_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         nic_front_filename VARCHAR(255),
         nic_back_filename VARCHAR(255),
@@ -166,13 +166,13 @@ async function setupTables(dbPool) {
         status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
         
         -- Profile image
-        profile_photo_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         
         -- GN ID Card images
-        gn_front_path VARCHAR(255),
+        gn_front_path LONGTEXT,
         gn_front_filename VARCHAR(255),
-        gn_back_path VARCHAR(255),
+        gn_back_path LONGTEXT,
         gn_back_filename VARCHAR(255),
         
         -- Security
@@ -732,12 +732,12 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         title VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
         description TEXT NOT NULL,
-        type ENUM('HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER') NOT NULL,
+        type VARCHAR(50) DEFAULT 'GENERAL',
         priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM',
         target_audience TEXT COMMENT 'JSON array of target groups',
         gn_id VARCHAR(20) NOT NULL,
         is_active BOOLEAN DEFAULT TRUE,
-        expires_at TIMESTAMP,
+        expires_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
@@ -749,6 +749,19 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    try {
+        await dbPool.query(`ALTER TABLE announcement MODIFY COLUMN type VARCHAR(50) DEFAULT 'GENERAL'`);
+    } catch (e) {
+        // Table created or column already modified
+    }
+
+    try {
+        await dbPool.query(`ALTER TABLE resident MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN nic_front_path LONGTEXT, MODIFY COLUMN nic_back_path LONGTEXT`);
+        await dbPool.query(`ALTER TABLE grama_niladhari MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN gn_front_path LONGTEXT, MODIFY COLUMN gn_back_path LONGTEXT`);
+    } catch (e) {
+        // Ignored if column already modified
+    }
 
     // ============================================================
     // 15. AUDIT LOG TABLE

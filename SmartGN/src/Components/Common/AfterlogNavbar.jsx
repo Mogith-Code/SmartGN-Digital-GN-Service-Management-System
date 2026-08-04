@@ -97,28 +97,27 @@ function AfterlogNavbar() {
       } catch (e) {
         console.error("Error parsing saved profile", e);
       }
-    } else {
-      try {
-        const res = await fetch("/api/residents/profile", {
-          headers: getAuthHeaders(),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const mapped = {
-            firstName: data.first_name || "Nimal",
-            lastName: data.last_name || "Perera",
-            division: data.division_name || "Colombo, Borella",
-            profilePhoto: data.profile_photo_path || null,
-          };
-          setProfile(mapped);
-          localStorage.setItem(
-            "smartgn_resident_profile",
-            JSON.stringify(mapped),
-          );
-        }
-      } catch (err) {
-        // Fallback keep default
+    }
+    try {
+      const res = await fetch("/api/residents/profile", {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = {
+          firstName: data.first_name || "Nimal",
+          lastName: data.last_name || "Perera",
+          division: data.division_name || "Colombo, Borella",
+          profilePhoto: data.profile_photo_path || null,
+        };
+        setProfile(mapped);
+        localStorage.setItem(
+          "smartgn_resident_profile",
+          JSON.stringify(mapped),
+        );
       }
+    } catch (err) {
+      // Fallback keep cached
     }
   };
 

@@ -61,35 +61,28 @@ const saveBase64Image = (base64String, folder, identifier) => {
     try {
         // Extract image type and data
         const matches = base64String.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
-        if (!matches || matches.length !== 3) {
-            console.error('Invalid base64 image format');
-            return null;
+        if (matches && matches.length === 3) {
+            const extension = matches[1];
+            const base64Data = matches[2];
+            const buffer = Buffer.from(base64Data, 'base64');
+            
+            // Create folder if it doesn't exist
+            const uploadDir = path.join(__dirname, '../../uploads', folder);
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            // Save local file backup
+            const filename = `${identifier}_${Date.now()}.${extension}`;
+            const filePath = path.join(uploadDir, filename);
+            fs.writeFileSync(filePath, buffer);
         }
         
-        const extension = matches[1];
-        const base64Data = matches[2];
-        const buffer = Buffer.from(base64Data, 'base64');
-        
-        // Create folder if it doesn't exist
-        const uploadDir = path.join(__dirname, '../../uploads', folder);
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        
-        // Generate unique filename
-        const timestamp = Date.now();
-        const random = Math.floor(1000 + Math.random() * 9000);
-        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
-        const filePath = path.join(uploadDir, filename);
-        
-        // Save file
-        fs.writeFileSync(filePath, buffer);
-        
-        // Return relative path for database storage
-        return `/uploads/${folder}/${filename}`;
+        // Return base64 data string so database holds permanent image data
+        return base64String;
     } catch (error) {
         console.error('Error saving image:', error);
-        return null;
+        return base64String;
     }
 };
 
@@ -772,21 +765,27 @@ exports.createAnnouncement = async (req, res) => {
 
     const { title, description, type, priority, expiresAt } = req.body;
 
-    if (!title || !description || !type) {
-        return res.status(400).json({ error: 'title, description, and type are required.' });
+    if (!title || !description) {
+        return res.status(400).json({ error: 'title and description are required.' });
     }
 
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
-            if (officer.length === 0) {
-                return res.status(404).json({ error: 'Officer not found.' });
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+            } else {
+                const [allOfficers] = await db.query('SELECT gn_id FROM grama_niladhari LIMIT 1');
+                if (allOfficers.length > 0) {
+                    gnId = allOfficers[0].gn_id;
+                } else {
+                    return res.status(404).json({ error: 'Officer record not found in database.' });
+                }
             }
-            gnId = officer[0].gn_id;
         } else {
             gnId = user.id;
         }
@@ -794,7 +793,7 @@ exports.createAnnouncement = async (req, res) => {
         const annNumber = generateAnnouncementNumber();
         const today = new Date().toISOString().split('T')[0];
 
-        const annType = type ? type.toUpperCase() : 'GENERAL';
+        const annType = type ? type.toString().trim() : 'General';
         const annPriority = ['LOW', 'MEDIUM', 'HIGH'].includes((priority || '').toUpperCase())
             ? priority.toUpperCase() : 'MEDIUM';
 
@@ -819,7 +818,7 @@ exports.createAnnouncement = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating announcement:', error);
-        return res.status(500).json({ error: 'Server error creating announcement.' });
+        return res.status(500).json({ error: 'Server error creating announcement: ' + error.message });
     }
 };
 
@@ -845,15 +844,15 @@ exports.updateAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only update your own announcements.' });
             }
         }
 
-        const annType = type ? type.toUpperCase() : null;
+        const annType = type ? type.toString().trim() : null;
 
         const updates = [];
         const values = [];
@@ -908,8 +907,8 @@ exports.deleteAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only delete your own announcements.' });
