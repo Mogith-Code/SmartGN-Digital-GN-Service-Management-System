@@ -103,8 +103,6 @@ function PendingCertificates({ onOpenHelp }) {
 
   // Get stage based on certificate type and request details
   const getStageKey = (certificate) => {
-    // You can customize this logic based on actual workflow
-    // For now, use deterministic stages based on request_id or creation time
     const id = certificate.id || certificate.request_id || "";
     const hash = id
       .split("")
@@ -130,10 +128,9 @@ function PendingCertificates({ onOpenHelp }) {
 
       const headers = getAuthHeaders();
 
-      // Fetch certificates from the resident endpoint
       const response = await fetch("/api/certificates/resident", {
         headers,
-        cache: "no-cache", // Prevent caching
+        cache: "no-cache",
       });
 
       if (!response.ok) {
@@ -147,12 +144,10 @@ function PendingCertificates({ onOpenHelp }) {
 
       const data = await response.json();
 
-      // Filter for PENDING status only
       const pendingCerts = data.filter(
         (cert) => cert.status === "PENDING" || cert.status === "Pending",
       );
 
-      // Format the pending certificates
       const formattedPending = pendingCerts.map((cert) => ({
         id: cert.id || cert.request_id,
         requestId: cert.request_id,
@@ -178,11 +173,9 @@ function PendingCertificates({ onOpenHelp }) {
         stageKey: getStageKey(cert),
         isActive: cert.is_active !== false,
         createdAt: cert.created_at || cert.requested_at,
-        // Store original data for reference
         _original: cert,
       }));
 
-      // Sort by created date (newest first)
       formattedPending.sort((a, b) => {
         const dateA = new Date(a.createdAt || 0);
         const dateB = new Date(b.createdAt || 0);
@@ -194,8 +187,6 @@ function PendingCertificates({ onOpenHelp }) {
       console.error("Error loading pending certificates:", err);
       setError(err.message || d.error);
 
-      // ✅ Only use fallback if API fails - but from database, not hardcoded
-      // Try to get from localStorage as last resort
       try {
         const localData = localStorage.getItem("smartgn_certificates");
         if (localData) {
@@ -241,14 +232,11 @@ function PendingCertificates({ onOpenHelp }) {
     }
   };
 
-  // Load pending certificates on mount
   useEffect(() => {
     loadPending();
   }, []);
 
-  // Handle track status click
   const handleTrackStatus = (item) => {
-    // Navigate to certificate details or show detailed view
     navigate(`/ResidentDashboard/certificate-details/${item.id}`, {
       state: {
         certificate: item,
@@ -258,12 +246,10 @@ function PendingCertificates({ onOpenHelp }) {
     });
   };
 
-  // Handle retry
   const handleRetry = () => {
     loadPending();
   };
 
-  // Render the stage label
   const renderStageLabel = (stageKey) => {
     const stageLabels = {
       verification: {
@@ -283,7 +269,7 @@ function PendingCertificates({ onOpenHelp }) {
     const stage = stageLabels[stageKey] || stageLabels.verification;
     return (
       <span
-        className={`${stage.color} font-bold px-2 py-0.5 rounded text-[12.5px]`}
+        className={`${stage.color} font-bold px-2 py-0.5 rounded text-[11px] sm:text-[12px] md:text-[12.5px]`}
       >
         {stage.label}
       </span>
@@ -291,21 +277,19 @@ function PendingCertificates({ onOpenHelp }) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
-      {/* 1. Header */}
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
 
-      {/* 2. Main Layout */}
-      <div className="flex flex-1 w-full">
-        {/* Sidebar Nav */}
-        <RSidebar />
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
 
-        {/* Main Panel Content */}
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
-          {/* Back button */}
-          <div className="flex justify-start items-center mb-4">
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Back Button - Left aligned on all screens */}
+          <div className="flex justify-start mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             <button
-              className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
+              className="flex items-center gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[13px] sm:text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
               onClick={() =>
                 navigate("/ResidentDashboard/certificates", {
                   state: { successUser, division: userDivision },
@@ -313,12 +297,13 @@ function PendingCertificates({ onOpenHelp }) {
               }
             >
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
+                className="sm:w-[16px] sm:h-[16px]"
               >
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -327,18 +312,20 @@ function PendingCertificates({ onOpenHelp }) {
             </button>
           </div>
 
-          {/* Heading */}
-          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
+          {/* Title */}
+          <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             {d.title}
-          </h2>
+          </div>
 
           {/* Error State */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-6 text-center">
-              <p className="text-red-600 font-medium mb-3">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center">
+              <p className="text-red-600 font-medium text-[13px] sm:text-[14px] mb-2 sm:mb-3">
+                {error}
+              </p>
               <button
                 onClick={handleRetry}
-                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition-colors"
+                className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg sm:rounded-xl text-[12px] sm:text-sm font-semibold transition-colors"
               >
                 {d.retry || "Retry"}
               </button>
@@ -347,63 +334,62 @@ function PendingCertificates({ onOpenHelp }) {
 
           {/* Loading State */}
           {loading && (
-            <div className="text-center py-20 text-[#64748b] text-[15px] font-medium">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B365D] mx-auto mb-4"></div>
+            <div className="text-center py-12 sm:py-16 md:py-20 text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-medium mx-4">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#1B365D] mx-auto mb-3 sm:mb-4"></div>
               {d.loading || "Loading pending requests..."}
             </div>
           )}
 
           {/* No Pending Requests */}
           {!loading && !error && pendingList.length === 0 && (
-            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-2xl p-12 text-center text-[#64748b] text-[15px] font-semibold shadow-sm">
+            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-xl sm:rounded-2xl p-8 sm:p-10 md:p-12 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-semibold shadow-sm">
               {d.noPending || "No pending certificate requests found."}
             </div>
           )}
 
           {/* Pending Requests List */}
           {!loading && !error && pendingList.length > 0 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 sm:gap-4 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px]">
               {pendingList.map((item, index) => (
                 <div
                   key={item.id || item.requestId || index}
-                  className={`rounded-2xl p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-4 ${
+                  className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-3 sm:gap-4 ${
                     item.isActive || index === 0
                       ? "bg-[#fefce8] border-[1.5px] border-[#fef08a]"
                       : "bg-white border border-[#2D37481F]"
                   }`}
                 >
-                  {/* Left Area: Certificate Details */}
-                  <div className="text-left max-w-full md:max-w-[70%]">
-                    <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <h4 className="text-[16px] font-bold text-[#1B365D]">
+                  <div className="text-left w-full md:max-w-[70%]">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2 flex-wrap">
+                      <h4 className="text-[14px] sm:text-[15px] md:text-[16px] font-bold text-[#1B365D] break-words">
                         {item.type}
                       </h4>
                       {item.certificateNumber && (
-                        <span className="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+                        <span className="text-[10px] sm:text-xs text-gray-400 font-mono bg-gray-50 px-1.5 sm:px-2 py-0.5 rounded border border-gray-200">
                           {item.certificateNumber}
                         </span>
                       )}
                     </div>
 
-                    <div className="flex flex-col gap-1 text-[13.5px]">
-                      <div>
+                    <div className="flex flex-col gap-0.5 sm:gap-1 text-[12px] sm:text-[13px] md:text-[13.5px]">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                         <span className="text-[#475569] font-medium">
-                          {d.requestedDate}:{" "}
+                          {d.requestedDate}:
                         </span>
-                        <span className="text-[#1e293b] font-semibold">
+                        <span className="text-[#1e293b] font-semibold break-words">
                           {item.requestedDate}
                         </span>
                       </div>
-                      <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                         <span className="text-[#475569] font-medium">
-                          {d.purpose}:{" "}
+                          {d.purpose}:
                         </span>
-                        <span className="text-[#1e293b] font-semibold">
+                        <span className="text-[#1e293b] font-semibold break-words">
                           {item.purpose}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[#d97706] font-bold text-[13.5px]">
+                      <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="text-[#d97706] font-bold text-[12px] sm:text-[13px] md:text-[13.5px]">
                           {d.currentStage}
                         </span>
                         {renderStageLabel(item.stageKey)}
@@ -411,24 +397,24 @@ function PendingCertificates({ onOpenHelp }) {
                     </div>
                   </div>
 
-                  {/* Right Area: Status & Action Button */}
-                  <div className="flex flex-col items-start md:items-end gap-3 self-stretch md:self-auto justify-between md:justify-start">
-                    <span className="text-[13px] font-bold text-[#d97706] bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+                    <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold text-[#d97706] bg-amber-50 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border border-amber-200 flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400 animate-pulse"></span>
                       PENDING
                     </span>
 
                     <button
                       onClick={() => handleTrackStatus(item)}
-                      className="flex items-center gap-1.5 py-2 px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-xs font-semibold cursor-pointer transition-all duration-200"
+                      className="flex items-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer transition-all duration-200 whitespace-nowrap w-full sm:w-auto justify-center"
                     >
                       <svg
-                        width="14"
-                        height="14"
+                        width="12"
+                        height="12"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2.5"
+                        className="sm:w-[14px] sm:h-[14px]"
                       >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
@@ -441,12 +427,10 @@ function PendingCertificates({ onOpenHelp }) {
             </div>
           )}
 
-          {/* Floating Help Trigger */}
           <ChatbotButton onOpenHelp={onOpenHelp} />
-        </main>
+        </div>
       </div>
 
-      {/* 3. Footer */}
       <Footer />
     </div>
   );

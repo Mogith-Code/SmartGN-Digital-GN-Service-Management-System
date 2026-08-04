@@ -207,66 +207,73 @@ function ResidentCertificates({ onOpenHelp }) {
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-            <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
+          {/* ── Alert Banner - ABOVE HEADER ── */}
+          {showAlert && areNicImagesMissing() && (
+            <div className="mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[30px]">
+              <div className="flex flex-wrap items-center justify-between p-2 sm:p-2.5 md:p-[10px] bg-[#fef3c7] border border-[#fde68a] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-lg sm:rounded-xl text-[#d97706] font-medium text-[11px] sm:text-xs md:text-sm lg:text-[14px] text-left w-full transition-shadow duration-300">
+                <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                  <span
+                    className="hover:underline hover:cursor-pointer truncate"
+                    onClick={() => {
+                      navigate("/ResidentDashboard/profile");
+                    }}
+                  >
+                    {t.alert}
+                  </span>
+                </div>
+                <button
+                  className="bg-transparent border-0 text-[#d97706] cursor-pointer p-0.5 sm:p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] flex-shrink-0 ml-1 sm:ml-2"
+                  onClick={() => setShowAlert(false)}
+                  aria-label="Close Warning"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="sm:w-[16px] sm:h-[16px]"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ── Header ── */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[20px] mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] border-b border-[#2D37482D] pb-2 sm:pb-3 md:pb-[10px]">
+            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-[24px] font-medium text-[#1B365D] break-words max-w-full sm:max-w-[70%]">
               {t.title}
             </h2>
-
-            <div className="flex justify-end -mt-[70px]">
-              {showAlert && areNicImagesMissing() && (
-                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="hover:underline hover:cursor-pointer"
-                      onClick={() => {
-                        navigate("/ResidentDashboard/profile");
-                      }}
-                    >
-                      {t.alert}
-                    </span>
-                  </div>
-                  <button
-                    className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
-                    onClick={() => setShowAlert(false)}
-                    aria-label="Close Warning"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:my-[30px]">
+          {/* ── Stats Cards ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[30px]">
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer"
+                className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer w-full"
                 onClick={() =>
                   navigate(card.navpath, {
                     state: { successUser: profile.fullName },
                   })
                 }
               >
-                <img src={card.icon} alt={card.alt} className="w-[50px]" />
-                <div className="flex flex-col items-center">
-                  <span className="text-[16px] font-regular text-[#2D3748] text-center">
+                <img
+                  src={card.icon}
+                  alt={card.alt}
+                  className="w-[40px] sm:w-[50px] h-[40px] sm:h-[50px] object-contain"
+                />
+                <div className="flex flex-col items-center w-full">
+                  <span className="text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px] font-regular text-[#2D3748] text-center leading-tight break-words max-w-full px-0.5">
                     {card.title}
                   </span>
-                  <span className="text-[20px] font-medium text-[#2D3748]">
+                  <span className="text-[18px] sm:text-[20px] font-medium text-[#2D3748]">
                     {loading ? "..." : card.count}
                   </span>
                 </div>
@@ -274,31 +281,31 @@ function ResidentCertificates({ onOpenHelp }) {
             ))}
           </div>
 
-          {/* Request Types */}
-          <div className="bg-white border border-[#2D37482D] rounded-2xl p-6 mb-[30px] flex flex-col mx-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
-            <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
+          {/* ── Request Types ── */}
+          <div className="bg-white border border-[#2D37482D] rounded-[10px] sm:rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] my-4 sm:my-5 md:my-[30px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-shadow duration-300">
+            <h3 className="text-[15px] sm:text-[16px] md:text-[17px] font-bold text-[#1B365D] mb-3 sm:mb-4 text-left">
               {t.requestTypes}
             </h3>
 
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center">
-                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words">
                   {t.character}
                 </span>
                 <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap"
                   onClick={() =>
                     navigate("/ResidentDashboard/certificates/apply-character")
                   }
                 >
                   <svg
-                    width="16"
-                    height="16"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
-                    className="mr-1"
+                    className="mr-0.5 sm:mr-1"
                   >
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -307,24 +314,24 @@ function ResidentCertificates({ onOpenHelp }) {
                 </span>
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-[14.5px] font-semibold text-[#2D3748] text-left">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words">
                   {t.income}
                 </span>
                 <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[14px] cursor-pointer transition-colors duration-200"
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap"
                   onClick={() =>
                     navigate("/ResidentDashboard/certificates/apply-income")
                   }
                 >
                   <svg
-                    width="16"
-                    height="16"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2.5"
-                    className="mr-1"
+                    className="mr-0.5 sm:mr-1"
                   >
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -335,82 +342,84 @@ function ResidentCertificates({ onOpenHelp }) {
             </div>
           </div>
 
-          {/* Status List */}
-          <div className="bg-white border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-2xl p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-[30px] mx-[30px] flex flex-col">
-            <h3 className="text-[17px] font-bold text-[#1B365D] mb-4 text-left">
+          {/* ── Status List ── */}
+          <div className="bg-white border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-[10px] sm:rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] mb-4 sm:mb-5 md:mb-[30px] mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] flex flex-col transition-shadow duration-300">
+            <h3 className="text-[15px] sm:text-[16px] md:text-[17px] font-bold text-[#1B365D] mb-3 sm:mb-4 text-left">
               {t.statusTitle}
             </h3>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5 sm:gap-3">
               {loading ? (
-                <div className="text-center py-5 text-[#64748b] text-[14px]">
+                <div className="text-center py-5 text-[#64748b] text-[13px] sm:text-[14px]">
                   {t.loading}
                 </div>
               ) : error ? (
-                <div className="text-center py-5 text-red-500 text-[14px]">
+                <div className="text-center py-5 text-red-500 text-[13px] sm:text-[14px]">
                   Error: {error}
                 </div>
               ) : requests.length === 0 ? (
-                <div className="flex items-center justify-center p-8 bg-[#f8fafc] border border-dashed border-[#cbd5e1] rounded-xl text-[#64748b] text-[13px] font-semibold">
+                <div className="flex items-center justify-center p-6 sm:p-8 bg-[#f8fafc] border border-dashed border-[#cbd5e1] rounded-xl text-[#64748b] text-[12px] sm:text-[13px] font-semibold text-center">
                   {t.noRequests}
                 </div>
               ) : (
                 requests.slice(0, 5).map((req) => (
                   <div
                     key={req.request_id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-[#f8fafc] border border-[#2D374813] rounded-xl gap-3"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-[#f8fafc] border border-[#2D374813] rounded-xl gap-2 sm:gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
                         <svg
-                          width="18"
-                          height="18"
+                          width="16"
+                          height="16"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="#d97706"
                           strokeWidth="2"
+                          className="sm:w-[18px] sm:h-[18px]"
                         >
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                         </svg>
                       </span>
-                      <span className="text-[14.5px] font-semibold text-[#1e293b] text-left capitalize">
+                      <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#1e293b] text-left capitalize break-words">
                         {req.certificate_type?.toLowerCase() || "Certificate"}
                       </span>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-left">
-                      <span className="text-[13px] text-[#64748b]">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-left">
+                      <span className="text-[12px] sm:text-[13px] text-[#64748b] break-words">
                         {t.purpose}: {req.purpose || "N/A"}
                       </span>
                       <span
-                        className={`inline-flex items-center self-start px-2.5 py-1 rounded-full text-[12px] font-bold ${req.status === "APPROVED"
+                        className={`inline-flex items-center self-start px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[11px] sm:text-[12px] font-bold whitespace-nowrap ${
+                          req.status === "APPROVED"
                             ? "bg-green-100 text-green-700"
                             : req.status === "REJECTED"
                               ? "bg-red-100 text-red-700"
                               : "bg-amber-100 text-amber-700"
-                          }`}
+                        }`}
                       >
                         {req.status === "APPROVED" && (
                           <svg
-                            width="12"
-                            height="12"
+                            width="10"
+                            height="10"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
-                            className="mr-1"
+                            className="mr-0.5 sm:mr-1"
                           >
                             <polyline points="20 6 9 17 4 12"></polyline>
                           </svg>
                         )}
                         {req.status === "REJECTED" && (
                           <svg
-                            width="12"
-                            height="12"
+                            width="10"
+                            height="10"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
-                            className="mr-1"
+                            className="mr-0.5 sm:mr-1"
                           >
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -418,13 +427,13 @@ function ResidentCertificates({ onOpenHelp }) {
                         )}
                         {req.status === "PENDING" && (
                           <svg
-                            width="12"
-                            height="12"
+                            width="10"
+                            height="10"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
-                            className="mr-1"
+                            className="mr-0.5 sm:mr-1"
                           >
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
@@ -442,7 +451,7 @@ function ResidentCertificates({ onOpenHelp }) {
                     onClick={() =>
                       navigate("/ResidentDashboard/certificates/pending")
                     }
-                    className="text-[#1B365D] hover:text-[#005BBD] text-[13px] font-semibold cursor-pointer bg-transparent border-0"
+                    className="text-[#1B365D] hover:text-[#005BBD] text-[12px] sm:text-[13px] font-semibold cursor-pointer bg-transparent border-0"
                   >
                     View all {requests.length} requests →
                   </button>
@@ -451,12 +460,10 @@ function ResidentCertificates({ onOpenHelp }) {
             </div>
           </div>
         </div>
-
-        <ChatbotButton onOpenHelp={onOpenHelp} />
       </div>
 
-
-  <Footer />
+      <ChatbotButton onOpenHelp={onOpenHelp} />
+      <Footer />
     </div>
   );
 }

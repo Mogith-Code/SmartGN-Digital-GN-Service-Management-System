@@ -1,4 +1,4 @@
-// src/pages/AppointmentLayoutPage.jsx
+// src/components/AppointmentsPage/AppointmentLayoutPage.jsx
 import React from "react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
@@ -17,10 +17,8 @@ function AppointmentLayoutPage({
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
-  // State to manage dismissing the alert banner
   const [showAlert, setShowAlert] = useState(true);
 
-  // Profile data state
   const [profile, setProfile] = useState({
     firstName: "Nimal",
     lastName: "Perera",
@@ -39,7 +37,6 @@ function AppointmentLayoutPage({
     nicBack: null,
   });
 
-  // TRANSLATION OBJECTS
   const AppointmentLayoutTranslations = {
     EN: {
       Title: "Appointments",
@@ -61,19 +58,16 @@ function AppointmentLayoutPage({
   const t =
     AppointmentLayoutTranslations[lang] || AppointmentLayoutTranslations.EN;
 
-  // State to track the selected date from calendar
   const [selectedDate, setSelectedDate] = useState({
     day: new Date().getDate(),
     month: new Date().getMonth(),
     year: new Date().getFullYear(),
   });
 
-  // ✅ Check if NIC images are missing - used for alert
   const areNicImagesMissing = () => {
     return !profile.nicFront || !profile.nicBack;
   };
 
-  // ✅ Fetch profile to get NIC images
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -89,7 +83,6 @@ function AppointmentLayoutPage({
             nicBack: data.nic_back_path || null,
           }));
 
-          // ✅ Auto-hide alert if both NIC images exist
           if (data.nic_front_path && data.nic_back_path) {
             setShowAlert(false);
           } else {
@@ -104,10 +97,8 @@ function AppointmentLayoutPage({
     fetchProfile();
   }, []);
 
-  // ✅ Listen for profile updates from other components
   useEffect(() => {
     const handleProfileUpdate = () => {
-      // Re-fetch profile when updated
       const fetchUpdatedProfile = async () => {
         try {
           const res = await fetch("/api/residents/profile", {
@@ -141,12 +132,10 @@ function AppointmentLayoutPage({
     };
   }, []);
 
-  // Handler for date selection from calendar
   const handleDateSelect = (day, month, year) => {
     setSelectedDate({ day, month, year });
   };
 
-  // ✅ FIXED: Format bookings for calendar - handles date with time
   const getBookingsForCalendar = () => {
     if (!appointments || appointments.length === 0) return [];
 
@@ -154,7 +143,6 @@ function AppointmentLayoutPage({
       .map((appointment) => {
         let appDate;
         if (typeof appointment.date === "string") {
-          // If date includes time (e.g., "2026-07-31 10:00:00"), take only the date part
           const datePart = appointment.date.split(" ")[0];
           appDate = new Date(datePart);
         } else if (appointment.date instanceof Date) {
@@ -163,7 +151,6 @@ function AppointmentLayoutPage({
           return null;
         }
 
-        // Check if the date is valid
         if (isNaN(appDate.getTime())) {
           return null;
         }
@@ -177,7 +164,6 @@ function AppointmentLayoutPage({
       .filter((booking) => booking !== null);
   };
 
-  // ✅ FIXED: Get appointment for selected date
   const getAppointmentForSelectedDate = () => {
     return appointments.find((appointment) => {
       let appDate;
@@ -205,7 +191,6 @@ function AppointmentLayoutPage({
   const activeAppointment = getAppointmentForSelectedDate();
   const calendarBookings = getBookingsForCalendar();
 
-  // Helper function to format time
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
     try {
@@ -222,7 +207,6 @@ function AppointmentLayoutPage({
     }
   };
 
-  // Helper function to format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
@@ -241,72 +225,78 @@ function AppointmentLayoutPage({
 
   return (
     <>
-      <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-        <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
+      {/* Alert Banner - Above Header */}
+      {showAlert && areNicImagesMissing() && (
+        <div className="mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[30px]">
+          <div className="flex flex-wrap items-center justify-between p-2 sm:p-2.5 md:p-[10px] bg-[#fef3c7] border border-[#fde68a] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-lg sm:rounded-xl text-[#d97706] font-medium text-[11px] sm:text-xs md:text-sm lg:text-[14px] text-left w-full transition-shadow duration-300">
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+              <span
+                className="hover:underline hover:cursor-pointer truncate"
+                onClick={() => {
+                  navigate("/ResidentDashboard/profile");
+                }}
+              >
+                {t.alert}
+              </span>
+            </div>
+            <button
+              className="bg-transparent border-0 text-[#d97706] cursor-pointer p-0.5 sm:p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] flex-shrink-0 ml-1 sm:ml-2"
+              onClick={() => setShowAlert(false)}
+              aria-label="Close Warning"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="sm:w-[16px] sm:h-[16px]"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[20px] mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] border-b border-[#2D37482D] pb-2 sm:pb-3 md:pb-[10px]">
+        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-[24px] font-medium text-[#1B365D] break-words max-w-full sm:max-w-[70%]">
           {t.Title}
         </h2>
-
-        {/* ✅ NIC upload alert - Check if NIC images are missing */}
-        <div className="flex justify-end -mt-[70px]">
-          {showAlert && areNicImagesMissing() && (
-            <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
-              <div className="flex items-center gap-2">
-                <span
-                  className="hover:underline hover:cursor-pointer"
-                  onClick={() => {
-                    navigate("/ResidentDashboard/profile");
-                  }}
-                >
-                  {t.alert}
-                </span>
-              </div>
-              <button
-                className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
-                onClick={() => setShowAlert(false)}
-                aria-label="Close Warning"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[30px] justify-center">
         <CardLayout pendingCount={pendingCount} approvedCount={approvedCount} />
       </div>
 
-      <div className="flex mt-4 sm:mt-5 md:mt-6 lg:mt-[30px] mx-4 sm:mx-6 md:mx-8 lg:m-[30px] items-start justify-between gap-[30px]">
-        <CalenderLayout
-          onDateSelect={handleDateSelect}
-          bookings={calendarBookings}
-        />
+      {/* Calendar and Appointment Summary */}
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-5 md:gap-6 mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-4 sm:mt-5 md:mt-6 lg:mt-[30px]">
+        <div className="w-full lg:w-[45%] xl:w-[40%]">
+          <CalenderLayout
+            onDateSelect={handleDateSelect}
+            bookings={calendarBookings}
+          />
+        </div>
 
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center w-full lg:w-[55%] xl:w-[60%]">
           {activeAppointment ? (
-            <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] ">
+            <div className="flex w-full flex-col p-4 sm:p-5 md:p-6 lg:p-[30px] border-[1.5px] border-[#2D37484D] rounded-xl shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-shadow duration-300">
               <p className="font-medium text-sm sm:text-base md:text-lg lg:text-[16px] text-[#1B365D] pb-[1px] text-center border-b-[1.5px] border-[#2D37484D]">
                 Appointment Summary
               </p>
 
               <div className="flex flex-col gap-1 sm:gap-2 md:gap-3 lg:gap-[5px] mt-3 sm:mt-4 md:mt-5 lg:mt-[20px]">
-                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748] break-words">
                   <span className="font-medium">Purpose:</span>{" "}
                   {activeAppointment.purpose || "N/A"}
                 </p>
-                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748] break-words">
                   <span className="font-medium">Date:</span>{" "}
                   {formatDate(activeAppointment.date)}
                 </p>
@@ -319,15 +309,15 @@ function AppointmentLayoutPage({
                   <span
                     className={
                       activeAppointment.status === "Pending"
-                        ? "text-yellow-600"
-                        : "text-green-600"
+                        ? "text-yellow-600 font-semibold"
+                        : "text-green-600 font-semibold"
                     }
                   >
                     {activeAppointment.status || "N/A"}
                   </span>
                 </p>
                 {activeAppointment.contact_number && (
-                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                  <p className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748] break-words">
                     <span className="font-medium">Contact:</span>{" "}
                     {activeAppointment.contact_number}
                   </p>

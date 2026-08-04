@@ -2,8 +2,10 @@ import React from "react";
 import AfterlogNavbar from "../Common/AfterlogNavbar";
 import RSidebar from "../Common/RSidebar";
 import EditFamilyDetailsLayout from "./EditFamilyDetailsLayout";
+import Footer from "../Common/Footer";
+import ChatbotButton from "../Common/ChatbotButton";
 
-function EditFamilyDetails() {
+function EditFamilyDetails({ onOpenHelp }) {
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
@@ -16,6 +18,9 @@ function EditFamilyDetails() {
           <EditFamilyDetailsLayout />
         </div>
       </div>
+
+      <ChatbotButton onOpenHelp={onOpenHelp} />
+      <Footer />
     </div>
   );
 }

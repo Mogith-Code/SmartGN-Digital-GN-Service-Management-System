@@ -385,57 +385,59 @@ function ResidentDisasterReport({ onOpenHelp }) {
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
-          {/* Top Ref for Scrolling */}
           <div ref={topRef}></div>
 
-          <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
-            <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
+          {/* Alert Banner - Above Header */}
+          {showAlert && areNicImagesMissing() && (
+            <div className="mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[30px]">
+              <div className="flex flex-wrap items-center justify-between p-2 sm:p-2.5 md:p-[10px] bg-[#fef3c7] border border-[#fde68a] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] rounded-lg sm:rounded-xl text-[#d97706] font-medium text-[11px] sm:text-xs md:text-sm lg:text-[14px] text-left w-full transition-shadow duration-300">
+                <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
+                  <span
+                    className="hover:underline hover:cursor-pointer truncate"
+                    onClick={() => {
+                      navigate("/ResidentDashboard/profile");
+                    }}
+                  >
+                    {t.alert}
+                  </span>
+                </div>
+                <button
+                  className="bg-transparent border-0 text-[#d97706] cursor-pointer p-0.5 sm:p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] flex-shrink-0 ml-1 sm:ml-2"
+                  onClick={() => setShowAlert(false)}
+                  aria-label="Close Warning"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="sm:w-[16px] sm:h-[16px]"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mt-3 sm:mt-4 md:mt-5 lg:mt-6 xl:mt-[20px] mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] border-b border-[#2D37482D] pb-2 sm:pb-3 md:pb-[10px]">
+            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-[24px] font-medium text-[#1B365D] break-words max-w-full sm:max-w-[70%]">
               Disaster Damage Report & Relief Application
             </h2>
-
-            <div className="flex justify-end -mt-[70px]">
-              {showAlert && areNicImagesMissing() && (
-                <div className="flex justify-between items-center p-[10px] bg-[#fef3c7] border border-[#fde68a] rounded-xl text-[#d97706] font-medium text-[14px] text-left z-1 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="hover:underline hover:cursor-pointer"
-                      onClick={() => {
-                        navigate("/ResidentDashboard/profile");
-                      }}
-                    >
-                      {t.alert}
-                    </span>
-                  </div>
-                  <button
-                    className="bg-transparent border-0 text-[#d97706] cursor-pointer p-1 rounded flex items-center justify-center transition-all duration-200 hover:bg-[#fde68a] z-1 ml-3"
-                    onClick={() => setShowAlert(false)}
-                    aria-label="Close Warning"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Success Message */}
           {successMessage && (
-            <div className="mx-[30px] mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex justify-between items-center">
+            <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-3 sm:p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 flex-shrink-0"
+                  className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -445,16 +447,18 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="font-medium">{successMessage}</span>
+                <span className="font-medium text-[13px] sm:text-[14px] break-words">
+                  {successMessage}
+                </span>
               </div>
               <button
                 onClick={closeSuccessMessage}
-                className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-green-200 transition-colors"
+                className="text-green-700 hover:text-green-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-green-200 transition-colors flex-shrink-0 self-end sm:self-center"
                 aria-label="Close success message"
               >
                 <svg
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -471,10 +475,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
           {/* Error Message */}
           {errorMessage && !successMessage && (
-            <div className="mx-[30px] mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex justify-between items-center">
+            <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-3 sm:p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2">
                 <svg
-                  className="w-5 h-5 flex-shrink-0"
+                  className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -484,16 +488,18 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     clipRule="evenodd"
                   />
                 </svg>
-                <span className="font-medium">{errorMessage}</span>
+                <span className="font-medium text-[13px] sm:text-[14px] break-words">
+                  {errorMessage}
+                </span>
               </div>
               <button
                 onClick={() => setErrorMessage("")}
-                className="text-red-700 hover:text-red-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-red-200 transition-colors"
+                className="text-red-700 hover:text-red-900 bg-transparent border-0 cursor-pointer p-1 rounded hover:bg-red-200 transition-colors flex-shrink-0 self-end sm:self-center"
                 aria-label="Close error message"
               >
                 <svg
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -508,31 +514,34 @@ function ResidentDisasterReport({ onOpenHelp }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start text-left m-[30px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 md:gap-6 lg:gap-8 items-start mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] my-4 sm:my-5 md:my-[30px]">
             {/* Left Column: Form Card */}
-            <div className="lg:col-span-7 bg-white border border-[#2D37482D] rounded-2xl p-6 sm:p-8 shadow-sm">
-              <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4">
+            <div className="lg:col-span-7 bg-white border border-[#2D37482D] rounded-[10px] sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 shadow-sm">
+              <h3 className="text-[15px] sm:text-[16px] md:text-[17px] lg:text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-2 sm:pb-3 mb-3 sm:mb-4">
                 Report Disaster Damage
               </h3>
 
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs sm:text-sm rounded-xl p-4 mb-6">
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[11px] sm:text-xs md:text-sm rounded-[10px] sm:rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
                 Use this form to report damage caused by natural disasters to
                 your property, crops, or livelihood and apply for official Grama
                 Niladhari relief evaluation.
               </div>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
+              <form
+                onSubmit={handleSubmit}
+                className="flex flex-col gap-3 sm:gap-4"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
                     <label
                       htmlFor="disasterSelect"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Type of Disaster
                     </label>
                     <select
                       id="disasterSelect"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
                       value={disasterType}
                       onChange={(e) => setDisasterType(e.target.value)}
                       required
@@ -546,16 +555,16 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-1 sm:gap-1.5">
                     <label
                       htmlFor="severitySelect"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Estimated Severity
                     </label>
                     <select
                       id="severitySelect"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all bg-white"
                       value={severity}
                       onChange={(e) => setSeverity(e.target.value)}
                       required
@@ -566,17 +575,17 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     </select>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <div className="flex flex-col gap-1 sm:gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="locInput"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Location / Address of Damage
                     </label>
                     <input
                       type="text"
                       id="locInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="e.g. 45/2 Main Road Area, Colombo"
                       value={locationArea}
                       onChange={(e) => setLocationArea(e.target.value)}
@@ -584,17 +593,17 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <div className="flex flex-col gap-1 sm:gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="contactInput"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Contact Phone Number
                     </label>
                     <input
                       type="text"
                       id="contactInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="e.g. 077XXXXXXXX"
                       value={contactNumber}
                       onChange={(e) => setContactNumber(e.target.value)}
@@ -602,16 +611,16 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <div className="flex flex-col gap-1 sm:gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="descInput"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Description of Damages Sustained
                     </label>
                     <textarea
                       id="descInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all resize-none"
                       rows="3"
                       placeholder="Describe crop damage, structural damage, water levels, or loss..."
                       value={description}
@@ -620,10 +629,10 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     ></textarea>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                  <div className="flex flex-col gap-1 sm:gap-1.5 sm:col-span-2">
                     <label
                       htmlFor="reliefInput"
-                      className="text-xs font-bold text-[#475569]"
+                      className="text-[10px] sm:text-xs font-bold text-[#475569]"
                     >
                       Relief Aid Required (e.g. Food, Shelter, Medical,
                       Financial)
@@ -631,7 +640,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     <input
                       type="text"
                       id="reliefInput"
-                      className="border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
+                      className="border border-gray-300 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[13px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#005BBD] focus:border-transparent transition-all"
                       placeholder="Specify emergency items or financial help..."
                       value={aidRequested}
                       onChange={(e) => setAidRequested(e.target.value)}
@@ -639,24 +648,24 @@ function ResidentDisasterReport({ onOpenHelp }) {
                   </div>
 
                   {/* Damage Photo Upload */}
-                  <div className="flex flex-col gap-1.5 sm:col-span-2 text-left">
-                    <label className="text-xs font-bold text-[#475569]">
+                  <div className="flex flex-col gap-1 sm:gap-1.5 sm:col-span-2 text-left">
+                    <label className="text-[10px] sm:text-xs font-bold text-[#475569]">
                       Attach Affected Area / Damage Photo (Proof for GN
                       Verification)
                     </label>
                     {damageImage ? (
-                      <div className="border border-emerald-300 bg-emerald-50 rounded-xl p-3.5 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                      <div className="border border-emerald-300 bg-emerald-50 rounded-xl p-3 sm:p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="flex items-center gap-2 sm:gap-3">
                           <img
                             src={damageImage}
                             alt="Damage preview"
-                            className="w-14 h-14 object-cover rounded-lg border border-emerald-200 shadow-xs"
+                            className="w-10 h-10 sm:w-14 sm:h-14 object-cover rounded-lg border border-emerald-200 shadow-xs"
                           />
                           <div className="flex flex-col">
-                            <span className="text-xs font-bold text-emerald-900 truncate max-w-[220px]">
+                            <span className="text-[11px] sm:text-xs font-bold text-emerald-900 truncate max-w-[150px] sm:max-w-[220px]">
                               {damageImageName || "affected_area_photo.jpg"}
                             </span>
-                            <span className="text-[10px] text-emerald-700 font-semibold">
+                            <span className="text-[9px] sm:text-[10px] text-emerald-700 font-semibold">
                               ✓ Proof photo attached for GN verification
                             </span>
                           </div>
@@ -664,21 +673,21 @@ function ResidentDisasterReport({ onOpenHelp }) {
                         <button
                           type="button"
                           onClick={removeDamageImage}
-                          className="text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1.5 px-3 rounded-lg border-0 cursor-pointer transition-colors"
+                          className="text-[10px] sm:text-xs bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-1 sm:py-1.5 px-2 sm:px-3 rounded-lg border-0 cursor-pointer transition-colors w-full sm:w-auto text-center"
                         >
                           Remove Photo
                         </button>
                       </div>
                     ) : (
-                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
+                      <div className="border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-xl p-4 sm:p-5 flex flex-col items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-colors bg-[#F8FAFC]">
                         <svg
-                          width="24"
-                          height="24"
+                          width="20"
+                          height="20"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2"
-                          className="text-gray-400"
+                          className="sm:w-[24px] sm:h-[24px] text-gray-400"
                         >
                           <rect
                             x="3"
@@ -691,7 +700,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                           <circle cx="8.5" cy="8.5" r="1.5"></circle>
                           <polyline points="21 15 16 10 5 21"></polyline>
                         </svg>
-                        <span className="text-xs text-gray-500 font-medium">
+                        <span className="text-[10px] sm:text-xs text-gray-500 font-medium text-center">
                           Upload photo of affected house / land / crops (.jpg,
                           .png)
                         </span>
@@ -704,7 +713,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                         />
                         <label
                           htmlFor="damageImageFile"
-                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-xs font-bold py-1.5 px-3.5 rounded-lg border-0 cursor-pointer transition-colors"
+                          className="bg-[#005BBD]/10 hover:bg-[#005BBD]/20 text-[#005BBD] text-[10px] sm:text-xs font-bold py-1 sm:py-1.5 px-2.5 sm:px-3.5 rounded-lg border-0 cursor-pointer transition-colors"
                         >
                           Choose Photo
                         </label>
@@ -714,26 +723,27 @@ function ResidentDisasterReport({ onOpenHelp }) {
                 </div>
 
                 {errorMessage && !successMessage && (
-                  <p className="text-rose-500 text-xs font-semibold m-0 text-left">
+                  <p className="text-rose-500 text-[11px] sm:text-xs font-semibold m-0 text-left">
                     {errorMessage}
                   </p>
                 )}
 
-                <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4 mt-2">
+                <div className="flex flex-col sm:flex-row items-center justify-end gap-2 sm:gap-3 border-t border-gray-100 pt-3 sm:pt-4 mt-1 sm:mt-2">
                   <button
                     type="button"
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5"
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl border-0 cursor-pointer text-[12px] sm:text-sm transition-colors flex items-center justify-center gap-1.5 w-full sm:w-auto"
                     onClick={handleReset}
                     disabled={isLoading}
                   >
                     {t.reset}
                     <svg
-                      width="14"
-                      height="14"
+                      width="12"
+                      height="12"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.5"
+                      className="sm:w-[14px] sm:h-[14px]"
                     >
                       <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
                     </svg>
@@ -741,13 +751,13 @@ function ResidentDisasterReport({ onOpenHelp }) {
 
                   <button
                     type="submit"
-                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2.5 px-6 rounded-xl border-0 cursor-pointer text-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                    className="bg-[#005BBD] hover:bg-[#1B365D] text-white font-semibold py-2 sm:py-2.5 px-5 sm:px-6 rounded-xl border-0 cursor-pointer text-[12px] sm:text-sm transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 w-full sm:w-auto"
                     disabled={isLoading}
                   >
                     {isLoading ? (
                       <>
                         <svg
-                          className="animate-spin h-4 w-4 mr-2"
+                          className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4"
                           viewBox="0 0 24 24"
                         >
                           <circle
@@ -771,12 +781,13 @@ function ResidentDisasterReport({ onOpenHelp }) {
                       <>
                         {t.submitReport}
                         <svg
-                          width="14"
-                          height="14"
+                          width="12"
+                          height="12"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2.5"
+                          className="sm:w-[14px] sm:h-[14px]"
                         >
                           <line x1="22" y1="2" x2="11" y2="13"></line>
                           <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -789,18 +800,18 @@ function ResidentDisasterReport({ onOpenHelp }) {
             </div>
 
             {/* Right Column: History Tracking */}
-            <div className="lg:col-span-5 bg-white border border-[#2D37482D] rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col">
-              <h3 className="text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4">
+            <div className="lg:col-span-5 bg-white border border-[#2D37482D] rounded-[10px] sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 shadow-sm flex flex-col">
+              <h3 className="text-[15px] sm:text-[16px] md:text-[17px] lg:text-lg font-bold text-[#1B365D] border-b border-gray-100 pb-2 sm:pb-3 mb-3 sm:mb-4">
                 Your Reported Disasters History
               </h3>
 
-              <div className="flex flex-col gap-4 max-h-[550px] overflow-y-auto pr-1">
+              <div className="flex flex-col gap-3 sm:gap-4 max-h-[450px] sm:max-h-[550px] overflow-y-auto pr-1">
                 {isLoading && !myDisasters.length ? (
-                  <div className="py-8 text-center text-gray-500">
+                  <div className="py-6 sm:py-8 text-center text-gray-500 text-[13px] sm:text-sm">
                     Loading...
                   </div>
                 ) : myDisasters.length === 0 ? (
-                  <div className="py-8 text-center text-gray-500 font-medium text-sm border border-dashed border-gray-200 rounded-xl">
+                  <div className="py-6 sm:py-8 text-center text-gray-500 font-medium text-[12px] sm:text-sm border border-dashed border-gray-200 rounded-xl">
                     No reported disasters registered to your account yet.
                   </div>
                 ) : (
@@ -815,7 +826,7 @@ function ResidentDisasterReport({ onOpenHelp }) {
                     return (
                       <div
                         key={disaster.id}
-                        className={`border rounded-xl p-5 flex flex-col gap-3 transition-shadow hover:shadow-xs bg-white text-left ${
+                        className={`border rounded-[10px] sm:rounded-xl p-4 sm:p-5 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xs bg-white text-left ${
                           isHigh
                             ? "border-rose-200 bg-rose-50/30"
                             : disaster.severity === "MEDIUM"
@@ -823,12 +834,12 @@ function ResidentDisasterReport({ onOpenHelp }) {
                               : "border-gray-200"
                         }`}
                       >
-                        <div className="flex justify-between items-center gap-2">
-                          <span className="font-bold text-[#1B365D] text-base">
+                        <div className="flex flex-wrap justify-between items-center gap-2">
+                          <span className="font-bold text-[#1B365D] text-[14px] sm:text-base break-words">
                             {disaster.type}
                           </span>
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                            className={`px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-extrabold uppercase whitespace-nowrap ${
                               isHigh
                                 ? "bg-rose-100 text-rose-800"
                                 : disaster.severity === "MEDIUM"
@@ -840,39 +851,39 @@ function ResidentDisasterReport({ onOpenHelp }) {
                           </span>
                         </div>
 
-                        <div className="flex flex-col gap-1 text-xs text-gray-600 font-medium">
-                          <div>
+                        <div className="flex flex-col gap-0.5 sm:gap-1 text-[11px] sm:text-xs text-gray-600 font-medium">
+                          <div className="break-words">
                             <strong>Location:</strong> {disaster.location}
                           </div>
                           <div>
                             <strong>Date:</strong> {disaster.date}
                           </div>
-                          <div>
+                          <div className="break-words">
                             <strong>Relief Request:</strong>{" "}
                             {disaster.aidRequested}
                           </div>
-                          <div className="mt-1 bg-slate-50 p-2 rounded text-slate-700 text-[11px] leading-relaxed">
+                          <div className="mt-1 bg-slate-50 p-2 rounded text-slate-700 text-[10px] sm:text-[11px] leading-relaxed break-words">
                             {disaster.description}
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center border-t border-gray-100 pt-3 mt-1">
-                          <span className="text-[11px] text-gray-400 font-bold">
+                        <div className="flex flex-wrap justify-between items-center border-t border-gray-100 pt-2 sm:pt-3 mt-1 gap-2">
+                          <span className="text-[10px] sm:text-[11px] text-gray-400 font-bold">
                             Status Tracking:
                           </span>
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase ${getStatusBadgeClass(disaster.status)}`}
+                            className={`px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold border uppercase ${getStatusBadgeClass(disaster.status)}`}
                           >
                             {disaster.status || "Pending"}
                           </span>
                         </div>
 
                         {disaster.remarks && (
-                          <div className="mt-1 bg-amber-50/70 border border-amber-100 rounded-lg p-3">
-                            <div className="text-[10px] uppercase tracking-wider text-amber-800 font-bold mb-1">
+                          <div className="mt-1 bg-amber-50/70 border border-amber-100 rounded-lg p-2 sm:p-3">
+                            <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-amber-800 font-bold mb-0.5 sm:mb-1">
                               Official GN Remarks & Action:
                             </div>
-                            <p className="m-0 text-amber-900 text-xs leading-relaxed">
+                            <p className="m-0 text-amber-900 text-[11px] sm:text-xs leading-relaxed break-words">
                               {disaster.remarks}
                             </p>
                           </div>
@@ -888,7 +899,6 @@ function ResidentDisasterReport({ onOpenHelp }) {
       </div>
 
       <ChatbotButton onOpenHelp={onOpenHelp} />
-
       <Footer />
     </div>
   );
