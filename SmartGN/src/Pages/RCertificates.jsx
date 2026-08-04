@@ -288,12 +288,13 @@ function ResidentCertificates({ onOpenHelp }) {
             </h3>
 
             <div className="flex flex-col gap-3 sm:gap-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words">
+              {/* Character Certificate - Align Right */}
+              <div className="flex flex-row justify-between items-center gap-2 sm:gap-4 w-full">
+                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words flex-1">
                   {t.character}
                 </span>
                 <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap flex-shrink-0"
                   onClick={() =>
                     navigate("/ResidentDashboard/certificates/apply-character")
                   }
@@ -314,12 +315,13 @@ function ResidentCertificates({ onOpenHelp }) {
                 </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words">
+              {/* Income Certificate - Align Right */}
+              <div className="flex flex-row justify-between items-center gap-2 sm:gap-4 w-full">
+                <span className="text-[13px] sm:text-[14px] md:text-[14.5px] font-semibold text-[#2D3748] text-left break-words flex-1">
                   {t.income}
                 </span>
                 <span
-                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap"
+                  className="flex items-center gap-1 text-[#D69E2E] hover:text-[#FFAA00] font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-200 whitespace-nowrap flex-shrink-0"
                   onClick={() =>
                     navigate("/ResidentDashboard/certificates/apply-income")
                   }
