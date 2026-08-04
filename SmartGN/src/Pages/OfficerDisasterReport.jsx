@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getAuthHeaders } from "../utils/api";
+import { getImageUrl } from "../utils/imageUtils";
 import { addNotification } from "../utils/notifications";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
@@ -607,7 +608,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
                       <div className="flex flex-col md:flex-row gap-4">
                         <div className="md:w-48 h-36 flex-shrink-0 overflow-hidden rounded-lg border border-slate-300 bg-white">
                           <img
-                            src={selectedDisaster.imagePath}
+                            src={getImageUrl(selectedDisaster.imagePath)}
                             alt="Affected area damage proof"
                             className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                             onClick={() =>
@@ -828,7 +829,7 @@ function OfficerDisasterReports({ onOpenHelp }) {
               ×
             </button>
             <img
-              src={previewImage}
+              src={getImageUrl(previewImage)}
               alt="Full resolution proof photo"
               className="max-h-[85vh] w-full object-contain rounded-xl border border-white/10 shadow-2xl"
             />

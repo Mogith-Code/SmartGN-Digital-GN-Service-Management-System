@@ -9,6 +9,7 @@ import { useLanguage } from "../../utils/translate";
 import FamilyMemberTable from "../Family&HouseholdPage/FamilyMemberTable";
 import { decryptId } from "../../utils/encryption";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import { getImageUrl } from "../../utils/imageUtils";
 
 function DetailItem({ label, value, isEmail }) {
   return (
@@ -157,49 +158,6 @@ function ProfileDetails({ onOpenHelp }) {
     }
 
     return response;
-  };
-
-  // ============================================================
-  // GET IMAGE URL - FIXED for Vite (no process.env)
-  // ============================================================
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-
-    console.log("📸 Raw image path:", imagePath);
-
-    // If it's already a full URL, return as is
-    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-      console.log("📸 Full URL detected:", imagePath);
-      return imagePath;
-    }
-
-    // Get base URL - use window.location for Vite
-    const baseUrl =
-      import.meta.env?.VITE_API_URL ||
-      window.location.origin ||
-      "http://localhost:5000";
-
-    // Clean the path (remove leading slashes)
-    let cleanPath = imagePath.replace(/^\/+/, "");
-
-    // If it starts with 'uploads/', keep as is
-    if (cleanPath.startsWith("uploads/")) {
-      const fullUrl = `${baseUrl}/${cleanPath}`;
-      console.log("📸 Uploads path detected:", fullUrl);
-      return fullUrl;
-    }
-
-    // If it's just a filename (no slashes), assume it's in uploads
-    if (!cleanPath.includes("/")) {
-      const fullUrl = `${baseUrl}/uploads/${cleanPath}`;
-      console.log("📸 Filename only, using uploads:", fullUrl);
-      return fullUrl;
-    }
-
-    // For any other case, try to construct the URL
-    const fullUrl = `${baseUrl}/${cleanPath}`;
-    console.log("📸 Constructed URL:", fullUrl);
-    return fullUrl;
   };
 
   // ============================================================

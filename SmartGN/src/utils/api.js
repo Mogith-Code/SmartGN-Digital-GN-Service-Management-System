@@ -70,3 +70,7 @@ export const logout = () => {
   localStorage.removeItem("smartgn_user_division");
   window.location.href = "/login";
 };
+
+// Re-export getImageUrl for convenience
+export { getImageUrl } from "./imageUtils";
+
