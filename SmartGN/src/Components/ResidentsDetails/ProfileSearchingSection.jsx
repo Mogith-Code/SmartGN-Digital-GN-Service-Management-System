@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { encryptId } from "../../utils/encryption";
+import { getImageUrl } from "../../utils/imageUtils";
+import { getApiUrl } from "../../utils/api";
 
 function ProfileSearchingSection() {
   const navigate = useNavigate();
@@ -73,7 +75,7 @@ function ProfileSearchingSection() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/officer/residents", {
+        const response = await fetch(getApiUrl("/api/officer/residents"), {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",
             "Content-Type": "application/json",
@@ -268,6 +270,16 @@ function ProfileSearchingSection() {
           const displayNic = resident.r_nic || resident.nic || "N/A";
           const displayHousehold = resident.household_number || "N/A";
 
+          // ✅ Resolve profile photo URL
+          const photoPath =
+            resident.profile_photo_path ||
+            resident.profilePhoto ||
+            resident.profile_photo ||
+            resident.photo_path ||
+            resident.photo ||
+            null;
+          const photoUrl = photoPath ? getImageUrl(photoPath) : null;
+
           // ✅ Encrypt NIC for URL
           const encryptedNic = encryptId(displayNic);
 
@@ -278,11 +290,15 @@ function ProfileSearchingSection() {
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center">
-                  {resident.profile_photo_path ? (
+                  {photoUrl ? (
                     <img
-                      src={resident.profile_photo_path}
-                      alt="Resident Photo"
-                      className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0"
+                      src={photoUrl}
+                      alt={displayName}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = profileIcon;
+                      }}
+                      className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0 border border-gray-200"
                     />
                   ) : (
                     <img

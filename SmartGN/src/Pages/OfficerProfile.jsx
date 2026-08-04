@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
+import { getImageUrl } from "../utils/imageUtils";
 import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
@@ -485,12 +486,16 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     {profile.profilePhoto ? (
                       <img
-                        src={profile.profilePhoto}
+                        src={getImageUrl(profile.profilePhoto)}
                         alt="Profile"
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -751,13 +756,17 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     {profile.idCardFront ? (
                       <img
-                        src={profile.idCardFront}
+                        src={getImageUrl(profile.idCardFront)}
                         alt="ID Front"
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "contain",
                           padding: "4px",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -789,13 +798,17 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     {profile.idCardBack ? (
                       <img
-                        src={profile.idCardBack}
+                        src={getImageUrl(profile.idCardBack)}
                         alt="ID Back"
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "contain",
                           padding: "4px",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -893,12 +906,16 @@ function OfficerProfile({ onOpenHelp }) {
                             {editProfilePhoto ? (
                               <>
                                 <img
-                                  src={editProfilePhoto}
+                                  src={getImageUrl(editProfilePhoto)}
                                   alt="Profile preview"
                                   style={{
                                     width: "100%",
                                     height: "100%",
                                     objectFit: "cover",
+                                  }}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
                                   }}
                                 />
                                 {/* ✕ Remove button - top-right corner */}
@@ -1199,13 +1216,17 @@ function OfficerProfile({ onOpenHelp }) {
                           {editIdCardFront ? (
                             <>
                               <img
-                                src={editIdCardFront}
+                                src={getImageUrl(editIdCardFront)}
                                 alt="GN ID Front"
                                 style={{
                                   width: "100%",
                                   height: "100%",
                                   objectFit: "contain",
                                   padding: "4px",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
                                 }}
                               />
                               <button
@@ -1319,13 +1340,17 @@ function OfficerProfile({ onOpenHelp }) {
                           {editIdCardBack ? (
                             <>
                               <img
-                                src={editIdCardBack}
+                                src={getImageUrl(editIdCardBack)}
                                 alt="GN ID Back"
                                 style={{
                                   width: "100%",
                                   height: "100%",
                                   objectFit: "contain",
                                   padding: "4px",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
                                 }}
                               />
                               <button

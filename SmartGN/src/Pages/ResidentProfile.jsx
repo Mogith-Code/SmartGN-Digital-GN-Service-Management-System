@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
-import { getAuthHeaders } from "../utils/api";
+import { getAuthHeaders, getImageUrl } from "../utils/api";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
 import profileIcon from "../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -516,15 +516,19 @@ function ResidentProfile({ onOpenHelp }) {
                   >
                     {profile.profilePhoto ? (
                       <img
-                        src={profile.profilePhoto}
+                        src={getImageUrl(profile.profilePhoto)}
                         alt="Profile avatar"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = profileIcon;
+                        }}
                       />
                     ) : (
                       <img
                         src={profileIcon}
                         alt="Default avatar"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover p-2"
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[11px] font-medium transition-all duration-200">
@@ -706,9 +710,13 @@ function ResidentProfile({ onOpenHelp }) {
                     <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicFront ? (
                         <img
-                          src={profile.nicFront}
+                          src={getImageUrl(profile.nicFront)}
                           alt="NIC Front"
                           className="w-full h-full object-contain p-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -721,9 +729,13 @@ function ResidentProfile({ onOpenHelp }) {
                     <div className="h-[200px] border-2 border-dashed border-[#cbd5e1] rounded-xl bg-[#f8fafc] flex items-center justify-center overflow-hidden relative">
                       {profile.nicBack ? (
                         <img
-                          src={profile.nicBack}
+                          src={getImageUrl(profile.nicBack)}
                           alt="NIC Back"
                           className="w-full h-full object-contain p-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -766,9 +778,13 @@ function ResidentProfile({ onOpenHelp }) {
                       <div className="w-24 h-24 rounded-full border-2 border-dashed border-[#cbd5e1] flex items-center justify-center overflow-hidden bg-[#f8fafc] hover:border-[#1B365D] transition-colors duration-200">
                         {editProfilePhoto ? (
                           <img
-                            src={editProfilePhoto}
+                            src={getImageUrl(editProfilePhoto)}
                             alt="Upload profile"
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = "none";
+                            }}
                           />
                         ) : (
                           <svg
@@ -1047,9 +1063,13 @@ function ResidentProfile({ onOpenHelp }) {
                           {editNicFront ? (
                             <>
                               <img
-                                src={editNicFront}
+                                src={getImageUrl(editNicFront)}
                                 alt="NIC Front Preview"
                                 className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
+                                }}
                               />
                               <button
                                 type="button"
@@ -1111,9 +1131,13 @@ function ResidentProfile({ onOpenHelp }) {
                           {editNicBack ? (
                             <>
                               <img
-                                src={editNicBack}
+                                src={getImageUrl(editNicBack)}
                                 alt="NIC Back Preview"
                                 className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
+                                }}
                               />
                               <button
                                 type="button"

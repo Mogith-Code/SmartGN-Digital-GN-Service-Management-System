@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
+import { getApiUrl } from "../utils/api";
 
 const registrationTranslations = {
   EN: {
@@ -198,6 +199,7 @@ function Register() {
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationNic, setVerificationNic] = useState("");
   const [householdCreatedState, setHouseholdCreatedState] = useState(false);
+  const [testOtp, setTestOtp] = useState("");
 
   // Timer state for OTP Resend
   const [timerCount, setTimerCount] = useState(0);
@@ -230,7 +232,7 @@ function Register() {
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
-        const response = await fetch("/api/auth/divisions");
+        const response = await fetch(getApiUrl("/api/auth/divisions"));
         if (response.ok) {
           const data = await response.json();
           setDivisions(data.map((d) => d.name));
@@ -318,7 +320,7 @@ function Register() {
         division: division,
       };
 
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch(getApiUrl("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bodyPayload),
@@ -339,6 +341,9 @@ function Register() {
       setHouseholdCreatedState(data.householdCreated || false);
 
       if (data.requiresVerification) {
+        if (data.otpForTesting) {
+          setTestOtp(data.otpForTesting);
+        }
         setShowOtpVerify(true);
         setTimerCount(60);
       } else {
@@ -400,7 +405,7 @@ function Register() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/auth/verify-registration", {
+      const response = await fetch(getApiUrl("/api/auth/verify-registration"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -445,7 +450,7 @@ function Register() {
     setResendSuccessMessage("");
 
     try {
-      const response = await fetch("/api/auth/resend-otp", {
+      const response = await fetch(getApiUrl("/api/auth/resend-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -462,6 +467,9 @@ function Register() {
         return;
       }
 
+      if (data.otpForTesting) {
+        setTestOtp(data.otpForTesting);
+      }
       setResendSuccessMessage(t.otpResendSuccess);
       setTimerCount(60);
       setOtpDigits(["", "", "", "", "", ""]);
@@ -491,12 +499,23 @@ function Register() {
               <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
 
-            {/* Console message - No OTP displayed */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-center">
-              <span className="text-sm text-blue-800 font-medium">
-                {t.otpConsoleMessage}
-              </span>
-            </div>
+            {/* Console and OTP display message */}
+            {testOtp ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 mb-4 text-center">
+                <span className="text-xs text-blue-700 font-semibold uppercase tracking-wider block mb-1">
+                  Verification Code
+                </span>
+                <strong className="text-[#1B365D] font-bold text-2xl tracking-[0.25em] font-mono">
+                  {testOtp}
+                </strong>
+              </div>
+            ) : (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-center">
+                <span className="text-sm text-blue-800 font-medium">
+                  {t.otpConsoleMessage}
+                </span>
+              </div>
+            )}
 
             <form
               onSubmit={handleOtpVerifySubmit}

@@ -1,10 +1,10 @@
-// src/Pages/ResidentsDetails.jsx
 import React, { useState, useEffect } from "react";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import OSidebar from "../Components/Common/OSidebar";
 import Footer from "../Components/Common/Footer";
 import ResidentsDetailsLayout from "../Components/ResidentsDetails/ResidentsDetailsLayout";
 import ChatbotButton from "../Components/Common/ChatbotButton";
+import { getApiUrl } from "../utils/api";
 
 function ResidentsDetails({ onOpenHelp }) {
   const [stats, setStats] = useState({
@@ -29,7 +29,7 @@ function ResidentsDetails({ onOpenHelp }) {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/officer/resident-stats", {
+        const response = await fetch(getApiUrl("/api/officer/resident-stats"), {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

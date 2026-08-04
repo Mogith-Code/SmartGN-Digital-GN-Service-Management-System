@@ -8,6 +8,7 @@ import { NavLink } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { getAuthHeaders } from "../../utils/api";
+import { getImageUrl } from "../../utils/imageUtils";
 import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -296,9 +297,13 @@ function AfterlogNavbar() {
             <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[46px] xl:h-[46px] rounded-full bg-slate-200 flex items-center justify-center border border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
               {profile.profilePhoto ? (
                 <img
-                  src={profile.profilePhoto}
+                  src={getImageUrl(profile.profilePhoto)}
                   alt="User Profile"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = accountIcon;
+                  }}
                 />
               ) : (
                 <img
@@ -359,9 +364,13 @@ function AfterlogNavbar() {
           >
             {profile.profilePhoto ? (
               <img
-                src={profile.profilePhoto}
+                src={getImageUrl(profile.profilePhoto)}
                 alt="User Profile"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = accountIcon;
+                }}
               />
             ) : (
               <img

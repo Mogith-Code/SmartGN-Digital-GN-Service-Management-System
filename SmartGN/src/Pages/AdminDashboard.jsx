@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { translations, useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import { authenticatedFetch } from "../utils/api";
+import { getImageUrl } from "../utils/imageUtils";
 import { addNotification } from "../utils/notifications";
 import logoImage from "../assets/logo.png";
 import Footer from "../Components/Common/Footer";
@@ -1516,12 +1517,16 @@ function AdminDashboard({ onOpenHelp }) {
                                   {officer.profile_photo_path ||
                                   officer.profilePhoto ? (
                                     <img
-                                      src={
+                                      src={getImageUrl(
                                         officer.profile_photo_path ||
-                                        officer.profilePhoto
-                                      }
+                                          officer.profilePhoto
+                                      )}
                                       alt={officer.name}
                                       className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = accountIcon;
+                                      }}
                                     />
                                   ) : (
                                     <img
@@ -2831,12 +2836,16 @@ function AdminDashboard({ onOpenHelp }) {
                 {viewOfficerData.profile_photo_path ||
                 viewOfficerData.profilePhoto ? (
                   <img
-                    src={
+                    src={getImageUrl(
                       viewOfficerData.profile_photo_path ||
-                      viewOfficerData.profilePhoto
-                    }
+                        viewOfficerData.profilePhoto
+                    )}
                     alt="Officer Profile"
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = accountIcon;
+                    }}
                   />
                 ) : (
                   <img
