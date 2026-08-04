@@ -526,7 +526,7 @@ function Register() {
               </label>
 
               <div
-                className="flex gap-2 md:gap-4 my-2 justify-center"
+                className="flex gap-1.5 sm:gap-3 md:gap-4 my-2 justify-center w-full max-w-full"
                 onPaste={handleOtpPaste}
               >
                 {otpDigits.map((digit, idx) => (
@@ -536,7 +536,7 @@ function Register() {
                     type="text"
                     maxLength="1"
                     id={`otp-input-${idx}`}
-                    className="w-12 h-14 md:w-14 md:h-16 text-center text-[22px] font-bold bg-[#EBF1F6] border border-[#2D37482D] rounded-[12px] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 text-[#1B365D]"
+                    className="w-9 h-11 sm:w-12 sm:h-14 md:w-14 md:h-16 text-center text-lg sm:text-[22px] font-bold bg-[#EBF1F6] border border-[#2D37482D] rounded-[10px] sm:rounded-[12px] focus:outline-none focus:border-[#005BBD] focus:bg-white transition-all duration-200 text-[#1B365D]"
                     value={digit}
                     onChange={(e) => handleOtpDigitChange(e.target.value, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
