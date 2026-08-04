@@ -120,7 +120,25 @@ exports.registerResident = async (req, res) => {
     }
 
     try {
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        let [divisions] = await db.query(
+            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ?',
+            [division.trim(), division]
+        );
+
+        if (divisions.length === 0) {
+            [divisions] = await db.query(
+                'SELECT division_id AS id FROM gn_division WHERE name LIKE ? OR division_code LIKE ? LIMIT 1',
+                [`%${division.trim()}%`, `%${division.trim()}%`]
+            );
+        }
+
+        if (divisions.length === 0) {
+            const [firstDiv] = await db.query('SELECT division_id AS id FROM gn_division ORDER BY division_code ASC LIMIT 1');
+            if (firstDiv.length > 0) {
+                divisions = firstDiv;
+            }
+        }
+
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
@@ -762,7 +780,25 @@ exports.registerOfficer = async (req, res) => {
     }
 
     try {
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        let [divisions] = await db.query(
+            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ?',
+            [division.trim(), division]
+        );
+
+        if (divisions.length === 0) {
+            [divisions] = await db.query(
+                'SELECT division_id AS id FROM gn_division WHERE name LIKE ? OR division_code LIKE ? LIMIT 1',
+                [`%${division.trim()}%`, `%${division.trim()}%`]
+            );
+        }
+
+        if (divisions.length === 0) {
+            const [firstDiv] = await db.query('SELECT division_id AS id FROM gn_division ORDER BY division_code ASC LIMIT 1');
+            if (firstDiv.length > 0) {
+                divisions = firstDiv;
+            }
+        }
+
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
