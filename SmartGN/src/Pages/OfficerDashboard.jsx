@@ -268,35 +268,34 @@ function OfficerDashboard({ onOpenHelp }) {
     // Check if token is about to expire
     const checkTokenExpiration = () => {
       const token = localStorage.getItem("smartgn_token");
-      if (!token) return;
+      if (!token || typeof token !== "string") return;
 
       try {
-        // Decode JWT token to check expiration
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        if (payload.exp) {
-          const expirationTime = payload.exp * 1000;
-          const currentTime = Date.now();
-          const timeLeft = expirationTime - currentTime;
+        const parts = token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload && payload.exp) {
+            const expirationTime = payload.exp * 1000;
+            const currentTime = Date.now();
+            const timeLeft = expirationTime - currentTime;
 
-          // If token expires in less than 5 minutes, log warning
-          if (timeLeft < 300000 && timeLeft > 0) {
-            console.warn("Token expiring soon. Consider refreshing.");
-          }
+            if (timeLeft < 300000 && timeLeft > 0) {
+              console.warn("Token expiring soon.");
+            }
 
-          // If token is expired, logout
-          if (timeLeft <= 0) {
-            console.warn("Token expired. Logging out.");
-            localStorage.removeItem("smartgn_token");
-            localStorage.removeItem("smartgn_user_role");
-            localStorage.removeItem("smartgn_user_id");
-            localStorage.removeItem("smartgn_user_name");
-            localStorage.removeItem("smartgn_user_division");
-            navigate("/login");
+            if (timeLeft <= 0) {
+              console.warn("Token expired. Logging out.");
+              localStorage.removeItem("smartgn_token");
+              localStorage.removeItem("smartgn_user_role");
+              localStorage.removeItem("smartgn_user_id");
+              localStorage.removeItem("smartgn_user_name");
+              localStorage.removeItem("smartgn_user_division");
+              navigate("/login");
+            }
           }
         }
       } catch (e) {
-        // Invalid token format, ignore
-        console.warn("Invalid token format");
+        console.warn("Invalid token format:", e);
       }
     };
 

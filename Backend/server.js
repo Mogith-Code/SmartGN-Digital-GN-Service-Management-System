@@ -82,6 +82,22 @@ app.use('/api/*', (req, res) => {
     res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
 });
 
+// Serve frontend static build files (for SPA page refresh fallback)
+const frontendDistPath = path.join(__dirname, '../SmartGN/dist');
+const localDistPath = path.join(__dirname, 'dist');
+const distDir = fs.existsSync(frontendDistPath) ? frontendDistPath : (fs.existsSync(localDistPath) ? localDistPath : null);
+
+if (distDir) {
+    app.use(express.static(distDir));
+    app.get('*', (req, res, next) => {
+        if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
+            return next();
+        }
+        res.sendFile(path.join(distDir, 'index.html'));
+    });
+    console.log('✅ Serving frontend static build from:', distDir);
+}
+
 app.use((err, req, res, next) => {
     console.error('Unhandled server error:', err);
     res.status(500).json({ error: 'Internal server error.', message: err.message });

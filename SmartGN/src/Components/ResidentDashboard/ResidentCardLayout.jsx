@@ -65,16 +65,61 @@ function ResidentCardLayout({
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center border border-[#2D37482D] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-all duration-200"
+          className="
+            bg-[#E2E8F0] 
+            gap-[5px] 
+            rounded-2xl 
+            p-[15px] 
+            flex flex-col items-center 
+            border border-[#2D37482D] 
+            shadow-[0px_2px_5px_rgba(0,0,0,0.1)] 
+            hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] 
+            transition-all duration-200
+            w-full
+            sm:w-auto
+            sm:min-h-[unset]
+            min-h-[100px]
+          "
         >
-          <img src={card.icon} alt="card icon" className="w-[50px]" />
+          <img
+            src={card.icon}
+            alt="card icon"
+            className="
+              w-[35px] 
+              sm:w-[50px]
+              h-auto
+            "
+          />
 
-          <div className="flex flex-col items-center">
-            <span className="text-[16px] font-regular text-[#2D3748] text-center">
+          <div className="flex flex-col items-center w-full sm:w-auto">
+            <span
+              className="
+              text-[11px] 
+              sm:text-[16px] 
+              font-regular 
+              text-[#2D3748] 
+              text-center
+              leading-tight
+              sm:leading-normal
+              break-words
+              max-w-full
+              px-0.5
+              sm:px-0
+              line-clamp-2
+              sm:line-clamp-none
+            "
+            >
               {card.title}
             </span>
 
-            <span className="text-[20px] font-medium text-[#2D3748]">
+            <span
+              className="
+              text-[16px] 
+              sm:text-[20px] 
+              font-medium 
+              text-[#2D3748]
+            "
+            >
               {card.count}
             </span>
           </div>
