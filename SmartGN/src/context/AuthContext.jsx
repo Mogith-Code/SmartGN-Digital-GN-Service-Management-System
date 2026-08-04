@@ -7,26 +7,51 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      const token = localStorage.getItem("smartgn_token");
+      const role = localStorage.getItem("smartgn_user_role");
+      const userId = localStorage.getItem("smartgn_user_id");
+      const userName = localStorage.getItem("smartgn_user_name");
+
+      if (token && role) {
+        return {
+          token,
+          role,
+          userId,
+          name: userName || "User",
+        };
+      }
+    } catch (e) {
+      console.error("Error initializing auth state:", e);
+    }
+    return null;
+  });
+
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem("smartgn_token");
-    const role = localStorage.getItem("smartgn_user_role");
-    const userId = localStorage.getItem("smartgn_user_id");
-    const userName = localStorage.getItem("smartgn_user_name");
+    const syncAuth = () => {
+      const token = localStorage.getItem("smartgn_token");
+      const role = localStorage.getItem("smartgn_user_role");
+      const userId = localStorage.getItem("smartgn_user_id");
+      const userName = localStorage.getItem("smartgn_user_name");
 
-    if (token && role) {
-      setUser({
-        token,
-        role,
-        userId,
-        name: userName || "User",
-      });
-    }
-    setLoading(false);
+      if (token && role) {
+        setUser({
+          token,
+          role,
+          userId,
+          name: userName || "User",
+        });
+      } else {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener("storage", syncAuth);
+    return () => window.removeEventListener("storage", syncAuth);
   }, []);
 
   const login = (token, role, userData) => {
