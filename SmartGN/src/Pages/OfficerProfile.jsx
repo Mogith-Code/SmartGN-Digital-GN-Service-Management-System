@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
 import { getImageUrl } from "../utils/imageUtils";
+import { getApiUrl } from "../utils/api";
 import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
@@ -104,7 +105,7 @@ function OfficerProfile({ onOpenHelp }) {
 
       try {
         const token = localStorage.getItem("smartgn_token");
-        const response = await fetch("/api/officer/profile", {
+        const response = await fetch(getApiUrl("/api/officer/profile"), {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -160,7 +161,7 @@ function OfficerProfile({ onOpenHelp }) {
           return;
         }
 
-        const response = await fetch("/api/officer/profile", {
+        const response = await fetch(getApiUrl("/api/officer/profile"), {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -200,6 +201,7 @@ function OfficerProfile({ onOpenHelp }) {
             idCardFront: data.gn_front_path || null,
             idCardBack: data.gn_back_path || null,
           };
+
 
           setProfile(profileData);
           localStorage.setItem(
@@ -318,7 +320,7 @@ function OfficerProfile({ onOpenHelp }) {
           : "❌ Image removed (null)",
       });
 
-      const response = await fetch("/api/officer/profile", {
+      const response = await fetch(getApiUrl("/api/officer/profile"), {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

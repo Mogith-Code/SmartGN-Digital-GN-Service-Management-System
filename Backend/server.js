@@ -9,11 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const uploadsDir = path.join(__dirname, 'uploads');
+// Resident photo directories
 const profileDir = path.join(uploadsDir, 'profile');
 const nicFrontDir = path.join(uploadsDir, 'nic_front');
 const nicBackDir = path.join(uploadsDir, 'nic_back');
+// GN Officer photo directories
+const gnProfileDir = path.join(uploadsDir, 'gn_profile');
+const gnFrontDir = path.join(uploadsDir, 'gn_front');
+const gnBackDir = path.join(uploadsDir, 'gn_back');
 
-[uploadsDir, profileDir, nicFrontDir, nicBackDir].forEach((dir) => {
+[uploadsDir, profileDir, nicFrontDir, nicBackDir, gnProfileDir, gnFrontDir, gnBackDir].forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { translations, useLanguage } from '../utils/translate'
-import { getAuthHeaders } from '../utils/api'
+import { getAuthHeaders, authenticatedFetch } from '../utils/api'
 import { addNotification } from '../utils/notifications'
 import OfficerNavbar from '../Components/Common/OfficerNavbar'
 import OSidebar from '../Components/Common/OSidebar'
@@ -33,7 +33,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
 
   const loadAnnouncements = async () => {
     try {
-      const response = await fetch('/api/announcements/officer', {
+      const response = await authenticatedFetch('/api/announcements/officer', {
         headers: getAuthHeaders()
       })
       if (!response.ok) throw new Error('Failed to load announcements.')
@@ -96,7 +96,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
     }
 
     try {
-      const response = await fetch('/api/announcements/publish', {
+      const response = await authenticatedFetch('/api/announcements/publish', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -108,35 +108,32 @@ function OfficerAnnouncements({ onOpenHelp }) {
 
       if (!response.ok) {
         const data = await response.json()
-        console.warn('Backend API announcement notice:', data.error)
+        throw new Error(data.error || 'Failed to publish announcement.')
       }
+
+      // Success: notify and refresh list from backend
+      addNotification('resident', {
+        type: 'announcement',
+        title: `New Announcement: ${title}`,
+        message: `Published by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
+        link: '/ResidentDashboard'
+      })
+      addNotification('admin', {
+        type: 'announcement',
+        title: `Announcement Published`,
+        message: `GN Officer published announcement "${title}".`,
+        link: '/admin'
+      })
+
+      window.dispatchEvent(new Event('announcementsUpdated'))
+      setShowSuccessBanner(true)
+      setViewMode('DASHBOARD')
+      await loadAnnouncements()
+
     } catch (err) {
-      console.warn('API error, saving announcement locally:', err)
+      console.error('Failed to publish announcement:', err)
+      alert(err.message || 'Failed to publish announcement. Please try again.')
     }
-
-    // Sync to localStorage store
-    const localStore = JSON.parse(localStorage.getItem('smartgn_announcements') || '[]')
-    const updatedStore = [updatedAnnItem, ...localStore.filter(a => a.id !== updatedAnnItem.id && a.announcement_id !== updatedAnnItem.id)]
-    localStorage.setItem('smartgn_announcements', JSON.stringify(updatedStore))
-    window.dispatchEvent(new Event('announcementsUpdated'))
-
-    addNotification('resident', {
-      type: 'announcement',
-      title: `New Announcement: ${title}`,
-      message: `Published by Grama Niladhari Office: ${content.substring(0, 80)}${content.length > 80 ? '...' : ''}`,
-      link: '/ResidentDashboard'
-    })
-
-    addNotification('admin', {
-      type: 'announcement',
-      title: `Announcement Published`,
-      message: `GN Officer published announcement "${title}".`,
-      link: '/admin'
-    })
-
-    setShowSuccessBanner(true)
-    setViewMode('DASHBOARD')
-    loadAnnouncements()
   }
 
   // Edit Announcement Handlers
@@ -170,7 +167,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
     }
 
     try {
-      const response = await fetch(`/api/announcements/${editingId}`, {
+      const response = await authenticatedFetch(`/api/announcements/${editingId}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -210,7 +207,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
     const confirmDelete = window.confirm('Are you sure you want to delete this announcement permanently?')
     if (confirmDelete) {
       try {
-        const response = await fetch(`/api/announcements/${editingId}`, {
+        const response = await authenticatedFetch(`/api/announcements/${editingId}`, {
           method: 'DELETE',
           headers: getAuthHeaders()
         })
@@ -232,7 +229,7 @@ function OfficerAnnouncements({ onOpenHelp }) {
   // Restore Archived Announcement
   const handleRestore = async (id, titleText) => {
     try {
-      const response = await fetch(`/api/announcements/${id}`, {
+      const response = await authenticatedFetch(`/api/announcements/${id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({
