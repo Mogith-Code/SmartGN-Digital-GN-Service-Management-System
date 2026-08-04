@@ -53,11 +53,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("smartgn_token");
-    localStorage.removeItem("smartgn_user_role");
-    localStorage.removeItem("smartgn_user_id");
-    localStorage.removeItem("smartgn_user_name");
-    localStorage.removeItem("smartgn_user_division");
+    localStorage.clear();
     setUser(null);
     navigate("/login");
   };

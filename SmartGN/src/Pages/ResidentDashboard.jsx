@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import auth context
-import { getAuthHeaders } from "../utils/api";
+import { getAuthHeaders, authenticatedFetch } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import ResidentDashboardLayout from "../Components/ResidentDashboard/ResidentDashboardLayout";
@@ -96,12 +96,7 @@ function ResidentDashboard({ onOpenHelp }) {
       }
 
       try {
-        const response = await fetch(`/api/residents/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await authenticatedFetch(`/api/residents/profile`);
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -190,9 +185,9 @@ function ResidentDashboard({ onOpenHelp }) {
         const headers = getAuthHeaders();
 
         // Primary: Fetch stats from dedicated endpoint
-        const statsRes = await fetch("/api/residents/dashboard-stats", {
-          headers,
-        });
+        const statsRes = await authenticatedFetch(
+          "/api/residents/dashboard-stats",
+        );
 
         if (statsRes.ok) {
           const stats = await statsRes.json();
@@ -288,10 +283,10 @@ function ResidentDashboard({ onOpenHelp }) {
         } else {
           // Fallback: Fetch individual endpoints
           const [certRes, allowRes, apptRes, disasterRes] = await Promise.all([
-            fetch("/api/certificates/resident", { headers }),
-            fetch("/api/allowances/resident", { headers }),
-            fetch("/api/appointments/resident", { headers }),
-            fetch("/api/disasters/resident", { headers }).catch(() => ({
+            authenticatedFetch("/api/certificates/resident"),
+            authenticatedFetch("/api/allowances/resident"),
+            authenticatedFetch("/api/appointments/resident"),
+            authenticatedFetch("/api/disasters/resident").catch(() => ({
               ok: false,
             })),
           ]);
@@ -400,10 +395,9 @@ function ResidentDashboard({ onOpenHelp }) {
       if (!isAuthenticated || !token) return;
 
       try {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const response = await fetch("/api/residents/announcements", {
-          headers,
-        });
+        const response = await authenticatedFetch(
+          "/api/residents/announcements",
+        );
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {

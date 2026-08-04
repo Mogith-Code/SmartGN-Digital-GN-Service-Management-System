@@ -6,7 +6,7 @@ import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
 import OSidebar from "../Components/Common/OSidebar";
 import OfficerDashboardLayout from "../Components/OfficerDashboard.jsx/OfficerDashboardLayout";
-import { getAuthHeaders } from "../utils/api";
+import { getAuthHeaders, authenticatedFetch } from "../utils/api";
 
 function OfficerDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
@@ -93,12 +93,7 @@ function OfficerDashboard({ onOpenHelp }) {
       }
 
       try {
-        const response = await fetch(`/api/officer/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await authenticatedFetch(`/api/officer/profile`);
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -207,12 +202,7 @@ function OfficerDashboard({ onOpenHelp }) {
       }
 
       try {
-        const response = await fetch(`/api/officer/dashboard-stats`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await authenticatedFetch(`/api/officer/dashboard-stats`);
 
         if (!response.ok) {
           if (response.status === 401) {
