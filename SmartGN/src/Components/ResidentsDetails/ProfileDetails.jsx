@@ -10,6 +10,7 @@ import FamilyMemberTable from "../Family&HouseholdPage/FamilyMemberTable";
 import { decryptId } from "../../utils/encryption";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { getImageUrl } from "../../utils/imageUtils";
+import { getApiUrl } from "../../utils/api";
 
 function DetailItem({ label, value, isEmail }) {
   return (
@@ -144,7 +145,7 @@ function ProfileDetails({ onOpenHelp }) {
       ...options.headers,
     };
 
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       ...options,
       headers,
     });
