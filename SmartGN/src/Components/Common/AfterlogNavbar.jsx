@@ -166,7 +166,7 @@ function AfterlogNavbar() {
     {
       id: "certificates",
       name: t.certificates,
-      path: "/certificates",
+      path: "/ResidentDashboard/certificates",
       icon: certificateIcon,
       iconActive: certificateIconHovered,
     },
@@ -180,14 +180,14 @@ function AfterlogNavbar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/resident/allowances",
+      path: "/ResidentDashboard/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },
     {
       id: "disaster",
       name: t.disaster,
-      path: "/disaster-relief",
+      path: "/ResidentDashboard/disaster-relief",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
     },
