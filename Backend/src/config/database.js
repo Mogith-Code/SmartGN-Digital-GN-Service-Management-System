@@ -669,7 +669,9 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         
         INDEX idx_category (category),
         INDEX idx_is_active (is_active),
-        FULLTEXT INDEX idx_fulltext (question, answer, keywords)
+        FULLTEXT INDEX idx_fulltext_question (question),
+        FULLTEXT INDEX idx_fulltext_answer (answer),
+        FULLTEXT INDEX idx_fulltext_keywords (keywords)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
