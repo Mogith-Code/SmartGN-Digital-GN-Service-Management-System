@@ -1,3 +1,20 @@
+export const API_BASE_URL =
+  import.meta.env?.VITE_API_URL ||
+  (typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1")
+    ? ""
+    : "https://smartgn-digital-gn-service-management-5diw.onrender.com");
+
+export const getApiUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${cleanPath}`;
+};
+
 export const getAuthHeaders = () => {
   const token =
     localStorage.getItem("smartgn_token") ||
@@ -9,11 +26,12 @@ export const getAuthHeaders = () => {
 };
 
 export const authenticatedFetch = (url, options = {}) => {
+  const targetUrl = getApiUrl(url);
   const headers = {
     ...getAuthHeaders(),
     ...options.headers,
   };
-  return fetch(url, {
+  return fetch(targetUrl, {
     ...options,
     headers,
   });

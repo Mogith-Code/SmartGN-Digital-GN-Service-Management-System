@@ -14,21 +14,9 @@ if (!fs.existsSync(uploadsDir)) {
     console.log('✅ Created uploads directory at:', uploadsDir);
 }
 
-// CORS Configuration - Support environment-defined origins for production deployment
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'http://127.0.0.1:5173'
-];
-
-if (process.env.ALLOWED_ORIGINS) {
-    allowedOrigins.push(...process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()));
-} else if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL.trim());
-}
-
+// CORS Configuration - Support frontend cross-origin access in local and production
 app.use(cors({
-    origin: allowedOrigins,
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']

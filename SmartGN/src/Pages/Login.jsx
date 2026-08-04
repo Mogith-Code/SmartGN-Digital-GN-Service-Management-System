@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
+import { getApiUrl } from "../utils/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function Login() {
   const [showOtpVerify, setShowOtpVerify] = useState(false);
   const [otpDigits, setOtpDigits] = useState(["", "", "", "", "", ""]);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [testOtp, setTestOtp] = useState("");
   const [timerCount, setTimerCount] = useState(0);
 
   // Focus refs for the 6 inputs
@@ -207,7 +209,7 @@ function Login() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(getApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
@@ -229,6 +231,9 @@ function Login() {
       }
 
       if (data.requires2FA) {
+        if (data.otpForTesting) {
+          setTestOtp(data.otpForTesting);
+        }
         setVerificationEmail(data.email);
         setShowOtpVerify(true);
         setTimerCount(60);
@@ -289,7 +294,7 @@ function Login() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/auth/verify-2fa", {
+      const response = await fetch(getApiUrl("/api/auth/verify-2fa"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: verificationEmail, otp: otpValue }),
@@ -323,7 +328,7 @@ function Login() {
     setResendSuccessMessage("");
 
     try {
-      const response = await fetch("/api/auth/resend-otp", {
+      const response = await fetch(getApiUrl("/api/auth/resend-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: verificationEmail, purpose: "LOGIN" }),
@@ -336,6 +341,9 @@ function Login() {
         return;
       }
 
+      if (data.otpForTesting) {
+        setTestOtp(data.otpForTesting);
+      }
       setResendSuccessMessage(t.otpResendSuccess);
       setTimerCount(60);
       setOtpDigits(["", "", "", "", "", ""]);
@@ -360,10 +368,27 @@ function Login() {
             <h2 className="text-[22px] font-semibold text-[#1B365D] text-center mb-4 tracking-tight">
               {t.otpTitle}
             </h2>
-            <p className="text-[14px] text-gray-500 text-center mb-8">
+            <p className="text-[14px] text-gray-500 text-center mb-6">
               {t.otpDescription}{" "}
               <strong className="text-[#1B365D]">{verificationEmail}</strong>
             </p>
+
+            {testOtp ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 mb-4 text-center">
+                <span className="text-xs text-blue-700 font-semibold uppercase tracking-wider block mb-1">
+                  Verification Code
+                </span>
+                <strong className="text-[#1B365D] font-bold text-2xl tracking-[0.25em] font-mono">
+                  {testOtp}
+                </strong>
+              </div>
+            ) : (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-center">
+                <span className="text-sm text-blue-800 font-medium">
+                  {t.otpConsoleMessage}
+                </span>
+              </div>
+            )}
 
             <form
               onSubmit={handleOtpVerifySubmit}

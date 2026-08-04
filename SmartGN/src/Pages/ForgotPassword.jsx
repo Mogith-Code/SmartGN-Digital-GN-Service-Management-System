@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../utils/translate";
 import LanguageSelector from "../Components/Common/LanguageSelector";
 import logoImage from "../assets/logo.png";
+import { getApiUrl } from "../utils/api";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -186,7 +187,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
+      const response = await fetch(getApiUrl("/api/auth/forgot-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier }),
@@ -247,7 +248,7 @@ function ForgotPassword() {
     setSuccessMessage("");
 
     try {
-      const response = await fetch("/api/auth/resend-otp", {
+      const response = await fetch(getApiUrl("/api/auth/resend-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: targetEmail, purpose: "FORGOT_PASSWORD" }),
@@ -320,7 +321,7 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
+      const response = await fetch(getApiUrl("/api/auth/reset-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
