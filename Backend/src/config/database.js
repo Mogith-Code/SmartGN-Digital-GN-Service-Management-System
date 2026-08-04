@@ -84,9 +84,9 @@ async function setupTables(dbPool) {
         home_address TEXT,
         
         -- Images
-        profile_photo_path VARCHAR(255),
-        nic_front_path VARCHAR(255),
-        nic_back_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
+        nic_front_path LONGTEXT,
+        nic_back_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         nic_front_filename VARCHAR(255),
         nic_back_filename VARCHAR(255),
@@ -166,13 +166,13 @@ async function setupTables(dbPool) {
         status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
         
         -- Profile image
-        profile_photo_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         
         -- GN ID Card images
-        gn_front_path VARCHAR(255),
+        gn_front_path LONGTEXT,
         gn_front_filename VARCHAR(255),
-        gn_back_path VARCHAR(255),
+        gn_back_path LONGTEXT,
         gn_back_filename VARCHAR(255),
         
         -- Security
@@ -754,6 +754,13 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         await dbPool.query(`ALTER TABLE announcement MODIFY COLUMN type VARCHAR(50) DEFAULT 'GENERAL'`);
     } catch (e) {
         // Table created or column already modified
+    }
+
+    try {
+        await dbPool.query(`ALTER TABLE resident MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN nic_front_path LONGTEXT, MODIFY COLUMN nic_back_path LONGTEXT`);
+        await dbPool.query(`ALTER TABLE grama_niladhari MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN gn_front_path LONGTEXT, MODIFY COLUMN gn_back_path LONGTEXT`);
+    } catch (e) {
+        // Ignored if column already modified
     }
 
     // ============================================================

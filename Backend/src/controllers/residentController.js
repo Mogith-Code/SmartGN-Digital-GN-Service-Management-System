@@ -59,35 +59,28 @@ const saveBase64Image = (base64String, folder, identifier) => {
     try {
         // Extract image type and data
         const matches = base64String.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
-        if (!matches || matches.length !== 3) {
-            console.error('Invalid base64 image format');
-            return null;
+        if (matches && matches.length === 3) {
+            const extension = matches[1];
+            const base64Data = matches[2];
+            const buffer = Buffer.from(base64Data, 'base64');
+            
+            // Create folder if it doesn't exist
+            const uploadDir = path.join(__dirname, '../../uploads', folder);
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            // Save local file backup
+            const filename = `${identifier}_${Date.now()}.${extension}`;
+            const filePath = path.join(uploadDir, filename);
+            fs.writeFileSync(filePath, buffer);
         }
         
-        const extension = matches[1];
-        const base64Data = matches[2];
-        const buffer = Buffer.from(base64Data, 'base64');
-        
-        // Create folder if it doesn't exist
-        const uploadDir = path.join(__dirname, '../../uploads', folder);
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        
-        // Generate unique filename
-        const timestamp = Date.now();
-        const random = Math.floor(1000 + Math.random() * 9000);
-        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
-        const filePath = path.join(uploadDir, filename);
-        
-        // Save file
-        fs.writeFileSync(filePath, buffer);
-        
-        // Return relative path for database storage
-        return `/uploads/${folder}/${filename}`;
+        // Return base64 data string so database holds permanent image data
+        return base64String;
     } catch (error) {
         console.error('Error saving image:', error);
-        return null;
+        return base64String;
     }
 };
 
