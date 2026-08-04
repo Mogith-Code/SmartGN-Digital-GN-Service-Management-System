@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./Context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./Components/Common/ProtectedRoute";
 import Unauthorized from "./Pages/Unauthorized";
 
