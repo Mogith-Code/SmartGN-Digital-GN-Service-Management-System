@@ -1037,28 +1037,47 @@ async function getPool() {
     if (pool) return pool;
 
     try {
-        // Connect to MySQL server first (without database to ensure we can create it)
-        const connection = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
-            port: process.env.DB_PORT || 3306
-        });
-
+        const dbHost = process.env.DB_HOST || 'localhost';
+        const dbUser = process.env.DB_USER || 'root';
+        const dbPassword = process.env.DB_PASSWORD || '';
+        const dbPort = process.env.DB_PORT || 3306;
         const dbName = process.env.DB_NAME || 'smartgn_db';
-        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
-        await connection.end();
+
+        // Auto-enable SSL for cloud databases or if DB_SSL=true is explicitly set
+        const isCloudHost = dbHost.includes('tidbcloud.com') || 
+                            dbHost.includes('aivencloud.com') || 
+                            dbHost.includes('database.azure.com') || 
+                            dbHost.includes('amazonaws.com');
+        const enableSSL = process.env.DB_SSL === 'true' || (process.env.DB_SSL !== 'false' && isCloudHost);
+
+        const connectionConfig = {
+            host: dbHost,
+            user: dbUser,
+            password: dbPassword,
+            port: dbPort,
+            ssl: enableSSL ? { rejectUnauthorized: false } : undefined
+        };
+
+        // Connect to MySQL server first to ensure database exists (wrap in try-catch in case of restricted privileges)
+        try {
+            const connection = await mysql.createConnection(connectionConfig);
+            await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+            await connection.end();
+        } catch (dbCreateError) {
+            console.log('⚠️ Database creation skipped or failed (this is normal on some cloud platforms if pre-created):', dbCreateError.message);
+        }
 
         // Create the connection pool with database selected
         pool = mysql.createPool({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
+            host: dbHost,
+            user: dbUser,
+            password: dbPassword,
             database: dbName,
-            port: process.env.DB_PORT || 3306,
+            port: dbPort,
             waitForConnections: true,
             connectionLimit: 10,
-            queueLimit: 0
+            queueLimit: 0,
+            ssl: enableSSL ? { rejectUnauthorized: false } : undefined
         });
 
         // Run table setups and seeds
