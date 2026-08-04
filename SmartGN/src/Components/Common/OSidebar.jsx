@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import homeIcon from "../../assets/home_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import dashBoard from "../../assets/team_dashboard_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/person_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -22,6 +23,7 @@ import disasterIconHovered from "../../assets/flood_24dp_F7FAFC_FILL0_wght400_GR
 import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
 
 function OSidebar() {
+  const { logout } = useAuth();
   const { lang } = useLanguage();
 
   const OSidebarTranslations = {
@@ -190,10 +192,7 @@ function OSidebar() {
         ))}
 
         <button
-          onClick={() => {
-            localStorage.clear();
-            window.location.href = "/login";
-          }}
+          onClick={logout}
           className="flex items-center gap-2.5 w-full border-none bg-red-50 text-red-600 hover:bg-red-100 rounded-r-full py-2.5 px-6 cursor-pointer text-xs sm:text-sm font-semibold transition-all mt-6 shadow-sm text-left"
         >
           <span className="text-base">🚪</span>

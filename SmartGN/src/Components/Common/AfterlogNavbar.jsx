@@ -7,6 +7,7 @@ import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import NotificationsDropdown from "./NotificationsDropdown";
+import { useAuth } from "../../context/AuthContext";
 import { getAuthHeaders } from "../../utils/api";
 import { getImageUrl } from "../../utils/imageUtils";
 import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -31,6 +32,7 @@ import disasterIconHovered from "../../assets/flood_24dp_F7FAFC_FILL0_wght400_GR
 
 function AfterlogNavbar() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const { lang } = useLanguage();
 
   // ✅ Get user's division name from localStorage
@@ -317,10 +319,7 @@ function AfterlogNavbar() {
 
           {/* Logout Button */}
           <button
-            onClick={() => {
-              localStorage.clear();
-              window.location.href = "/login";
-            }}
+            onClick={logout}
             className="py-1.5 px-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors duration-150 flex items-center gap-1 shadow-sm"
             title="Logout of your account"
           >
