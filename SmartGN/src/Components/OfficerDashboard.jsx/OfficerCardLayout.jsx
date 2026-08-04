@@ -12,7 +12,7 @@ function OfficerCardLayout({ dashboardStats = {} }) {
     EN: {
       Card1Title: "Total Residents",
       Card2Title: "Total Pending requests",
-      Card3Title: "Active Disaster",
+      Card3Title: "Active Disasters",
     },
     SI: {
       Card1Title: "මුළු පදිංචිකරුවන්",

@@ -35,7 +35,7 @@ async function setupTables(dbPool) {
         await dbPool.query(`CREATE INDEX idx_gn_division_created ON gn_division(created_at DESC)`);
     } catch (e) {
         // Indexes might already exist
-        console.log('📌 Division indexes already exist or could not be created');
+        console.log('Division indexes already exist or could not be created');
     }
 
     // ============================================================
@@ -838,14 +838,14 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         // Check if divisions exist before seeding
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
-            console.log('🌱 Seeding GN divisions from package...');
+            console.log('Seeding GN divisions from package...');
             
             // Use the direct JSON import method
             const seedGnDivisions = require('../seed/seedGnDivisions');
             await seedGnDivisions(dbPool);
-            console.log('✅ GN divisions seeded successfully from package');
+            console.log('GN divisions seeded successfully from package');
         } else {
-            console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
+            console.log(`GN divisions already exist (${divisionCount[0].count} records)`);
         }
         
         // Get the first division ID (GN-001A or any division)
@@ -857,13 +857,13 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
-            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+            console.log(`Using first division ID: ${firstDivisionId}`);
         } else {
-            console.warn('⚠️ No division found after seeding. Please check the seed package.');
+            console.warn('No division found after seeding. Please check the seed package.');
         }
     } catch (error) {
-        console.warn('⚠️ Could not seed GN divisions from package:', error.message);
-        console.log('📌 Falling back to manual division seeding...');
+        console.warn('Could not seed GN divisions from package:', error.message);
+        console.log('Falling back to manual division seeding...');
         
         // Fallback: Seed divisions manually if package fails
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
@@ -880,7 +880,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                     VALUES (UUID(), ?, ?, ?, ?, ?)
                 `, [code, name, district, province, secretariat]);
             }
-            console.log('✅ GN divisions seeded manually (fallback)');
+            console.log('GN divisions seeded manually (fallback)');
         }
         
         // Get the first division ID
@@ -892,7 +892,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
-            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+            console.log(`Using first division ID: ${firstDivisionId}`);
         }
     }
 
@@ -901,25 +901,25 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // ============================================================
     
     if (firstDivisionId) {
-        console.log('📌 Seeding related data for the first division...');
+        console.log('Seeding related data for the first division...');
         
         // 1. SEED HOUSEHOLD
         const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
         if (householdCount[0].count === 0) {
-            console.log('📌 Seeding household...');
+            console.log('Seeding household...');
             await dbPool.query(`
                 INSERT INTO household (household_id, household_number, address, division_id) 
                 VALUES (UUID(), 'H-90823', '45/2, Temple Road, Borella', ?)
             `, [firstDivisionId]);
-            console.log('✅ Household seeded');
+            console.log('Household seeded');
         } else {
-            console.log(`✅ Household already exists (${householdCount[0].count} records)`);
+            console.log(`Household already exists (${householdCount[0].count} records)`);
         }
 
         // 2. SEED RESIDENT
         const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
         if (residentCount[0].count === 0) {
-            console.log('📌 Seeding resident...');
+            console.log('Seeding resident...');
             const residentPasswordHash = bcrypt.hashSync('password123', 10);
             
             await dbPool.query(`
@@ -945,15 +945,15 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                 true,
                 '45/2, Temple Road, Borella'
             ]);
-            console.log('✅ Resident seeded');
+            console.log('Resident seeded');
         } else {
-            console.log(`✅ Resident already exists (${residentCount[0].count} records)`);
+            console.log(`Resident already exists (${residentCount[0].count} records)`);
         }
 
         // 3. SEED GN OFFICER
         const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
         if (officerCount[0].count === 0) {
-            console.log('📌 Seeding GN Officer...');
+            console.log('Seeding GN Officer...');
             const officerPasswordHash = bcrypt.hashSync('password123', 10);
             
             await dbPool.query(`
@@ -972,18 +972,18 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                 '0703564478',
                 firstDivisionId
             ]);
-            console.log('✅ GN Officer seeded');
+            console.log('GN Officer seeded');
         } else {
-            console.log(`✅ GN Officer already exists (${officerCount[0].count} records)`);
+            console.log(`GN Officer already exists (${officerCount[0].count} records)`);
         }
     } else {
-        console.warn('⚠️ No division ID available. Skipping household, resident, and GN officer seeding.');
+        console.warn('No division ID available. Skipping household, resident, and GN officer seeding.');
     }
 
     // 4. SEED ADMIN (Always seed if not exists)
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');
     if (adminCount[0].count === 0) {
-        console.log('📌 Seeding Admin...');
+        console.log('Seeding Admin...');
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
         
         await dbPool.query(`
@@ -996,15 +996,15 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
             'admin@smartgn.gov.lk',
             'SuperAdmin'
         ]);
-        console.log('✅ Admin seeded');
+        console.log('Admin seeded');
     } else {
-        console.log(`✅ Admin already exists (${adminCount[0].count} records)`);
+        console.log(`Admin already exists (${adminCount[0].count} records)`);
     }
 
     // 5. SEED SYSTEM SETTINGS
     const [settingsCount] = await dbPool.query('SELECT COUNT(*) as count FROM system_settings');
     if (settingsCount[0].count === 0) {
-        console.log('📌 Seeding system settings...');
+        console.log('Seeding system settings...');
         await dbPool.query(`
             INSERT INTO system_settings (setting_key, setting_value, description, category) VALUES
             ('app_name', 'SmartGN', 'Application name', 'general'),
@@ -1014,23 +1014,23 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
             ('session_timeout_minutes', '60', 'Session timeout in minutes', 'security'),
             ('certificate_validity_days', '365', 'Default certificate validity period', 'certificate')
         `);
-        console.log('✅ System settings seeded');
+        console.log('System settings seeded');
     }
 
     // 6. SEED KNOWLEDGE BASE
     const [kbCount] = await dbPool.query('SELECT COUNT(*) as count FROM knowledge_base');
     if (kbCount[0].count === 0) {
-        console.log('📌 Seeding knowledge base...');
+        console.log('Seeding knowledge base...');
         await dbPool.query(`
             INSERT INTO knowledge_base (question, answer, category) VALUES
             ('How to apply for a character certificate?', 'To apply for a character certificate, visit your local GN office or apply online through the SmartGN portal. You will need to provide your NIC and fill out the application form.', 'Certificates'),
             ('What is the Aswesuma allowance?', 'Aswesuma is a social welfare benefit program that provides financial assistance to low-income families in Sri Lanka.', 'Allowances'),
             ('How to report a disaster?', 'You can report a disaster through the SmartGN portal by creating a disaster request. Provide details about the disaster type, location, and your contact information.', 'Disaster')
         `);
-        console.log('✅ Knowledge base seeded');
+        console.log('Knowledge base seeded');
     }
 
-    console.log('✅ Database tables verified and seeded successfully.');
+    console.log('Database tables verified and seeded successfully.');
 }
 
 async function getPool() {
@@ -1066,7 +1066,7 @@ async function getPool() {
 
         return pool;
     } catch (error) {
-        console.error('❌ Failed to connect to MySQL database:', error.message);
+        console.error('Failed to connect to MySQL database:', error.message);
         throw error;
     }
 }

@@ -459,7 +459,7 @@ exports.getDashboardStats = async (req, res) => {
             );
             upcomingAppts = rows[0]?.count || 0;
             
-            console.log(`📅 Upcoming appointments for ${nic}: ${upcomingAppts} (from ${tomorrowStr})`);
+            
         } catch (e) { 
             console.log('Error counting upcoming appointments:', e.message);
             upcomingAppts = 0;
