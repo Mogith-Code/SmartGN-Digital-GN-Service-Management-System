@@ -37,12 +37,29 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(uploadsDir));
 
+// Silence favicon 404 logs
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+// Determine frontend dist directory if built
+const frontendDistPath = path.join(__dirname, '../SmartGN/dist');
+const localDistPath = path.join(__dirname, 'dist');
+const distDir = fs.existsSync(frontendDistPath) ? frontendDistPath : (fs.existsSync(localDistPath) ? localDistPath : null);
+
+if (distDir) {
+    app.use(express.static(distDir));
+    console.log('✅ Serving frontend static build from:', distDir);
+}
+
 app.get('/', (req, res) => {
+    if (distDir && req.headers.accept && req.headers.accept.includes('text/html')) {
+        return res.sendFile(path.join(distDir, 'index.html'));
+    }
     res.json({
+        status: 'success',
         message: 'SmartGN Backend API is running.',
         version: '1.0.0',
         endpoints: [
-            '/api/auth', '/api/chat', '/api/residents', '/api/users',
+            '/api/auth', '/api/chat', '/api/residents', '/api/officer',
             '/api/certificates', '/api/allowances', '/api/appointments',
             '/api/disasters', '/api/announcements'
         ]
@@ -81,6 +98,16 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/*', (req, res) => {
     res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
 });
+
+// SPA wildcard fallback for all non-API GET requests
+if (distDir) {
+    app.get('*', (req, res, next) => {
+        if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads')) {
+            return next();
+        }
+        res.sendFile(path.join(distDir, 'index.html'));
+    });
+}
 
 app.use((err, req, res, next) => {
     console.error('Unhandled server error:', err);

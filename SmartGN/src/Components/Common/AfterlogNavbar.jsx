@@ -53,7 +53,6 @@ function AfterlogNavbar() {
       family: "Family & Household",
       logout: "Log Out",
     },
-
     SI: {
       home: "මුල් පිටුව",
       dashboard: "පාලන පුවරුව",
@@ -65,7 +64,6 @@ function AfterlogNavbar() {
       family: "පවුලේ සහ ගෘහ විස්තර",
       logout: "පිටවීම",
     },
-
     TA: {
       home: "முகப்பு",
       dashboard: "டாஷ்போர்டு",
@@ -168,7 +166,7 @@ function AfterlogNavbar() {
     {
       id: "certificates",
       name: t.certificates,
-      path: "/certificates",
+      path: "/ResidentDashboard/certificates",
       icon: certificateIcon,
       iconActive: certificateIconHovered,
     },
@@ -182,14 +180,14 @@ function AfterlogNavbar() {
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/resident/allowances",
+      path: "/ResidentDashboard/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },
     {
       id: "disaster",
       name: t.disaster,
-      path: "/disaster-relief",
+      path: "/ResidentDashboard/disaster-relief",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
     },
@@ -260,21 +258,30 @@ function AfterlogNavbar() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <header className="flex justify-between items-center py-3 sm:py-4 lg:py-[20px] px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 bg-[#EBF8FF] sticky top-0 z-[100] shadow-[0_5px_25px_rgba(0,0,0,0.2)]">
+    <header
+      className="
+      flex justify-between items-center 
+      py-2 sm:py-3 md:py-4 lg:py-[20px] 
+      px-3 sm:px-4 md:px-6 lg:px-8 xl:px-12 2xl:px-16 
+      bg-[#EBF8FF] 
+      sticky top-0 z-[100] 
+      shadow-[0_5px_25px_rgba(0,0,0,0.2)]
+    "
+    >
       {/* ==================================================================== */}
       {/* DESKTOP NAVBAR - Visible on tablets and desktops (768px and above) */}
       {/* ==================================================================== */}
       <div className="flex w-full justify-between items-center max-md:hidden">
         {/* Logo Section */}
         <div
-          className="w-28 sm:w-32 md:w-40 lg:w-48 xl:w-56 2xl:w-64 cursor-pointer flex-shrink-0"
+          className="w-24 sm:w-28 md:w-32 lg:w-40 xl:w-48 2xl:w-56 cursor-pointer flex-shrink-0"
           onClick={() => navigate("/")}
         >
           <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-[20px]">
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-[20px]">
           {/* Language Selector */}
           <LanguageSelector />
 
@@ -283,19 +290,28 @@ function AfterlogNavbar() {
 
           {/* User Profile Info */}
           <div
-            className="flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-[10px] cursor-pointer hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-[10px] cursor-pointer hover:opacity-90 transition-opacity"
             onClick={() => navigate("/ResidentDashboard/profile")}
             title="Click to view profile"
           >
             <div className="flex flex-col text-right">
-              <span className="text-[11px] sm:text-[12px] md:text-[13px] font-semibold text-[#1B365D] max-w-[130px] truncate">
+              <span className="text-[10px] sm:text-[11px] md:text-[12px] lg:text-[13px] font-semibold text-[#1B365D] max-w-[100px] sm:max-w-[120px] md:max-w-[130px] truncate">
                 {profile.firstName} {profile.lastName}
               </span>
-              <span className="text-[9px] sm:text-[10px] font-medium text-[#64748b] max-w-[130px] truncate">
+              <span className="text-[8px] sm:text-[9px] md:text-[10px] font-medium text-[#64748b] max-w-[100px] sm:max-w-[120px] md:max-w-[130px] truncate">
                 {profile.division || "Colombo, Borella"}
               </span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[46px] xl:h-[46px] rounded-full bg-slate-200 flex items-center justify-center border border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
+            <div
+              className="
+              w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-[46px] xl:h-[46px] 
+              rounded-full bg-slate-200 
+              flex items-center justify-center 
+              border border-[#005BBD] 
+              overflow-hidden flex-shrink-0 
+              shadow-sm
+            "
+            >
               {profile.profilePhoto ? (
                 <img
                   src={getImageUrl(profile.profilePhoto)}
@@ -319,10 +335,20 @@ function AfterlogNavbar() {
           {/* Logout Button */}
           <button
             onClick={logout}
-            className="py-1.5 px-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors duration-150 flex items-center gap-1 shadow-sm"
+            className="
+              py-1 px-2 sm:py-1.5 sm:px-3 
+              bg-red-50 text-red-600 hover:bg-red-600 hover:text-white 
+              border border-red-200 
+              rounded-lg 
+              text-[10px] sm:text-xs 
+              font-semibold 
+              cursor-pointer transition-colors duration-150 
+              flex items-center gap-0.5 sm:gap-1 
+              shadow-sm
+            "
             title="Logout of your account"
           >
-            <span>🚪</span>
+            <span className="text-xs sm:text-sm">🚪</span>
             <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
@@ -332,22 +358,32 @@ function AfterlogNavbar() {
       {/* MOBILE NAVBAR - Visible only on mobile devices (below 768px) */}
       {/* ==================================================================== */}
       <div className="flex w-full justify-between items-center md:hidden">
-        {/* Menu Button */}
-        <button
-          className="relative cursor-pointer p-1.5 sm:p-2 -ml-2"
-          onClick={toggleMobileMenu}
-          aria-label="Open navigation menu"
-          aria-expanded={isMobileMenuOpen}
-        >
-          <img
-            src={menuIcon}
-            alt="Menu"
-            className="w-4 h-4 sm:w-5 sm:h-6 object-contain"
-          />
-        </button>
+        {/* Left Section - Menu Button & Logo */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            className="relative cursor-pointer p-1 sm:p-1.5 -ml-1 sm:-ml-2"
+            onClick={toggleMobileMenu}
+            aria-label="Open navigation menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <img
+              src={menuIcon}
+              alt="Menu"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+            />
+          </button>
 
-        {/* Right Section - Icons only on mobile */}
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+          {/* Logo on Mobile */}
+          <div
+            className="w-16 sm:w-20 cursor-pointer flex-shrink-0"
+            onClick={() => navigate("/")}
+          >
+            <img src={logoImage} alt="SmartGN Logo" className="w-full h-auto" />
+          </div>
+        </div>
+
+        {/* Right Section - Icons on mobile */}
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
           {/* Language Selector */}
           <LanguageSelector />
 
@@ -356,7 +392,14 @@ function AfterlogNavbar() {
 
           {/* User Avatar (No text on mobile) */}
           <div
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200 flex items-center justify-center border border-[#2D3748] overflow-hidden flex-shrink-0 cursor-pointer"
+            className="
+              w-7 h-7 sm:w-8 sm:h-8 
+              rounded-full bg-slate-200 
+              flex items-center justify-center 
+              border border-[#2D3748] 
+              overflow-hidden flex-shrink-0 
+              cursor-pointer
+            "
             onClick={() => navigate("/ResidentDashboard/profile")}
             title="Click to view profile"
           >
@@ -388,7 +431,7 @@ function AfterlogNavbar() {
       {/* Overlay Background */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
           onClick={closeMobileMenu}
           aria-label="Close menu overlay"
           role="presentation"
@@ -398,14 +441,22 @@ function AfterlogNavbar() {
       {/* Sidebar Container */}
       <div
         ref={mobileMenuRef}
-        className={`fixed top-0 left-0 w-[280px] sm:w-[300px] h-full bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`
+          fixed top-0 left-0 
+          w-[280px] sm:w-[320px] 
+          h-full 
+          bg-white 
+          shadow-2xl 
+          z-50 
+          transform transition-transform duration-300 ease-in-out 
+          md:hidden
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
         aria-label="Navigation menu"
         role="navigation"
       >
         {/* Sidebar Header */}
-        <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-[#2D37481D]">
+        <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-[#2D37481D]">
           <div
             className="w-20 sm:w-24 cursor-pointer"
             onClick={() => {
@@ -418,10 +469,16 @@ function AfterlogNavbar() {
         </div>
 
         {/* ✅ User Info in Mobile Menu */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#2D37481D] bg-[#EBF8FF]">
-          <p className="text-sm font-medium text-[#1B365D]">{userName}</p>
-          <p className="text-xs text-[#2D3748]">{divisionName}</p>
-          <p className="text-xs text-[#D69E2E] mt-0.5">{userRole}</p>
+        <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-[#2D37481D] bg-[#EBF8FF]">
+          <p className="text-sm sm:text-base font-semibold text-[#1B365D] truncate">
+            {userName}
+          </p>
+          <p className="text-xs sm:text-sm text-[#2D3748] truncate">
+            {divisionName}
+          </p>
+          <p className="text-[10px] sm:text-xs text-[#D69E2E] mt-0.5 font-medium">
+            {userRole}
+          </p>
         </div>
 
         {/* Navigation Menu */}
@@ -438,7 +495,12 @@ function AfterlogNavbar() {
                 className={({ isActive }) => `
                   flex items-center gap-2 sm:gap-3 w-full border-none rounded-lg
                   ${getButtonStylesForItem(item, isActive)}
-                  py-2 sm:py-2.5 px-3 sm:px-4 cursor-pointer text-xs sm:text-sm font-regular text-left transition-all duration-200
+                  py-2 sm:py-2.5 px-3 sm:px-4 
+                  cursor-pointer 
+                  text-xs sm:text-sm 
+                  font-regular text-left 
+                  transition-all duration-200
+                  min-h-[40px] sm:min-h-[44px]
                 `}
               >
                 {({ isActive }) => (
@@ -446,35 +508,62 @@ function AfterlogNavbar() {
                     <img
                       src={getIconForItem(item, isActive)}
                       alt={`${item.name} Icon`}
-                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 object-contain flex-shrink-0"
+                      className="
+                        w-4 h-4 sm:w-5 sm:h-5 
+                        object-contain flex-shrink-0
+                      "
                     />
-                    <span className="truncate">{item.name}</span>
+                    <span className="truncate text-xs sm:text-sm">
+                      {item.name}
+                    </span>
                   </>
                 )}
               </NavLink>
             ))}
+
+            {/* Logout Button in Mobile Menu */}
+            <button
+              onClick={() => {
+                logout();
+                closeMobileMenu();
+              }}
+              className="
+                flex items-center gap-2 sm:gap-3 w-full border-none rounded-lg
+                bg-red-50 text-red-600 hover:bg-red-100 
+                py-2 sm:py-2.5 px-3 sm:px-4 
+                cursor-pointer 
+                text-xs sm:text-sm 
+                font-semibold text-left 
+                transition-all duration-200
+                min-h-[40px] sm:min-h-[44px]
+                mt-1 sm:mt-2
+              "
+            >
+              <span className="text-base sm:text-lg">🚪</span>
+              <span className="truncate">{t.logout}</span>
+            </button>
           </nav>
         </div>
 
         {/* Sidebar Footer */}
         <div className="absolute bottom-0 left-0 right-0 bg-[#1B365D] p-3 sm:p-4">
           <div className="flex flex-col items-center gap-1.5 sm:gap-2 text-center">
-            <p className="text-[10px] sm:text-xs lg:text-sm font-regular text-[#F7FAFC8D]">
+            <p className="text-[9px] sm:text-xs lg:text-sm font-regular text-[#F7FAFC8D]">
               © {currentYear} SmartGN. All rights reserved.
             </p>
             <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-              <p className="text-[10px] sm:text-xs lg:text-sm font-medium text-[#F7FAFC]">
+              <p className="text-[9px] sm:text-xs lg:text-sm font-medium text-[#F7FAFC]">
                 Admin Support:
               </p>
               <a
                 href="tel:+94255731913"
-                className="text-[10px] sm:text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
+                className="text-[9px] sm:text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300"
               >
                 Mobile: 0255731913
               </a>
               <a
                 href="mailto:warapitiyalakshan@gmail.com"
-                className="text-[10px] sm:text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300 break-all text-center"
+                className="text-[9px] sm:text-xs font-normal text-[#F7FAFC] hover:text-white hover:underline transition-all duration-300 break-all text-center"
               >
                 Email: warapitiyalakshan@gmail.com
               </a>

@@ -195,6 +195,22 @@ function App() {
             }
           />
           <Route
+            path="/certificates"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <ResidentCertificates onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/RCertificates"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <ResidentCertificates onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ResidentDashboard/certificates/apply-character"
             element={
               <ProtectedRoute allowedRoles={["RESIDENT"]}>
@@ -252,10 +268,26 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashboard/resident/allowances"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <ResidentAllowances onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Resident Disaster Relief */}
           <Route
             path="/ResidentDashboard/disaster-relief"
+            element={
+              <ProtectedRoute allowedRoles={["RESIDENT"]}>
+                <ResidentDisasterReport onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/disaster-relief"
             element={
               <ProtectedRoute allowedRoles={["RESIDENT"]}>
                 <ResidentDisasterReport onOpenHelp={openChatbot} />

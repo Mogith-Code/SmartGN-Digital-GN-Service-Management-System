@@ -132,7 +132,6 @@ function EditFamilyDetailsLayout() {
   // HANDLE ADD NEW MEMBER
   // ============================================================
   const handleAddMember = async () => {
-    // Validate required fields
     if (!newMember.name || !newMember.age || !newMember.relationship) {
       setError("Name, age, and relationship are required.");
       return;
@@ -162,7 +161,6 @@ function EditFamilyDetailsLayout() {
         throw new Error(data.error || "Failed to add family member");
       }
 
-      // Reset form and refresh list
       setNewMember({
         name: "",
         nic: "",
@@ -294,25 +292,25 @@ function EditFamilyDetailsLayout() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mx-[30px] mt-4 p-3 bg-green-100 text-green-700 rounded-lg border border-green-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-green-100 text-green-700 rounded-lg border border-green-300 text-sm sm:text-base">
           {success}
         </div>
       )}
       {error && (
-        <div className="mx-[30px] mt-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-red-100 text-red-700 rounded-lg border border-red-300 text-sm sm:text-base">
           {error}
         </div>
       )}
 
       {/* Add Member Form */}
-      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+      <div className="flex flex-col border border-[#2D37482D] p-3 sm:p-4 md:p-[20px] mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-[30px] rounded-[8px] sm:rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleAddMember();
           }}
         >
-          <div className="flex flex-col gap-4 sm:gap-5 ">
+          <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
             {/* Full Name */}
             <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
               <label htmlFor="nameInput" className="font-medium">
@@ -323,15 +321,15 @@ function EditFamilyDetailsLayout() {
                 id="nameInput"
                 value={newMember.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
+                className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
                 placeholder={t.fullNamePlaceholder}
                 required
               />
             </div>
 
             {/* NIC, Age */}
-            <div className="flex w-full justify-between gap-4">
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+            <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="nicInput" className="font-medium">
                   {t.nic}
                 </label>
@@ -340,12 +338,12 @@ function EditFamilyDetailsLayout() {
                   id="nicInput"
                   value={newMember.nic}
                   onChange={(e) => handleInputChange("nic", e.target.value)}
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
                   placeholder={t.nicPlaceholder}
                 />
               </div>
 
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="ageInput" className="font-medium">
                   {t.age} <span className="text-red-500">*</span>
                 </label>
@@ -354,7 +352,7 @@ function EditFamilyDetailsLayout() {
                   id="ageInput"
                   value={newMember.age}
                   onChange={(e) => handleInputChange("age", e.target.value)}
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
                   placeholder={t.agePlaceholder}
                   required
                   min="0"
@@ -364,8 +362,8 @@ function EditFamilyDetailsLayout() {
             </div>
 
             {/* Occupation, Relationship */}
-            <div className="flex w-full justify-between gap-4">
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+            <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="occupationInput" className="font-medium">
                   {t.occupation}
                 </label>
@@ -376,13 +374,12 @@ function EditFamilyDetailsLayout() {
                   onChange={(e) =>
                     handleInputChange("occupation", e.target.value)
                   }
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
                   placeholder={t.occupationPlaceholder}
                 />
               </div>
 
-              {/* ✅ Updated to Dropdown */}
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="relationshipInput" className="font-medium">
                   {t.relationship} <span className="text-red-500">*</span>
                 </label>
@@ -392,7 +389,7 @@ function EditFamilyDetailsLayout() {
                   onChange={(e) =>
                     handleInputChange("relationship", e.target.value)
                   }
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] bg-white py-2 cursor-pointer"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] bg-white py-1.5 cursor-pointer"
                   required
                 >
                   <option value="">{t.selectRelationship}</option>
@@ -407,11 +404,10 @@ function EditFamilyDetailsLayout() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 md:gap-5 lg:gap-[20px] mt-2 sm:mt-3 md:mt-4 lg:mt-[10px]">
-              {/* Reset Button */}
               <button
                 type="button"
                 onClick={handleResetForm}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200 w-full sm:w-auto"
               >
                 <span>{t.reset}</span>
                 <img
@@ -424,7 +420,7 @@ function EditFamilyDetailsLayout() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <span>{loading ? t.adding : t.addMember}</span>
                 <img
@@ -439,10 +435,10 @@ function EditFamilyDetailsLayout() {
       </div>
 
       {/* Family Members Table */}
-      <div className="flex border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+      <div className="flex border border-[#2D37482D] p-3 sm:p-4 md:p-[20px] mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-[30px] rounded-[8px] sm:rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] overflow-x-auto">
         <div className="flex flex-col w-full">
           {loading && familyMembers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
               Loading family members...
             </div>
           ) : (

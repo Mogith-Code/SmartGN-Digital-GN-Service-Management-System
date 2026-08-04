@@ -33,33 +33,24 @@ function HouseholdDetailsLayout({ HDetails }) {
     HouseholdDetailsLayoutTranslations[lang] ||
     HouseholdDetailsLayoutTranslations.EN;
 
+  const details = [
+    { label: t.householdNumber, value: HDetails.houseNumber || "-" },
+    { label: t.address, value: HDetails.address || "Not provided" },
+    { label: t.sizeLand, value: HDetails.landSize || "Not specified" },
+    { label: t.landOwner, value: HDetails.landOwner || "Not specified" },
+  ];
+
   return (
-    <div className="flex flex-col gap-[5px] w-full">
-      <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
-        <span className="font-medium">{t.householdNumber}</span>
-        <span className="font-regular">{HDetails.houseNumber || "-"}</span>
-      </div>
-
-      <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
-        <span className="font-medium">{t.address}</span>
-        <span className="font-regular">
-          {HDetails.address || "Not provided"}
-        </span>
-      </div>
-
-      <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
-        <span className="font-medium">{t.sizeLand}</span>
-        <span className="font-regular">
-          {HDetails.landSize || "Not specified"}
-        </span>
-      </div>
-
-      <div className="text-[16px] text-[#2D3748] flex gap-[5px]">
-        <span className="font-medium">{t.landOwner}</span>
-        <span className="font-regular">
-          {HDetails.landOwner || "Not specified"}
-        </span>
-      </div>
+    <div className="flex flex-col gap-[4px] sm:gap-[5px] w-full">
+      {details.map((detail, index) => (
+        <div
+          key={index}
+          className="text-[14px] sm:text-[15px] md:text-[16px] text-[#2D3748] flex flex-col sm:flex-row gap-0.5 sm:gap-[5px]"
+        >
+          <span className="font-medium">{detail.label}</span>
+          <span className="font-regular break-words">{detail.value}</span>
+        </div>
+      ))}
     </div>
   );
 }

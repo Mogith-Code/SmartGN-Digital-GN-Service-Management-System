@@ -168,26 +168,29 @@ function AdminDashboard({ onOpenHelp }) {
   useEffect(() => {
     const checkTokenExpiration = () => {
       const token = localStorage.getItem("smartgn_token");
-      if (!token) return;
+      if (!token || typeof token !== "string") return;
 
       try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        if (payload.exp) {
-          const timeLeft = payload.exp * 1000 - Date.now();
-          if (timeLeft < 300000 && timeLeft > 0) {
-            console.warn("Token expiring soon.");
-          }
-          if (timeLeft <= 0) {
-            console.warn("Token expired. Logging out.");
-            localStorage.removeItem("smartgn_token");
-            localStorage.removeItem("smartgn_user_role");
-            localStorage.removeItem("smartgn_user_id");
-            localStorage.removeItem("smartgn_user_name");
-            navigate("/login");
+        const parts = token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload && payload.exp) {
+            const timeLeft = payload.exp * 1000 - Date.now();
+            if (timeLeft < 300000 && timeLeft > 0) {
+              console.warn("Token expiring soon.");
+            }
+            if (timeLeft <= 0) {
+              console.warn("Token expired. Logging out.");
+              localStorage.removeItem("smartgn_token");
+              localStorage.removeItem("smartgn_user_role");
+              localStorage.removeItem("smartgn_user_id");
+              localStorage.removeItem("smartgn_user_name");
+              navigate("/login");
+            }
           }
         }
       } catch (e) {
-        // Invalid token format
+        console.warn("Invalid token format:", e);
       }
     };
 

@@ -47,7 +47,7 @@ function EditHouseholdDetailsLayout() {
       address: "முகவரி :",
       addressPlaceholder: "வீட்டு முகவரியை உள்ளிடவும்",
       landSize: "நிலத்தின் அளவு :",
-      landSizePlaceholder: "உதா: 10 பேர்ச்சஸ், 20 ஏக்கර්",
+      landSizePlaceholder: "உதா: 10 பேர்ச்சஸ், 20 ஏக்கர்",
       landOwner: "நிலத்தின் உரிமையாளர் :",
       landOwnerPlaceholder: "நில உரிமையாளரின் பெயரை உள்ளிடவும்",
       reset: "மீட்டமை",
@@ -209,24 +209,24 @@ function EditHouseholdDetailsLayout() {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mx-[30px] mt-4 p-3 bg-green-100 text-green-700 rounded-lg border border-green-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-green-100 text-green-700 rounded-lg border border-green-300 text-sm sm:text-base">
           {success}
         </div>
       )}
       {error && (
-        <div className="mx-[30px] mt-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-red-100 text-red-700 rounded-lg border border-red-300 text-sm sm:text-base">
           {error}
         </div>
       )}
 
       {/* Edit Form */}
-      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+      <div className="flex flex-col border border-[#2D37482D] p-3 sm:p-4 md:p-5 lg:p-[20px] mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] rounded-[8px] sm:rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-shadow duration-300">
         <form onSubmit={handleUpdate}>
-          <div className="flex flex-col gap-4 sm:gap-5">
+          <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
             {/* Household Number (Read Only) */}
             <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
               <label className="font-medium">{t.householdNo}</label>
-              <span className="text-[16px] font-semibold text-[#1B365D]">
+              <span className="text-[14px] sm:text-[15px] md:text-[16px] font-semibold text-[#1B365D]">
                 {household.household_number || "-"}
               </span>
             </div>
@@ -247,8 +247,8 @@ function EditHouseholdDetailsLayout() {
             </div>
 
             {/* Land Size & Land Owner (Editable) */}
-            <div className="flex w-full flex-col sm:flex-row justify-between gap-4">
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+            <div className="flex w-full flex-col sm:flex-row justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="landSizeInput" className="font-medium">
                   {t.landSize}
                 </label>
@@ -264,7 +264,7 @@ function EditHouseholdDetailsLayout() {
                 />
               </div>
 
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="landOwnerInput" className="font-medium">
                   {t.landOwner}
                 </label>
@@ -286,7 +286,7 @@ function EditHouseholdDetailsLayout() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200 w-full sm:w-auto"
               >
                 <span>{t.reset}</span>
                 <img
@@ -299,7 +299,7 @@ function EditHouseholdDetailsLayout() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
                 <span>{loading ? t.updating : t.update}</span>
                 <img
