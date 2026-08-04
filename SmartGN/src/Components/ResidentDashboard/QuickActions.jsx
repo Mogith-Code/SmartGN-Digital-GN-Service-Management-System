@@ -50,7 +50,7 @@ function QuickActions() {
       title: t.Card2Title,
       icon: appointmentIcon,
       alt: "appointment icon",
-      route: "/ResidentDashboard/RAppointment/BookingForm",
+      route: "/ResidentDashboard/Bookingform",
     },
     {
       id: 3,
