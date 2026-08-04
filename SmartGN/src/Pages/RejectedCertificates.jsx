@@ -24,8 +24,11 @@ function RejectedCertificates({ onOpenHelp }) {
 
   const [rejectedList, setRejectedList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const loadRejected = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem("smartgn_token");
       const headers = {
@@ -61,6 +64,7 @@ function RejectedCertificates({ onOpenHelp }) {
       console.warn(
         "API connection offline. Loading rejected certificates from local fallback.",
       );
+      setError("Failed to load from server. Using cached data.");
       const localData = localStorage.getItem("smartgn_certificates");
       if (localData) {
         const allCerts = JSON.parse(localData);
@@ -130,6 +134,9 @@ function RejectedCertificates({ onOpenHelp }) {
       editRequest: "Edit request",
       back: "Back",
       editingRequest: "Editing rejected request for",
+      loading: "Loading rejected requests...",
+      noRejected: "No rejected certificate requests found.",
+      retry: "Retry",
     },
     SI: {
       title: "ප්‍රතික්ෂේපිත සහතික ඉල්ලීම්",
@@ -139,6 +146,9 @@ function RejectedCertificates({ onOpenHelp }) {
       editRequest: "ඉල්ලීම සංස්කරණය කරන්න",
       back: "ආපසු",
       editingRequest: "ප්‍රතික්ෂේපිත ඉල්ලීම සංස්කරණය කරමින්",
+      loading: "ප්‍රතික්ෂේපිත ඉල්ලීම් පූරණය වෙමින්...",
+      noRejected: "ප්‍රතික්ෂේපිත සහතික ඉල්ලීම් කිසිවක් හමු නොවීය.",
+      retry: "නැවත උත්සාහ කරන්න",
     },
     TA: {
       title: "நிராகரிக்கப்பட்ட சான்றிதழ் கோரிக்கைகள்",
@@ -148,6 +158,9 @@ function RejectedCertificates({ onOpenHelp }) {
       editRequest: "கோரிக்கையை திருத்தவும்",
       back: "திரும்புக",
       editingRequest: "நிராகரிக்கப்பட்ட கோரிக்கையை திருத்துகிறது",
+      loading: "நிராகரிக்கப்பட்ட கோரிக்கைகள் ஏற்றப்படுகின்றன...",
+      noRejected: "நிராகரிக்கப்பட்ட சான்றிதழ் கோரிக்கைகள் எதுவும் இல்லை.",
+      retry: "மீண்டும் முயற்சிக்கவும்",
     },
   };
 
@@ -157,22 +170,24 @@ function RejectedCertificates({ onOpenHelp }) {
     alert(`${d.editingRequest} ${item.type} (ID: ${item.id})...`);
   };
 
+  const handleRetry = () => {
+    loadRejected();
+  };
+
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
-      {/* 1. Header */}
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
 
-      {/* 2. Main Layout */}
-      <div className="flex flex-1 w-full">
-        {/* Sidebar Nav */}
-        <RSidebar />
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
 
-        {/* Main Panel Content */}
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
-          {/* Back button */}
-          <div className="flex justify-start items-center mb-4">
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Back Button - Left aligned on all screens */}
+          <div className="flex justify-start mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             <button
-              className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
+              className="flex items-center gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[13px] sm:text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
               onClick={() =>
                 navigate("/ResidentDashboard/certificates", {
                   state: { successUser, division: userDivision },
@@ -180,12 +195,13 @@ function RejectedCertificates({ onOpenHelp }) {
               }
             >
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
+                className="sm:w-[16px] sm:h-[16px]"
               >
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -194,59 +210,81 @@ function RejectedCertificates({ onOpenHelp }) {
             </button>
           </div>
 
-          {/* Heading */}
-          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
+          {/* Title */}
+          <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             {d.title}
-          </h2>
+          </div>
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center">
+              <p className="text-red-600 font-medium text-[13px] sm:text-[14px] mb-2 sm:mb-3">
+                {error}
+              </p>
+              <button
+                onClick={handleRetry}
+                className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg sm:rounded-xl text-[12px] sm:text-sm font-semibold transition-colors"
+              >
+                {d.retry || "Retry"}
+              </button>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12 sm:py-16 md:py-20 text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-medium mx-4">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#1B365D] mx-auto mb-3 sm:mb-4"></div>
+              {d.loading || "Loading rejected requests..."}
+            </div>
+          )}
+
+          {/* No Rejected Requests */}
+          {!loading && !error && rejectedList.length === 0 && (
+            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-xl sm:rounded-2xl p-8 sm:p-10 md:p-12 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-semibold shadow-sm">
+              {d.noRejected || "No rejected certificate requests found."}
+            </div>
+          )}
 
           {/* Rejected Requests List */}
-          {loading ? (
-            <div className="text-center py-20 text-[#64748b] text-[15px] font-medium">
-              Loading rejected requests...
-            </div>
-          ) : rejectedList.length === 0 ? (
-            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-2xl p-12 text-center text-[#64748b] text-[15px] font-semibold shadow-sm">
-              No rejected certificate requests found.
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
+          {!loading && !error && rejectedList.length > 0 && (
+            <div className="flex flex-col gap-3 sm:gap-4 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px]">
               {rejectedList.map((item) => (
                 <div
                   key={item.id}
-                  className={`rounded-2xl p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-4 ${
+                  className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-3 sm:gap-4 ${
                     item.isActive
                       ? "bg-[#fdf8f0] border-[1.5px] border-[#fedc9b]"
                       : "bg-white border border-[#2D37481F]"
                   }`}
                 >
                   {/* Left Area: Certificate Details */}
-                  <div className="text-left max-w-full md:max-w-[70%]">
-                    <h4 className="text-[16px] font-bold text-[#1B365D] mb-3">
+                  <div className="text-left w-full md:max-w-[70%]">
+                    <h4 className="text-[14px] sm:text-[15px] md:text-[16px] font-bold text-[#1B365D] mb-2 sm:mb-3 break-words">
                       {item.type}
                     </h4>
 
-                    <div className="flex flex-col gap-1 text-[13.5px]">
-                      <div>
+                    <div className="flex flex-col gap-0.5 sm:gap-1 text-[12px] sm:text-[13px] md:text-[13.5px]">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                         <span className="text-[#475569] font-medium">
-                          {d.requestedDate}:{" "}
+                          {d.requestedDate}:
                         </span>
-                        <span className="text-[#1e293b] font-semibold">
+                        <span className="text-[#1e293b] font-semibold break-words">
                           {item.requestedDate}
                         </span>
                       </div>
-                      <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                         <span className="text-[#475569] font-medium">
-                          {d.purpose}:{" "}
+                          {d.purpose}:
                         </span>
-                        <span className="text-[#1e293b] font-semibold">
+                        <span className="text-[#1e293b] font-semibold break-words">
                           {item.purpose}
                         </span>
                       </div>
-                      <div className="mt-2">
-                        <span className="text-[#ef4444] font-bold block mb-1">
+                      <div className="mt-1.5 sm:mt-2">
+                        <span className="text-[#ef4444] font-bold block text-[12px] sm:text-[13px] md:text-[14px] mb-0.5 sm:mb-1">
                           {d.reasonForRejection}
                         </span>
-                        <span className="text-[#334155] font-medium text-[13px] leading-relaxed">
+                        <span className="text-[#334155] font-medium text-[12px] sm:text-[13px] leading-relaxed break-words">
                           {item.reason}
                         </span>
                       </div>
@@ -254,22 +292,23 @@ function RejectedCertificates({ onOpenHelp }) {
                   </div>
 
                   {/* Right Area: Approved Date & Actions Row */}
-                  <div className="flex flex-col items-start md:items-end gap-3 self-stretch md:self-auto justify-between md:justify-start">
-                    <span className="text-[13px] font-semibold text-[#64748b]">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+                    <span className="text-[11px] sm:text-[12px] md:text-[13px] font-semibold text-[#64748b] whitespace-nowrap">
                       {item.approvedDate}
                     </span>
 
                     <button
                       onClick={() => handleEditRequest(item)}
-                      className="flex items-center gap-1.5 py-2 px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-xs font-semibold cursor-pointer transition-all duration-200"
+                      className="flex items-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer transition-all duration-200 w-full sm:w-auto justify-center"
                     >
                       <svg
-                        width="14"
-                        height="14"
+                        width="12"
+                        height="12"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2.5"
+                        className="sm:w-[14px] sm:h-[14px]"
                       >
                         <path d="M12 20h9"></path>
                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -282,12 +321,10 @@ function RejectedCertificates({ onOpenHelp }) {
             </div>
           )}
 
-          {/* Floating Help Trigger */}
           <ChatbotButton onOpenHelp={onOpenHelp} />
-        </main>
+        </div>
       </div>
 
-      {/* 3. Footer */}
       <Footer />
     </div>
   );
