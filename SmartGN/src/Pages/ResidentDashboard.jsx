@@ -185,7 +185,9 @@ function ResidentDashboard({ onOpenHelp }) {
         const headers = getAuthHeaders();
 
         // Primary: Fetch stats from dedicated endpoint
-        const statsRes = await authenticatedFetch("/api/residents/dashboard-stats");
+        const statsRes = await authenticatedFetch(
+          "/api/residents/dashboard-stats",
+        );
 
         if (statsRes.ok) {
           const stats = await statsRes.json();
@@ -393,7 +395,9 @@ function ResidentDashboard({ onOpenHelp }) {
       if (!isAuthenticated || !token) return;
 
       try {
-        const response = await authenticatedFetch("/api/residents/announcements");
+        const response = await authenticatedFetch(
+          "/api/residents/announcements",
+        );
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {

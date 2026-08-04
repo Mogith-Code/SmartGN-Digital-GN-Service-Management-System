@@ -2,9 +2,16 @@ services:
   - type: web
     name: smartgn-frontend
     runtime: static
-    buildCommand: npm run build
-    staticPublishPath: ./dist
+    buildCommand: cd SmartGN && npm install && npm run build
+    staticPublishPath: ./SmartGN/dist
     routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://smartgn-digital-gn-service-management-5diw.onrender.com/api/*
+      - type: rewrite
+        source: /uploads/*
+        destination: https://smartgn-digital-gn-service-management-5diw.onrender.com/uploads/*
       - type: rewrite
         source: /*
         destination: /index.html
+
