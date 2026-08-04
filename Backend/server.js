@@ -9,10 +9,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-    console.log('✅ Created uploads directory at:', uploadsDir);
-}
+const profileDir = path.join(uploadsDir, 'profile');
+const nicFrontDir = path.join(uploadsDir, 'nic_front');
+const nicBackDir = path.join(uploadsDir, 'nic_back');
+
+[uploadsDir, profileDir, nicFrontDir, nicBackDir].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+});
+console.log('✅ Uploads and subdirectories initialized at:', uploadsDir);
 
 // CORS Configuration - Support frontend cross-origin access in local and production
 app.use(cors({

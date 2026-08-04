@@ -39,14 +39,12 @@ export const getImageUrl = (imagePath) => {
       ? ""
       : "https://smartgn-digital-gn-service-management-5diw.onrender.com");
 
-  // Clean the relative path
+  // Clean leading slashes
   let cleanPath = trimmed.replace(/^\/+/, "");
 
-  // If path doesn't start with uploads/ and has no subdirectories, assume uploads folder
+  // If path doesn't start with uploads/, prefix with uploads/
   if (!cleanPath.startsWith("uploads/")) {
-    if (!cleanPath.includes("/")) {
-      cleanPath = `uploads/${cleanPath}`;
-    }
+    cleanPath = `uploads/${cleanPath}`;
   }
 
   // If backendBase is empty (e.g. localhost with proxy), return root-relative path

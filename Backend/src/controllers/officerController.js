@@ -265,7 +265,7 @@ exports.updateOfficerProfile = async (req, res) => {
                 if (currentPhoto) {
                     deleteImageFile(currentPhoto);
                 }
-                const photoPath = saveBase64Image(profilePhoto, 'officer_profile', user.id);
+                const photoPath = saveBase64Image(profilePhoto, 'profile', user.id);
                 if (photoPath) {
                     updates.push('profile_photo_path = ?');
                     values.push(photoPath);
@@ -294,7 +294,7 @@ exports.updateOfficerProfile = async (req, res) => {
                 if (currentFront) {
                     deleteImageFile(currentFront);
                 }
-                const frontPath = saveBase64Image(frontVal, 'officer_front', user.id);
+                const frontPath = saveBase64Image(frontVal, 'nic_front', user.id);
                 if (frontPath) {
                     updates.push('gn_front_path = ?');
                     values.push(frontPath);
@@ -323,7 +323,7 @@ exports.updateOfficerProfile = async (req, res) => {
                 if (currentBack) {
                     deleteImageFile(currentBack);
                 }
-                const backPath = saveBase64Image(backVal, 'officer_back', user.id);
+                const backPath = saveBase64Image(backVal, 'nic_back', user.id);
                 if (backPath) {
                     updates.push('gn_back_path = ?');
                     values.push(backPath);

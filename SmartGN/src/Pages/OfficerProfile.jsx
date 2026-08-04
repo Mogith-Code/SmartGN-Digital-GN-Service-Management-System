@@ -493,6 +493,10 @@ function OfficerProfile({ onOpenHelp }) {
                           height: "100%",
                           objectFit: "cover",
                         }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                        }}
                       />
                     ) : (
                       <svg
@@ -760,6 +764,10 @@ function OfficerProfile({ onOpenHelp }) {
                           objectFit: "contain",
                           padding: "4px",
                         }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                        }}
                       />
                     ) : (
                       <span
@@ -797,6 +805,10 @@ function OfficerProfile({ onOpenHelp }) {
                           height: "100%",
                           objectFit: "contain",
                           padding: "4px",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -894,12 +906,16 @@ function OfficerProfile({ onOpenHelp }) {
                             {editProfilePhoto ? (
                               <>
                                 <img
-                                  src={editProfilePhoto}
+                                  src={getImageUrl(editProfilePhoto)}
                                   alt="Profile preview"
                                   style={{
                                     width: "100%",
                                     height: "100%",
                                     objectFit: "cover",
+                                  }}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
                                   }}
                                 />
                                 {/* ✕ Remove button - top-right corner */}
@@ -1208,6 +1224,10 @@ function OfficerProfile({ onOpenHelp }) {
                                   objectFit: "contain",
                                   padding: "4px",
                                 }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
+                                }}
                               />
                               <button
                                 type="button"
@@ -1327,6 +1347,10 @@ function OfficerProfile({ onOpenHelp }) {
                                   height: "100%",
                                   objectFit: "contain",
                                   padding: "4px",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
                                 }}
                               />
                               <button

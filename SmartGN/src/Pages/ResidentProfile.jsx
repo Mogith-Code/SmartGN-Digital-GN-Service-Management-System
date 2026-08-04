@@ -519,6 +519,10 @@ function ResidentProfile({ onOpenHelp }) {
                         src={getImageUrl(profile.profilePhoto)}
                         alt="Profile avatar"
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = profileIcon;
+                        }}
                       />
                     ) : (
                       <img
@@ -709,6 +713,10 @@ function ResidentProfile({ onOpenHelp }) {
                           src={getImageUrl(profile.nicFront)}
                           alt="NIC Front"
                           className="w-full h-full object-contain p-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -724,6 +732,10 @@ function ResidentProfile({ onOpenHelp }) {
                           src={getImageUrl(profile.nicBack)}
                           alt="NIC Back"
                           className="w-full h-full object-contain p-2"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = "none";
+                          }}
                         />
                       ) : (
                         <span className="text-[#64748b] text-[14px] font-medium">
@@ -769,6 +781,10 @@ function ResidentProfile({ onOpenHelp }) {
                             src={getImageUrl(editProfilePhoto)}
                             alt="Upload profile"
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = "none";
+                            }}
                           />
                         ) : (
                           <svg
@@ -1050,6 +1066,10 @@ function ResidentProfile({ onOpenHelp }) {
                                 src={getImageUrl(editNicFront)}
                                 alt="NIC Front Preview"
                                 className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
+                                }}
                               />
                               <button
                                 type="button"
@@ -1114,6 +1134,10 @@ function ResidentProfile({ onOpenHelp }) {
                                 src={getImageUrl(editNicBack)}
                                 alt="NIC Back Preview"
                                 className="w-full h-full object-contain p-2"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
+                                }}
                               />
                               <button
                                 type="button"
