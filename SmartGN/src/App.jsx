@@ -502,6 +502,38 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/AdminDashboard"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/admin/troubleshoot"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/troubleshoot"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminDashboard onOpenHelp={openChatbot} />
+              </ProtectedRoute>
+            }
+          />
 
           {/* ============================================
               Catch-all route for 404

@@ -360,18 +360,39 @@ function AdminDashboard({ onOpenHelp }) {
 
   const dA = adminDict[lang] || adminDict.EN;
 
-  // Tabs state with URL query parameter / state support
-  const queryParams = new URLSearchParams(location.search);
-  const initialTab = queryParams.get("tab") || location.state?.activeTab || "overview";
-  const [activeTab, setActiveTab] = useState(initialTab);
+  // Helper to determine tab from URL path, query params, or location state
+  const getTabFromLocation = () => {
+    const path = location.pathname.toLowerCase();
+    if (path.includes("/troubleshoot")) return "troubleshoot";
+    if (path.includes("/officers")) return "officers";
+    if (path.includes("/divisions")) return "divisions";
+    if (path.includes("/residents")) return "residents";
+
+    const params = new URLSearchParams(location.search);
+    const queryTab = params.get("tab");
+    if (queryTab && ["overview", "officers", "divisions", "residents", "troubleshoot"].includes(queryTab)) {
+      return queryTab;
+    }
+    return location.state?.activeTab || "overview";
+  };
+
+  const [activeTab, setActiveTab] = useState(getTabFromLocation());
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tabFromUrl = params.get("tab") || location.state?.activeTab;
-    if (tabFromUrl && ["overview", "officers", "divisions", "residents", "troubleshoot"].includes(tabFromUrl)) {
-      setActiveTab(tabFromUrl);
+    const currentTab = getTabFromLocation();
+    if (currentTab !== activeTab) {
+      setActiveTab(currentTab);
     }
-  }, [location]);
+  }, [location.pathname, location.search, location.state]);
+
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+    const targetUrl = tabName === "overview" ? "/dashboard/admin" : `/dashboard/admin?tab=${tabName}`;
+    if (location.pathname + location.search !== targetUrl) {
+      navigate(targetUrl, { replace: true });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // DB list states
   const [officers, setOfficers] = useState([]);
@@ -1343,7 +1364,7 @@ function AdminDashboard({ onOpenHelp }) {
           <nav className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 xl:gap-[5px]">
             {/* Overview Tab */}
             <button
-              onClick={() => setActiveTab("overview")}
+              onClick={() => handleTabChange("overview")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
                 activeTab === "overview"
                   ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
@@ -1362,7 +1383,7 @@ function AdminDashboard({ onOpenHelp }) {
 
             {/* Officers Tab */}
             <button
-              onClick={() => setActiveTab("officers")}
+              onClick={() => handleTabChange("officers")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
                 activeTab === "officers"
                   ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
@@ -1381,7 +1402,7 @@ function AdminDashboard({ onOpenHelp }) {
 
             {/* Divisions Tab */}
             <button
-              onClick={() => setActiveTab("divisions")}
+              onClick={() => handleTabChange("divisions")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
                 activeTab === "divisions"
                   ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
@@ -1396,7 +1417,7 @@ function AdminDashboard({ onOpenHelp }) {
 
             {/* Residents Tab */}
             <button
-              onClick={() => setActiveTab("residents")}
+              onClick={() => handleTabChange("residents")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
                 activeTab === "residents"
                   ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
@@ -1417,7 +1438,7 @@ function AdminDashboard({ onOpenHelp }) {
 
             {/* Troubleshoot Tab */}
             <button
-              onClick={() => setActiveTab("troubleshoot")}
+              onClick={() => handleTabChange("troubleshoot")}
               className={`flex items-center gap-1.5 sm:gap-2 md:gap-2.5 lg:gap-3 xl:gap-[10px] w-full border-none py-1.5 sm:py-2 md:py-2.5 lg:py-3 xl:py-[10px] px-3 sm:px-4 md:px-5 lg:px-6 xl:px-[30px] cursor-pointer text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-[16px] font-regular text-left transition-all duration-200 rounded-r-full hover:translate-x-1 ${
                 activeTab === "troubleshoot"
                   ? "bg-[#005BBD] text-[#F7FAFC] shadow-md"
@@ -1500,9 +1521,13 @@ function AdminDashboard({ onOpenHelp }) {
                     {dA.cleared}
                   </span>
                 </div>
-                <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
-                  <span className="text-sm font-semibold text-gray-500 mb-1">
-                    {dA.serverNode}
+                <div 
+                  onClick={() => handleTabChange("troubleshoot")}
+                  className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left cursor-pointer hover:border-[#005BBD] hover:shadow-md transition-all group"
+                >
+                  <span className="text-sm font-semibold text-gray-500 mb-1 flex justify-between items-center w-full">
+                    <span>{dA.serverNode}</span>
+                    <span className="text-xs text-[#005BBD] font-bold group-hover:underline">Troubleshoot ➔</span>
                   </span>
                   <span className="text-3xl font-extrabold text-green-600">
                     {dA.healthy}
