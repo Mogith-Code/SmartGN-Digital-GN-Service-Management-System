@@ -17,10 +17,10 @@ const generateOTP = () => {
 // PUBLIC ROUTES
 // ============================================================
 
-// GET /api/auth/divisions - Returns only names for registration
+// GET /api/auth/divisions - Returns all divisions for registration and dropdowns
 exports.getDivisions = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
+        const [rows] = await db.query('SELECT division_id, division_code, name, district, province FROM gn_division ORDER BY name ASC');
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching divisions:', error);
@@ -773,7 +773,14 @@ exports.resetPassword = async (req, res) => {
 
 // POST /api/auth/register/officer (Admin only)
 exports.registerOfficer = async (req, res) => {
-    const { username, firstName, lastName, email, mobile, division, password } = req.body;
+    let { username, name, firstName, lastName, email, mobile, division, password } = req.body;
+
+    if ((!firstName || !lastName) && name) {
+        const parts = name.trim().split(/\s+/);
+        firstName = firstName || parts[0];
+        lastName = lastName || (parts.slice(1).join(' ') || parts[0]);
+    }
+    const fullName = name ? name.trim() : (firstName && lastName ? `${firstName} ${lastName}`.trim() : null);
 
     if (!username || !firstName || !lastName || !email || !mobile || !division || !password) {
         return res.status(400).json({ error: 'Please enter all fields.' });
@@ -781,8 +788,8 @@ exports.registerOfficer = async (req, res) => {
 
     try {
         let [divisions] = await db.query(
-            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ?',
-            [division.trim(), division]
+            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ? OR division_id = ?',
+            [division.trim(), division, division]
         );
 
         if (divisions.length === 0) {
@@ -833,7 +840,7 @@ exports.registerOfficer = async (req, res) => {
                 gn_id, username, password_hash, first_name, last_name, full_name,
                 email, mobile, division_id, status, is_2fa_enabled
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Active', TRUE)
-        `, [gnId, username, hashedPassword, firstName, lastName, null, email, mobile, divisionId]);
+        `, [gnId, username, hashedPassword, firstName, lastName, fullName, email, mobile, divisionId]);
 
         return res.status(201).json({ 
             message: 'GN Officer account registered successfully with 2FA enabled.',
@@ -859,6 +866,7 @@ exports.getOfficers = async (req, res) => {
                 o.first_name,
                 o.last_name,
                 o.full_name,
+                COALESCE(o.full_name, CONCAT(o.first_name, ' ', o.last_name)) AS name,
                 o.email, 
                 o.mobile, 
                 o.profile_photo_path,
@@ -891,6 +899,7 @@ exports.getOfficerById = async (req, res) => {
                 o.first_name,
                 o.last_name,
                 o.full_name,
+                COALESCE(o.full_name, CONCAT(o.first_name, ' ', o.last_name)) AS name,
                 o.email, 
                 o.mobile, 
                 o.profile_photo_path,
@@ -918,14 +927,27 @@ exports.getOfficerById = async (req, res) => {
 
 exports.updateOfficer = async (req, res) => {
     const { id } = req.params;
-    const { username, firstName, lastName, fullName, email, mobile, division, status, password } = req.body;
+    let { username, name, firstName, lastName, fullName, email, mobile, division, status, password } = req.body;
+
+    if ((!firstName || !lastName) && name) {
+        const parts = name.trim().split(/\s+/);
+        firstName = firstName || parts[0];
+        lastName = lastName || (parts.slice(1).join(' ') || parts[0]);
+    }
+    fullName = fullName || name || (firstName && lastName ? `${firstName} ${lastName}`.trim() : null);
 
     if (!username || !firstName || !lastName || !email || !mobile || !division || !status) {
         return res.status(400).json({ error: 'Please fill in all required fields.' });
     }
 
     try {
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        let [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ? OR division_id = ?', [division.trim(), division, division]);
+        if (divisions.length === 0) {
+            [divisions] = await db.query(
+                'SELECT division_id AS id FROM gn_division WHERE name LIKE ? OR division_code LIKE ? LIMIT 1',
+                [`%${division.trim()}%`, `%${division.trim()}%`]
+            );
+        }
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
