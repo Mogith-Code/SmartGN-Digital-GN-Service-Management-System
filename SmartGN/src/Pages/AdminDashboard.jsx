@@ -1019,10 +1019,29 @@ function AdminDashboard({ onOpenHelp }) {
   const handleCreateOfficer = async (e) => {
     e.preventDefault();
     try {
+      const nameParts = (newOfficer.name || "").trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+
+      const payload = {
+        username: newOfficer.username,
+        name: newOfficer.name,
+        firstName: firstName,
+        lastName: lastName,
+        fullName: newOfficer.name,
+        email: newOfficer.email,
+        mobile: newOfficer.mobile,
+        division: newOfficer.division,
+        password: newOfficer.password,
+      };
+
       const res = await authenticatedFetch("/api/auth/register/officer", {
         method: "POST",
-        body: JSON.stringify(newOfficer),
+        body: JSON.stringify(payload),
       });
+
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         addNotification("admin", {
           type: "officer",
@@ -1036,7 +1055,7 @@ function AdminDashboard({ onOpenHelp }) {
           message: `Your GN Officer account (${newOfficer.username}) is active for ${newOfficer.division || "assigned division"}.`,
           link: "/dashboard/officer",
         });
-        alert("GN Officer account registered successfully.");
+        alert("GN Officer account registered successfully in database.");
         setShowAddOfficerModal(false);
         setNewOfficer({
           username: "",
@@ -1054,9 +1073,12 @@ function AdminDashboard({ onOpenHelp }) {
         localStorage.removeItem("smartgn_user_id");
         navigate("/login");
         return;
+      } else {
+        alert(data.error || "Failed to register GN Officer.");
+        return;
       }
     } catch (error) {
-      console.warn("Backend error. Simulating officer registration locally.");
+      console.warn("Backend error. Simulating officer registration locally.", error);
     }
     const list = getStoredOfficers();
     const addedOfficer = {
@@ -1087,13 +1109,27 @@ function AdminDashboard({ onOpenHelp }) {
   const handleUpdateOfficer = async (e) => {
     e.preventDefault();
     try {
+      const nameParts = (editOfficer.name || "").trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+
+      const payload = {
+        ...editOfficer,
+        firstName,
+        lastName,
+        fullName: editOfficer.name,
+      };
+
       const res = await authenticatedFetch(
         `/api/auth/admin/officers/${editOfficer.id}`,
         {
           method: "PUT",
-          body: JSON.stringify(editOfficer),
+          body: JSON.stringify(payload),
         },
       );
+
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         alert("GN Officer updated successfully.");
         setShowEditOfficerModal(false);
@@ -1105,9 +1141,12 @@ function AdminDashboard({ onOpenHelp }) {
         localStorage.removeItem("smartgn_user_id");
         navigate("/login");
         return;
+      } else {
+        alert(data.error || "Failed to update GN Officer.");
+        return;
       }
     } catch (error) {
-      console.warn("Backend error. Simulating officer update locally.");
+      console.warn("Backend error. Simulating officer update locally.", error);
     }
     const list = getStoredOfficers();
     const updated = list.map((o) =>
