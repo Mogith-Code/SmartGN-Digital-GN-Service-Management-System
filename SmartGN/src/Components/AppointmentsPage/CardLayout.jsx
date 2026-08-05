@@ -60,6 +60,7 @@ function CardLayout({ pendingCount, approvedCount }) {
       {cards.map((card) => (
         <div
           key={card.id}
+          onClick={() => navigate(card.path)}
           className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer w-full"
         >
           <img
