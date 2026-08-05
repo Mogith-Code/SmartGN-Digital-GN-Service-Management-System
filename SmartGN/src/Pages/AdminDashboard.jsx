@@ -360,8 +360,18 @@ function AdminDashboard({ onOpenHelp }) {
 
   const dA = adminDict[lang] || adminDict.EN;
 
-  // Tabs state
-  const [activeTab, setActiveTab] = useState("overview");
+  // Tabs state with URL query parameter / state support
+  const queryParams = new URLSearchParams(location.search);
+  const initialTab = queryParams.get("tab") || location.state?.activeTab || "overview";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabFromUrl = params.get("tab") || location.state?.activeTab;
+    if (tabFromUrl && ["overview", "officers", "divisions", "residents", "troubleshoot"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [location]);
 
   // DB list states
   const [officers, setOfficers] = useState([]);
@@ -614,8 +624,9 @@ function AdminDashboard({ onOpenHelp }) {
       const res = await authenticatedFetch("/api/auth/admin/officers");
       if (res.ok) {
         const data = await res.json();
-        setOfficers(data);
-        saveStoredOfficers(data);
+        const list = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+        setOfficers(list);
+        saveStoredOfficers(list);
       } else {
         if (res.status === 401) {
           localStorage.removeItem("smartgn_token");
@@ -624,11 +635,13 @@ function AdminDashboard({ onOpenHelp }) {
           navigate("/login");
           return;
         }
-        setOfficers(getStoredOfficers());
+        const fallback = getStoredOfficers();
+        setOfficers(Array.isArray(fallback) ? fallback : []);
       }
     } catch (err) {
       console.warn("Backend offline. Loading local mock officers.", err);
-      setOfficers(getStoredOfficers());
+      const fallback = getStoredOfficers();
+      setOfficers(Array.isArray(fallback) ? fallback : []);
     }
   };
 
@@ -637,8 +650,9 @@ function AdminDashboard({ onOpenHelp }) {
       const res = await authenticatedFetch("/api/auth/admin/residents");
       if (res.ok) {
         const data = await res.json();
-        setResidents(data);
-        saveStoredResidents(data);
+        const list = Array.isArray(data) ? data : (data && Array.isArray(data.data) ? data.data : []);
+        setResidents(list);
+        saveStoredResidents(list);
       } else {
         if (res.status === 401) {
           localStorage.removeItem("smartgn_token");
@@ -647,11 +661,13 @@ function AdminDashboard({ onOpenHelp }) {
           navigate("/login");
           return;
         }
-        setResidents(getStoredResidents());
+        const fallback = getStoredResidents();
+        setResidents(Array.isArray(fallback) ? fallback : []);
       }
     } catch (err) {
       console.warn("Backend offline. Loading local mock residents.", err);
-      setResidents(getStoredResidents());
+      const fallback = getStoredResidents();
+      setResidents(Array.isArray(fallback) ? fallback : []);
     }
   };
 
@@ -1452,13 +1468,14 @@ function AdminDashboard({ onOpenHelp }) {
                     {dA.totalGN}
                   </span>
                   <span className="text-3xl font-extrabold text-[#1B365D]">
-                    {officers.length} Active
+                    {Array.isArray(officers) ? officers.length : 0} Active
                   </span>
                   <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
-                    {divisions
+                    {(Array.isArray(divisions) ? divisions : [])
                       .slice(0, 2)
-                      .map((d) => d.name)
-                      .join(", ")}
+                      .map((d) => (typeof d === "string" ? d : d?.name || ""))
+                      .filter(Boolean)
+                      .join(", ") || "System Divisions"}
                   </span>
                 </div>
                 <div className="bg-white border border-[#cbd5e1] rounded-2xl shadow-sm p-6 flex flex-col items-start text-left">
@@ -1466,7 +1483,7 @@ function AdminDashboard({ onOpenHelp }) {
                     {dA.regResidents}
                   </span>
                   <span className="text-3xl font-extrabold text-[#1B365D]">
-                    {residents.length}
+                    {Array.isArray(residents) ? residents.length : 0}
                   </span>
                   <span className="text-xs text-green-600 font-semibold mt-2 bg-green-50 px-2.5 py-1 rounded-full">
                     Active Accounts
