@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
+import { authenticatedFetch } from "../utils/api";
 import AfterlogNavbar from "../Components/Common/AfterlogNavbar";
 import RSidebar from "../Components/Common/RSidebar";
 import Footer from "../Components/Common/Footer";
@@ -42,9 +43,9 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const [villagePeriod, setVillagePeriod] = useState("");
   const [electoralRegister, setElectoralRegister] = useState("");
   const [nicNumber, setNicNumber] = useState(
-    userDivision.length === 12 || userDivision.length === 10
-      ? userDivision
-      : "",
+    localStorage.getItem("smartgn_user_id") ||
+    localStorage.getItem("smartgn_user_nic") ||
+    ""
   );
   const [fatherName, setFatherName] = useState("");
   const [fatherAddress, setFatherAddress] = useState("");
@@ -70,6 +71,41 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionComplete, setSubmissionComplete] = useState(false);
+
+  // Auto-fill profile details from backend
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await authenticatedFetch("/api/residents/profile");
+        if (response.ok) {
+          const data = await response.json();
+          const profile = data.profile || data;
+          if (profile.fullName || profile.firstName) {
+            setFullName(
+              profile.fullName ||
+                `${profile.firstName || ""} ${profile.lastName || ""}`.trim()
+            );
+          }
+          if (profile.nic || profile.r_nic) {
+            setNicNumber(profile.nic || profile.r_nic);
+          }
+          if (profile.address) {
+            setAddress(profile.address);
+          }
+          if (profile.gender || profile.sex) {
+            setSex(profile.gender || profile.sex);
+          }
+          if (profile.division) {
+            setGnDivisionNumber(profile.division);
+            setDivisionalSecretariat(profile.division);
+          }
+        }
+      } catch (err) {
+        console.warn("Auto-fill profile warning:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // Scroll to top function
   const scrollToTop = () => {
@@ -116,20 +152,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !divisionalSecretariat ||
-      !gnDivisionNumber ||
-      !fullName ||
-      !age ||
-      !address ||
-      !sex ||
-      !civilStatus ||
-      !nationality ||
-      !religion ||
-      !nicNumber ||
-      !purpose
-    ) {
-      setErrorMessage("Please fill in all required fields.");
+    if (!fullName || !nicNumber || !purpose) {
+      setErrorMessage("Please fill in all required fields (Full Name, NIC Number, and Purpose).");
       setSuccessMessage("");
       scrollToTop();
       return;
@@ -203,15 +227,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
 
     // Attempt backend API submission
     try {
-      const token = localStorage.getItem("smartgn_token");
-      const headers = {
-        Authorization: token ? `Bearer ${token}` : "",
-        "Content-Type": "application/json",
-      };
-
-      const response = await fetch("/api/certificates/apply", {
+      const response = await authenticatedFetch("/api/certificates/apply", {
         method: "POST",
-        headers,
         body: JSON.stringify({
           certificateType: "CHARACTER",
           purpose: purpose,
@@ -242,6 +259,8 @@ function ApplyCharacterCertificate({ onOpenHelp }) {
           publicActivitiesDetails,
           character,
           remarks,
+          signatureUrl,
+          birthCertUrl,
         }),
       });
 
