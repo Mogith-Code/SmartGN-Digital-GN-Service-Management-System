@@ -17,10 +17,10 @@ const generateOTP = () => {
 // PUBLIC ROUTES
 // ============================================================
 
-// GET /api/auth/divisions - Returns only names for registration
+// GET /api/auth/divisions - Returns all divisions for registration and dropdowns
 exports.getDivisions = async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT name FROM gn_division ORDER BY name ASC');
+        const [rows] = await db.query('SELECT division_id, division_code, name, district, province FROM gn_division ORDER BY name ASC');
         return res.json(rows);
     } catch (error) {
         console.error('Error fetching divisions:', error);

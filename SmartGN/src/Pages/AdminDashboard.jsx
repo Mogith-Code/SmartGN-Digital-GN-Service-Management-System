@@ -47,8 +47,8 @@ function SearchableDropdown({
 
   const filteredOptions = options.filter(
     (option) =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      option.value.toLowerCase().includes(searchTerm.toLowerCase()),
+      (option.label && option.label.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (option.value && option.value.toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   const handleSelect = (option) => {
@@ -58,8 +58,8 @@ function SearchableDropdown({
   };
 
   const getSelectedLabel = () => {
-    const selected = options.find((opt) => opt.value === value);
-    return selected ? selected.label : "";
+    const selected = options.find((opt) => opt.value === value || opt.label === value);
+    return selected ? selected.label : value || "";
   };
 
   return (
@@ -97,9 +97,9 @@ function SearchableDropdown({
       {isOpen && (
         <div className="absolute top-[100%] left-0 right-0 mt-1 bg-white border border-[#005BBD]/30 rounded-[8px] shadow-lg max-h-48 overflow-y-auto z-50 text-left divide-y divide-gray-100">
           {filteredOptions.length > 0 ? (
-            filteredOptions.map((option) => (
+            filteredOptions.slice(0, 150).map((option, idx) => (
               <div
-                key={option.value}
+                key={`${option.value}-${idx}`}
                 className={`px-4 py-2.5 hover:bg-[#EBF1F6] cursor-pointer text-[14px] text-[#2D3748] font-medium transition-colors flex justify-between items-center ${
                   option.value === value ? "bg-[#EBF1F6]" : ""
                 }`}
@@ -114,8 +114,8 @@ function SearchableDropdown({
               </div>
             ))
           ) : (
-            <div className="px-4 py-3 text-xs text-gray-400 italic">
-              No matching GN division found
+            <div className="px-4 py-3 text-xs text-gray-500 font-medium">
+              No matching GN divisions found.
             </div>
           )}
         </div>
@@ -551,20 +551,35 @@ function AdminDashboard({ onOpenHelp }) {
     is_active: true,
   });
 
-  // Diagnostic states
-  const [runningDiagnostic, setRunningDiagnostic] = useState(false);
-  const [diagnosticProgress, setDiagnosticProgress] = useState(0);
-  const [diagnosticLogs, setDiagnosticLogs] = useState([]);
+  // All divisions for searchable dropdowns
+  const [allDivisionsList, setAllDivisionsList] = useState([]);
 
-  // Convert divisions to dropdown options
-  const divisionOptions = divisions.map((d) => ({
-    value: d.name,
-    label: `${d.name} (${d.division_code || d.name})`,
-  }));
+  // Convert divisions to dropdown options (using all divisions from DB if available)
+  const sourceDivisions = allDivisionsList.length > 0 ? allDivisionsList : divisions;
+  const divisionOptions = sourceDivisions.map((d) => {
+    const name = typeof d === "string" ? d : d.name;
+    const code = typeof d === "string" ? d : (d.division_code || d.name);
+    return {
+      value: name,
+      label: code && code !== name ? `${name} (${code})` : name,
+    };
+  });
 
   // ============================================================
   // LOAD FUNCTIONS
   // ============================================================
+
+  const loadAllDivisionsList = async () => {
+    try {
+      const res = await authenticatedFetch("/api/auth/divisions");
+      if (res.ok) {
+        const data = await res.json();
+        setAllDivisionsList(data || []);
+      }
+    } catch (err) {
+      console.warn("Could not load full division list for dropdowns:", err);
+    }
+  };
 
   const loadDivisions = async (page = 1, search = "") => {
     setIsLoadingDivisions(true);
@@ -687,6 +702,7 @@ function AdminDashboard({ onOpenHelp }) {
   // ============================================================
   useEffect(() => {
     loadDivisions(1, "");
+    loadAllDivisionsList();
     loadOfficers();
     loadResidents();
   }, []);
@@ -697,6 +713,7 @@ function AdminDashboard({ onOpenHelp }) {
   useEffect(() => {
     if (isAuthenticated && role === "ADMIN" && token) {
       loadDivisions(1, divisionsSearch);
+      loadAllDivisionsList();
       loadOfficers();
       loadResidents();
     }
