@@ -29,6 +29,11 @@ router.post('/verify-registration', authController.verifyRegistration);
 // Resend OTP code
 router.post('/resend-otp', authController.resendOTP);
 
+// Forgot / Reset Password routes
+router.post('/forgot-password', authController.requestForgotPassword);
+router.post('/verify-forgot-password-otp', authController.verifyForgotPasswordOTP);
+router.post('/reset-password', authController.resetPassword);
+
 // ============================================================
 // ADMIN ONLY ROUTES - OFFICER MANAGEMENT
 // ============================================================

@@ -1,31 +1,29 @@
 // Backend/src/controllers/residentController.js
 const db = require('../config/database');
-const { saveBase64Image } = require('../utils/fileUpload');
 const fs = require('fs');
 const path = require('path');
 
 // ============================================================
-// HELPER: DELETE IMAGE FILE
+// HELPER: DELETE IMAGE FILE FROM DISK FOLDERS
 // ============================================================
 const deleteImageFile = (imagePath) => {
-    if (!imagePath) return;
+    if (!imagePath || typeof imagePath !== 'string') return false;
+    
+    // Ignore base64 data URIs
+    if (imagePath.startsWith('data:')) return false;
+
     try {
-        // Handle both relative paths and full URLs
-        let filePath = imagePath;
+        let filePath = imagePath.trim();
         
-        // If it's a URL with http, extract the path
-        if (imagePath.startsWith('http')) {
-            const url = new URL(imagePath);
+        // Handle full HTTP/HTTPS URLs
+        if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+            const url = new URL(filePath);
             filePath = url.pathname;
         }
         
-        // Remove leading slash if present
-        if (filePath.startsWith('/')) {
-            filePath = filePath.substring(1);
-        }
+        // Clean leading slashes
+        filePath = filePath.replace(/^\/+/, '');
         
-        // If path starts with 'uploads/', keep it as is
-        // Otherwise, assume it's just the filename
         let fullPath;
         if (filePath.startsWith('uploads/')) {
             fullPath = path.join(__dirname, '../..', filePath);
@@ -35,15 +33,60 @@ const deleteImageFile = (imagePath) => {
         
         if (fs.existsSync(fullPath)) {
             fs.unlinkSync(fullPath);
-            console.log(`✅ Deleted image: ${fullPath}`);
+            console.log(`🗑️ Successfully deleted old image from folder: ${fullPath}`);
             return true;
         } else {
-            console.log(`⚠️ Image not found: ${fullPath}`);
+            console.log(`⚠️ Image file not found on disk: ${fullPath}`);
             return false;
         }
     } catch (error) {
-        console.error('Error deleting image:', error);
+        console.error('Error deleting image file from disk:', error);
         return false;
+    }
+};
+
+// ============================================================
+// HELPER: SAVE BASE64 IMAGE - IN SEPARATE SUBFOLDERS
+// ============================================================
+const saveBase64Image = (base64String, folder, identifier) => {
+    if (!base64String) return null;
+    
+    // If it's already a relative path/URL, return as is
+    if (typeof base64String === 'string' && !base64String.startsWith('data:image/')) {
+        return base64String;
+    }
+    
+    try {
+        const matches = base64String.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image format');
+            return null;
+        }
+        
+        const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Ensure folder exists under uploads
+        const uploadDir = path.join(__dirname, '../../uploads', folder);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        const timestamp = Date.now();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
+        const filePath = path.join(uploadDir, filename);
+        
+        // Write new file into the respective uploads subfolder
+        fs.writeFileSync(filePath, buffer);
+        console.log(`📸 Saved new image file to disk: /uploads/${folder}/${filename}`);
+        
+        // Return relative file path for database storage
+        return `/uploads/${folder}/${filename}`;
+    } catch (error) {
+        console.error('Error saving image file:', error);
+        return null;
     }
 };
 
@@ -179,7 +222,7 @@ exports.updateProfile = async (req, res) => {
             values.push(homeAddress || null);
         }
 
-        // ✅ Profile Photo - Handle remove, update, or keep
+        // ✅ Profile Photo - Handle remove, update, or keep (save in profile folder)
         if (profilePhoto !== undefined) {
             const currentPhoto = currentProfile.length > 0 ? currentProfile[0].profile_photo_path : null;
             
@@ -207,7 +250,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // ✅ NIC Front - Handle remove, update, or keep
+        // ✅ NIC Front - Handle remove, update, or keep (save in nic_front folder)
         if (nicFront !== undefined) {
             const currentFront = currentProfile.length > 0 ? currentProfile[0].nic_front_path : null;
             
@@ -235,7 +278,7 @@ exports.updateProfile = async (req, res) => {
             }
         }
 
-        // ✅ NIC Back - Handle remove, update, or keep
+        // ✅ NIC Back - Handle remove, update, or keep (save in nic_back folder)
         if (nicBack !== undefined) {
             const currentBack = currentProfile.length > 0 ? currentProfile[0].nic_back_path : null;
             
@@ -415,7 +458,7 @@ exports.getDashboardStats = async (req, res) => {
             );
             upcomingAppts = rows[0]?.count || 0;
             
-            console.log(`📅 Upcoming appointments for ${nic}: ${upcomingAppts} (from ${tomorrowStr})`);
+            
         } catch (e) { 
             console.log('Error counting upcoming appointments:', e.message);
             upcomingAppts = 0;

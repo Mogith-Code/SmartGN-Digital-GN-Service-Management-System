@@ -5,7 +5,7 @@ import RSidebar from "../Common/RSidebar";
 import Footer from "../Common/Footer";
 import ChatbotButton from "../Common/ChatbotButton";
 import backIcon from "../../assets/arrow_back_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../utils/translate";
 import resetIcon from "../../assets/refresh_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg";
@@ -14,6 +14,16 @@ import confirmIcon from "../../assets/check_circle_24dp_F7FAFC_FILL0_wght400_GRA
 function BookingForm({ onOpenHelp }) {
   const { lang } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleBack = () => {
+    const currentPath = location.pathname.toLowerCase();
+    if (currentPath.includes("/residentdashboard/bookingform")) {
+      navigate("/ResidentDashboard");
+    } else {
+      navigate("/ResidentDashboard/RAppointment");
+    }
+  };
 
   const BookingFormTranslations = {
     EN: {
@@ -465,7 +475,7 @@ function BookingForm({ onOpenHelp }) {
 
       setTimeout(() => {
         handleReset();
-        navigate("/ResidentDashboard/RAppointment");
+        handleBack();
       }, 2500);
     } catch (error) {
       console.error("Booking error:", error);
@@ -523,7 +533,7 @@ function BookingForm({ onOpenHelp }) {
           {/* Back Button */}
           <div
             className="flex w-auto p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
-            onClick={() => navigate("/ResidentDashboard/RAppointment")}
+            onClick={handleBack}
           >
             <img
               src={backIcon}
@@ -606,7 +616,7 @@ function BookingForm({ onOpenHelp }) {
 
           {/* Booking Form */}
           <form onSubmit={handleSubmit}>
-            <div className="mx-4 sm:mx-5 md:mx-6 lg:mx-[50px] my-4 sm:my-5 md:my-6 lg:my-[30px] flex flex-col gap-4 sm:gap-5 border border-[#2D37482D] rounded-xl sm:rounded-2xl lg:rounded-[15px] p-4 sm:p-5 md:p-6 lg:p-[20px]">
+            <div className="mx-4 sm:mx-5 md:mx-6 lg:mx-[50px] my-4 sm:my-5 md:my-6 lg:my-[30px] flex flex-col gap-4 sm:gap-5 border border-[#2D37482D] rounded-xl sm:rounded-2xl lg:rounded-[15px] p-4 sm:p-5 md:p-6 lg:p-[20px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] ">
               {/* ============================================================ */}
               {/* APPOINTMENT PURPOSE - TEXT INPUT */}
               {/* ============================================================ */}

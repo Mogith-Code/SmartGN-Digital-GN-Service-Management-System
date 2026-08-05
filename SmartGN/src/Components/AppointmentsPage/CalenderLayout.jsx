@@ -1,11 +1,10 @@
-// src/components/CalendarLayout.jsx
+// src/components/AppointmentsPage/CalenderLayout.jsx
 import React, { useState, useEffect } from "react";
-import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
+import { useLanguage } from "../../utils/translate";
 
 function CalendarLayout({ onDateSelect, bookings = [] }) {
   const { lang } = useLanguage();
 
-  // TRANSLATION OBJECTS
   const CalenderLayoutTranslations = {
     EN: {
       January: "January",
@@ -83,25 +82,15 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
 
   const t = CalenderLayoutTranslations[lang] || CalenderLayoutTranslations.EN;
 
-  // ============================================================================
-  // STATE MANAGEMENT
-  // ============================================================================
-
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
 
-  // ============================================================================
-  // CHECK IF DATE HAS BOOKING
-  // ============================================================================
   const hasBooking = (day, month, year) => {
     return bookings.some(
       (booking) =>
         booking.day === day && booking.month === month && booking.year === year,
     );
   };
-  // ============================================================================
-  // HELPER FUNCTIONS
-  // ============================================================================
 
   const getMonthName = (monthIndex) => {
     const months = [
@@ -161,10 +150,6 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
     );
   };
 
-  // ============================================================================
-  // NAVIGATION HANDLERS
-  // ============================================================================
-
   const goToPreviousMonth = () => {
     setCurrentDate(
       new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
@@ -188,10 +173,6 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
       onDateSelect(today.getDate(), today.getMonth(), today.getFullYear());
     }
   };
-
-  // ============================================================================
-  // GENERATE CALENDAR CELLS
-  // ============================================================================
 
   const generateCalendarCells = () => {
     const year = currentDate.getFullYear();
@@ -233,10 +214,6 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
     return cells;
   };
 
-  // ============================================================================
-  // HANDLE DATE CLICK
-  // ============================================================================
-
   const handleDateClick = (day) => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -248,10 +225,6 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
     }
   };
 
-  // ============================================================================
-  // RENDER CALENDAR
-  // ============================================================================
-
   const calendarCells = generateCalendarCells();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -262,25 +235,25 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
   const isNextDisabled = year >= new Date().getFullYear() + 10;
 
   return (
-    <div className="flex flex-col w-full items-center justify-center border border-[#2D37484D] rounded-[10px] sm:rounded-[12px] md:rounded-[15px] p-3 sm:p-4 md:p-5 lg:p-6">
+    <div className="flex flex-col w-full items-center justify-center border border-[#2D37484D] rounded-[10px] sm:rounded-[12px] md:rounded-[15px] p-3 sm:p-4 md:p-5 lg:p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] transition-shadow duration-300">
       {/* CALENDAR HEADER */}
-      <div className="flex justify-between items-center w-full mb-4 sm:mb-5 md:mb-6">
+      <div className="flex justify-between items-center w-full mb-3 sm:mb-4 md:mb-5 lg:mb-6">
         <button
           onClick={goToPreviousMonth}
           disabled={isPrevDisabled}
-          className="bg-transparent border-none text-[14px] sm:text-[15px] md:text-[16px] font-medium text-[#2D3748] cursor-pointer py-1 px-2 sm:px-2.5 md:px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-transparent border-none text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px] font-medium text-[#2D3748] cursor-pointer py-1 px-1.5 sm:px-2 md:px-2.5 lg:px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Previous month"
         >
           ←
         </button>
 
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-          <span className="text-[14px] sm:text-[15px] md:text-[16px] lg:text-[18px] font-medium text-[#1B365D]">
+        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 lg:gap-4">
+          <span className="text-[13px] sm:text-[14px] md:text-[15px] lg:text-[18px] font-medium text-[#1B365D]">
             {getMonthName(month)} {year}
           </span>
           <button
             onClick={goToToday}
-            className="text-[10px] sm:text-[11px] md:text-[12px] font-medium px-2 sm:px-2.5 md:px-3 py-1 sm:py-1.5 md:py-2 text-[#1B365D] rounded-[8px] hover:underline transition-colors duration-200 cursor-pointer"
+            className="text-[9px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium px-1.5 sm:px-2 md:px-2.5 lg:px-3 py-0.5 sm:py-1 md:py-1.5 lg:py-2 text-[#1B365D] rounded-[8px] hover:underline transition-colors duration-200 cursor-pointer"
           >
             {t.Today}
           </button>
@@ -289,7 +262,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
         <button
           onClick={goToNextMonth}
           disabled={isNextDisabled}
-          className="bg-transparent border-none text-[14px] sm:text-[15px] md:text-[16px] font-medium text-[#2D3748] cursor-pointer py-1 px-2 sm:px-2.5 md:px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="bg-transparent border-none text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px] font-medium text-[#2D3748] cursor-pointer py-1 px-1.5 sm:px-2 md:px-2.5 lg:px-3 rounded transition-all duration-200 outline-none focus:outline-none hover:bg-[#E2E8F0] hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Next month"
         >
           →
@@ -297,11 +270,11 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
       </div>
 
       {/* WEEKDAY HEADERS */}
-      <div className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 w-full text-center">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 w-full text-center">
         {weekdays.map((day) => (
           <span
             key={day}
-            className="text-[11px] sm:text-[12px] md:text-[14px] lg:text-[16px] font-medium text-[#2D3748] pb-1.5 sm:pb-2 border-b-[1.5px] border-[#2D37484D] mb-1.5 sm:mb-2"
+            className="text-[10px] sm:text-[11px] md:text-[13px] lg:text-[16px] font-medium text-[#2D3748] pb-1 sm:pb-1.5 md:pb-2 border-b-[1.5px] border-[#2D37484D] mb-1 sm:mb-1.5 md:mb-2"
           >
             {day}
           </span>
@@ -309,7 +282,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
       </div>
 
       {/* CALENDAR DAYS GRID */}
-      <a className="grid grid-cols-7 gap-1 sm:gap-1.5 md:gap-2 w-full text-center">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 w-full text-center">
         {calendarCells.map((cell, index) => {
           const hasBookingOnDate = hasBooking(cell.day, month, year);
           const isSelected = selectedDay === cell.day && cell.isCurrentMonth;
@@ -317,7 +290,7 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
 
           let cellClasses = `py-1 sm:py-1.5 md:py-2
             flex flex-col items-center justify-center 
-            text-[10px] sm:text-[11px] md:text-[14px] lg:text-[16px] 
+            text-[9px] sm:text-[10px] md:text-[13px] lg:text-[16px] 
             rounded-md sm:rounded-lg 
             transition-all duration-200 
             relative select-none 
@@ -360,39 +333,32 @@ function CalendarLayout({ onDateSelect, bookings = [] }) {
               }}
             >
               <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 md:gap-[5px]">
-                {/* Day Number */}
-                <span className="text-[10px] sm:text-[11px] md:text-[14px] lg:text-[16px] font-medium">
+                <span className="text-[9px] sm:text-[10px] md:text-[13px] lg:text-[16px] font-medium">
                   {cell.day < 10 ? `0${cell.day}` : cell.day}
                 </span>
 
-                {/* ============================================================ */}
-                {/* INDICATOR DOTS */}
-                {/* ============================================================ */}
                 <div className="flex items-center justify-center gap-0.5 sm:gap-1">
-                  {/* TODAY DOT - Green dot for today */}
                   {today && (
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#22C55E] rounded-full"></span>
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-[#22C55E] rounded-full"></span>
                   )}
-
-                  {/* BOOKED DOT - Amber dot for booked dates */}
                   {hasBookingOnDate && cell.isCurrentMonth && (
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#D69E2E] rounded-full"></span>
+                    <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 bg-[#D69E2E] rounded-full"></span>
                   )}
                 </div>
               </div>
             </div>
           );
         })}
-      </a>
+      </div>
 
       {/* LEGEND */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#2D37484D] text-[10px] sm:text-xs">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#2D37484D] text-[9px] sm:text-[10px] md:text-xs">
         <div className="flex items-center gap-1 sm:gap-1.5">
-          <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-[#22C55E] rounded-full"></div>
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 bg-[#22C55E] rounded-full"></div>
           <span className="text-[#2D3748]">{t.Today}</span>
         </div>
         <div className="flex items-center gap-1 sm:gap-1.5">
-          <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-[#D69E2E] rounded-full"></div>
+          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 bg-[#D69E2E] rounded-full"></div>
           <span className="text-[#2D3748]">{t.Booked}</span>
         </div>
       </div>

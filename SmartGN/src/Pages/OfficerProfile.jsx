@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { translations, useLanguage } from "../utils/translate";
+import { getImageUrl } from "../utils/imageUtils";
+import { getApiUrl } from "../utils/api";
 import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
@@ -13,6 +15,9 @@ function OfficerProfile({ onOpenHelp }) {
   const location = useLocation();
   const { lang } = useLanguage();
   const t = translations[lang];
+
+  // Ref for scrolling to top
+  const topRef = useRef(null);
 
   // Session parameters (defaults to Kamal Perera if not provided)
   const successUser = location.state?.successUser || "Kamal Perera";
@@ -56,11 +61,41 @@ function OfficerProfile({ onOpenHelp }) {
   const [editProfilePhoto, setEditProfilePhoto] = useState(null);
   const [editIdCardFront, setEditIdCardFront] = useState(null);
   const [editIdCardBack, setEditIdCardBack] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Helper function to remove photo
+  const handleRemovePhoto = (target) => {
+    if (target === "profilePhoto") {
+      setEditProfilePhoto(null);
+    } else if (target === "idCardFront") {
+      setEditIdCardFront(null);
+    } else if (target === "idCardBack") {
+      setEditIdCardBack(null);
+    }
+  };
 
   // Direct Photo Upload helper (VIEW mode)
   const handleDirectPhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -70,7 +105,7 @@ function OfficerProfile({ onOpenHelp }) {
 
       try {
         const token = localStorage.getItem("smartgn_token");
-        const response = await fetch("/api/officer/profile", {
+        const response = await fetch(getApiUrl("/api/officer/profile"), {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -91,16 +126,21 @@ function OfficerProfile({ onOpenHelp }) {
           const savedPath = resData.profile_photo_path || base64;
           const finalProfile = { ...optimistic, profilePhoto: savedPath };
           setProfile(finalProfile);
-          localStorage.setItem("smartgn_officer_profile", JSON.stringify(finalProfile));
+          localStorage.setItem(
+            "smartgn_officer_profile",
+            JSON.stringify(finalProfile),
+          );
           window.dispatchEvent(new Event("profileUpdated"));
           setSuccessMessage("Profile photo updated successfully!");
           setShowSuccessToast(true);
+          scrollToTop(); // ✅ Scroll to top after success
         } else {
           const err = await response.json();
           alert(err.error || "Failed to update profile photo.");
         }
       } catch (err) {
         console.error("Direct photo upload error:", err);
+        alert("Network error updating photo.");
       }
     };
     reader.readAsDataURL(file);
@@ -114,7 +154,6 @@ function OfficerProfile({ onOpenHelp }) {
         const gnId = localStorage.getItem("smartgn_user_id");
 
         if (!token || !gnId) {
-          // Fallback to localStorage
           const saved = localStorage.getItem("smartgn_officer_profile");
           if (saved) {
             setProfile(JSON.parse(saved));
@@ -122,7 +161,7 @@ function OfficerProfile({ onOpenHelp }) {
           return;
         }
 
-        const response = await fetch("/api/officer/profile", {
+        const response = await fetch(getApiUrl("/api/officer/profile"), {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -132,7 +171,6 @@ function OfficerProfile({ onOpenHelp }) {
         if (response.ok) {
           const data = await response.json();
 
-          // Calculate service time if available
           let serviceTime = "N/A";
           if (data.created_at) {
             const startDate = new Date(data.created_at);
@@ -164,6 +202,7 @@ function OfficerProfile({ onOpenHelp }) {
             idCardBack: data.gn_back_path || null,
           };
 
+
           setProfile(profileData);
           localStorage.setItem(
             "smartgn_officer_profile",
@@ -174,7 +213,6 @@ function OfficerProfile({ onOpenHelp }) {
             profileData.fullName || "GN Officer",
           );
         } else {
-          // Fallback to localStorage
           const saved = localStorage.getItem("smartgn_officer_profile");
           if (saved) {
             setProfile(JSON.parse(saved));
@@ -182,7 +220,6 @@ function OfficerProfile({ onOpenHelp }) {
         }
       } catch (error) {
         console.error("Error fetching officer profile:", error);
-        // Fallback to localStorage
         const saved = localStorage.getItem("smartgn_officer_profile");
         if (saved) {
           setProfile(JSON.parse(saved));
@@ -206,24 +243,34 @@ function OfficerProfile({ onOpenHelp }) {
     setEditIdCardFront(profile.idCardFront);
     setEditIdCardBack(profile.idCardBack);
     setViewMode("EDIT");
+    scrollToTop(); // ✅ Scroll to top when entering edit mode
   };
 
   // Handle Photo uploads (Base64 uploader)
   const handlePhotoUpload = (e, target) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (target === "profilePhoto") {
-          setEditProfilePhoto(reader.result);
-        } else if (target === "idCardFront") {
-          setEditIdCardFront(reader.result);
-        } else if (target === "idCardBack") {
-          setEditIdCardBack(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size should be less than 5MB");
+      return;
     }
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload an image file");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (target === "profilePhoto") {
+        setEditProfilePhoto(reader.result);
+      } else if (target === "idCardFront") {
+        setEditIdCardFront(reader.result);
+      } else if (target === "idCardBack") {
+        setEditIdCardBack(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   // Handle saving the updated profile info to API
@@ -236,6 +283,8 @@ function OfficerProfile({ onOpenHelp }) {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem("smartgn_token");
       const gnId = localStorage.getItem("smartgn_user_id");
@@ -246,23 +295,38 @@ function OfficerProfile({ onOpenHelp }) {
         return;
       }
 
-      // ✅ Send update to backend
-      const response = await fetch("/api/officer/profile", {
+      // Send update to backend with proper null values for removed photos
+      const updateData = {
+        firstName: editFirstName,
+        lastName: editLastName,
+        fullName: editFullName,
+        email: editEmail,
+        mobile: editMobile,
+        profilePhoto: editProfilePhoto,
+        idCardFront: editIdCardFront,
+        idCardBack: editIdCardBack,
+      };
+
+      console.log("📤 Updating officer profile:", {
+        ...updateData,
+        profilePhoto: updateData.profilePhoto
+          ? "✅ Image present"
+          : "❌ Image removed (null)",
+        idCardFront: updateData.idCardFront
+          ? "✅ Image present"
+          : "❌ Image removed (null)",
+        idCardBack: updateData.idCardBack
+          ? "✅ Image present"
+          : "❌ Image removed (null)",
+      });
+
+      const response = await fetch(getApiUrl("/api/officer/profile"), {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          firstName: editFirstName,
-          lastName: editLastName,
-          fullName: editFullName,
-          email: editEmail,
-          mobile: editMobile,
-          profilePhoto: editProfilePhoto,
-          idCardFront: editIdCardFront,
-          idCardBack: editIdCardBack,
-        }),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
@@ -272,7 +336,7 @@ function OfficerProfile({ onOpenHelp }) {
 
       const data = await response.json();
 
-      // ✅ Update local state with the response from backend
+      // Update local state with the response from backend
       const updatedProfileData = {
         ...profile,
         firstName: editFirstName,
@@ -280,10 +344,15 @@ function OfficerProfile({ onOpenHelp }) {
         fullName: editFullName,
         email: editEmail,
         mobile: editMobile,
-        profilePhoto: data.profile_photo_path || editProfilePhoto,
-        idCardFront: data.gn_front_path || editIdCardFront,
-        idCardBack: data.gn_back_path || editIdCardBack,
+        profilePhoto: data.profile_photo_path || null,
+        idCardFront: data.gn_front_path || null,
+        idCardBack: data.gn_back_path || null,
       };
+
+      // Update edit state to match saved data
+      setEditProfilePhoto(updatedProfileData.profilePhoto);
+      setEditIdCardFront(updatedProfileData.idCardFront);
+      setEditIdCardBack(updatedProfileData.idCardBack);
 
       // Save to localStorage
       localStorage.setItem(
@@ -300,33 +369,46 @@ function OfficerProfile({ onOpenHelp }) {
         editFullName || `${editFirstName} ${editLastName}`,
       );
 
-      setSuccessMessage("Officer profile information and photos updated successfully!");
+      setSuccessMessage(
+        "Officer profile information and photos updated successfully!",
+      );
       setShowSuccessToast(true);
+      setIsSubmitting(false);
+
+      // ✅ Scroll to top to show success toast
+      scrollToTop();
     } catch (error) {
       console.error("Error updating profile:", error);
       alert(error.message || "Failed to update profile. Please try again.");
+      setIsSubmitting(false);
     }
+  };
+
+  // Handle Cancel - go back to VIEW mode
+  const handleCancel = () => {
+    setViewMode("VIEW");
+    scrollToTop(); // ✅ Scroll to top when cancel is clicked
   };
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
-      {/* 1. Header */}
       <OfficerNavbar />
 
-      {/* 2. Main Layout */}
       <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
         <div className="hidden md:block bg-white">
           <OSidebar />
         </div>
 
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Top Ref for Scrolling */}
+          <div ref={topRef}></div>
+
           {viewMode === "VIEW" && (
             <>
               <div className="flex justify-between mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-6 md:mx-8 lg:mx-[30px] border-b border-[#2D37482D] pb-[10px] items-center">
                 <h2 className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D]">
                   My profile
                 </h2>
-                {/* ID upload alert */}
                 <div className="flex justify-end -mt-[70px]">
                   {showAlert &&
                     (!profile.idCardFront || !profile.idCardBack) && (
@@ -374,8 +456,12 @@ function OfficerProfile({ onOpenHelp }) {
                       ✓
                     </div>
                     <div>
-                      <p className="font-bold text-[16px] m-0 text-[#065f46]">Profile Updated Successfully!</p>
-                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">{successMessage}</p>
+                      <p className="font-bold text-[16px] m-0 text-[#065f46]">
+                        Profile Updated Successfully!
+                      </p>
+                      <p className="text-[13px] text-[#047857] m-0 mt-0.5">
+                        {successMessage}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -394,17 +480,24 @@ function OfficerProfile({ onOpenHelp }) {
                 >
                   <div
                     className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center relative group cursor-pointer border-2 border-white shadow-sm transition-all duration-200"
-                    onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                    onClick={() =>
+                      directPhotoInputRef.current &&
+                      directPhotoInputRef.current.click()
+                    }
                     title="Click to update profile photo"
                   >
                     {profile.profilePhoto ? (
                       <img
-                        src={profile.profilePhoto}
+                        src={getImageUrl(profile.profilePhoto)}
                         alt="Profile"
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -422,7 +515,14 @@ function OfficerProfile({ onOpenHelp }) {
                       </svg>
                     )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-medium transition-all duration-200">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                       </svg>
@@ -461,7 +561,10 @@ function OfficerProfile({ onOpenHelp }) {
                     <div>
                       <span
                         className="text-[12px] text-[#2563eb] hover:underline cursor-pointer font-medium mt-1 inline-block"
-                        onClick={() => directPhotoInputRef.current && directPhotoInputRef.current.click()}
+                        onClick={() =>
+                          directPhotoInputRef.current &&
+                          directPhotoInputRef.current.click()
+                        }
                       >
                         📷 Change profile photo
                       </span>
@@ -500,7 +603,7 @@ function OfficerProfile({ onOpenHelp }) {
                 </button>
               </div>
 
-              {/* Profile details - same as before */}
+              {/* Profile details */}
               <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 mx-[30px] mb-[30px]">
                 <div
                   className="border border-[#2D37484D] rounded-2xl p-[20px]"
@@ -655,12 +758,17 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     {profile.idCardFront ? (
                       <img
-                        src={profile.idCardFront}
+                        src={getImageUrl(profile.idCardFront)}
                         alt="ID Front"
                         style={{
                           width: "100%",
                           height: "100%",
-                          objectFit: "cover",
+                          objectFit: "contain",
+                          padding: "4px",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -692,12 +800,17 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     {profile.idCardBack ? (
                       <img
-                        src={profile.idCardBack}
+                        src={getImageUrl(profile.idCardBack)}
                         alt="ID Back"
                         style={{
                           width: "100%",
                           height: "100%",
-                          objectFit: "cover",
+                          objectFit: "contain",
+                          padding: "4px",
+                        }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
                         }}
                       />
                     ) : (
@@ -723,7 +836,7 @@ function OfficerProfile({ onOpenHelp }) {
               <div className="flex justify-start items-center mb-4">
                 <button
                   className="flex p-[5px] text-[13px] sm:text-[14px] md:text-[15px] items-center gap-[8px] sm:gap-[10px] font-regular text-[#1B365D] mt-12 sm:mt-14 md:mt-16 lg:mt-[60px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px] cursor-pointer"
-                  onClick={() => setViewMode("VIEW")}
+                  onClick={handleCancel}
                 >
                   <img
                     src={backIcon}
@@ -756,7 +869,7 @@ function OfficerProfile({ onOpenHelp }) {
                         gap: "20px",
                       }}
                     >
-                      {/* Avatar preview */}
+                      {/* Avatar preview with ✕ on top-right corner */}
                       <div
                         className="flex flex-col"
                         style={{ alignItems: "flex-start" }}
@@ -789,18 +902,53 @@ function OfficerProfile({ onOpenHelp }) {
                               justifyContent: "center",
                               overflow: "hidden",
                               backgroundColor: "#f8fafc",
+                              position: "relative",
                             }}
                           >
                             {editProfilePhoto ? (
-                              <img
-                                src={editProfilePhoto}
-                                alt="Profile preview"
-                                style={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                }}
-                              />
+                              <>
+                                <img
+                                  src={getImageUrl(editProfilePhoto)}
+                                  alt="Profile preview"
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                  }}
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.style.display = "none";
+                                  }}
+                                />
+                                {/* ✕ Remove button - top-right corner */}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleRemovePhoto("profilePhoto")
+                                  }
+                                  style={{
+                                    position: "absolute",
+                                    top: "-4px",
+                                    right: "-4px",
+                                    backgroundColor: "#ef4444",
+                                    color: "#ffffff",
+                                    border: "none",
+                                    borderRadius: "50%",
+                                    width: "20px",
+                                    height: "20px",
+                                    fontSize: "10px",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "bold",
+                                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                                  }}
+                                  title="Remove photo"
+                                >
+                                  ✕
+                                </button>
+                              </>
                             ) : (
                               <svg
                                 width="24"
@@ -815,25 +963,45 @@ function OfficerProfile({ onOpenHelp }) {
                               </svg>
                             )}
                           </div>
-                          <label
-                            className="py-1.5 px-3 bg-[#cbd5e1] text-[#475569] rounded-md text-[12px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#94a3b8] hover:text-white"
+                          <div
                             style={{
-                              borderRadius: "6px",
-                              padding: "8px 14px",
-                              fontSize: "12.5px",
-                              cursor: "pointer",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
                             }}
                           >
-                            Choose Photo
-                            <input
-                              type="file"
-                              accept="image/*"
-                              style={{ display: "none" }}
-                              onChange={(e) =>
-                                handlePhotoUpload(e, "profilePhoto")
-                              }
-                            />
-                          </label>
+                            <label
+                              className="py-1.5 px-3 bg-[#cbd5e1] text-[#475569] rounded-md text-[12px] font-semibold cursor-pointer transition-all duration-200 hover:bg-[#94a3b8] hover:text-white"
+                              style={{
+                                borderRadius: "6px",
+                                padding: "8px 14px",
+                                fontSize: "12.5px",
+                                cursor: "pointer",
+                                display: "inline-block",
+                              }}
+                            >
+                              Choose Photo
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                onChange={(e) =>
+                                  handlePhotoUpload(e, "profilePhoto")
+                                }
+                              />
+                            </label>
+                            {editProfilePhoto && (
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  color: "#10b981",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                ✅ Photo uploaded
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -862,6 +1030,7 @@ function OfficerProfile({ onOpenHelp }) {
                             value={editFirstName}
                             onChange={(e) => setEditFirstName(e.target.value)}
                             required
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div className="flex flex-col">
@@ -882,6 +1051,7 @@ function OfficerProfile({ onOpenHelp }) {
                             value={editLastName}
                             onChange={(e) => setEditLastName(e.target.value)}
                             required
+                            disabled={isSubmitting}
                           />
                         </div>
                       </div>
@@ -904,6 +1074,7 @@ function OfficerProfile({ onOpenHelp }) {
                           value={editFullName}
                           onChange={(e) => setEditFullName(e.target.value)}
                           required
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -974,6 +1145,7 @@ function OfficerProfile({ onOpenHelp }) {
                           value={editEmail}
                           onChange={(e) => setEditEmail(e.target.value)}
                           required
+                          disabled={isSubmitting}
                         />
                       </div>
 
@@ -995,6 +1167,7 @@ function OfficerProfile({ onOpenHelp }) {
                           value={editMobile}
                           onChange={(e) => setEditMobile(e.target.value)}
                           required
+                          disabled={isSubmitting}
                         />
                       </div>
                     </div>
@@ -1045,17 +1218,22 @@ function OfficerProfile({ onOpenHelp }) {
                           {editIdCardFront ? (
                             <>
                               <img
-                                src={editIdCardFront}
+                                src={getImageUrl(editIdCardFront)}
                                 alt="GN ID Front"
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  objectFit: "cover",
+                                  objectFit: "contain",
+                                  padding: "4px",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
                                 }}
                               />
                               <button
                                 type="button"
-                                onClick={() => setEditIdCardFront(null)}
+                                onClick={() => handleRemovePhoto("idCardFront")}
                                 style={{
                                   position: "absolute",
                                   right: "10px",
@@ -1123,6 +1301,18 @@ function OfficerProfile({ onOpenHelp }) {
                             </label>
                           )}
                         </div>
+                        {editIdCardFront && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#10b981",
+                              fontWeight: "600",
+                              marginTop: "4px",
+                            }}
+                          >
+                            ✅ Front image uploaded
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex flex-col">
@@ -1152,17 +1342,22 @@ function OfficerProfile({ onOpenHelp }) {
                           {editIdCardBack ? (
                             <>
                               <img
-                                src={editIdCardBack}
+                                src={getImageUrl(editIdCardBack)}
                                 alt="GN ID Back"
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  objectFit: "cover",
+                                  objectFit: "contain",
+                                  padding: "4px",
+                                }}
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = "none";
                                 }}
                               />
                               <button
                                 type="button"
-                                onClick={() => setEditIdCardBack(null)}
+                                onClick={() => handleRemovePhoto("idCardBack")}
                                 style={{
                                   position: "absolute",
                                   right: "10px",
@@ -1230,6 +1425,18 @@ function OfficerProfile({ onOpenHelp }) {
                             </label>
                           )}
                         </div>
+                        {editIdCardBack && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#10b981",
+                              fontWeight: "600",
+                              marginTop: "4px",
+                            }}
+                          >
+                            ✅ Back image uploaded
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1245,7 +1452,7 @@ function OfficerProfile({ onOpenHelp }) {
                   >
                     <button
                       type="button"
-                      onClick={() => setViewMode("VIEW")}
+                      onClick={handleCancel}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -1257,6 +1464,8 @@ function OfficerProfile({ onOpenHelp }) {
                         borderRadius: "8px",
                         cursor: "pointer",
                         fontWeight: "600",
+                        opacity: isSubmitting ? 0.5 : 1,
+                        pointerEvents: isSubmitting ? "none" : "auto",
                       }}
                     >
                       <svg
@@ -1285,21 +1494,50 @@ function OfficerProfile({ onOpenHelp }) {
                         border: "none",
                         padding: "10px 20px",
                         borderRadius: "8px",
-                        cursor: "pointer",
+                        cursor: isSubmitting ? "not-allowed" : "pointer",
                         fontWeight: "600",
+                        opacity: isSubmitting ? 0.7 : 1,
                       }}
+                      disabled={isSubmitting}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                      Update Profile
+                      {isSubmitting ? (
+                        <>
+                          <svg
+                            className="animate-spin h-4 w-4 mr-2"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          Update Profile
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>

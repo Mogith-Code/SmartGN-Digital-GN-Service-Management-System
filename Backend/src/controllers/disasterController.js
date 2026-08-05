@@ -41,16 +41,8 @@ exports.submitDisasterReport = async (req, res) => {
         return res.status(400).json({ error: 'disasterType, description, location, and contact are required.' });
     }
 
-    // Map common frontend variants to valid ENUM values
-    const typeMapping = {
-        'Storm': 'Cyclone',
-        'Earth Slip': 'Landslide'
-    };
-    if (typeMapping[disasterType]) {
-        disasterType = typeMapping[disasterType];
-    }
-
-    const validTypes = ['Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other'];
+    // ✅ UPDATED: Added 'Storm' and 'Earth Slip' to validTypes
+    const validTypes = ['Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other'];
     if (!validTypes.includes(disasterType)) {
         return res.status(400).json({ error: 'Invalid disaster type. Allowed: Flood, Fire, Earthquake, Landslide, Cyclone, Drought, Pandemic, Other.' });
     }

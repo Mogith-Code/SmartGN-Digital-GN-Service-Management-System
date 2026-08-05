@@ -111,7 +111,7 @@ function RHousehold({ onOpenHelp }) {
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1B365D] mx-auto"></div>
-            <p className="mt-4 text-gray-600">
+            <p className="mt-4 text-gray-600 text-sm sm:text-base">
               Loading your household details...
             </p>
           </div>
@@ -128,7 +128,7 @@ function RHousehold({ onOpenHelp }) {
     return (
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
         <AfterlogNavbar />
-        <div className="flex flex-col justify-center items-center h-64">
+        <div className="flex flex-col justify-center items-center h-64 px-4">
           <div className="text-center">
             <p className="text-red-500 text-lg font-semibold">{error}</p>
             <button
@@ -164,7 +164,6 @@ function RHousehold({ onOpenHelp }) {
       </div>
 
       <ChatbotButton onOpenHelp={onOpenHelp} />
-
       <Footer />
     </div>
   );

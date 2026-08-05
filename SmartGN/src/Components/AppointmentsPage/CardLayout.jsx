@@ -1,6 +1,7 @@
+// src/components/AppointmentsPage/CardLayout.jsx
 import React from "react";
 import { useState } from "react";
-import { useLanguage } from "../../utils/translate"; // Custom hook for multilingual support
+import { useLanguage } from "../../utils/translate";
 import pendingIcon from "../../assets/schedule_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import approvedIcon from "../../assets/verified_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
 import addIcon from "../../assets/add_24dp_D69E2E_FILL0_wght400_GRAD0_opsz24.svg";
@@ -10,7 +11,6 @@ function CardLayout({ pendingCount, approvedCount }) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
 
-  // TRANSLATION OBJECTS
   const CardLayoutTranslations = {
     EN: {
       Card1Title: "Pending appointment requests",
@@ -29,12 +29,8 @@ function CardLayout({ pendingCount, approvedCount }) {
     },
   };
 
-  // Select the appropriate translation based on current language
   const t = CardLayoutTranslations[lang] || CardLayoutTranslations.EN;
 
-  // ============================================================================
-  // CARD ARRAY - Pass function references (NOT function calls!)
-  // ============================================================================
   const cards = [
     {
       id: 1,
@@ -64,22 +60,25 @@ function CardLayout({ pendingCount, approvedCount }) {
       {cards.map((card) => (
         <div
           key={card.id}
-          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_5px_10px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.2)] hover:scale-102 transition-all duration-100 cursor-pointer"
-          onClick={() => navigate(card.path)}
+          className="bg-[#E2E8F0] gap-[5px] rounded-2xl p-[15px] flex flex-col items-center shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer w-full"
         >
-          <img src={card.icon} alt="card icon" className="w-[50px]" />
+          <img
+            src={card.icon}
+            alt="card icon"
+            className="w-[40px] sm:w-[50px] h-[40px] sm:h-[50px] object-contain"
+          />
 
-          <div className="flex flex-col items-center">
-            <span className="text-[16px] font-regular text-[#2D3748] text-center">
+          <div className="flex flex-col items-center w-full">
+            <span className="text-[13px] sm:text-[14px] md:text-[15px] lg:text-[16px] font-regular text-[#2D3748] text-center leading-tight break-words max-w-full px-0.5">
               {card.title}
             </span>
             {card.count !== null && (
-              <span className="text-[20px] font-medium text-[#2D3748]">
+              <span className="text-[18px] sm:text-[20px] font-medium text-[#2D3748]">
                 {card.count}
               </span>
             )}
             {card.id === 3 && (
-              <span className="text-[12px] font-light text-[#2D3748] text-center">
+              <span className="text-[10px] sm:text-[11px] md:text-[12px] font-light text-[#2D3748] text-center">
                 Only 1 appointment can be booked for a day
               </span>
             )}

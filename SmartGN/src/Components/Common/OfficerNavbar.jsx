@@ -4,8 +4,10 @@ import logoImage from "../../assets/logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { translations, useLanguage } from "../../utils/translate";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import LanguageSelector from "./LanguageSelector";
 import NotificationsDropdown from "./NotificationsDropdown";
+import { getImageUrl } from "../../utils/imageUtils";
 import notificationIcon from "../../assets/notifications_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import accountIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import menuIcon from "../../assets/menu_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
@@ -31,6 +33,7 @@ import announcementIconHovered from "../../assets/brand_awareness_24dp_F7FAFC_FI
 function OfficerNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
   const { lang } = useLanguage();
 
   const OSidebarTranslations = {
@@ -89,7 +92,7 @@ function OfficerNavbar() {
     localStorage.getItem("smartgn_user_id") ||
     "200324511540";
 
-  const loadOfficerProfile = () => {
+  const loadOfficerProfile = async () => {
     const saved = localStorage.getItem("smartgn_officer_profile");
     if (saved) {
       try {
@@ -97,6 +100,27 @@ function OfficerNavbar() {
       } catch (e) {
         console.error("Error loading officer profile:", e);
       }
+    }
+    try {
+      const res = await fetch(getApiUrl("/api/officer/profile"), {
+        headers: getAuthHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = {
+          firstName: data.firstName || data.first_name || "Kamal",
+          lastName: data.lastName || data.last_name || "Perera",
+          division: data.divisionName || data.division_name || "Colombo, Borella",
+          profilePhoto: data.profilePhoto || data.profile_photo_path || null,
+        };
+        setProfile(mapped);
+        localStorage.setItem(
+          "smartgn_officer_profile",
+          JSON.stringify(mapped),
+        );
+      }
+    } catch (err) {
+      // Keep cached fallback
     }
   };
 
@@ -126,7 +150,7 @@ function OfficerNavbar() {
     {
       id: "dashboard",
       name: t.dashboard,
-      path: "/dashboard/officer",
+      path: "/OfficerDashboard",
       icon: dashBoard,
       iconActive: dashBoardIconHovered,
     },
@@ -147,35 +171,35 @@ function OfficerNavbar() {
     {
       id: "certificates",
       name: t.certificates,
-      path: "/dashboard/officer/certificates",
+      path: "/OfficerDashboard/Certificates",
       icon: certificateIcon,
       iconActive: certificateIconHovered,
     },
     {
       id: "appointments",
       name: t.appointments,
-      path: "/OfficerAppointment",
+      path: "/OfficerDashboard/OfficerAppointment",
       icon: appointmentIcon,
       iconActive: appointmentIconHovered,
     },
     {
       id: "allowances",
       name: t.allowances,
-      path: "/dashboard/officer/allowances",
+      path: "/OfficerDashboard/allowances",
       icon: allowanceIcon,
       iconActive: allowanceIconHovered,
     },
     {
       id: "disaster",
       name: t.disaster,
-      path: "/dashboard/officer/disasters",
+      path: "/OfficerDashboard/disasters",
       icon: disasterIcon,
       iconActive: disasterIconHovered,
     },
     {
       id: "announcements",
       name: t.announcements,
-      path: "/dashboard/officer/announcements",
+      path: "/OfficerDashboard/announcements",
       icon: announcementIcon,
       iconActive: announcementIconHovered,
     },
@@ -284,9 +308,13 @@ function OfficerNavbar() {
             <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-[50px] xl:h-[50px] rounded-full bg-slate-200 flex items-center justify-center border-[1.5px] border-[#005BBD] overflow-hidden flex-shrink-0 shadow-sm">
               {profile.profilePhoto ? (
                 <img
-                  src={profile.profilePhoto}
+                  src={getImageUrl(profile.profilePhoto)}
                   alt="User Profile"
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = accountIcon;
+                  }}
                 />
               ) : (
                 <img
@@ -300,10 +328,7 @@ function OfficerNavbar() {
 
           {/* Logout Button */}
           <button
-            onClick={() => {
-              localStorage.clear();
-              window.location.href = "/login";
-            }}
+            onClick={logout}
             className="py-1.5 px-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 rounded-lg text-xs font-semibold cursor-pointer transition-colors duration-150 flex items-center gap-1 shadow-sm"
             title="Logout of your account"
           >
@@ -347,9 +372,13 @@ function OfficerNavbar() {
           >
             {profile.profilePhoto ? (
               <img
-                src={profile.profilePhoto}
+                src={getImageUrl(profile.profilePhoto)}
                 alt="User Profile"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = accountIcon;
+                }}
               />
             ) : (
               <img

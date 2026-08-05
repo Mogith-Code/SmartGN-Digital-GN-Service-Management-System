@@ -135,7 +135,6 @@ function EditFamilyMemberTable({
   // HANDLE CANCEL BUTTON CLICK
   // ============================================================================
   const handleCancelClick = (memberId) => {
-    // Reset to original data
     const originalMember = members.find((m) => getMemberId(m) === memberId);
     if (originalMember) {
       setEditedMembers((prev) =>
@@ -179,49 +178,49 @@ function EditFamilyMemberTable({
 
     return (
       <tr key={memberId}>
-        <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[100px]">
           <input
             type="text"
             value={member.name || member.fullName || ""}
             onChange={(e) =>
               handleInputChange(memberId, "name", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-1 sm:px-2 py-0.5 sm:py-1 text-[13px] sm:text-[14px] md:text-[16px]"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#E2E8F0] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px]">
           <input
             type="text"
             value={member.nic || ""}
             onChange={(e) => handleInputChange(memberId, "nic", e.target.value)}
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-1 sm:px-2 py-0.5 sm:py-1 text-[13px] sm:text-[14px] md:text-[16px]"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[60px]">
           <input
             type="number"
             value={member.age || ""}
             onChange={(e) => handleInputChange(memberId, "age", e.target.value)}
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-1 sm:px-2 py-0.5 sm:py-1 text-[13px] sm:text-[14px] md:text-[16px]"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px]">
           <input
             type="text"
             value={member.occupation || ""}
             onChange={(e) =>
               handleInputChange(memberId, "occupation", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-1 sm:px-2 py-0.5 sm:py-1 text-[13px] sm:text-[14px] md:text-[16px]"
           />
         </td>
-        <td className="text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border bg-[#E2E8F0] border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[100px]">
           <select
             value={member.relationship || ""}
             onChange={(e) =>
               handleInputChange(memberId, "relationship", e.target.value)
             }
-            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-2 py-1 cursor-pointer"
+            className="w-full bg-[#E2E8F0] border-none focus:outline-none focus:ring-2 focus:ring-[#1B365D] rounded px-1 sm:px-2 py-0.5 sm:py-1 cursor-pointer text-[13px] sm:text-[14px] md:text-[16px]"
           >
             <option value="">Select relationship</option>
             {relationshipOptions.map((option) => (
@@ -231,9 +230,8 @@ function EditFamilyMemberTable({
             ))}
           </select>
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          <div className="flex gap-[20px] items-center justify-center">
-            {/* Save Button */}
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px]">
+          <div className="flex gap-2 sm:gap-3 md:gap-[20px] items-center justify-center">
             <button
               className="cursor-pointer hover:scale-110 transition-transform disabled:opacity-50"
               onClick={() => handleSaveClick(memberId)}
@@ -242,10 +240,9 @@ function EditFamilyMemberTable({
               <img
                 src={saveIcon}
                 alt="saveIcon"
-                className="w-[30px] h-[30px]"
+                className="w-[20px] h-[20px] sm:w-[25px] sm:h-[25px] md:w-[30px] md:h-[30px]"
               />
             </button>
-            {/* Cancel Button */}
             <button
               className="cursor-pointer hover:scale-110 transition-transform"
               onClick={() => handleCancelClick(memberId)}
@@ -253,7 +250,7 @@ function EditFamilyMemberTable({
               <img
                 src={cancelIcon}
                 alt="cancelIcon"
-                className="w-[30px] h-[30px]"
+                className="w-[20px] h-[20px] sm:w-[25px] sm:h-[25px] md:w-[30px] md:h-[30px]"
               />
             </button>
           </div>
@@ -270,24 +267,23 @@ function EditFamilyMemberTable({
 
     return (
       <tr key={memberId}>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[100px] break-words">
           {member.name || member.fullName || "-"}
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] whitespace-nowrap">
           {member.nic || "-"}
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] whitespace-nowrap">
           {member.age || "-"}
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px] break-words">
           {member.occupation || "-"}
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px] break-words">
           {member.relationship || "-"}
         </td>
-        <td className="text-[16px] text-[#2D3748] border border-[#2D37484D] px-[10px] py-[5px]">
-          <div className="flex gap-[20px] items-center justify-center">
-            {/* Edit Button */}
+        <td className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] border border-[#2D37484D] px-[6px] sm:px-[8px] md:px-[10px] py-[4px] sm:py-[5px] min-w-[80px]">
+          <div className="flex gap-2 sm:gap-3 md:gap-[20px] items-center justify-center">
             <button
               className="cursor-pointer hover:scale-110 transition-transform"
               onClick={() => handleEditClick(memberId)}
@@ -295,10 +291,9 @@ function EditFamilyMemberTable({
               <img
                 src={editIcon}
                 alt="editIcon"
-                className="w-[20px] h-[20px]"
+                className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
               />
             </button>
-            {/* Delete Button */}
             <button
               className="cursor-pointer hover:scale-110 transition-transform"
               onClick={() => handleDeleteClick(memberId)}
@@ -306,7 +301,7 @@ function EditFamilyMemberTable({
               <img
                 src={deleteIcon}
                 alt="deleteIcon"
-                className="w-[20px] h-[20px]"
+                className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px]"
               />
             </button>
           </div>
@@ -320,33 +315,33 @@ function EditFamilyMemberTable({
   // ============================================================================
   if (members.length === 0) {
     return (
-      <div className="w-full text-center py-8 text-gray-500 border border-[#2D37484D] rounded-lg bg-[#F7FAFC]">
-        <p className="text-[16px]">{t.noMembers}</p>
+      <div className="w-full text-center py-6 sm:py-8 text-gray-500 border border-[#2D37484D] rounded-lg bg-[#F7FAFC]">
+        <p className="text-[14px] sm:text-[16px]">{t.noMembers}</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse">
+    <div className="w-full overflow-x-auto -mx-3 sm:mx-0">
+      <table className="w-full border-collapse min-w-[600px] sm:min-w-[700px] md:min-w-full">
         <thead>
           <tr>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-left whitespace-nowrap min-w-[100px]">
               {t.fullName}
             </th>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-left whitespace-nowrap">
               {t.nic}
             </th>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-left whitespace-nowrap">
               {t.age}
             </th>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-left whitespace-nowrap min-w-[80px]">
               {t.occupation}
             </th>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-left">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-left whitespace-nowrap min-w-[80px]">
               {t.relationship}
             </th>
-            <th className="text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[10px] text-center">
+            <th className="text-[13px] sm:text-[14px] md:text-[16px] text-[#2D3748] bg-[#FDF5E6] border border-[#2D37484D] p-[6px] sm:p-[8px] md:p-[10px] text-center whitespace-nowrap min-w-[80px]">
               {t.actions}
             </th>
           </tr>

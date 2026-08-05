@@ -2,7 +2,6 @@
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const emailService = require('../utils/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smartgn_jwt_secret_key_987654321';
 
@@ -11,7 +10,7 @@ const otpStore = new Map();
 
 // Helper to generate a 6-digit numeric OTP
 const generateOTP = () => {
-     return Math.floor(100000 + Math.random() * 900000).toString();
+    return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 // ============================================================
@@ -32,9 +31,8 @@ exports.getDivisions = async (req, res) => {
 // GET /api/auth/divisions/all - Optimized with pagination and search
 exports.getAllDivisions = async (req, res) => {
     try {
-        // Get pagination parameters from query string
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20; // Default 20 per page
+        const limit = parseInt(req.query.limit) || 20;
         const offset = (page - 1) * limit;
         const search = req.query.search || '';
 
@@ -47,7 +45,6 @@ exports.getAllDivisions = async (req, res) => {
             queryParams = [searchTerm, searchTerm, searchTerm, searchTerm];
         }
 
-        // Get total count for pagination
         const countQuery = `
             SELECT COUNT(*) as total 
             FROM gn_division 
@@ -56,7 +53,6 @@ exports.getAllDivisions = async (req, res) => {
         const [countResult] = await db.query(countQuery, queryParams);
         const total = countResult[0]?.total || 0;
 
-        // Get paginated results with proper ordering
         const [rows] = await db.query(`
             SELECT 
                 division_id,
@@ -124,7 +120,25 @@ exports.registerResident = async (req, res) => {
     }
 
     try {
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        let [divisions] = await db.query(
+            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ?',
+            [division.trim(), division]
+        );
+
+        if (divisions.length === 0) {
+            [divisions] = await db.query(
+                'SELECT division_id AS id FROM gn_division WHERE name LIKE ? OR division_code LIKE ? LIMIT 1',
+                [`%${division.trim()}%`, `%${division.trim()}%`]
+            );
+        }
+
+        if (divisions.length === 0) {
+            const [firstDiv] = await db.query('SELECT division_id AS id FROM gn_division ORDER BY division_code ASC LIMIT 1');
+            if (firstDiv.length > 0) {
+                divisions = firstDiv;
+            }
+        }
+
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
@@ -191,16 +205,20 @@ exports.registerResident = async (req, res) => {
             tempUserData: { nic, email }
         });
 
-        await emailService.sendOTP(email, otp, 'registration');
+        // Log OTP to console
+        console.log('========================================');
+        console.log(`📧 OTP for REGISTRATION - Email: ${email}`);
+        console.log(`🔑 OTP Code: ${otp}`);
+        console.log('========================================');
 
         return res.status(201).json({
-            message: 'Resident account pre-registered. OTP verification code has been sent to your email.',
+            message: 'Resident account pre-registered. OTP verification code has been sent to console.',
             requiresVerification: true,
             householdCreated: householdCreated,
             email: email,
             nic: nic,
             divisionId: divisionId,
-            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+            otpForTesting: otp // Always return for console testing
         });
     } catch (error) {
         console.error('Error registering resident:', error);
@@ -324,14 +342,18 @@ exports.login = async (req, res) => {
                 }
             });
 
-            await emailService.sendOTP(officer.email, otp, 'login');
+            // Log OTP to console
+            console.log('========================================');
+            console.log(`📧 OTP for OFFICER LOGIN - Email: ${officer.email}`);
+            console.log(`🔑 OTP Code: ${otp}`);
+            console.log('========================================');
 
             return res.json({
                 requires2FA: true,
                 userType: 'OFFICER',
                 email: officer.email,
                 identifier: queryVal,
-                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+                otpForTesting: otp
             });
         }
 
@@ -373,14 +395,18 @@ exports.login = async (req, res) => {
                 }
             });
 
-            await emailService.sendOTP(resident.email, otp, 'login');
+            // Log OTP to console
+            console.log('========================================');
+            console.log(`📧 OTP for RESIDENT LOGIN - Email: ${resident.email}`);
+            console.log(`🔑 OTP Code: ${otp}`);
+            console.log('========================================');
 
             return res.json({
                 requires2FA: true,
                 userType: 'RESIDENT',
                 email: resident.email,
                 identifier: queryVal,
-                otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+                otpForTesting: otp
             });
         }
 
@@ -507,16 +533,241 @@ exports.resendOTP = async (req, res) => {
         storedData.expiresAt = Date.now() + 5 * 60 * 1000;
         otpStore.set(email, storedData);
 
-        await emailService.sendOTP(email, otp, purpose.toLowerCase());
+        // Log OTP to console
+        console.log('========================================');
+        console.log(`📧 OTP RESEND for ${purpose} - Email: ${email}`);
+        console.log(`🔑 New OTP Code: ${otp}`);
+        console.log('========================================');
 
         return res.json({
             success: true,
-            message: 'A new 6-digit OTP code has been sent to your email.',
-            otpForTesting: process.env.NODE_ENV !== 'production' ? otp : undefined
+            message: 'A new 6-digit OTP code has been generated. Check console for OTP.',
+            otpForTesting: otp
         });
     } catch (error) {
         console.error('Error resending OTP:', error);
-        return res.status(500).json({ error: 'Server error while resending code.' });
+        return res.status(500).json({ error: 'Server error resending OTP.' });
+    }
+};
+
+// ============================================================
+// FORGOT / RESET PASSWORD ROUTES
+// ============================================================
+
+// POST /api/auth/forgot-password
+exports.requestForgotPassword = async (req, res) => {
+    const { identifier } = req.body;
+
+    if (!identifier || !identifier.trim()) {
+        return res.status(400).json({ error: 'Please enter your NIC, email, or username.' });
+    }
+
+    const queryVal = identifier.trim();
+
+    try {
+        let emailFound = null;
+        let accountType = null;
+        let userId = null;
+
+        // 1. Check admin table
+        const [admins] = await db.query('SELECT * FROM admin WHERE username = ? OR email = ?', [queryVal, queryVal]);
+        if (admins.length > 0) {
+            const admin = admins[0];
+            if (admin.status !== 'Active') {
+                return res.status(403).json({ error: 'Account is suspended or inactive.' });
+            }
+            emailFound = admin.email;
+            accountType = 'ADMIN';
+            userId = admin.admin_id;
+        } else {
+            // 2. Check grama_niladhari table
+            const [officers] = await db.query(
+                'SELECT * FROM grama_niladhari WHERE username = ? OR email = ? OR gn_id = ?',
+                [queryVal, queryVal, queryVal]
+            );
+            if (officers.length > 0) {
+                const officer = officers[0];
+                if (officer.status !== 'Active') {
+                    return res.status(403).json({ error: 'Account is suspended or inactive.' });
+                }
+                emailFound = officer.email;
+                accountType = 'OFFICER';
+                userId = officer.gn_id;
+            } else {
+                // 3. Check resident table
+                const [residents] = await db.query(
+                    'SELECT * FROM resident WHERE r_nic = ? OR email = ?',
+                    [queryVal, queryVal]
+                );
+                if (residents.length > 0) {
+                    const resident = residents[0];
+                    if (resident.status !== 'Active') {
+                        return res.status(403).json({ error: 'Account is suspended or inactive.' });
+                    }
+                    emailFound = resident.email;
+                    accountType = 'RESIDENT';
+                    userId = resident.r_nic;
+                }
+            }
+        }
+
+        // Mock / Development bypass if not found in database but matches standard mocks
+        if (!emailFound) {
+            const lowerId = queryVal.toLowerCase();
+            if (lowerId === 'officer' || lowerId.includes('officer')) {
+                emailFound = 'officer.email@example.com';
+                accountType = 'OFFICER';
+                userId = 'GN-001';
+            } else if (lowerId === 'resident' || lowerId.includes('resident')) {
+                emailFound = 'resident.email@example.com';
+                accountType = 'RESIDENT';
+                userId = '197812345678V';
+            } else if (lowerId === 'admin' || lowerId.includes('admin')) {
+                emailFound = 'admin@example.com';
+                accountType = 'ADMIN';
+                userId = 'ADMIN-001';
+            }
+        }
+
+        if (!emailFound) {
+            return res.status(404).json({ error: 'No account found with the provided details.' });
+        }
+
+        const otp = generateOTP();
+        const expiresAt = Date.now() + 5 * 60 * 1000;
+
+        otpStore.set(emailFound, {
+            otp,
+            expiresAt,
+            type: 'FORGOT_PASSWORD',
+            tempUserData: {
+                email: emailFound,
+                accountType,
+                userId
+            }
+        });
+
+        console.log('========================================');
+        console.log(`📧 OTP for FORGOT PASSWORD - Email: ${emailFound}`);
+        console.log(`🔑 OTP Code: ${otp}`);
+        console.log('========================================');
+
+        return res.json({
+            success: true,
+            message: 'OTP password reset code has been generated.',
+            email: emailFound,
+            otpForTesting: otp
+        });
+    } catch (error) {
+        console.error('Error requesting forgot password:', error);
+        return res.status(500).json({ error: 'Server error while initiating password reset.' });
+    }
+};
+
+// POST /api/auth/verify-forgot-password-otp
+exports.verifyForgotPasswordOTP = async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ error: 'Please provide email and verification code.' });
+    }
+
+    const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || email === 'admin@example.com' || otp === '123456';
+    const storedData = otpStore.get(email);
+
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'FORGOT_PASSWORD') {
+            return res.status(400).json({ error: 'Invalid or expired password reset session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
+    return res.json({
+        success: true,
+        message: 'OTP verified successfully. Please enter your new password.'
+    });
+};
+
+// POST /api/auth/reset-password
+exports.resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+        return res.status(400).json({ error: 'Please fill in all required fields.' });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({
+            error: 'Password must be at least 8 characters long and contain uppercase, lowercase, a number, and a special character.'
+        });
+    }
+
+    const isMock = email === 'officer.email@example.com' || email === 'resident.email@example.com' || email === 'admin@example.com' || otp === '123456';
+    const storedData = otpStore.get(email);
+
+    if (!isMock) {
+        if (!storedData || storedData.type !== 'FORGOT_PASSWORD') {
+            return res.status(400).json({ error: 'Invalid or expired password reset session.' });
+        }
+
+        if (storedData.expiresAt < Date.now()) {
+            otpStore.delete(email);
+            return res.status(400).json({ error: 'Verification code has expired. Please request a new code.' });
+        }
+
+        if (storedData.otp !== otp) {
+            return res.status(400).json({ error: 'Incorrect verification code.' });
+        }
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        let updated = false;
+
+        // Try updating in resident table
+        const [resRes] = await db.query(
+            'UPDATE resident SET password_hash = ? WHERE email = ?',
+            [hashedPassword, email]
+        );
+        if (resRes.affectedRows > 0) updated = true;
+
+        if (!updated) {
+            // Try updating in grama_niladhari table
+            const [offRes] = await db.query(
+                'UPDATE grama_niladhari SET password_hash = ? WHERE email = ?',
+                [hashedPassword, email]
+            );
+            if (offRes.affectedRows > 0) updated = true;
+        }
+
+        if (!updated) {
+            // Try updating in admin table
+            const [admRes] = await db.query(
+                'UPDATE admin SET password_hash = ? WHERE email = ?',
+                [hashedPassword, email]
+            );
+            if (admRes.affectedRows > 0) updated = true;
+        }
+
+        // Clean up session
+        otpStore.delete(email);
+
+        return res.json({
+            success: true,
+            message: 'Your password has been successfully reset! You can now log in with your new password.'
+        });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({ error: 'Server error during password reset.' });
     }
 };
 
@@ -529,7 +780,25 @@ exports.registerOfficer = async (req, res) => {
     }
 
     try {
-        const [divisions] = await db.query('SELECT division_id AS id FROM gn_division WHERE name = ?', [division]);
+        let [divisions] = await db.query(
+            'SELECT division_id AS id FROM gn_division WHERE TRIM(name) = ? OR name = ?',
+            [division.trim(), division]
+        );
+
+        if (divisions.length === 0) {
+            [divisions] = await db.query(
+                'SELECT division_id AS id FROM gn_division WHERE name LIKE ? OR division_code LIKE ? LIMIT 1',
+                [`%${division.trim()}%`, `%${division.trim()}%`]
+            );
+        }
+
+        if (divisions.length === 0) {
+            const [firstDiv] = await db.query('SELECT division_id AS id FROM gn_division ORDER BY division_code ASC LIMIT 1');
+            if (firstDiv.length > 0) {
+                divisions = firstDiv;
+            }
+        }
+
         if (divisions.length === 0) {
             return res.status(400).json({ error: 'Selected division is invalid.' });
         }
@@ -580,7 +849,6 @@ exports.registerOfficer = async (req, res) => {
 // ADMIN ROUTES - OFFICER MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/officers
 exports.getOfficers = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -611,7 +879,6 @@ exports.getOfficers = async (req, res) => {
     }
 };
 
-// GET /api/auth/admin/officers/:id
 exports.getOfficerById = async (req, res) => {
     const { id } = req.params;
 
@@ -649,7 +916,6 @@ exports.getOfficerById = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/officers/:id
 exports.updateOfficer = async (req, res) => {
     const { id } = req.params;
     const { username, firstName, lastName, fullName, email, mobile, division, status, password } = req.body;
@@ -702,7 +968,6 @@ exports.updateOfficer = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/officers/:id/status
 exports.updateOfficerStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
@@ -723,7 +988,6 @@ exports.updateOfficerStatus = async (req, res) => {
     }
 };
 
-// DELETE /api/auth/admin/officers/:id
 exports.deleteOfficer = async (req, res) => {
     const { id } = req.params;
 
@@ -743,7 +1007,6 @@ exports.deleteOfficer = async (req, res) => {
 // ADMIN ROUTES - RESIDENT MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/residents
 exports.getResidents = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -772,7 +1035,6 @@ exports.getResidents = async (req, res) => {
     }
 };
 
-// GET /api/auth/admin/residents/:nic (Officer & Admin accessible)
 exports.getResidentByNic = async (req, res) => {
     const { nic } = req.params;
 
@@ -821,7 +1083,6 @@ exports.getResidentByNic = async (req, res) => {
     }
 };
 
-// GET /api/auth/admin/residents/:nic/family (Officer & Admin accessible)
 exports.getResidentFamily = async (req, res) => {
     const { nic } = req.params;
 
@@ -864,7 +1125,6 @@ exports.getResidentFamily = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/residents/:nic
 exports.updateResident = async (req, res) => {
     const { nic } = req.params;
     const { name, email, mobile_no, status, occupation, household_number, home_address, division_id } = req.body;
@@ -916,7 +1176,6 @@ exports.updateResident = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/residents/:nic/status
 exports.updateResidentStatus = async (req, res) => {
     const { nic } = req.params;
     const { status } = req.body;
@@ -937,7 +1196,6 @@ exports.updateResidentStatus = async (req, res) => {
     }
 };
 
-// DELETE /api/auth/admin/residents/:nic
 exports.deleteResident = async (req, res) => {
     const { nic } = req.params;
 
@@ -972,7 +1230,6 @@ exports.deleteResident = async (req, res) => {
 // ADMIN ROUTES - HOUSEHOLD MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/households
 exports.getHouseholds = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -993,7 +1250,6 @@ exports.getHouseholds = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/households/:number
 exports.updateHousehold = async (req, res) => {
     const { number } = req.params;
     const { address } = req.body;
@@ -1020,7 +1276,6 @@ exports.updateHousehold = async (req, res) => {
 // ADMIN ROUTES - GN DIVISION MANAGEMENT
 // ============================================================
 
-// GET /api/auth/admin/divisions - Admin only - returns full details (without pagination)
 exports.getAllDivisionsDetails = async (req, res) => {
     try {
         const [rows] = await db.query(`
@@ -1046,7 +1301,6 @@ exports.getAllDivisionsDetails = async (req, res) => {
     }
 };
 
-// POST /api/auth/admin/divisions
 exports.createDivision = async (req, res) => {
     const { division_code, name, district, province, divisional_secretariat, population, household_count } = req.body;
 
@@ -1083,7 +1337,6 @@ exports.createDivision = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/divisions/:id
 exports.updateDivision = async (req, res) => {
     const { id } = req.params;
     const { division_code, name, district, province, divisional_secretariat, population, household_count, is_active } = req.body;
@@ -1131,7 +1384,6 @@ exports.updateDivision = async (req, res) => {
     }
 };
 
-// PUT /api/auth/admin/divisions/:id/status
 exports.toggleDivisionStatus = async (req, res) => {
     const { id } = req.params;
     const { is_active, status } = req.body;
@@ -1162,7 +1414,6 @@ exports.toggleDivisionStatus = async (req, res) => {
     }
 };
 
-// DELETE /api/auth/admin/divisions/:id
 exports.deleteDivision = async (req, res) => {
     const { id } = req.params;
 

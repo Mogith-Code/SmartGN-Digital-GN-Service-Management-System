@@ -35,7 +35,7 @@ async function setupTables(dbPool) {
         await dbPool.query(`CREATE INDEX idx_gn_division_created ON gn_division(created_at DESC)`);
     } catch (e) {
         // Indexes might already exist
-        console.log('📌 Division indexes already exist or could not be created');
+        console.log('Division indexes already exist or could not be created');
     }
 
     // ============================================================
@@ -84,9 +84,9 @@ async function setupTables(dbPool) {
         home_address TEXT,
         
         -- Images
-        profile_photo_path VARCHAR(255),
-        nic_front_path VARCHAR(255),
-        nic_back_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
+        nic_front_path LONGTEXT,
+        nic_back_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         nic_front_filename VARCHAR(255),
         nic_back_filename VARCHAR(255),
@@ -166,13 +166,13 @@ async function setupTables(dbPool) {
         status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
         
         -- Profile image
-        profile_photo_path VARCHAR(255),
+        profile_photo_path LONGTEXT,
         profile_photo_filename VARCHAR(255),
         
         -- GN ID Card images
-        gn_front_path VARCHAR(255),
+        gn_front_path LONGTEXT,
         gn_front_filename VARCHAR(255),
-        gn_back_path VARCHAR(255),
+        gn_back_path LONGTEXT,
         gn_back_filename VARCHAR(255),
         
         -- Security
@@ -223,7 +223,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 7. APPOINTMENT TABLES (Separated)
     // ============================================================
-
+    
     // 7a. PENDING APPOINTMENTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS appointment_pending (
@@ -299,7 +299,7 @@ async function setupTables(dbPool) {
     // ============================================================
     // 8. CERTIFICATE TABLES (Separated) - FIXED
     // ============================================================
-
+    
     // 8a. PENDING CERTIFICATES
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS certificate_pending (
@@ -376,6 +376,10 @@ async function setupTables(dbPool) {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    // ============================================================
+    // 9. ALLOWANCE TABLES (Separated) - FIXED ENUM
+    // ============================================================
+    
     // 9a. PENDING ALLOWANCES
     await dbPool.query(`
 CREATE TABLE IF NOT EXISTS allowance_pending (
@@ -402,6 +406,20 @@ CREATE TABLE IF NOT EXISTS allowance_pending (
     INDEX idx_type (allowance_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `);
+
+    // Ensure columns exist if table was created previously without them
+    const alterCols = [
+        "ALTER TABLE allowance_pending ADD COLUMN status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING'",
+        "ALTER TABLE allowance_pending ADD COLUMN payment_status ENUM('UNPAID', 'PROCESSING', 'PAID') DEFAULT 'UNPAID'",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_amount DECIMAL(12,2) DEFAULT 0.00",
+        "ALTER TABLE allowance_pending ADD COLUMN cleared_time DATETIME",
+        "ALTER TABLE allowance_pending ADD COLUMN txn_reference VARCHAR(50)",
+        "ALTER TABLE allowance_pending ADD COLUMN bank_details TEXT",
+        "ALTER TABLE allowance_pending ADD COLUMN document_path LONGTEXT"
+    ];
+    for (const q of alterCols) {
+        try { await dbPool.query(q); } catch (e) { /* column exists */ }
+    }
 
     // 9b. APPROVED ALLOWANCES
     await dbPool.query(`
@@ -458,21 +476,22 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
 `);
 
     // ============================================================
-    // 10. DISASTER TABLES (Separated) - FIXED
+    // 10. DISASTER TABLES (Separated) - FIXED ENUM
     // ============================================================
-
+    
     // 10a. PENDING DISASTER REQUESTS
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS disaster_pending (
         disaster_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
         request_number VARCHAR(50) UNIQUE NOT NULL,
-        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other') NOT NULL,
+        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other') NOT NULL,
         request_date DATE NOT NULL,
         description TEXT NOT NULL,
         severity ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'MEDIUM',
         location VARCHAR(255) NOT NULL,
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
+        image_path LONGTEXT,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(20) NOT NULL,
         requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -492,7 +511,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     CREATE TABLE IF NOT EXISTS disaster_approved (
         disaster_id VARCHAR(36) PRIMARY KEY,
         request_number VARCHAR(50) UNIQUE NOT NULL,
-        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other') NOT NULL,
+        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other') NOT NULL,
         request_date DATE NOT NULL,
         description TEXT NOT NULL,
         severity ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'MEDIUM',
@@ -500,6 +519,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
         relief_provided TEXT,
+        image_path LONGTEXT,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(20),
         approved_by VARCHAR(20) NOT NULL,
@@ -522,13 +542,14 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     CREATE TABLE IF NOT EXISTS disaster_rejected (
         disaster_id VARCHAR(36) PRIMARY KEY,
         request_number VARCHAR(50) UNIQUE NOT NULL,
-        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other') NOT NULL,
+        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other') NOT NULL,
         request_date DATE NOT NULL,
         description TEXT NOT NULL,
         severity ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'MEDIUM',
         location VARCHAR(255) NOT NULL,
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
+        image_path LONGTEXT,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(20),
         rejected_by VARCHAR(20) NOT NULL,
@@ -551,7 +572,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     CREATE TABLE IF NOT EXISTS disaster_resolved (
         disaster_id VARCHAR(36) PRIMARY KEY,
         request_number VARCHAR(50) UNIQUE NOT NULL,
-        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Drought', 'Pandemic', 'Other') NOT NULL,
+        disaster_type ENUM('Flood', 'Fire', 'Earthquake', 'Landslide', 'Cyclone', 'Storm', 'Earth Slip', 'Drought', 'Pandemic', 'Other') NOT NULL,
         request_date DATE NOT NULL,
         description TEXT NOT NULL,
         severity ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'MEDIUM',
@@ -559,6 +580,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         contact_number VARCHAR(15) NOT NULL,
         aid_requested TEXT,
         relief_provided TEXT,
+        image_path LONGTEXT,
         resident_nic VARCHAR(12) NOT NULL,
         gn_id VARCHAR(20),
         admin_id VARCHAR(36),
@@ -576,17 +598,6 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         INDEX idx_resolved_at (resolved_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
-
-    // Ensure image_path column exists in disaster tables
-    const alterDisasterCols = [
-        "ALTER TABLE disaster_pending ADD COLUMN image_path LONGTEXT",
-        "ALTER TABLE disaster_approved ADD COLUMN image_path LONGTEXT",
-        "ALTER TABLE disaster_rejected ADD COLUMN image_path LONGTEXT",
-        "ALTER TABLE disaster_resolved ADD COLUMN image_path LONGTEXT"
-    ];
-    for (const q of alterDisasterCols) {
-        try { await dbPool.query(q); } catch (e) { /* column exists */ }
-    }
 
     // ============================================================
     // 11. DOCUMENT TABLE
@@ -621,7 +632,7 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // ============================================================
     // 12. CHAT TABLES
     // ============================================================
-
+    
     await dbPool.query(`
     CREATE TABLE IF NOT EXISTS chat_session (
         session_id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
@@ -658,7 +669,9 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         
         INDEX idx_category (category),
         INDEX idx_is_active (is_active),
-        FULLTEXT INDEX idx_fulltext (question, answer, keywords)
+        FULLTEXT INDEX idx_fulltext_question (question),
+        FULLTEXT INDEX idx_fulltext_answer (answer),
+        FULLTEXT INDEX idx_fulltext_keywords (keywords)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
@@ -719,12 +732,12 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         title VARCHAR(255) NOT NULL,
         date DATE NOT NULL,
         description TEXT NOT NULL,
-        type ENUM('HEALTH', 'UTILITIES', 'EDUCATION', 'TRANSPORT', 'ENVIRONMENT', 'SOCIAL_WELFARE', 'OTHER') NOT NULL,
+        type VARCHAR(50) DEFAULT 'GENERAL',
         priority ENUM('LOW', 'MEDIUM', 'HIGH') DEFAULT 'MEDIUM',
         target_audience TEXT COMMENT 'JSON array of target groups',
         gn_id VARCHAR(20) NOT NULL,
         is_active BOOLEAN DEFAULT TRUE,
-        expires_at TIMESTAMP,
+        expires_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         
@@ -736,6 +749,19 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
         INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
+
+    try {
+        await dbPool.query(`ALTER TABLE announcement MODIFY COLUMN type VARCHAR(50) DEFAULT 'GENERAL'`);
+    } catch (e) {
+        // Table created or column already modified
+    }
+
+    try {
+        await dbPool.query(`ALTER TABLE resident MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN nic_front_path LONGTEXT, MODIFY COLUMN nic_back_path LONGTEXT`);
+        await dbPool.query(`ALTER TABLE grama_niladhari MODIFY COLUMN profile_photo_path LONGTEXT, MODIFY COLUMN gn_front_path LONGTEXT, MODIFY COLUMN gn_back_path LONGTEXT`);
+    } catch (e) {
+        // Ignored if column already modified
+    }
 
     // ============================================================
     // 15. AUDIT LOG TABLE
@@ -822,38 +848,38 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
     // SEED GN DIVISIONS FROM PACKAGE - KEEP AS ORIGINAL
     // ============================================================
     let firstDivisionId = null;
-
+    
     try {
         // Check if divisions exist before seeding
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
-            console.log('🌱 Seeding GN divisions from package...');
-
+            console.log('Seeding GN divisions from package...');
+            
             // Use the direct JSON import method
             const seedGnDivisions = require('../seed/seedGnDivisions');
             await seedGnDivisions(dbPool);
-            console.log('✅ GN divisions seeded successfully from package');
+            console.log('GN divisions seeded successfully from package');
         } else {
-            console.log(`✅ GN divisions already exist (${divisionCount[0].count} records)`);
+            console.log(`GN divisions already exist (${divisionCount[0].count} records)`);
         }
-
+        
         // Get the first division ID (GN-001A or any division)
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-
+        
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
-            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+            console.log(`Using first division ID: ${firstDivisionId}`);
         } else {
-            console.warn('⚠️ No division found after seeding. Please check the seed package.');
+            console.warn('No division found after seeding. Please check the seed package.');
         }
     } catch (error) {
-        console.warn('⚠️ Could not seed GN divisions from package:', error.message);
-        console.log('📌 Falling back to manual division seeding...');
-
+        console.warn('Could not seed GN divisions from package:', error.message);
+        console.log('Falling back to manual division seeding...');
+        
         // Fallback: Seed divisions manually if package fails
         const [divisionCount] = await dbPool.query('SELECT COUNT(*) as count FROM gn_division');
         if (divisionCount[0].count === 0) {
@@ -869,48 +895,48 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                     VALUES (UUID(), ?, ?, ?, ?, ?)
                 `, [code, name, district, province, secretariat]);
             }
-            console.log('✅ GN divisions seeded manually (fallback)');
+            console.log('GN divisions seeded manually (fallback)');
         }
-
+        
         // Get the first division ID
         const [firstDivisionRow] = await dbPool.query(`
             SELECT division_id FROM gn_division 
             ORDER BY division_code ASC 
             LIMIT 1
         `);
-
+        
         if (firstDivisionRow.length > 0) {
             firstDivisionId = firstDivisionRow[0].division_id;
-            console.log(`📍 Using first division ID: ${firstDivisionId}`);
+            console.log(`Using first division ID: ${firstDivisionId}`);
         }
     }
 
     // ============================================================
     // SEED HOUSEHOLD, RESIDENT, GN OFFICER, ADMIN
     // ============================================================
-
+    
     if (firstDivisionId) {
-        console.log('📌 Seeding related data for the first division...');
-
+        console.log('Seeding related data for the first division...');
+        
         // 1. SEED HOUSEHOLD
         const [householdCount] = await dbPool.query('SELECT COUNT(*) as count FROM household');
         if (householdCount[0].count === 0) {
-            console.log('📌 Seeding household...');
+            console.log('Seeding household...');
             await dbPool.query(`
                 INSERT INTO household (household_id, household_number, address, division_id) 
                 VALUES (UUID(), 'H-90823', '45/2, Temple Road, Borella', ?)
             `, [firstDivisionId]);
-            console.log('✅ Household seeded');
+            console.log('Household seeded');
         } else {
-            console.log(`✅ Household already exists (${householdCount[0].count} records)`);
+            console.log(`Household already exists (${householdCount[0].count} records)`);
         }
 
         // 2. SEED RESIDENT
         const [residentCount] = await dbPool.query('SELECT COUNT(*) as count FROM resident');
         if (residentCount[0].count === 0) {
-            console.log('📌 Seeding resident...');
+            console.log('Seeding resident...');
             const residentPasswordHash = bcrypt.hashSync('password123', 10);
-
+            
             await dbPool.query(`
                 INSERT INTO resident (
                     r_nic, first_name, last_name, full_name, date_of_birth, gender, mobile_no, email, 
@@ -934,17 +960,17 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                 true,
                 '45/2, Temple Road, Borella'
             ]);
-            console.log('✅ Resident seeded');
+            console.log('Resident seeded');
         } else {
-            console.log(`✅ Resident already exists (${residentCount[0].count} records)`);
+            console.log(`Resident already exists (${residentCount[0].count} records)`);
         }
 
         // 3. SEED GN OFFICER
         const [officerCount] = await dbPool.query('SELECT COUNT(*) as count FROM grama_niladhari');
         if (officerCount[0].count === 0) {
-            console.log('📌 Seeding GN Officer...');
+            console.log('Seeding GN Officer...');
             const officerPasswordHash = bcrypt.hashSync('password123', 10);
-
+            
             await dbPool.query(`
                 INSERT INTO grama_niladhari (
                     gn_id, username, password_hash, first_name, last_name, full_name,
@@ -961,20 +987,20 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
                 '0703564478',
                 firstDivisionId
             ]);
-            console.log('✅ GN Officer seeded');
+            console.log('GN Officer seeded');
         } else {
-            console.log(`✅ GN Officer already exists (${officerCount[0].count} records)`);
+            console.log(`GN Officer already exists (${officerCount[0].count} records)`);
         }
     } else {
-        console.warn('⚠️ No division ID available. Skipping household, resident, and GN officer seeding.');
+        console.warn('No division ID available. Skipping household, resident, and GN officer seeding.');
     }
 
     // 4. SEED ADMIN (Always seed if not exists)
     const [adminCount] = await dbPool.query('SELECT COUNT(*) as count FROM admin');
     if (adminCount[0].count === 0) {
-        console.log('📌 Seeding Admin...');
+        console.log('Seeding Admin...');
         const adminPasswordHash = bcrypt.hashSync('admin123', 10);
-
+        
         await dbPool.query(`
             INSERT INTO admin (full_name, username, password_hash, email, role) 
             VALUES (?, ?, ?, ?, ?)
@@ -985,15 +1011,15 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
             'admin@smartgn.gov.lk',
             'SuperAdmin'
         ]);
-        console.log('✅ Admin seeded');
+        console.log('Admin seeded');
     } else {
-        console.log(`✅ Admin already exists (${adminCount[0].count} records)`);
+        console.log(`Admin already exists (${adminCount[0].count} records)`);
     }
 
     // 5. SEED SYSTEM SETTINGS
     const [settingsCount] = await dbPool.query('SELECT COUNT(*) as count FROM system_settings');
     if (settingsCount[0].count === 0) {
-        console.log('📌 Seeding system settings...');
+        console.log('Seeding system settings...');
         await dbPool.query(`
             INSERT INTO system_settings (setting_key, setting_value, description, category) VALUES
             ('app_name', 'SmartGN', 'Application name', 'general'),
@@ -1003,51 +1029,70 @@ CREATE TABLE IF NOT EXISTS allowance_rejected (
             ('session_timeout_minutes', '60', 'Session timeout in minutes', 'security'),
             ('certificate_validity_days', '365', 'Default certificate validity period', 'certificate')
         `);
-        console.log('✅ System settings seeded');
+        console.log('System settings seeded');
     }
 
     // 6. SEED KNOWLEDGE BASE
     const [kbCount] = await dbPool.query('SELECT COUNT(*) as count FROM knowledge_base');
     if (kbCount[0].count === 0) {
-        console.log('📌 Seeding knowledge base...');
+        console.log('Seeding knowledge base...');
         await dbPool.query(`
             INSERT INTO knowledge_base (question, answer, category) VALUES
             ('How to apply for a character certificate?', 'To apply for a character certificate, visit your local GN office or apply online through the SmartGN portal. You will need to provide your NIC and fill out the application form.', 'Certificates'),
             ('What is the Aswesuma allowance?', 'Aswesuma is a social welfare benefit program that provides financial assistance to low-income families in Sri Lanka.', 'Allowances'),
             ('How to report a disaster?', 'You can report a disaster through the SmartGN portal by creating a disaster request. Provide details about the disaster type, location, and your contact information.', 'Disaster')
         `);
-        console.log('✅ Knowledge base seeded');
+        console.log('Knowledge base seeded');
     }
 
-    console.log('✅ Database tables verified and seeded successfully.');
+    console.log('Database tables verified and seeded successfully.');
 }
 
 async function getPool() {
     if (pool) return pool;
 
     try {
-        // Connect to MySQL server first (without database to ensure we can create it)
-        const connection = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
-            port: process.env.DB_PORT || 3306
-        });
-
+        const dbHost = process.env.DB_HOST || 'localhost';
+        const dbUser = process.env.DB_USER || 'root';
+        const dbPassword = process.env.DB_PASSWORD || '';
+        const dbPort = process.env.DB_PORT || 3306;
         const dbName = process.env.DB_NAME || 'smartgn_db';
-        await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
-        await connection.end();
+
+        // Auto-enable SSL for cloud databases or if DB_SSL=true is explicitly set
+        const isCloudHost = dbHost.includes('tidbcloud.com') || 
+                            dbHost.includes('aivencloud.com') || 
+                            dbHost.includes('database.azure.com') || 
+                            dbHost.includes('amazonaws.com');
+        const enableSSL = process.env.DB_SSL === 'true' || (process.env.DB_SSL !== 'false' && isCloudHost);
+
+        const connectionConfig = {
+            host: dbHost,
+            user: dbUser,
+            password: dbPassword,
+            port: dbPort,
+            ssl: enableSSL ? { rejectUnauthorized: false } : undefined
+        };
+
+        // Connect to MySQL server first to ensure database exists (wrap in try-catch in case of restricted privileges)
+        try {
+            const connection = await mysql.createConnection(connectionConfig);
+            await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+            await connection.end();
+        } catch (dbCreateError) {
+            console.log('⚠️ Database creation skipped or failed (this is normal on some cloud platforms if pre-created):', dbCreateError.message);
+        }
 
         // Create the connection pool with database selected
         pool = mysql.createPool({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
+            host: dbHost,
+            user: dbUser,
+            password: dbPassword,
             database: dbName,
-            port: process.env.DB_PORT || 3306,
+            port: dbPort,
             waitForConnections: true,
             connectionLimit: 10,
-            queueLimit: 0
+            queueLimit: 0,
+            ssl: enableSSL ? { rejectUnauthorized: false } : undefined
         });
 
         // Run table setups and seeds
@@ -1055,7 +1100,7 @@ async function getPool() {
 
         return pool;
     } catch (error) {
-        console.error('❌ Failed to connect to MySQL database:', error.message);
+        console.error('Failed to connect to MySQL database:', error.message);
         throw error;
     }
 }

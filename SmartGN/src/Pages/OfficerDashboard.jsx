@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // Import auth context
 import OfficerNavbar from "../Components/Common/OfficerNavbar";
 import Footer from "../Components/Common/Footer";
 import ChatbotButton from "../Components/Common/ChatbotButton";
 import OSidebar from "../Components/Common/OSidebar";
 import OfficerDashboardLayout from "../Components/OfficerDashboard.jsx/OfficerDashboardLayout";
-import { getAuthHeaders } from "../utils/api";
+import { getAuthHeaders, authenticatedFetch } from "../utils/api";
 
 function OfficerDashboard({ onOpenHelp }) {
   const navigate = useNavigate();
+  const { user, role, isAuthenticated, loading: authLoading } = useAuth(); // Use auth context
 
   // ============================================================
   // STATE DECLARATIONS
@@ -47,34 +49,69 @@ function OfficerDashboard({ onOpenHelp }) {
   const token = localStorage.getItem("smartgn_token");
 
   // ============================================================
+  // AUTHENTICATION CHECK - Redirect if not authenticated or wrong role
+  // ============================================================
+  useEffect(() => {
+    // If auth is still loading, wait
+    if (authLoading) return;
+
+    // If not authenticated, redirect to login
+    if (!isAuthenticated) {
+      navigate("/login", {
+        state: { from: { pathname: "/OfficerDashboard" } },
+      });
+      return;
+    }
+
+    // If authenticated but not an OFFICER, redirect to appropriate dashboard
+    if (role !== "OFFICER") {
+      if (role === "ADMIN") {
+        navigate("/dashboard/admin");
+      } else if (role === "RESIDENT") {
+        navigate("/ResidentDashboard");
+      } else {
+        navigate("/login");
+      }
+      return;
+    }
+
+    // If no token, redirect to login
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+  }, [isAuthenticated, role, authLoading, navigate, token]);
+
+  // ============================================================
   // FETCH PROFILE DATA
   // ============================================================
   useEffect(() => {
     const fetchOfficerProfile = async () => {
-      if (!token) {
-        navigate("/login");
+      // Skip if not authenticated or not an officer
+      if (!isAuthenticated || role !== "OFFICER" || !token) {
         return;
       }
 
       try {
-        const response = await fetch(`/api/officer/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await authenticatedFetch(`/api/officer/profile`);
 
         if (!response.ok) {
           if (response.status === 401) {
+            // Token expired or invalid - logout
             localStorage.removeItem("smartgn_token");
             localStorage.removeItem("smartgn_user_id");
             localStorage.removeItem("smartgn_user_role");
+            localStorage.removeItem("smartgn_user_name");
+            localStorage.removeItem("smartgn_user_division");
             navigate("/login");
             return;
           }
           console.warn("Officer profile API non-OK status:", response.status);
-          const cachedName = localStorage.getItem("smartgn_user_name") || "GN Officer";
-          const cachedDivision = localStorage.getItem("smartgn_user_division") || "Assigned Division";
+          const cachedName =
+            localStorage.getItem("smartgn_user_name") || "GN Officer";
+          const cachedDivision =
+            localStorage.getItem("smartgn_user_division") ||
+            "Assigned Division";
           setGnProfile((prev) => ({
             ...prev,
             fullName: cachedName,
@@ -137,59 +174,144 @@ function OfficerDashboard({ onOpenHelp }) {
         setError("");
       } catch (err) {
         console.warn("Error fetching officer profile:", err);
+        // Don't set error state for network issues, use cached data if available
+        const cachedName =
+          localStorage.getItem("smartgn_user_name") || "GN Officer";
+        const cachedDivision =
+          localStorage.getItem("smartgn_user_division") || "Assigned Division";
+        setGnProfile((prev) => ({
+          ...prev,
+          fullName: cachedName,
+          division: cachedDivision,
+        }));
       }
     };
 
     fetchOfficerProfile();
-  }, [gnId, token, navigate]);
+  }, [gnId, token, navigate, isAuthenticated, role]);
 
   // ============================================================
   // FETCH DASHBOARD STATS
   // ============================================================
   useEffect(() => {
     const fetchDashboardStats = async () => {
-      if (!token) {
+      // Skip if not authenticated or not an officer
+      if (!isAuthenticated || role !== "OFFICER" || !token) {
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`/api/officer/dashboard-stats`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await authenticatedFetch(`/api/officer/dashboard-stats`);
 
-        if (response.ok) {
-          const data = await response.json();
-
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Token expired - logout
+            localStorage.removeItem("smartgn_token");
+            localStorage.removeItem("smartgn_user_id");
+            localStorage.removeItem("smartgn_user_role");
+            navigate("/login");
+            return;
+          }
+          console.warn(
+            "Dashboard stats returned non-OK status:",
+            response.status,
+          );
+          // Use fallback data
           setDashboardStats({
-            totalResidents: data.totalResidents || 0,
-            totalPendingRequests: data.totalPendingRequests || 0,
-            pendingCertificates: data.pendingCertificates || 0,
-            pendingAppointments: data.pendingAppointments || 0,
-            pendingAllowances: data.pendingAllowances || 0,
-            pendingDisasters: data.pendingDisasters || 0,
-            activeDisasters: data.activeDisasters || 0,
+            totalResidents: 0,
+            totalPendingRequests: 0,
+            pendingCertificates: 0,
+            pendingAppointments: 0,
+            pendingAllowances: 0,
+            pendingDisasters: 0,
+            activeDisasters: 0,
           });
-        } else {
-          console.warn("Dashboard stats returned non-OK status:", response.status);
+          return;
         }
+
+        const data = await response.json();
+
+        setDashboardStats({
+          totalResidents: data.totalResidents || 0,
+          totalPendingRequests: data.totalPendingRequests || 0,
+          pendingCertificates: data.pendingCertificates || 0,
+          pendingAppointments: data.pendingAppointments || 0,
+          pendingAllowances: data.pendingAllowances || 0,
+          pendingDisasters: data.pendingDisasters || 0,
+          activeDisasters: data.activeDisasters || 0,
+        });
       } catch (err) {
         console.error("Error fetching dashboard stats:", err);
+        // Set fallback data on error
+        setDashboardStats({
+          totalResidents: 0,
+          totalPendingRequests: 0,
+          pendingCertificates: 0,
+          pendingAppointments: 0,
+          pendingAllowances: 0,
+          pendingDisasters: 0,
+          activeDisasters: 0,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardStats();
-  }, [gnId, token]);
+  }, [gnId, token, isAuthenticated, role, navigate]);
+
+  // ============================================================
+  // CHECK SESSION EXPIRATION
+  // ============================================================
+  useEffect(() => {
+    // Check if token is about to expire
+    const checkTokenExpiration = () => {
+      const token = localStorage.getItem("smartgn_token");
+      if (!token || typeof token !== "string") return;
+
+      try {
+        const parts = token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload && payload.exp) {
+            const expirationTime = payload.exp * 1000;
+            const currentTime = Date.now();
+            const timeLeft = expirationTime - currentTime;
+
+            if (timeLeft < 300000 && timeLeft > 0) {
+              console.warn("Token expiring soon.");
+            }
+
+            if (timeLeft <= 0) {
+              console.warn("Token expired. Logging out.");
+              localStorage.removeItem("smartgn_token");
+              localStorage.removeItem("smartgn_user_role");
+              localStorage.removeItem("smartgn_user_id");
+              localStorage.removeItem("smartgn_user_name");
+              localStorage.removeItem("smartgn_user_division");
+              navigate("/login");
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Invalid token format:", e);
+      }
+    };
+
+    // Check immediately
+    checkTokenExpiration();
+
+    // Check every minute
+    const interval = setInterval(checkTokenExpiration, 60000);
+
+    return () => clearInterval(interval);
+  }, [navigate]);
 
   // ============================================================
   // LOADING STATE
   // ============================================================
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
         <OfficerNavbar />

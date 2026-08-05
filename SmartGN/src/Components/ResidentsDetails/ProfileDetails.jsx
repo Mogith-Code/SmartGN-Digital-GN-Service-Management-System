@@ -9,6 +9,8 @@ import { useLanguage } from "../../utils/translate";
 import FamilyMemberTable from "../Family&HouseholdPage/FamilyMemberTable";
 import { decryptId } from "../../utils/encryption";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
+import { getImageUrl } from "../../utils/imageUtils";
+import { getApiUrl } from "../../utils/api";
 
 function DetailItem({ label, value, isEmail }) {
   return (
@@ -143,7 +145,7 @@ function ProfileDetails({ onOpenHelp }) {
       ...options.headers,
     };
 
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       ...options,
       headers,
     });
@@ -157,49 +159,6 @@ function ProfileDetails({ onOpenHelp }) {
     }
 
     return response;
-  };
-
-  // ============================================================
-  // GET IMAGE URL - FIXED for Vite (no process.env)
-  // ============================================================
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-
-    console.log("📸 Raw image path:", imagePath);
-
-    // If it's already a full URL, return as is
-    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-      console.log("📸 Full URL detected:", imagePath);
-      return imagePath;
-    }
-
-    // Get base URL - use window.location for Vite
-    const baseUrl =
-      import.meta.env?.VITE_API_URL ||
-      window.location.origin ||
-      "http://localhost:5000";
-
-    // Clean the path (remove leading slashes)
-    let cleanPath = imagePath.replace(/^\/+/, "");
-
-    // If it starts with 'uploads/', keep as is
-    if (cleanPath.startsWith("uploads/")) {
-      const fullUrl = `${baseUrl}/${cleanPath}`;
-      console.log("📸 Uploads path detected:", fullUrl);
-      return fullUrl;
-    }
-
-    // If it's just a filename (no slashes), assume it's in uploads
-    if (!cleanPath.includes("/")) {
-      const fullUrl = `${baseUrl}/uploads/${cleanPath}`;
-      console.log("📸 Filename only, using uploads:", fullUrl);
-      return fullUrl;
-    }
-
-    // For any other case, try to construct the URL
-    const fullUrl = `${baseUrl}/${cleanPath}`;
-    console.log("📸 Constructed URL:", fullUrl);
-    return fullUrl;
   };
 
   // ============================================================
@@ -328,7 +287,11 @@ function ProfileDetails({ onOpenHelp }) {
           setFamilyMembers([]);
         }
       } catch (err) {
-        console.warn("Using fallback resident profile for NIC:", nic, err.message);
+        console.warn(
+          "Using fallback resident profile for NIC:",
+          nic,
+          err.message,
+        );
         const fallbackResident = {
           r_nic: nic,
           nic: nic,
@@ -336,7 +299,8 @@ function ProfileDetails({ onOpenHelp }) {
           first_name: "Nimal",
           last_name: "Perera",
           household_number: "H-102",
-          division_name: localStorage.getItem("smartgn_user_division") || "Colombo Borella",
+          division_name:
+            localStorage.getItem("smartgn_user_division") || "Colombo Borella",
           email: "nimal.perera@example.com",
           mobile_number: "0771234567",
           dob: "1990-05-15",
@@ -344,11 +308,23 @@ function ProfileDetails({ onOpenHelp }) {
           occupation: "Civil Engineer",
           address: "No. 45/2, Temple Road, Maharagama",
           account_status: "Active",
-          status: "Active"
+          status: "Active",
         };
         const fallbackFamily = [
-          { id: 1, full_name: "Sunethra Perera", relationship: "Spouse", nic: "199256789012", age: 34 },
-          { id: 2, full_name: "Kasun Perera", relationship: "Son", nic: "201589123456", age: 11 }
+          {
+            id: 1,
+            full_name: "Sunethra Perera",
+            relationship: "Spouse",
+            nic: "199256789012",
+            age: 34,
+          },
+          {
+            id: 2,
+            full_name: "Kasun Perera",
+            relationship: "Son",
+            nic: "201589123456",
+            age: 11,
+          },
         ];
 
         setResident(fallbackResident);
@@ -427,7 +403,7 @@ function ProfileDetails({ onOpenHelp }) {
           {/* Back Button */}
           <button
             className="flex w-[75px] p-[5px] text-[15px] items-center gap-[10px] font-regular text-[#1B365D] mt-[20px] cursor-pointer border-0 bg-transparent"
-            onClick={() => navigate("/OfficerDashboard/ResidentsDetails")}
+            onClick={() => window.history.go(-1)}
           >
             <img src={backIcon} alt="backIcon" className="w-[16px]" />
             {t.back}
@@ -438,10 +414,7 @@ function ProfileDetails({ onOpenHelp }) {
           </div>
 
           {/* Header Profile Card */}
-          <div className="bg-gradient-to-r from-[#1B365D] to-[#2B548A] rounded-2xl p-6 md:p-8 text-white shadow-md flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
-            <div className="absolute right-10 -top-10 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
+          <div className="bg-[#E2E8F0] border border-[#2D37482D] rounded-2xl shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] p-6 md:p-8 text-[#2D3748] shadow-md flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
             {/* Profile Photo */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
               {photoUrl ? (
@@ -495,7 +468,7 @@ function ProfileDetails({ onOpenHelp }) {
           {/* Detail Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {/* Personal Details */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.personalInfo}
@@ -530,7 +503,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* NIC Images Section - Increased container sizes */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.nicImages}
@@ -605,7 +578,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* Household & Location Details */}
-            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 md:col-span-2">
+            <div className="bg-white border border-[#2D37481F] rounded-2xl p-6 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] duration-300 md:col-span-2">
               <h4 className="text-[17px] font-bold text-[#1B365D] border-b border-gray-100 pb-3 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#D69E2E] rounded-full inline-block"></span>
                 {t.householdInfo}
@@ -629,7 +602,7 @@ function ProfileDetails({ onOpenHelp }) {
             </div>
 
             {/* Family Members Table */}
-            <div className="flex flex-col border border-[#2D37482D] p-[20px] rounded-[10px] md:col-span-2">
+            <div className="flex flex-col border border-[#2D37482D] p-[20px] rounded-[10px] md:col-span-2 shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
               <div className="flex w-full items-center mb-[15px] font-semibold text-[#1B365D] text-[17px]">
                 {t.familyMembers}
                 {familyMembers.length > 0 && (

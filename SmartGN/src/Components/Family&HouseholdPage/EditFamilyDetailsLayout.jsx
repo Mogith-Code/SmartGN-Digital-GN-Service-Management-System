@@ -6,6 +6,7 @@ import addIcon from "../../assets/add_24dp_F7FAFC_FILL0_wght400_GRAD0_opsz24.svg
 import { useNavigate } from "react-router-dom";
 import EditFamilyMemberTable from "./EditFamilyMemberTable";
 import { getAuthHeaders } from "../../utils/api";
+import { useLanguage } from "../../utils/translate";
 
 // ✅ Relationship options based on database ENUM values
 const relationshipOptions = [
@@ -21,6 +22,66 @@ const relationshipOptions = [
 
 function EditFamilyDetailsLayout() {
   const navigate = useNavigate();
+  const { lang } = useLanguage();
+
+  const editFamilyTranslations = {
+    EN: {
+      back: "back",
+      title: "Edit your family details",
+      fullName: "Full Name:",
+      fullNamePlaceholder: "Enter full name",
+      nic: "NIC :",
+      nicPlaceholder: "Enter NIC",
+      age: "Age:",
+      agePlaceholder: "Enter age",
+      occupation: "Occupation :",
+      occupationPlaceholder: "Enter occupation",
+      relationship: "Relationship:",
+      selectRelationship: "Select relationship",
+      reset: "Reset",
+      addMember: "Add Member",
+      adding: "Adding...",
+      existingMembers: "Existing Family Members",
+    },
+    SI: {
+      back: "ආපසු",
+      title: "ඔබගේ පවුලේ විස්තර සංස්කරණය කරන්න",
+      fullName: "සම්පූර්ණ නම:",
+      fullNamePlaceholder: "සම්පූර්ණ නම ඇතුළත් කරන්න",
+      nic: "ජා.හැ.අංකය :",
+      nicPlaceholder: "ජා.හැ.අංකය ඇතුළත් කරන්න",
+      age: "වයස:",
+      agePlaceholder: "වයස ඇතුළත් කරන්න",
+      occupation: "රැකියාව :",
+      occupationPlaceholder: "රැකියාව ඇතුළත් කරන්න",
+      relationship: "සම්බන්ධතාවය:",
+      selectRelationship: "සම්බන්ධතාවය තෝරන්න",
+      reset: "නැවත සකසන්න",
+      addMember: "සාමාජිකයෙකු එක් කරන්න",
+      adding: "එක් කරමින්...",
+      existingMembers: "පවතින පවුලේ සාමාජිකයින්",
+    },
+    TA: {
+      back: "பின்னால்",
+      title: "உங்கள் குடும்ப விவரங்களை திருத்தவும்",
+      fullName: "முழு பெயர்:",
+      fullNamePlaceholder: "முழு பெயரை உள்ளிடவும்",
+      nic: "அடையாள அட்டை அංකය :",
+      nicPlaceholder: "அடையாள அட்டை அංකය உள்ளிடவும்",
+      age: "வயது:",
+      agePlaceholder: "வயதை உள்ளிடவும்",
+      occupation: "தொழில் :",
+      occupationPlaceholder: "தொழிலை உள்ளிடவும்",
+      relationship: "உறவுமுறை:",
+      selectRelationship: "உறவுமுறையை தேர்ந்தெடுக்கவும்",
+      reset: "மீட்டமை",
+      addMember: "உறுப்பினரை சேர்க்கவும்",
+      adding: "சேர்க்கிறது...",
+      existingMembers: "தற்போதுள்ள குடும்ப உறுப்பினர்கள்",
+    },
+  };
+
+  const t = editFamilyTranslations[lang] || editFamilyTranslations.EN;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -71,7 +132,6 @@ function EditFamilyDetailsLayout() {
   // HANDLE ADD NEW MEMBER
   // ============================================================
   const handleAddMember = async () => {
-    // Validate required fields
     if (!newMember.name || !newMember.age || !newMember.relationship) {
       setError("Name, age, and relationship are required.");
       return;
@@ -101,7 +161,6 @@ function EditFamilyDetailsLayout() {
         throw new Error(data.error || "Failed to add family member");
       }
 
-      // Reset form and refresh list
       setNewMember({
         name: "",
         nic: "",
@@ -223,78 +282,78 @@ function EditFamilyDetailsLayout() {
         onClick={() => navigate("/ResidentDashboard/RHousehold")}
       >
         <img src={backIcon} alt="backIcon" className="w-[14px] sm:w-[16px]" />
-        back
+        {t.back}
       </div>
 
       {/* Page Title */}
       <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
-        Edit your family details
+        {t.title}
       </div>
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mx-[30px] mt-4 p-3 bg-green-100 text-green-700 rounded-lg border border-green-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-green-100 text-green-700 rounded-lg border border-green-300 text-sm sm:text-base">
           {success}
         </div>
       )}
       {error && (
-        <div className="mx-[30px] mt-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-300">
+        <div className="mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] mt-3 sm:mt-4 p-2.5 sm:p-3 bg-red-100 text-red-700 rounded-lg border border-red-300 text-sm sm:text-base">
           {error}
         </div>
       )}
 
       {/* Add Member Form */}
-      <div className="flex flex-col border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+      <div className="flex flex-col border border-[#2D37482D] p-3 sm:p-4 md:p-[20px] mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-[30px] rounded-[8px] sm:rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleAddMember();
           }}
         >
-          <div className="flex flex-col gap-4 sm:gap-5 ">
+          <div className="flex flex-col gap-3 sm:gap-4 md:gap-5">
             {/* Full Name */}
             <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748]">
               <label htmlFor="nameInput" className="font-medium">
-                Full Name: <span className="text-red-500">*</span>
+                {t.fullName} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 id="nameInput"
                 value={newMember.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
-                placeholder="Enter full name"
+                className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
+                placeholder={t.fullNamePlaceholder}
                 required
               />
             </div>
 
             {/* NIC, Age */}
-            <div className="flex w-full justify-between gap-4">
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+            <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="nicInput" className="font-medium">
-                  NIC :
+                  {t.nic}
                 </label>
                 <input
                   type="text"
                   id="nicInput"
                   value={newMember.nic}
                   onChange={(e) => handleInputChange("nic", e.target.value)}
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
-                  placeholder="Enter NIC"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
+                  placeholder={t.nicPlaceholder}
                 />
               </div>
 
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="ageInput" className="font-medium">
-                  Age: <span className="text-red-500">*</span>
+                  {t.age} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   id="ageInput"
                   value={newMember.age}
                   onChange={(e) => handleInputChange("age", e.target.value)}
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
-                  placeholder="Enter age"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
+                  placeholder={t.agePlaceholder}
                   required
                   min="0"
                   max="150"
@@ -303,10 +362,10 @@ function EditFamilyDetailsLayout() {
             </div>
 
             {/* Occupation, Relationship */}
-            <div className="flex w-full justify-between gap-4">
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+            <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="occupationInput" className="font-medium">
-                  Occupation :
+                  {t.occupation}
                 </label>
                 <input
                   type="text"
@@ -315,15 +374,14 @@ function EditFamilyDetailsLayout() {
                   onChange={(e) =>
                     handleInputChange("occupation", e.target.value)
                   }
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D]"
-                  placeholder="Enter occupation"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] py-1"
+                  placeholder={t.occupationPlaceholder}
                 />
               </div>
 
-              {/* ✅ Updated to Dropdown */}
-              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1">
+              <div className="flex flex-col items-start gap-[2px] text-sm sm:text-base md:text-lg lg:text-[16px] font-regular text-[#2D3748] flex-1 w-full sm:w-auto">
                 <label htmlFor="relationshipInput" className="font-medium">
-                  Relationship: <span className="text-red-500">*</span>
+                  {t.relationship} <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="relationshipInput"
@@ -331,10 +389,10 @@ function EditFamilyDetailsLayout() {
                   onChange={(e) =>
                     handleInputChange("relationship", e.target.value)
                   }
-                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] bg-white py-2 cursor-pointer"
+                  className="w-full border-b border-[#2D37488D] text-sm sm:text-base focus:outline-none focus:border-b-2 focus:border-[#1B365D] bg-white py-1.5 cursor-pointer"
                   required
                 >
-                  <option value="">Select relationship</option>
+                  <option value="">{t.selectRelationship}</option>
                   {relationshipOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -346,13 +404,12 @@ function EditFamilyDetailsLayout() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 md:gap-5 lg:gap-[20px] mt-2 sm:mt-3 md:mt-4 lg:mt-[10px]">
-              {/* Reset Button */}
               <button
                 type="button"
                 onClick={handleResetForm}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#E7000B] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-101 group font-regular hover:bg-[#FF000C] transition-all duration-200 w-full sm:w-auto"
               >
-                <span>Reset</span>
+                <span>{t.reset}</span>
                 <img
                   src={resetIcon}
                   alt="resetIcon"
@@ -363,9 +420,9 @@ function EditFamilyDetailsLayout() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 sm:px-5 md:px-6 py-2 sm:py-2 md:py-2.5 flex justify-center items-center gap-2 sm:gap-2.5 md:gap-3 lg:gap-[10px] text-xs sm:text-sm md:text-base lg:text-[14px] bg-[#1B365D] text-[#F7FAFC] rounded-xl sm:rounded-2xl lg:rounded-[15px] cursor-pointer font-regular hover:bg-[#005BBD] shadow-[0px_2px_5px_rgba(0,0,0,0.4)] hover:shadow-[0px_2px_10px_rgba(0,0,0,0.4)] hover:scale-101 group transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
               >
-                <span>{loading ? "Adding..." : "Add member"}</span>
+                <span>{loading ? t.adding : t.addMember}</span>
                 <img
                   src={addIcon}
                   alt="addIcon"
@@ -378,10 +435,10 @@ function EditFamilyDetailsLayout() {
       </div>
 
       {/* Family Members Table */}
-      <div className="flex border border-[#2D37482D] p-[20px] m-[30px] rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)]">
+      <div className="flex border border-[#2D37482D] p-3 sm:p-4 md:p-[20px] mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-[30px] rounded-[8px] sm:rounded-[10px] shadow-[0px_2px_5px_rgba(0,0,0,0.1)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] overflow-x-auto">
         <div className="flex flex-col w-full">
           {loading && familyMembers.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm sm:text-base">
               Loading family members...
             </div>
           ) : (

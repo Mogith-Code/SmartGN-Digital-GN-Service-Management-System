@@ -1,7 +1,95 @@
 // Backend/src/controllers/officerController.js
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
-const { saveBase64Image } = require('../utils/fileUpload');
+const fs = require('fs');
+const path = require('path');
+
+// ============================================================
+// HELPER: DELETE IMAGE FILE FROM DISK FOLDERS
+// ============================================================
+const deleteImageFile = (imagePath) => {
+    if (!imagePath || typeof imagePath !== 'string') return false;
+    
+    // Ignore base64 data URIs
+    if (imagePath.startsWith('data:')) return false;
+
+    try {
+        let filePath = imagePath.trim();
+        
+        // Handle full HTTP/HTTPS URLs
+        if (filePath.startsWith('http://') || filePath.startsWith('https://')) {
+            const url = new URL(filePath);
+            filePath = url.pathname;
+        }
+        
+        // Clean leading slashes
+        filePath = filePath.replace(/^\/+/, '');
+        
+        let fullPath;
+        if (filePath.startsWith('uploads/')) {
+            fullPath = path.join(__dirname, '../..', filePath);
+        } else {
+            fullPath = path.join(__dirname, '../../uploads', filePath);
+        }
+        
+        if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            console.log(`🗑️ Successfully deleted old image from folder: ${fullPath}`);
+            return true;
+        } else {
+            console.log(`⚠️ Image file not found on disk: ${fullPath}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error deleting image file from disk:', error);
+        return false;
+    }
+};
+
+// ============================================================
+// HELPER: SAVE BASE64 IMAGE - IN SEPARATE SUBFOLDERS
+// ============================================================
+const saveBase64Image = (base64String, folder, identifier) => {
+    if (!base64String) return null;
+    
+    // If it's already a relative path/URL, return as is
+    if (typeof base64String === 'string' && !base64String.startsWith('data:image/')) {
+        return base64String;
+    }
+    
+    try {
+        const matches = base64String.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            console.error('Invalid base64 image format');
+            return null;
+        }
+        
+        const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+        const base64Data = matches[2];
+        const buffer = Buffer.from(base64Data, 'base64');
+        
+        // Ensure folder exists under uploads
+        const uploadDir = path.join(__dirname, '../../uploads', folder);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        const timestamp = Date.now();
+        const random = Math.floor(1000 + Math.random() * 9000);
+        const filename = `${identifier}_${timestamp}_${random}.${extension}`;
+        const filePath = path.join(uploadDir, filename);
+        
+        // Write new file into the respective uploads subfolder
+        fs.writeFileSync(filePath, buffer);
+        console.log(`📸 Saved new image file to disk: /uploads/${folder}/${filename}`);
+        
+        // Return relative file path for database storage
+        return `/uploads/${folder}/${filename}`;
+    } catch (error) {
+        console.error('Error saving image file:', error);
+        return null;
+    }
+};
 
 // ============================================================
 // GENERATE ANNOUNCEMENT NUMBER
@@ -110,6 +198,12 @@ exports.updateOfficerProfile = async (req, res) => {
     }
 
     try {
+        // First, get current profile to check existing images
+        const [currentProfile] = await db.query(
+            'SELECT profile_photo_path, gn_front_path, gn_back_path FROM grama_niladhari WHERE gn_id = ?',
+            [user.id]
+        );
+
         const [existing] = await db.query(
             'SELECT gn_id FROM grama_niladhari WHERE email = ? AND gn_id != ?',
             [email, user.id]
@@ -121,21 +215,28 @@ exports.updateOfficerProfile = async (req, res) => {
         const updates = [];
         const values = [];
 
-        updates.push('first_name = ?');
-        values.push(firstName);
-
-        updates.push('last_name = ?');
-        values.push(lastName);
-
-        const fullNameToSave = fullName || `${firstName} ${lastName}`;
-        updates.push('full_name = ?');
-        values.push(fullNameToSave);
-
-        updates.push('email = ?');
-        values.push(email);
-
-        updates.push('mobile = ?');
-        values.push(mobile);
+        // Text fields
+        if (firstName !== undefined && firstName !== '') {
+            updates.push('first_name = ?');
+            values.push(firstName);
+        }
+        if (lastName !== undefined && lastName !== '') {
+            updates.push('last_name = ?');
+            values.push(lastName);
+        }
+        if (fullName !== undefined) {
+            const fullNameToSave = fullName || `${firstName} ${lastName}`;
+            updates.push('full_name = ?');
+            values.push(fullNameToSave);
+        }
+        if (email !== undefined && email !== '') {
+            updates.push('email = ?');
+            values.push(email);
+        }
+        if (mobile !== undefined && mobile !== '') {
+            updates.push('mobile = ?');
+            values.push(mobile);
+        }
 
         if (password && password.trim() !== '') {
             if (password.length < 6) {
@@ -146,27 +247,97 @@ exports.updateOfficerProfile = async (req, res) => {
             values.push(hashedPassword);
         }
 
-        const photoVal = profilePhoto;
-        if (photoVal !== undefined && photoVal !== null) {
-            const photoPath = saveBase64Image(photoVal, 'officer_profile', user.id);
-            updates.push('profile_photo_path = ?');
-            values.push(photoPath);
+        // ✅ Profile Photo - Handle remove, update, or keep
+        if (profilePhoto !== undefined) {
+            const currentPhoto = currentProfile.length > 0 ? currentProfile[0].profile_photo_path : null;
+            
+            if (profilePhoto === null || profilePhoto === '') {
+                // User wants to remove the photo
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                updates.push('profile_photo_path = ?');
+                values.push(null);
+            } else if (typeof profilePhoto === 'string' && profilePhoto.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentPhoto) {
+                    deleteImageFile(currentPhoto);
+                }
+                const photoPath = saveBase64Image(profilePhoto, 'gn_profile', user.id);
+                if (photoPath) {
+                    updates.push('profile_photo_path = ?');
+                    values.push(photoPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('profile_photo_path = ?');
+                values.push(profilePhoto);
+            }
         }
 
-        const frontVal = idCardFront || gnFront;
-        if (frontVal !== undefined && frontVal !== null) {
-            const frontPath = saveBase64Image(frontVal, 'officer_front', user.id);
-            updates.push('gn_front_path = ?');
-            values.push(frontPath);
+        // ✅ GN Front - Handle remove, update, or keep
+        if (idCardFront !== undefined || gnFront !== undefined) {
+            const currentFront = currentProfile.length > 0 ? currentProfile[0].gn_front_path : null;
+            const frontVal = idCardFront !== undefined ? idCardFront : gnFront;
+            
+            if (frontVal === null || frontVal === '') {
+                // User wants to remove the photo
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                updates.push('gn_front_path = ?');
+                values.push(null);
+            } else if (typeof frontVal === 'string' && frontVal.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentFront) {
+                    deleteImageFile(currentFront);
+                }
+                const frontPath = saveBase64Image(frontVal, 'gn_front', user.id);
+                if (frontPath) {
+                    updates.push('gn_front_path = ?');
+                    values.push(frontPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('gn_front_path = ?');
+                values.push(frontVal);
+            }
         }
 
-        const backVal = idCardBack || gnBack;
-        if (backVal !== undefined && backVal !== null) {
-            const backPath = saveBase64Image(backVal, 'officer_back', user.id);
-            updates.push('gn_back_path = ?');
-            values.push(backPath);
+        // ✅ GN Back - Handle remove, update, or keep
+        if (idCardBack !== undefined || gnBack !== undefined) {
+            const currentBack = currentProfile.length > 0 ? currentProfile[0].gn_back_path : null;
+            const backVal = idCardBack !== undefined ? idCardBack : gnBack;
+            
+            if (backVal === null || backVal === '') {
+                // User wants to remove the photo
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                updates.push('gn_back_path = ?');
+                values.push(null);
+            } else if (typeof backVal === 'string' && backVal.startsWith('data:image/')) {
+                // ✅ New photo uploaded (base64) - DELETE OLD PHOTO FIRST
+                if (currentBack) {
+                    deleteImageFile(currentBack);
+                }
+                const backPath = saveBase64Image(backVal, 'gn_back', user.id);
+                if (backPath) {
+                    updates.push('gn_back_path = ?');
+                    values.push(backPath);
+                }
+            } else {
+                // Keep existing path
+                updates.push('gn_back_path = ?');
+                values.push(backVal);
+            }
         }
 
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'No fields to update.' });
+        }
+
+        // Execute update
         values.push(user.id);
         const query = `UPDATE grama_niladhari SET ${updates.join(', ')} WHERE gn_id = ?`;
         
@@ -176,6 +347,7 @@ exports.updateOfficerProfile = async (req, res) => {
             return res.status(404).json({ error: 'Officer not found.' });
         }
 
+        // Fetch updated profile
         const [updatedRows] = await db.query(`
             SELECT 
                 g.gn_id,
@@ -203,6 +375,12 @@ exports.updateOfficerProfile = async (req, res) => {
         `, [user.id]);
 
         const updatedData = updatedRows[0] || {};
+        
+        // Ensure image paths are properly formatted
+        updatedData.profile_photo_path = updatedData.profile_photo_path || null;
+        updatedData.gn_front_path = updatedData.gn_front_path || null;
+        updatedData.gn_back_path = updatedData.gn_back_path || null;
+
         return res.json({
             success: true,
             message: 'Officer profile updated successfully.',
@@ -213,7 +391,10 @@ exports.updateOfficerProfile = async (req, res) => {
         });
     } catch (error) {
         console.error('Error updating officer profile:', error);
-        return res.status(500).json({ error: 'Server error updating profile.' });
+        return res.status(500).json({ 
+            error: 'Server error updating profile.',
+            details: error.message 
+        });
     }
 };
 
@@ -465,7 +646,6 @@ exports.getResidentByNic = async (req, res) => {
 
         const resident = rows[0];
         
-        // ✅ Log all image paths for debugging
         console.log('📸 Resident photo path:', resident.profile_photo_path);
         console.log('📸 NIC Front path:', resident.nic_front_path);
         console.log('📸 NIC Back path:', resident.nic_back_path);
@@ -474,15 +654,12 @@ exports.getResidentByNic = async (req, res) => {
             success: true,
             data: {
                 ...resident,
-                // Profile photo
                 profile_photo_path: resident.profile_photo_path || null,
                 profilePhoto: resident.profile_photo_path || null,
-                // NIC images
                 nic_front_path: resident.nic_front_path || null,
                 nicFront: resident.nic_front_path || null,
                 nic_back_path: resident.nic_back_path || null,
                 nicBack: resident.nic_back_path || null,
-                // Additional aliases for frontend compatibility
                 nic_photo_front: resident.nic_front_path || null,
                 nic_photo_back: resident.nic_back_path || null,
                 front_photo: resident.nic_front_path || null,
@@ -593,21 +770,27 @@ exports.createAnnouncement = async (req, res) => {
 
     const { title, description, type, priority, expiresAt } = req.body;
 
-    if (!title || !description || !type) {
-        return res.status(400).json({ error: 'title, description, and type are required.' });
+    if (!title || !description) {
+        return res.status(400).json({ error: 'title and description are required.' });
     }
 
     try {
         let gnId = null;
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
-            if (officer.length === 0) {
-                return res.status(404).json({ error: 'Officer not found.' });
+            if (officer.length > 0) {
+                gnId = officer[0].gn_id;
+            } else {
+                const [allOfficers] = await db.query('SELECT gn_id FROM grama_niladhari LIMIT 1');
+                if (allOfficers.length > 0) {
+                    gnId = allOfficers[0].gn_id;
+                } else {
+                    return res.status(404).json({ error: 'Officer record not found in database.' });
+                }
             }
-            gnId = officer[0].gn_id;
         } else {
             gnId = user.id;
         }
@@ -615,7 +798,7 @@ exports.createAnnouncement = async (req, res) => {
         const annNumber = generateAnnouncementNumber();
         const today = new Date().toISOString().split('T')[0];
 
-        const annType = type ? type.toUpperCase() : 'GENERAL';
+        const annType = type ? type.toString().trim() : 'General';
         const annPriority = ['LOW', 'MEDIUM', 'HIGH'].includes((priority || '').toUpperCase())
             ? priority.toUpperCase() : 'MEDIUM';
 
@@ -640,7 +823,7 @@ exports.createAnnouncement = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating announcement:', error);
-        return res.status(500).json({ error: 'Server error creating announcement.' });
+        return res.status(500).json({ error: 'Server error creating announcement: ' + error.message });
     }
 };
 
@@ -666,15 +849,15 @@ exports.updateAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only update your own announcements.' });
             }
         }
 
-        const annType = type ? type.toUpperCase() : null;
+        const annType = type ? type.toString().trim() : null;
 
         const updates = [];
         const values = [];
@@ -729,8 +912,8 @@ exports.deleteAnnouncement = async (req, res) => {
 
         if (user.role === 'OFFICER') {
             const [officer] = await db.query(
-                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ?',
-                [user.id]
+                'SELECT gn_id FROM grama_niladhari WHERE gn_id = ? OR email = ? OR username = ?',
+                [user.id, user.email || user.id, user.id]
             );
             if (officer.length > 0 && existing[0].gn_id !== officer[0].gn_id) {
                 return res.status(403).json({ error: 'Access denied. You can only delete your own announcements.' });

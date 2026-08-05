@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import searchIcon from "../../assets/search_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import profileIcon from "../../assets/account_circle_24dp_2D3748_FILL0_wght400_GRAD0_opsz24.svg";
 import { encryptId } from "../../utils/encryption";
+import { getImageUrl } from "../../utils/imageUtils";
+import { getApiUrl } from "../../utils/api";
 
 function ProfileSearchingSection() {
   const navigate = useNavigate();
@@ -73,7 +75,7 @@ function ProfileSearchingSection() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/officer/residents", {
+        const response = await fetch(getApiUrl("/api/officer/residents"), {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",
             "Content-Type": "application/json",
@@ -268,6 +270,16 @@ function ProfileSearchingSection() {
           const displayNic = resident.r_nic || resident.nic || "N/A";
           const displayHousehold = resident.household_number || "N/A";
 
+          // ✅ Resolve profile photo URL
+          const photoPath =
+            resident.profile_photo_path ||
+            resident.profilePhoto ||
+            resident.profile_photo ||
+            resident.photo_path ||
+            resident.photo ||
+            null;
+          const photoUrl = photoPath ? getImageUrl(photoPath) : null;
+
           // ✅ Encrypt NIC for URL
           const encryptedNic = encryptId(displayNic);
 
@@ -278,11 +290,15 @@ function ProfileSearchingSection() {
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center">
-                  {resident.profile_photo_path ? (
+                  {photoUrl ? (
                     <img
-                      src={resident.profile_photo_path}
-                      alt="Resident Photo"
-                      className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0"
+                      src={photoUrl}
+                      alt={displayName}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = profileIcon;
+                      }}
+                      className="w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-full object-cover flex-shrink-0 border border-gray-200"
                     />
                   ) : (
                     <img
@@ -300,15 +316,15 @@ function ProfileSearchingSection() {
                     </span>
                   </div>
                 </div>
-                <div className="flex w-[40%] items-center justify-between">
-                  <div className="ml-[55px] sm:ml-[70px] md:ml-0">
-                    <span className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#2D3748]">
+                <div className="flex flex-col sm:flex-row w-full md:w-auto items-start sm:items-center justify-between gap-2 sm:gap-6 ml-[55px] sm:ml-[70px] md:ml-0">
+                  <div>
+                    <span className="text-sm sm:text-base lg:text-[16px] text-[#2D3748]">
                       Household No: {displayHousehold}
                     </span>
                   </div>
-                  <div className="ml-[55px] sm:ml-[70px] md:ml-0">
+                  <div>
                     <span
-                      className="text-sm sm:text-base md:text-lg lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
+                      className="text-sm sm:text-base lg:text-[16px] text-[#D69E2E] font-medium hover:cursor-pointer hover:underline transition-all duration-200"
                       onClick={() => {
                         // ✅ Navigate with encrypted NIC
                         navigate(

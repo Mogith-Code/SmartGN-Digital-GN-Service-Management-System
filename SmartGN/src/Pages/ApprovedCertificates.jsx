@@ -842,110 +842,132 @@ function ApprovedCertificates({ onOpenHelp }) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-[#F7FAFC]">
+    <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
       <AfterlogNavbar />
-      <div className="flex flex-1 w-full">
-        <RSidebar />
-        <main className="flex-1 p-10 bg-[#F7FAFC] overflow-y-auto relative">
-          <button
-            className="flex items-center gap-1.5 py-2 px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[14px] font-medium cursor-pointer hover:bg-[#f1f5f9] mb-4"
-            onClick={() => navigate("/ResidentDashboard/certificates")}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
+
+      <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
+        <div className="hidden md:block bg-white">
+          <RSidebar />
+        </div>
+
+        <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
+          {/* Back Button - Left aligned on all screens */}
+          <div className="flex justify-start mt-12 sm:mt-14 md:mt-16 lg:mt-[30px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
+            <button
+              className="flex items-center gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 border border-[#cbd5e1] bg-white text-[#475569] rounded-lg text-[13px] sm:text-[14px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#f1f5f9] hover:text-[#1e293b]"
+              onClick={() => navigate("/ResidentDashboard/certificates")}
             >
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            {d.back}
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="sm:w-[16px] sm:h-[16px]"
+              >
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              {d.back}
+            </button>
+          </div>
 
-          <h2 className="text-[26px] font-bold text-[#1B365D] mb-6 text-left">
+          {/* Title */}
+          <div className="flex text-xl sm:text-2xl md:text-3xl lg:text-[24px] font-medium text-[#1B365D] border-b border-[#2D37482D] pb-2 sm:pb-2.5 md:pb-3 lg:pb-[10px] mt-4 sm:mt-5 md:mt-6 lg:mt-[10px] mx-4 sm:mx-5 md:mx-6 lg:mx-[30px]">
             {d.title}
-          </h2>
+          </div>
 
-          {loading ? (
-            <div className="text-center py-20 text-[#64748b] text-[15px] font-medium">
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12 sm:py-16 md:py-20 text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-medium mx-4">
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#1B365D] mx-auto mb-3 sm:mb-4"></div>
               {d.loading}
             </div>
-          ) : error ? (
-            <div className="bg-white border border-red-200 rounded-2xl p-12 text-center">
-              <p className="text-red-500 text-[15px] font-semibold">
+          )}
+
+          {/* Error State */}
+          {!loading && error && (
+            <div className="bg-white border border-red-200 rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center">
+              <p className="text-red-500 text-[13px] sm:text-[14px] md:text-[15px] font-semibold">
                 {d.error}: {error}
               </p>
               <button
                 onClick={loadApproved}
-                className="mt-4 py-2 px-6 bg-[#1B365D] text-white rounded-lg text-[14px] font-semibold hover:bg-[#005BBD]"
+                className="mt-3 sm:mt-4 py-1.5 sm:py-2 px-4 sm:px-6 bg-[#1B365D] text-white rounded-lg text-[12px] sm:text-[13px] md:text-[14px] font-semibold hover:bg-[#005BBD] transition-colors"
               >
                 {d.retry}
               </button>
             </div>
-          ) : approvedList.length === 0 ? (
-            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-2xl p-12 text-center text-[#64748b] text-[15px] font-semibold shadow-sm">
+          )}
+
+          {/* No Approved Requests */}
+          {!loading && !error && approvedList.length === 0 && (
+            <div className="bg-white border border-dashed border-[#cbd5e1] rounded-xl sm:rounded-2xl p-8 sm:p-10 md:p-12 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px] text-center text-[#64748b] text-[13px] sm:text-[14px] md:text-[15px] font-semibold shadow-sm">
               {d.noApproved}
-              <div className="mt-4 text-[13px] font-normal">{d.applyHint}</div>
+              <div className="mt-3 sm:mt-4 text-[12px] sm:text-[13px] font-normal">
+                {d.applyHint}
+              </div>
             </div>
-          ) : (
-            <div className="flex flex-col gap-4">
+          )}
+
+          {/* Approved Requests List */}
+          {!loading && !error && approvedList.length > 0 && (
+            <div className="flex flex-col gap-3 sm:gap-4 mx-3 sm:mx-4 md:mx-5 lg:mx-[30px] my-4 sm:my-5 md:my-[30px]">
               {approvedList.map((item) => {
                 const details = item.details || {};
                 return (
                   <div
                     key={item.request_id || item.id}
-                    className="rounded-2xl p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-4 bg-[#f0fdf4] border-[1.5px] border-[#bbf7d0]"
+                    className="rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center hover:shadow-[0_6px_18px_rgba(0,0,0,0.05)] transition-all duration-200 gap-3 sm:gap-4 bg-[#f0fdf4] border-[1.5px] border-[#bbf7d0]"
                   >
-                    <div className="text-left max-w-full md:max-w-[70%] font-sans">
-                      <h4 className="text-[16px] font-bold text-[#1B365D] mb-3">
+                    <div className="text-left w-full md:max-w-[70%] font-sans">
+                      <h4 className="text-[14px] sm:text-[15px] md:text-[16px] font-bold text-[#1B365D] mb-2 sm:mb-3 break-words">
                         {item.certificate_type === "INCOME"
                           ? "Income Certificate"
                           : "Character Certificate"}
                       </h4>
-                      <div className="flex flex-col gap-1 text-[13.5px]">
-                        <div>
+                      <div className="flex flex-col gap-0.5 sm:gap-1 text-[12px] sm:text-[13px] md:text-[13.5px]">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                           <span className="text-[#475569] font-medium">
-                            {d.requestedDate}:{" "}
+                            {d.requestedDate}:
                           </span>
-                          <span className="text-[#1e293b] font-semibold">
+                          <span className="text-[#1e293b] font-semibold break-words">
                             {item.request_date || "N/A"}
                           </span>
                         </div>
-                        <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-1">
                           <span className="text-[#475569] font-medium">
-                            {d.purpose}:{" "}
+                            {d.purpose}:
                           </span>
-                          <span className="text-[#1e293b] font-semibold">
+                          <span className="text-[#1e293b] font-semibold break-words">
                             {item.purpose || details.purpose || "N/A"}
                           </span>
                         </div>
-                        <div className="mt-2 flex items-center gap-1.5">
+                        <div className="mt-1 sm:mt-2 flex flex-wrap items-center gap-1.5 sm:gap-2">
                           <span className="text-[#475569] font-medium">
-                            {d.certificateNo}:{" "}
+                            {d.certificateNo}:
                           </span>
-                          <span className="bg-green-100 text-green-800 font-bold px-2.5 py-0.5 rounded text-[12.5px] tracking-wide">
+                          <span className="bg-green-100 text-green-800 font-bold px-2 sm:px-2.5 py-0.5 rounded text-[11px] sm:text-[12px] md:text-[12.5px] tracking-wide">
                             {item.certificate_number || "N/A"}
                           </span>
                         </div>
                         {item.issued_date && (
-                          <div className="text-[12px] text-[#64748b]">
+                          <div className="text-[11px] sm:text-[12px] text-[#64748b]">
                             <span className="font-medium">{d.issuedDate}:</span>{" "}
                             {item.issued_date}
                           </div>
                         )}
                         {item.expiry_date && (
-                          <div className="text-[12px] text-[#64748b]">
+                          <div className="text-[11px] sm:text-[12px] text-[#64748b]">
                             <span className="font-medium">{d.expiryDate}:</span>{" "}
                             {item.expiry_date}
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-start md:items-end gap-3 self-stretch md:self-auto">
-                      <span className="text-[13px] font-semibold text-[#64748b]">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full md:w-auto">
+                      <span className="text-[11px] sm:text-[12px] md:text-[13px] font-semibold text-[#64748b] whitespace-nowrap">
                         {d.approvedDate}:{" "}
                         {item.approved_at
                           ? new Date(item.approved_at).toLocaleDateString()
@@ -953,15 +975,16 @@ function ApprovedCertificates({ onOpenHelp }) {
                       </span>
                       <button
                         onClick={() => handleDownload(item)}
-                        className="flex items-center gap-1.5 py-2 px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-xs font-semibold cursor-pointer transition-all duration-200 shadow-sm"
+                        className="flex items-center gap-1 sm:gap-1.5 py-1.5 sm:py-2 px-3 sm:px-4 bg-[#1B365D] text-white hover:bg-[#005BBD] rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer transition-all duration-200 shadow-sm w-full sm:w-auto justify-center"
                       >
                         <svg
-                          width="14"
-                          height="14"
+                          width="12"
+                          height="12"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="2.5"
+                          className="sm:w-[14px] sm:h-[14px]"
                         >
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                           <polyline points="7 10 12 15 17 10"></polyline>
@@ -977,59 +1000,60 @@ function ApprovedCertificates({ onOpenHelp }) {
           )}
 
           <ChatbotButton onOpenHelp={onOpenHelp} />
-        </main >
-      </div >
-    <Footer />
-
-  {
-    isPreviewOpen && selectedCert && (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-8 border border-slate-200">
-          <div className="bg-[#1B365D] text-white py-4 px-6 flex justify-between items-center font-sans">
-            <span className="font-bold text-[16px] tracking-wide">
-              Approved Official Document
-            </span>
-            <button
-              onClick={() => setIsPreviewOpen(false)}
-              className="text-white/80 hover:text-white bg-transparent border-0 cursor-pointer text-xl font-bold"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="p-8 md:p-12 overflow-y-auto bg-slate-100 flex-1 max-h-[70vh]">
-            {renderCertificateContent(selectedCert)}
-          </div>
-          <div className="bg-slate-50 border-t border-slate-200 py-3 px-6 flex justify-end gap-3 font-sans">
-            <button
-              onClick={() => setIsPreviewOpen(false)}
-              className="py-2 px-5 bg-slate-200 hover:bg-slate-300 text-[#475569] border-0 rounded-lg text-[13px] font-bold cursor-pointer"
-            >
-              Close
-            </button>
-            <button
-              onClick={handlePrint}
-              className="py-2 px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-lg text-[13px] font-bold cursor-pointer shadow-sm flex items-center gap-1.5"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-              >
-                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-              </svg>
-              Print / Save as PDF
-            </button>
-          </div>
         </div>
       </div>
-    )
-  }
-    </div >
+
+      <Footer />
+
+      {/* Preview Modal */}
+      {isPreviewOpen && selectedCert && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-4 sm:my-8 border border-slate-200">
+            <div className="bg-[#1B365D] text-white py-3 sm:py-4 px-4 sm:px-6 flex justify-between items-center font-sans">
+              <span className="font-bold text-[14px] sm:text-[16px] tracking-wide">
+                Approved Official Document
+              </span>
+              <button
+                onClick={() => setIsPreviewOpen(false)}
+                className="text-white/80 hover:text-white bg-transparent border-0 cursor-pointer text-lg sm:text-xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto bg-slate-100 flex-1 max-h-[60vh] sm:max-h-[70vh]">
+              {renderCertificateContent(selectedCert)}
+            </div>
+            <div className="bg-slate-50 border-t border-slate-200 py-2.5 sm:py-3 px-4 sm:px-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 font-sans">
+              <button
+                onClick={() => setIsPreviewOpen(false)}
+                className="py-1.5 sm:py-2 px-4 sm:px-5 bg-slate-200 hover:bg-slate-300 text-[#475569] border-0 rounded-lg text-[12px] sm:text-[13px] font-bold cursor-pointer transition-all duration-200 w-full sm:w-auto"
+              >
+                Close
+              </button>
+              <button
+                onClick={handlePrint}
+                className="py-1.5 sm:py-2 px-4 sm:px-6 bg-emerald-600 hover:bg-emerald-700 text-white border-0 rounded-lg text-[12px] sm:text-[13px] font-bold cursor-pointer shadow-sm flex items-center justify-center gap-1.5 transition-all duration-200 w-full sm:w-auto"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  className="sm:w-[14px] sm:h-[14px]"
+                >
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Print / Save as PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

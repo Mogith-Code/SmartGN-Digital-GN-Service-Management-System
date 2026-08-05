@@ -21,7 +21,6 @@ function RAppointment({ onOpenHelp }) {
   // Fetch counts when component mounts
   useEffect(() => {
     const fetchCounts = async () => {
-      // Check if token exists
       if (!token) {
         console.log("No token found, user might not be logged in");
         setLoading(false);
@@ -39,7 +38,6 @@ function RAppointment({ onOpenHelp }) {
         });
 
         if (!response.ok) {
-          // Handle specific error cases
           if (response.status === 401 || response.status === 403) {
             throw new Error("Authentication failed. Please login again.");
           }
@@ -47,8 +45,6 @@ function RAppointment({ onOpenHelp }) {
         }
 
         const data = await response.json();
-
-        // Update state with the counts
         setPendingCount(data.pending || 0);
         setApprovedCount(data.approved || 0);
 
@@ -65,13 +61,11 @@ function RAppointment({ onOpenHelp }) {
     };
 
     fetchCounts();
-  }, [token]); // Re-run if token changes
+  }, [token]);
 
   // EFFECT 2: Fetch all appointments (for calendar and display)
-  // ============================================================
   useEffect(() => {
     const fetchAppointments = async () => {
-      // Check if token exists
       if (!token) {
         console.log("No token found, user might not be logged in");
         setLoading(false);
@@ -102,9 +96,7 @@ function RAppointment({ onOpenHelp }) {
         const data = await response.json();
 
         if (data.success) {
-          // Update state with appointments
           setAppointments(data.appointments || []);
-
           console.log("Appointments fetched:", {
             total: data.appointments?.length || 0,
             pending: data.counts?.pending || 0,
@@ -124,7 +116,6 @@ function RAppointment({ onOpenHelp }) {
     fetchAppointments();
   }, [token, residentNic]);
 
-  // Show loading state
   if (loading) {
     return (
       <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
@@ -132,7 +123,9 @@ function RAppointment({ onOpenHelp }) {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D69E2E] mx-auto"></div>
-            <p className="mt-4 text-[#1B365D]">Loading appointments...</p>
+            <p className="mt-4 text-[#1B365D] text-sm sm:text-base">
+              Loading appointments...
+            </p>
           </div>
         </div>
         <Footer />
@@ -140,26 +133,19 @@ function RAppointment({ onOpenHelp }) {
     );
   }
 
-  // Show error state (optional - you can also just show the page with zeros)
   if (error) {
-    // You might want to show a toast notification instead
     console.error("Appointment error:", error);
-    // Continue rendering with zero counts
   }
 
   return (
     <div className="w-full min-h-screen bg-[#F7FAFC] text-[#2D3748] flex flex-col">
-      {/* Navbar */}
       <AfterlogNavbar />
 
-      {/* Main Content Area */}
       <div className="flex flex-1 flex-col md:flex-row gap-0 md:gap-[20px]">
-        {/* Sidebar - Hidden on mobile, visible on md and up */}
         <div className="hidden md:block bg-white">
           <RSidebar />
         </div>
 
-        {/* Main Content - Pass counts as props */}
         <div className="w-full bg-white border-l-0 md:border-l border-[#2D37482D]">
           <AppointmentLayoutPage
             pendingCount={pendingCount}
@@ -169,10 +155,7 @@ function RAppointment({ onOpenHelp }) {
         </div>
       </div>
 
-      {/* Floating Help Trigger */}
       <ChatbotButton onOpenHelp={onOpenHelp} />
-
-      {/* Footer */}
       <Footer />
     </div>
   );

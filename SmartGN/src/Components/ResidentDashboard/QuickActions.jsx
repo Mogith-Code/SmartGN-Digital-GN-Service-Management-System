@@ -50,7 +50,7 @@ function QuickActions() {
       title: t.Card2Title,
       icon: appointmentIcon,
       alt: "appointment icon",
-      route: "/ResidentDashboard/RAppointment/BookingForm",
+      route: "/ResidentDashboard/Bookingform",
     },
     {
       id: 3,
@@ -69,27 +69,66 @@ function QuickActions() {
   ];
 
   return (
-    <div className="flex flex-col gap-[20px] items-center justify-center">
+    <div className="flex flex-col gap-[20px] items-center justify-center w-full">
       <span className="text-[#1B365D] text-[20px] font-medium">{t.title}</span>
-      <div className="grid grid-cols-2 gap-[20px]">
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[10px] sm:gap-[20px] w-full">
         {cards.map((card) => (
           <button
             key={card.id}
-            className="bg-[#FFFFFF] flex items-center justify-center p-[15px] rounded-[15px] shadow-[0px_2px_5px_rgba(0,0,0,0.2)] hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] hover:scale-102 transition-all duration-100 cursor-pointer"
+            className="
+              bg-[#FFFFFF] 
+              flex items-center justify-center 
+              p-[10px] sm:p-[15px] 
+              rounded-[10px] sm:rounded-[15px] 
+              shadow-[0px_2px_5px_rgba(0,0,0,0.2)] 
+              hover:shadow-[0px_5px_15px_rgba(0,0,0,0.15)] 
+              hover:scale-102 
+              transition-all duration-100 
+              cursor-pointer
+              w-full
+              min-h-[50px] sm:min-h-[unset]
+            "
             onClick={() => {
               navigate(card.route);
             }}
           >
-            <div className="flex items-center justify-between  w-full">
-              <div className="flex gap-[10px] items-center">
-                <img src={card.icon} alt={card.alt} className="h-[20px]" />
-                <span className="text-[16px] text-[#2D3748]">{card.title}</span>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex gap-[6px] sm:gap-[10px] items-center flex-1 min-w-0">
+                <img
+                  src={card.icon}
+                  alt={card.alt}
+                  className="
+                    w-[18px] h-[18px] 
+                    sm:w-[20px] sm:h-[20px]
+                    flex-shrink-0
+                  "
+                />
+                <span
+                  className="
+                  text-[12px] 
+                  sm:text-[16px] 
+                  text-[#2D3748] 
+                  text-left
+                  leading-tight
+                  sm:leading-normal
+                  break-words
+                "
+                >
+                  {card.title}
+                </span>
               </div>
 
               <img
                 src={arrowIcon}
                 alt="arrowIcon"
-                className="ml-[10px] h-[16px] w-[20px] opacity-[50%]"
+                className="
+                  w-[16px] h-[14px] 
+                  sm:w-[20px] sm:h-[16px]
+                  opacity-[50%] 
+                  flex-shrink-0
+                  ml-0.5 sm:ml-[10px]
+                "
               />
             </div>
           </button>
