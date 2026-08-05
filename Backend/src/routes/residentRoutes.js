@@ -8,10 +8,11 @@ const { authenticateToken } = require('../middleware/auth');
 router.use(authenticateToken);
 
 // ============================================================
-// PROFILE
+// PROFILE & GN OFFICER
 // ============================================================
 router.get('/profile', authenticateToken, residentController.getProfile);
 router.put('/profile', authenticateToken, residentController.updateProfile);
+router.get('/gn-officer', authenticateToken, residentController.getAssignedGnOfficer);
 
 // ============================================================
 // DASHBOARD STATS
