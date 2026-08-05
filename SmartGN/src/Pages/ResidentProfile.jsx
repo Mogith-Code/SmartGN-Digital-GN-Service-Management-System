@@ -25,6 +25,21 @@ function ResidentProfile({ onOpenHelp }) {
       updateSuccess: "Profile updated successfully!",
       updateError: "Failed to update profile. Please try again.",
       fillRequired: "Please fill in all required fields.",
+      gnCardTitle: "Your Assigned Grama Niladhari (GN Officer)",
+      gnBadge: "Official Division Officer",
+      gnNameLabel: "Officer Name",
+      gnIdLabel: "GN Officer ID",
+      gnDivisionLabel: "Gramaseva Division",
+      gnMobileLabel: "Contact Mobile",
+      gnEmailLabel: "Email Address",
+      gnSecretariatLabel: "Divisional Secretariat",
+      gnDistrictLabel: "District & Province",
+      bookAppointmentBtn: "Book Appointment",
+      callOfficerBtn: "Call Officer",
+      emailOfficerBtn: "Send Email",
+      noOfficerFound: "No GN Officer registered for your division yet.",
+      noOfficerSubtext: "For official assistance or inquiries, please contact your local Divisional Secretariat.",
+      copied: "Copied!",
     },
     SI: {
       alert:
@@ -34,6 +49,21 @@ function ResidentProfile({ onOpenHelp }) {
       updateError:
         "පැතිකඩ යාවත්කාලීන කිරීමට අසමත් විය. කරුණාකර නැවත උත්සාහ කරන්න.",
       fillRequired: "කරුණාකර සියලු අවශ්‍ය ක්ෂේත්‍ර පුරවන්න.",
+      gnCardTitle: "ඔබගේ පවරන ලද ග්‍රාම නිලධාරී තොරතුරු",
+      gnBadge: "නිල කොට්ඨාස නිලධාරී",
+      gnNameLabel: "නිලධාරියාගේ නම",
+      gnIdLabel: "ග්‍රාම නිලධාරී අංකය",
+      gnDivisionLabel: "ග්‍රාම නිලධාරී කොට්ඨාසය",
+      gnMobileLabel: "දුරකථන අංකය",
+      gnEmailLabel: "විද්‍යුත් තැපෑල",
+      gnSecretariatLabel: "ප්‍රාදේශීය ලේකම් කාර්යාලය",
+      gnDistrictLabel: "දිස්ත්‍රික්කය සහ පළාත",
+      bookAppointmentBtn: "වේලාවක් වෙන්කර ගන්න",
+      callOfficerBtn: "ඇමතුමක් ලබා ගන්න",
+      emailOfficerBtn: "විද්‍යුත් තැපෑලක් යවන්න",
+      noOfficerFound: "ඔබගේ කොට්ඨාසයට තවම ග්‍රාම නිලධාරියෙකු ලියාපදිංචි වී නොමැත.",
+      noOfficerSubtext: "නිල සහාය සඳහා, කරුණාකර ඔබගේ ප්‍රාදේශීය ලේකම් කාර්යාලය අමතන්න.",
+      copied: "පිටපත් විය!",
     },
     TA: {
       alert:
@@ -43,6 +73,21 @@ function ResidentProfile({ onOpenHelp }) {
       updateError:
         "சுயவிவரத்தை புதுப்பிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
       fillRequired: "தயவுசெய்து தேவையான அனைத்து புலங்களையும் நிரப்பவும்.",
+      gnCardTitle: "உங்கள் நியமிக்கப்பட்ட கிராம நிலதாரி விவரங்கள்",
+      gnBadge: "அதிகாரப்பூர்வ பிரிவு அதிகாரி",
+      gnNameLabel: "அதிகாரியின் பெயர்",
+      gnIdLabel: "கி.நி. அடையாள எண்",
+      gnDivisionLabel: "கிராம நிலதாரி பிரிவு",
+      gnMobileLabel: "தொடர்பு எண்",
+      gnEmailLabel: "மின்னஞ்சல் முகவரி",
+      gnSecretariatLabel: "பிரதேச செயலகம்",
+      gnDistrictLabel: "மாவட்டம் மற்றும் மாகாணம்",
+      bookAppointmentBtn: "சந்திப்பை பதிவு செய்க",
+      callOfficerBtn: "அழைக்கவும்",
+      emailOfficerBtn: "மின்னஞ்சல் அனுப்பவும்",
+      noOfficerFound: "உங்கள் பிரிவுக்கு இன்னும் கிராம நிலதாரி பதிவு செய்யப்படவில்லை.",
+      noOfficerSubtext: "அதிகாரப்பூர்வ உதவிக்கு, தயவுசெய்து உங்கள் பிரதேச செயலகத்தை தொடர்பு கொள்ளவும்.",
+      copied: "நகலெடுக்கப்பட்டது!",
     },
   };
 
@@ -72,6 +117,19 @@ function ResidentProfile({ onOpenHelp }) {
 
   // View modes: 'VIEW' | 'EDIT'
   const [viewMode, setViewMode] = useState("VIEW");
+
+  // Assigned GN Officer State
+  const [gnOfficer, setGnOfficer] = useState(null);
+  const [gnLoading, setGnLoading] = useState(true);
+  const [copiedField, setCopiedField] = useState(null);
+
+  const handleCopyText = (text, fieldName) => {
+    if (navigator.clipboard && text) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
 
   const [profile, setProfile] = useState({
     firstName: "",
@@ -145,6 +203,9 @@ function ResidentProfile({ onOpenHelp }) {
             nicBack: data.nic_back_path || null,
           };
           setProfile(mapped);
+          if (data.gn_officer) {
+            setGnOfficer(data.gn_officer);
+          }
           localStorage.setItem(
             "smartgn_resident_profile",
             JSON.stringify(mapped),
@@ -161,6 +222,27 @@ function ResidentProfile({ onOpenHelp }) {
     };
 
     fetchProfile();
+
+    const fetchGnOfficer = async () => {
+      try {
+        setGnLoading(true);
+        const res = await fetch("/api/residents/gn-officer", {
+          headers: getAuthHeaders(),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.gn_officer) {
+            setGnOfficer(data.gn_officer);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch GN officer details:", err);
+      } finally {
+        setGnLoading(false);
+      }
+    };
+
+    fetchGnOfficer();
 
     const fetchFamilyCount = async () => {
       try {
@@ -708,6 +790,183 @@ function ResidentProfile({ onOpenHelp }) {
                       )}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* ── Assigned Grama Niladhari (GN Officer) Card ── */}
+              <div className="mx-3 sm:mx-4 md:mx-6 lg:mx-8 xl:mx-[30px] mb-6 sm:mb-8">
+                <div className="border border-[#1B365D2D] rounded-xl sm:rounded-2xl bg-gradient-to-br from-white via-[#f8fafc] to-[#edf2f7] p-4 sm:p-5 md:p-6 text-left shadow-[0px_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0px_6px_20px_rgba(0,0,0,0.12)] transition-all duration-300">
+                  
+                  {/* Card Header */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-[#cbd5e1] pb-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-[#1B365D] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                        🏛️
+                      </div>
+                      <h3 className="m-0 text-[15px] sm:text-[17px] md:text-[18px] font-bold text-[#1B365D]">
+                        {t.gnCardTitle}
+                      </h3>
+                    </div>
+                    {gnOfficer ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#dcfce7] border border-[#86efac] text-[#166534] text-[11px] sm:text-[12px] font-semibold rounded-full shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
+                        {t.gnBadge} ({gnOfficer.status || "Active"})
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#fef3c7] border border-[#fde68a] text-[#b45309] text-[11px] sm:text-[12px] font-semibold rounded-full">
+                        ⚠️ Pending Officer Assignment
+                      </span>
+                    )}
+                  </div>
+
+                  {gnLoading ? (
+                    <div className="py-6 flex items-center justify-center text-[#64748b] text-sm">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-[#1B365D]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Loading GN officer details...
+                    </div>
+                  ) : gnOfficer ? (
+                    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                      
+                      {/* Officer Info Block */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
+                        <div className="relative flex-shrink-0">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#1B365D] shadow-md bg-[#e2e8f0] flex items-center justify-center">
+                            {gnOfficer.profile_photo_path ? (
+                              <img
+                                src={getImageUrl(gnOfficer.profile_photo_path)}
+                                alt="GN Officer"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = profileIcon;
+                                }}
+                              />
+                            ) : (
+                              <img
+                                src={profileIcon}
+                                alt="Default GN avatar"
+                                className="w-full h-full object-cover p-2"
+                              />
+                            )}
+                          </div>
+                          <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-[#22c55e] border-2 border-white shadow-xs" title="Active Officer"></span>
+                        </div>
+
+                        <div className="flex flex-col gap-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="m-0 text-base sm:text-lg md:text-[19px] font-bold text-[#1B365D]">
+                              {gnOfficer.full_name || `${gnOfficer.first_name || ""} ${gnOfficer.last_name || ""}`}
+                            </h4>
+                            <span className="bg-[#1B365D15] text-[#1B365D] text-[11px] px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider border border-[#1B365D33]">
+                              {gnOfficer.gn_id || "GN Officer"}
+                            </span>
+                          </div>
+                          <p className="m-0 text-[12px] sm:text-[13px] font-medium text-[#d97706]">
+                            Grama Niladhari Officer - {gnOfficer.division_name || profile.division}
+                          </p>
+                          {gnOfficer.division_code && (
+                            <p className="m-0 text-[11px] text-[#64748b] font-mono">
+                              Division Code: <span className="font-semibold text-[#1e293b]">{gnOfficer.division_code}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Contact Details Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto bg-white p-3.5 sm:p-4 rounded-xl border border-[#e2e8f0] shadow-xs">
+                        {/* Mobile Number */}
+                        <div className="flex flex-col">
+                          <span className="text-[10px] sm:text-[11px] text-[#64748b] font-bold uppercase tracking-wide">
+                            {t.gnMobileLabel}:
+                          </span>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <a
+                              href={`tel:${gnOfficer.mobile}`}
+                              className="text-[13px] sm:text-[14px] font-bold text-[#2563eb] hover:underline flex items-center gap-1.5"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                              </svg>
+                              {gnOfficer.mobile || "N/A"}
+                            </a>
+                            {gnOfficer.mobile && (
+                              <button
+                                onClick={() => handleCopyText(gnOfficer.mobile, "mobile")}
+                                className="text-[10px] text-[#64748b] hover:text-[#1B365D] bg-[#f1f5f9] px-1.5 py-0.5 rounded border border-[#cbd5e1]"
+                                title="Copy Mobile Number"
+                              >
+                                {copiedField === "mobile" ? t.copied : "Copy"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Email Address */}
+                        <div className="flex flex-col">
+                          <span className="text-[10px] sm:text-[11px] text-[#64748b] font-bold uppercase tracking-wide">
+                            {t.gnEmailLabel}:
+                          </span>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <a
+                              href={`mailto:${gnOfficer.email}`}
+                              className="text-[13px] sm:text-[14px] font-bold text-[#2563eb] hover:underline truncate max-w-[180px] sm:max-w-[200px] flex items-center gap-1.5"
+                              title={gnOfficer.email}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                              </svg>
+                              {gnOfficer.email || "N/A"}
+                            </a>
+                            {gnOfficer.email && (
+                              <button
+                                onClick={() => handleCopyText(gnOfficer.email, "email")}
+                                className="text-[10px] text-[#64748b] hover:text-[#1B365D] bg-[#f1f5f9] px-1.5 py-0.5 rounded border border-[#cbd5e1] flex-shrink-0"
+                                title="Copy Email"
+                              >
+                                {copiedField === "email" ? t.copied : "Copy"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Divisional Secretariat */}
+                        <div className="flex flex-col sm:col-span-2 border-t border-[#f1f5f9] pt-2 mt-1">
+                          <span className="text-[10px] sm:text-[11px] text-[#64748b] font-bold uppercase tracking-wide">
+                            {t.gnSecretariatLabel} & Location:
+                          </span>
+                          <span className="text-[12px] sm:text-[13px] font-semibold text-[#1e293b]">
+                            {gnOfficer.divisional_secretariat || "Divisional Secretariat Office"}
+                            {(gnOfficer.district || gnOfficer.province) && (
+                              <span className="text-[#64748b] font-normal">
+                                {" "}• {gnOfficer.district || ""}{gnOfficer.province ? `, ${gnOfficer.province}` : ""}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
+                  ) : (
+                    /* Fallback when no officer is found in database for division */
+                    <div className="p-4 sm:p-5 bg-white border border-[#fde68a] rounded-xl flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#fef3c7] text-[#d97706] flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        ℹ️
+                      </div>
+                      <div>
+                        <h4 className="m-0 text-sm sm:text-base font-bold text-[#92400e]">
+                          {t.noOfficerFound}
+                        </h4>
+                        <p className="m-0 text-xs text-[#b45309] mt-1">
+                          Division: <span className="font-bold text-[#1e293b]">{profile.division || "Assigned Division"}</span>. {t.noOfficerSubtext}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </>

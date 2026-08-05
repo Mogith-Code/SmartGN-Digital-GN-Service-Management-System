@@ -157,10 +157,94 @@ exports.getProfile = async (req, res) => {
         result.nic_front_path = result.nic_front_path || null;
         result.nic_back_path = result.nic_back_path || null;
 
+        // Fetch assigned GN officer for this resident's division
+        let gnOfficer = null;
+        if (result.division_id) {
+            const [gnRows] = await db.query(`
+                SELECT 
+                    g.gn_id,
+                    g.first_name,
+                    g.last_name,
+                    COALESCE(g.full_name, CONCAT(g.first_name, ' ', g.last_name)) AS full_name,
+                    g.email,
+                    g.mobile,
+                    g.profile_photo_path,
+                    g.status,
+                    d.name AS division_name,
+                    d.division_code,
+                    d.district,
+                    d.province,
+                    d.divisional_secretariat
+                FROM grama_niladhari g
+                LEFT JOIN gn_division d ON g.division_id = d.division_id
+                WHERE g.division_id = ? AND g.status = 'Active'
+                LIMIT 1
+            `, [result.division_id]);
+
+            if (gnRows.length > 0) {
+                gnOfficer = gnRows[0];
+            }
+        }
+        result.gn_officer = gnOfficer;
+
         return res.json(result);
     } catch (error) {
         console.error('Error fetching resident profile:', error);
         return res.status(500).json({ error: 'Server error fetching profile.' });
+    }
+};
+
+// ============================================================
+// GET ASSIGNED GN OFFICER
+// ============================================================
+exports.getAssignedGnOfficer = async (req, res) => {
+    const user = req.user;
+    
+    if (!user || user.role !== 'RESIDENT') {
+        return res.status(403).json({ error: 'Access denied. Residents only.' });
+    }
+
+    try {
+        const [residentRows] = await db.query(
+            'SELECT division_id FROM resident WHERE r_nic = ? OR email = ?',
+            [user.id, user.email || user.id]
+        );
+
+        if (residentRows.length === 0 || !residentRows[0].division_id) {
+            return res.status(404).json({ error: 'Resident division not found.' });
+        }
+
+        const divisionId = residentRows[0].division_id;
+
+        const [gnRows] = await db.query(`
+            SELECT 
+                g.gn_id,
+                g.first_name,
+                g.last_name,
+                COALESCE(g.full_name, CONCAT(g.first_name, ' ', g.last_name)) AS full_name,
+                g.email,
+                g.mobile,
+                g.profile_photo_path,
+                g.status,
+                d.name AS division_name,
+                d.division_code,
+                d.district,
+                d.province,
+                d.divisional_secretariat
+            FROM grama_niladhari g
+            LEFT JOIN gn_division d ON g.division_id = d.division_id
+            WHERE g.division_id = ? AND g.status = 'Active'
+            LIMIT 1
+        `, [divisionId]);
+
+        if (gnRows.length === 0) {
+            return res.json({ message: 'No active GN Officer assigned to your division yet.', gn_officer: null });
+        }
+
+        return res.json({ gn_officer: gnRows[0] });
+    } catch (error) {
+        console.error('Error fetching assigned GN officer:', error);
+        return res.status(500).json({ error: 'Server error fetching assigned GN officer.' });
     }
 };
 
