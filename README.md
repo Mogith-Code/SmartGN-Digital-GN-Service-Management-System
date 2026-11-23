@@ -5,6 +5,12 @@ It enables Grama Niladhari officers and community members to access and manage s
 
 ---
 
+## Live Demo
+
+[Open the live demo](https://smartgn-digital-gn-service-management-shup.onrender.com/)
+
+---
+
 ## Project Overview
 
 SmartGN provides a centralized platform where residents and Grama Niladhari officers can interact digitally.
@@ -112,74 +118,92 @@ This platform reduces paperwork and improves accessibility for village-level adm
 ## 📁 Project Structure
 
 ```text
-smartgn/
-├── client/                    # React Frontend
-│
-├── public/
-│   └── favicon.ico
-│
-├── src/
-│   ├── assets/                # Images, icons, fonts
-│   ├── components/            # Reusable UI Components
-│   │   ├── common/
-│   │   ├── layout/
-│   │   └── chatbot/
-│   │
-│   ├── context/
-│   │   ├── AuthContext.jsx
-│   │   └── LangContext.jsx
-│   │
-│   ├── hooks/
-│   │   ├── useAuth.js
-│   │   └── useFetch.js
-│   │
-│   ├── i18n/
-│   │   ├── en.json
-│   │   ├── si.json
-│   │   └── ta.json
-│   │
-│   ├── pages/
-│   │   ├── auth/
-│   │   ├── resident/
-│   │   ├── gn/
-│   │   └── admin/
-│   │
-│   ├── routes/
-│   │   ├── AppRouter.jsx
-│   │   └── ProtectedRoute.jsx
-│   │
-│   ├── services/
-│   │   ├── api.js
-│   │   ├── authService.js
-│   │   ├── certificateService.js
-│   │   ├── appointmentService.js
-│   │   ├── allowanceService.js
-│   │   └── disasterService.js
-│   │
-│   ├── utils/
-│   │   ├── formatDate.js
-│   │   └── validators.js
-│   │
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-│
-├── server/                    # Node.js + Express Backend
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── utils/
+SmartGN-Digital-GN-Service-Management-System/
+├── Backend/                         # Node.js + Express API
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── cors.js
+│   │   │   └── database.js
+│   │   ├── controllers/
+│   │   │   ├── allowanceController.js
+│   │   │   ├── appointmentController.js
+│   │   │   ├── authController.js
+│   │   │   ├── certificateController.js
+│   │   │   ├── chatController.js
+│   │   │   ├── disasterController.js
+│   │   │   ├── officerController.js
+│   │   │   └── residentController.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js
+│   │   │   ├── errorHandler.js
+│   │   │   └── validation.js
+│   │   ├── models/
+│   │   │   ├── Certificate.js
+│   │   │   ├── Officer.js
+│   │   │   └── Resident.js
+│   │   ├── routes/
+│   │   │   ├── allowanceRoutes.js
+│   │   │   ├── announcementRoutes.js
+│   │   │   ├── appointmentRoutes.js
+│   │   │   ├── authRoutes.js
+│   │   │   ├── certificateRoutes.js
+│   │   │   ├── chatRoutes.js
+│   │   │   ├── disasterRoutes.js
+│   │   │   ├── officerRoutes.js
+│   │   │   └── residentRoutes.js
+│   │   ├── seed/
+│   │   │   └── seedGnDivisions.js
+│   │   └── utils/
+│   │       ├── emailService.js
+│   │       ├── fileUpload.js
+│   │       ├── generateToken.js
+│   │       ├── hashPassword.js
+│   │       ├── helpers.js
+│   │       └── validators.js
 │   ├── uploads/
-│   ├── app.js
-│   ├── server.js
-│   └── package.json
+│   │   └── gn_profile/
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── package.json
+│   ├── package-lock.json
+│   └── server.js
 │
-├── docs/                      # Project Documentation
-├── README.md
+├── SmartGN/                         # Vite + React frontend
+│   ├── public/
+│   │   ├── _redirects
+│   │   └── favicon.png
+│   ├── src/
+│   │   ├── assets/                  # Images, icons, and documents
+│   │   ├── Components/              # Reusable UI components
+│   │   │   ├── AppointmentsPage/
+│   │   │   ├── Common/
+│   │   │   ├── Family&HouseholdPage/
+│   │   │   ├── LandingPage/
+│   │   │   ├── OfficerDashboard.jsx/
+│   │   │   ├── ResidentDashboard/
+│   │   │   └── ResidentsDetails/
+│   │   ├── Pages/                   # Application pages
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── utils/
+│   │   │   ├── api.js
+│   │   │   ├── encryption.js
+│   │   │   ├── imageUtils.js
+│   │   │   ├── notifications.js
+│   │   │   └── translate.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   └── vite.config.js
+│
 ├── .gitignore
-└── package.json
+├── README.md
+└── render.yaml
 ```
 
 ## 👥 Team Collaboration
