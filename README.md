@@ -5,6 +5,12 @@ It enables Grama Niladhari officers and community members to access and manage s
 
 ---
 
+## Live Demo
+
+[Open the live demo](https://smartgn-digital-gn-service-management-shup.onrender.com/)
+
+---
+
 ## Project Overview
 
 SmartGN provides a centralized platform where residents and Grama Niladhari officers can interact digitally.
